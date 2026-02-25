@@ -1,0 +1,19 @@
+<h2>Products</h2>
+
+<a href="/products/new">Add Product</a>
+
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+    </tr>
+
+    <tr th:each="product : ${products}">
+        <td>[[${product.name}]]</td>
+        <td>[[${product.price}]]</td>
+        <td>[[${product.stockQuantity}]]</td>
+    </tr>
+</table>
+
+<a href="/">Back to Dashboard</a>

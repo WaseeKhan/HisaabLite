@@ -1,0 +1,22 @@
+<h2>Add Product</h2>
+
+<form method="post" th:action="@{/products}">
+    <div>
+        <label>Name:</label>
+        <input type="text" name="name" required />
+    </div>
+
+    <div>
+        <label>Price:</label>
+        <input type="number" step="0.01" name="price" required />
+    </div>
+
+    <div>
+        <label>Stock Quantity:</label>
+        <input type="number" name="stockQuantity" required />
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+<a href="/products">Back</a>
