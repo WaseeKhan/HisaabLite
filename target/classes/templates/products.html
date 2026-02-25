@@ -1,6 +1,12 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <h2>Products</h2>
 
-<a href="/products/new">Add Product</a>
+<div sec:authorize="hasRole('OWNER')">
+    <a href="/products/new">Add Product</a>
+</div>
+
 
 <table border="1">
     <tr>

@@ -16,7 +16,9 @@
 
 
 
-<a href="/logout">Logout</a>
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
 
 </body>
 </html>

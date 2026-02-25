@@ -32,7 +32,7 @@ public class DataInitializer {
 
                 shopRepository.save(shop);
 
-                User user = User.builder()
+                User owner = User.builder()
                         .name("Owner")
                         .username("owner")
                         .password(passwordEncoder.encode("1234"))
@@ -40,8 +40,18 @@ public class DataInitializer {
                         .shop(shop)
                         .active(true)
                         .build();
+                userRepository.save(owner);
 
-                userRepository.save(user);
+                User staff = User.builder()
+                        .name("Staff")
+                        .username("staff")
+                        .password(passwordEncoder.encode("1234"))
+                        .role(Role.STAFF)
+                        .shop(shop)
+                        .active(true)
+                        .build();
+
+                userRepository.save(staff);
             }
         };
     }
