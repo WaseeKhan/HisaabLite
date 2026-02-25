@@ -23,8 +23,8 @@ public class Sale {
 
     private BigDecimal totalAmount;
 
-    @ManyToOne
-    @JoinColumn(name = "shop_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_id")
     private Shop shop;
 
     @ManyToOne

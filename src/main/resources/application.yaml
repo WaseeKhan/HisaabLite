@@ -2,7 +2,7 @@ spring:
   application:
     name: hisaablite
   datasource:
-    url: jdbc:mysql://localhost:3306/hisaablite?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/hisaablite?useSSL=false&serverTimezone=Asia/Kolkata
     username: hisaab
     password: hisaab123
 
