@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: hisaablite
+  datasource:
+    url: jdbc:mysql://localhost:3306/hisaablite?useSSL=false&serverTimezone=UTC
+    username: hisaab
+    password: hisaab123
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8080
