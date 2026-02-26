@@ -4,6 +4,7 @@ import com.hisaablite.dto.CartItem;
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
+import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
@@ -14,8 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,7 @@ public class SaleService {
         sale.setShop(shop);
         sale.setCreatedBy(createdBy);
         sale.setTotalAmount(BigDecimal.ZERO);
+        sale.setStatus(SaleStatus.COMPLETED);
 
         Sale savedSale = saleRepository.save(sale);
 
@@ -82,4 +88,91 @@ public class SaleService {
 
         return savedSale;
     }
+
+//cancel sale logic here
+
+    @Transactional
+    public void cancelSale(Long saleId) {
+
+    Sale sale = saleRepository.findById(saleId)
+            .orElseThrow(() -> new RuntimeException("Sale not found"));
+
+    // Already cancelled check
+    if (sale.getStatus() == SaleStatus.CANCELLED) {
+        throw new RuntimeException("Sale already cancelled");
+    }
+
+    // Restore stock
+    for (SaleItem item : sale.getItems()) {
+
+        Product product = item.getProduct();
+
+        product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+
+        productRepository.save(product);
+    }
+
+    // Update sale status
+    sale.setStatus(SaleStatus.CANCELLED);
+
+    saleRepository.save(sale);
+}
+
+
+public List<String> getLast7DaysLabels() {
+    List<String> labels = new ArrayList<>();
+    for (int i = 6; i >= 0; i--) {
+        labels.add(LocalDate.now().minusDays(i).toString());
+    }
+    return labels;
+}
+
+
+public Map<String, Object> getLast7DaysChartData(Shop shop) {
+
+    LocalDate today = LocalDate.now();
+    LocalDateTime start = today.minusDays(6).atStartOfDay();
+
+    List<Object[]> results = saleRepository.getLast7DaysRevenue(shop, start);
+
+    // Convert DB result to Map<Date, Revenue>
+    Map<LocalDate, Double> revenueMap = new HashMap<>();
+
+    for (Object[] row : results) {
+
+    LocalDate date;
+
+    // Safe date conversion
+    if (row[0] instanceof java.sql.Date sqlDate) {
+        date = sqlDate.toLocalDate();
+    } else {
+        date = (LocalDate) row[0];
+    }
+
+    //  SAFE BigDecimal → Double conversion
+    Double total = 0.0;
+
+    if (row[1] instanceof java.math.BigDecimal bigDecimal) {
+        total = bigDecimal.doubleValue();
+    } else if (row[1] instanceof Double d) {
+        total = d;
+    }
+
+    revenueMap.put(date, total);
+}
+    List<String> labels = new ArrayList<>();
+    List<Double> revenues = new ArrayList<>();
+
+    for (int i = 6; i >= 0; i--) {
+        LocalDate date = today.minusDays(i);
+        labels.add(date.toString());
+        revenues.add(revenueMap.getOrDefault(date, 0.0));
+    }
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("labels", labels);
+    response.put("revenues", revenues);
+
+    return response;
+}
 }

@@ -4,6 +4,7 @@ import com.hisaablite.dto.CartItem;
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
+import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.User;
 import com.hisaablite.service.ProductService;
 import com.hisaablite.service.SaleService;
@@ -12,6 +13,12 @@ import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,6 +133,7 @@ public class SaleController {
         } catch (RuntimeException e) {
         redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+        
 
         return "redirect:/sales/new";
     }
@@ -146,4 +156,44 @@ public class SaleController {
 
     return "invoice"; // templates/invoice.html render hoga
     }
+
+    //Sales History
+    @GetMapping("/history")
+    public String salesHistory(Model model,
+                           Authentication authentication,
+                           @RequestParam(defaultValue = "0") int page) {
+
+    User user = userRepository.findByUsername(authentication.getName())
+            .orElseThrow();
+
+   Pageable pageable = PageRequest.of(page, 5, Sort.by("saleDate").descending());
+
+    Page<Sale> salesPage =
+        saleRepository.findByShop(user.getShop(), pageable);
+            
+
+    model.addAttribute("salesPage", salesPage);
+    model.addAttribute("currentPage", page);
+
+    return "sales-history";
+    }
+
+
+
+//cancel sale 
+
+    @GetMapping("/cancel/{id}")
+    public String cancelSale(@PathVariable Long id,
+                         RedirectAttributes redirectAttributes) {
+
+    try {
+        saleService.cancelSale(id);
+        redirectAttributes.addFlashAttribute("success", "Sale cancelled successfully!");
+    } catch (RuntimeException e) {
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
+    }
+
+    return "redirect:/sales/history";
+}
+
 }

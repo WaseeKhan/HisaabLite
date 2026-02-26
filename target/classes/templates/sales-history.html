@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sales History - HisaabLite</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #2c3e50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+
+        .btn {
+            padding: 5px 10px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .cancel-btn {
+            background-color: #e74c3c;
+        }
+
+        .pagination { margin-top: 15px; }
+        .pagination a { margin: 0 5px; text-decoration: none; }
+
+        .status-completed { color: green; font-weight: bold; }
+        .status-cancelled { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>Sales History</h2>
+
+<table>
+    <tr>
+        <th>Invoice #</th>
+        <th>Date</th>
+        <th>Total (₹)</th>
+        <th>Cashier</th>
+        <th>Action</th>
+        <th>Status</th>
+    </tr>
+
+    <tr th:each="sale : ${salesPage.content}">
+        <td th:text="${sale.id}">1</td>
+
+        <td th:text="${sale.saleDate != null ? 
+                      #temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm') 
+                      : 'N/A'}"></td>
+
+        <td th:text="${sale.totalAmount}"></td>
+
+        <td th:text="${sale.createdBy != null ? 
+                      sale.createdBy.username : 'N/A'}"></td>
+
+        <td>
+            <!-- View Button -->
+            <a th:href="@{/sales/invoice/{id}(id=${sale.id})}"
+               class="btn" target="_blank">
+                View
+            </a>
+
+            <!-- Cancel Button SAFE -->
+            <a th:if="${sale.status != null 
+                       and sale.status.name() == 'COMPLETED'}"
+               class="btn cancel-btn"
+               th:href="@{/sales/cancel/{id}(id=${sale.id})}">
+                Cancel
+            </a>
+        </td>
+
+        <!-- SAFE Status Display -->
+        <td>
+            <span th:if="${sale.status != null 
+                          and sale.status.name() == 'COMPLETED'}"
+                  class="status-completed">
+                COMPLETED
+            </span>
+
+            <span th:if="${sale.status != null 
+                          and sale.status.name() == 'CANCELLED'}"
+                  class="status-cancelled">
+                CANCELLED
+            </span>
+
+            <span th:if="${sale.status == null}">
+                N/A
+            </span>
+        </td>
+    </tr>
+</table>
+
+<!-- Pagination -->
+<div class="pagination">
+    <a th:if="${salesPage.hasPrevious()}"
+       th:href="@{/sales/history(page=${currentPage - 1})}">
+        Previous
+    </a>
+
+    Page <span th:text="${currentPage + 1}"></span>
+
+    <a th:if="${salesPage.hasNext()}"
+       th:href="@{/sales/history(page=${currentPage + 1})}">
+        Next
+    </a>
+</div>
+
+</body>
+</html>

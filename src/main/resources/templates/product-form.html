@@ -1,22 +1,140 @@
-<h2>Add Product</h2>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Product - HisaabLite</title>
 
-<form method="post" th:action="@{/products}">
-    <div>
-        <label>Name:</label>
-        <input type="text" name="name" required />
-    </div>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1f2c3a, #2c3e50);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    <div>
-        <label>Price:</label>
-        <input type="number" step="0.01" name="price" required />
-    </div>
+        .card {
+            background: white;
+            padding: 35px;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
 
-    <div>
-        <label>Stock Quantity:</label>
-        <input type="number" name="stockQuantity" required />
-    </div>
+        .card h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
 
-    <button type="submit">Save</button>
-</form>
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-<a href="/products">Back</a>
+        .form-group label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #3498db;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-save {
+            padding: 8px 15px;
+            background-color: #3498db;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-save:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-cancel {
+            padding: 8px 15px;
+            background-color: #7f8c8d;
+            border: none;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-cancel:hover {
+            background-color: #626e70;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2 th:text="${product.id != null} ? '✏ Edit Product' : '➕ Add Product'">
+        Add Product
+    </h2>
+
+    <form th:action="@{/products/save}"
+          th:object="${product}"
+          method="post">
+
+        <!-- Hidden ID for Update -->
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" th:field="*{name}" required />
+        </div>
+
+        <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" step="0.01" th:field="*{price}" required />
+        </div>
+
+        <div class="form-group">
+            <label>Stock Quantity</label>
+            <input type="number" th:field="*{stockQuantity}" required />
+        </div>
+
+        <div class="form-group">
+            <label>Minimum Stock Alert</label>
+            <input type="number" th:field="*{minStock}" placeholder="Default 5" />
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn-save">
+                💾 Save
+            </button>
+
+            <a th:href="@{/products}" class="btn-cancel">
+                ⬅ Back
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>

@@ -20,6 +20,9 @@ public class ProductController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    // ===============================
+    // LIST PRODUCTS
+    // ===============================
     @GetMapping
     public String listProducts(Model model, Authentication authentication) {
 
@@ -28,34 +31,90 @@ public class ProductController {
                 .orElseThrow();
 
         model.addAttribute("products",
-                productRepository.findByShop(user.getShop()));
+                productRepository.findByShopAndActiveTrue(user.getShop()));
 
         return "products";
     }
 
+    // ===============================
+    // NEW PRODUCT FORM
+    // ===============================
     @GetMapping("/new")
-    public String newProductForm() {
+    public String newProductForm(Model model) {
+
+        model.addAttribute("product", new Product());
         return "product-form";
     }
 
-    @PostMapping
-    public String saveProduct(@RequestParam String name,
-                              @RequestParam BigDecimal price,
-                              @RequestParam Integer stockQuantity,
+    // ===============================
+    // SAVE OR UPDATE PRODUCT
+    // ===============================
+    @PostMapping("/save")
+    public String saveOrUpdateProduct(@ModelAttribute Product product,
+                                      Authentication authentication) {
+
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
+
+        // Always enforce shop & active
+        product.setShop(user.getShop());
+        product.setActive(true);
+
+        // If minStock null → default 5
+        if (product.getMinStock() == null) {
+            product.setMinStock(5);
+        }
+
+        productRepository.save(product);
+
+        return "redirect:/products";
+    }
+
+    // ===============================
+    // EDIT PRODUCT
+    // ===============================
+    @GetMapping("/edit/{id}")
+    public String editProduct(@PathVariable Long id,
+                              Model model,
                               Authentication authentication) {
 
         User user = userRepository
                 .findByUsername(authentication.getName())
                 .orElseThrow();
 
-        Product product = Product.builder()
-                .name(name)
-                .price(price)
-                .stockQuantity(stockQuantity)
-                .shop(user.getShop())
-                .active(true)
-                .build();
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        // Security check: prevent cross-shop access
+        if (!product.getShop().getId().equals(user.getShop().getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        model.addAttribute("product", product);
+        return "product-form";
+    }
+
+    // ===============================
+    // DELETE PRODUCT (SOFT DELETE)
+    // ===============================
+    @PostMapping("/delete/{id}")
+    public String deleteProduct(@PathVariable Long id,
+                                Authentication authentication) {
+
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getShop().getId().equals(user.getShop().getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        // Soft delete instead of hard delete
+        product.setActive(false);
         productRepository.save(product);
 
         return "redirect:/products";

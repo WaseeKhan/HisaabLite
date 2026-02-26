@@ -33,4 +33,7 @@ public class Sale {
 
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL)
     private List<SaleItem> items;
+
+    @Enumerated(EnumType.STRING)
+    private SaleStatus status;
 }
