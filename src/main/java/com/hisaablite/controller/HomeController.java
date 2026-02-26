@@ -25,13 +25,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class HomeController {
 
+
+        
+
     private final UserRepository userRepository;
     private final SaleRepository saleRepository;
     private final SaleItemRepository saleItemRepository;
     private final ProductRepository productRepository;
     private final SaleService saleService;   // IMPORTANT
 
-    @GetMapping("/")
+
+
+    @GetMapping("/app")
     public String ultraDashboard(Model model, Authentication authentication) {
 
         User user = userRepository

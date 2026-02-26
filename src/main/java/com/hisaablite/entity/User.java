@@ -3,13 +3,19 @@ package com.hisaablite.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Table(name = "users")
+@Table(name = "users",
+       uniqueConstraints = {
+           @UniqueConstraint(columnNames = "username"),
+           @UniqueConstraint(columnNames = "phone")
+       })
 public class User {
 
     @Id
@@ -20,7 +26,10 @@ public class User {
     private String name;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    private String username;   // Email (Login ID)
+
+    @Column(unique = true, nullable = false)
+    private String phone;      // 🔥 moved here (Owner/Staff)
 
     @Column(nullable = false)
     private String password;
@@ -33,4 +42,6 @@ public class User {
     private Shop shop;
 
     private boolean active = true;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

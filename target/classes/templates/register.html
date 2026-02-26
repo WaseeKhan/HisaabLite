@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register Shop - HisaabLite</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1f2c3a, #2c3e50);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>🚀 Register Your Shop</h2>
+
+    <!-- Global Error -->
+    <div th:if="${error}" 
+         style="color: red; text-align:center; margin-bottom: 15px;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form th:action="@{/register}" 
+          th:object="${registerRequest}" 
+          method="post">
+
+        <!-- Shop Name -->
+        <div class="form-group">
+            <label>Shop Name</label>
+            <input type="text" th:field="*{shopName}" />
+            <small style="color:red"
+                   th:if="${#fields.hasErrors('shopName')}"
+                   th:errors="*{shopName}"></small>
+        </div>
+
+        <!-- Owner Name -->
+        <div class="form-group">
+            <label>Owner Name</label>
+            <input type="text" th:field="*{ownerName}" />
+            <small style="color:red"
+                   th:if="${#fields.hasErrors('ownerName')}"
+                   th:errors="*{ownerName}"></small>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label>Email</label>
+            <input type="text" th:field="*{username}" />
+            <small style="color:red"
+                   th:if="${#fields.hasErrors('username')}"
+                   th:errors="*{username}"></small>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+            <label>Phone</label>
+            <input type="text" th:field="*{phone}" />
+            <small style="color:red"
+                   th:if="${#fields.hasErrors('phone')}"
+                   th:errors="*{phone}"></small>
+        </div>
+
+        <!-- PAN -->
+        <div class="form-group">
+            <label>PAN Number</label>
+            <input type="text" th:field="*{panNumber}" />
+            <small style="color:red"
+                   th:if="${#fields.hasErrors('panNumber')}"
+                   th:errors="*{panNumber}"></small>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" th:field="*{password}" />
+            <small style="color:red"
+                   th:if="${#fields.hasErrors('password')}"
+                   th:errors="*{password}"></small>
+        </div>
+
+        <button type="submit" class="btn">Create Shop</button>
+
+    </form>
+</div>
+</body>
+</html>

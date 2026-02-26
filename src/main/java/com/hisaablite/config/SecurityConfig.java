@@ -21,14 +21,18 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login").permitAll()
+                 .requestMatchers("/", "/login", "/register", "/css/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/products/new").hasRole("OWNER")
-                .requestMatchers("/products").authenticated()
+                .requestMatchers("/app/**").authenticated()
                 .anyRequest().authenticated()
             )
+
+               
+            
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/app", true)
                 .permitAll()
             )
             .logout(logout -> logout
