@@ -29,11 +29,12 @@ public class User {
     private String username;   // Email (Login ID)
 
     @Column(unique = true, nullable = false)
-    private String phone;      // 🔥 moved here (Owner/Staff)
+    private String phone;      //  moved here (Owner/Staff)
 
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 

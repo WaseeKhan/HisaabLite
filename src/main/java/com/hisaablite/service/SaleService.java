@@ -17,10 +17,12 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+ import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -163,11 +165,15 @@ public Map<String, Object> getLast7DaysChartData(Shop shop) {
     List<String> labels = new ArrayList<>();
     List<Double> revenues = new ArrayList<>();
 
-    for (int i = 6; i >= 0; i--) {
-        LocalDate date = today.minusDays(i);
-        labels.add(date.toString());
-        revenues.add(revenueMap.getOrDefault(date, 0.0));
-    }
+   
+
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM");
+
+for (int i = 6; i >= 0; i--) {
+    LocalDate date = today.minusDays(i);
+    labels.add(date.format(formatter));   // 23 Feb
+    revenues.add(revenueMap.getOrDefault(date, 0.0));
+}
 
     Map<String, Object> response = new HashMap<>();
     response.put("labels", labels);

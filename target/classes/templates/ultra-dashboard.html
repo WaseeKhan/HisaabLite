@@ -7,84 +7,124 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
+
+        html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
         body {
             margin: 0;
             font-family: 'Poppins', sans-serif;
             display: flex;
             height: 100vh;
-            overflow: hidden;
             background: #f4f6f9;
         }
 
+        /* SIDEBAR */
         .sidebar {
-            width: 200px;
-            background: #111827;
+            width: 240px;
+            background: linear-gradient(180deg, #111827, #1f2937);
             color: white;
-            padding: 20px;
-        }
-
-        .sidebar h2 { margin-bottom: 30px; }
-
-        .sidebar a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            margin: 15px 0;
-        }
-
-        .main {
-            flex: 1;
             padding: 20px;
             display: flex;
             flex-direction: column;
         }
 
-        .stats {
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 6px 0;
+            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            margin-top: auto;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            padding: 20px;
             display: flex;
+            flex-direction: column;
             gap: 15px;
-            margin-bottom: 15px;
+        }
+
+        .topbar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
         }
 
         .card {
-            flex: 1;
             background: white;
-            padding: 15px;
+            padding: 18px;
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
-        .value {
+        .card .value {
             font-size: 22px;
             font-weight: 600;
-            margin-top: 5px;
+            margin-top: 6px;
         }
 
+        /* CHARTS */
         .charts {
-            display: flex;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
             gap: 15px;
-            margin-bottom: 15px;
         }
 
         .chart-box {
-            flex: 1;
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
         canvas {
-            height: 220px !important;
+            height: 240px !important;
         }
 
-        .low-stock {
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            max-height: 120px;
-            overflow-y: auto;
-            margin-bottom: 10px;
+        /* BOTTOM */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         table {
@@ -94,7 +134,7 @@
 
         th {
             text-align: left;
-            color: #999;
+            color: #888;
         }
 
         .danger {
@@ -102,14 +142,11 @@
             font-weight: 600;
         }
 
-        /* FOOTER */
         .footer {
             text-align: center;
             font-size: 12px;
             color: #888;
-            padding-top: 5px;
         }
-
     </style>
 </head>
 
@@ -117,129 +154,150 @@
 
 <div class="sidebar">
     <h2>HisaabLite</h2>
-    <a href="/">Dashboard</a>
-    <a href="/sales/new">New Sale</a>
-    <a href="/sales/history">Sales History</a>
-    <a href="/products">Products</a>
-    <div style="text-align: right; margin-bottom: 10px;">
+
+    <a href="/app">📊 Dashboard</a>
+    <a href="/sales/new">💰 New Sale</a>
+    <a href="/products">📦 Products</a>
+    <a href="/sales/history">📑 Sales History</a>
+    <a href="/profile">🏪 Profile</a>
+
     <form th:action="@{/logout}" method="post">
-        <button type="submit"
-                style="padding:6px 12px; background:#e74c3c; color:white; border:none; border-radius:4px;">
-            Logout
-        </button>
+        <button type="submit" class="logout-btn">🔓 Logout</button>
     </form>
-</div>
 </div>
 
 <div class="main">
 
-    <!-- TOP CARDS -->
-    <div class="stats">
-        <div class="card">
-            Today Revenue
-            <div class="value">₹ <span th:text="${todayRevenue} ?: 0"></span></div>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div>
+            <strong th:text="${shop.name}">Shop Name</strong> |
+            PAN: <span th:text="${shop.panNumber}"></span> |
+            GST: <span th:text="${shop.gstNumber} ?: 'N/A'"></span>
         </div>
-
-        <div class="card">
-            Invoices
-            <div class="value" th:text="${todayInvoices} ?: 0"></div>
-        </div>
-
-        <div class="card">
-            Items Sold
-            <div class="value" th:text="${todayItems} ?: 0"></div>
+        <div>
+            Plan: <strong th:text="${shop.subscriptionPlan}"></strong>
         </div>
     </div>
 
-    <!-- CHART SECTION -->
-    <div class="charts">
+    <!-- KPI -->
+    <div class="kpi-grid">
+        <div class="card">
+            Today Revenue
+            <div class="value">₹ <span id="rev" th:text="${todayRevenue} ?: 0"></span></div>
+        </div>
+        <div class="card">
+            Invoices
+            <div class="value" id="inv" th:text="${todayInvoices} ?: 0"></div>
+        </div>
+        <div class="card">
+            Items Sold
+            <div class="value" id="items" th:text="${todayItems} ?: 0"></div>
+        </div>
+        <div class="card">
+            Total Staff
+            <div class="value" id="staff" th:text="${totalStaff} ?: 0"></div>
+        </div>
+    </div>
 
+    <!-- CHARTS -->
+    <div class="charts">
         <div class="chart-box">
             <h4>7 Day Revenue</h4>
             <canvas id="revenueChart"></canvas>
         </div>
-
         <div class="chart-box">
-            <h4>Sales Distribution</h4>
+            <h4>Today Split</h4>
             <canvas id="pieChart"></canvas>
         </div>
-
     </div>
 
-    <!-- LOW STOCK -->
-    <div class="low-stock">
-        <table>
-            <tr>
-                <th>Product</th>
-                <th>Stock</th>
-            </tr>
+    <!-- BOTTOM -->
+    <div class="bottom-grid">
+        <div class="card">
+            <h4>Low Stock Products</h4>
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Stock</th>
+                </tr>
+                <tr th:each="product : ${lowStockProducts}">
+                    <td th:text="${product.name}"></td>
+                    <td class="danger" th:text="${product.stockQuantity}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(lowStockProducts)}">
+                    <td colspan="2" style="text-align:center; color:green;">
+                        ✅ All products sufficiently stocked
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-            
-
-            <tr th:each="product : ${lowStockProducts}">
-                <td th:text="${product.name}"></td>
-                <td class="danger" th:text="${product.stockQuantity}"></td>
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(lowStockProducts)}">
-                <td colspan="2" style="text-align:center; color:green;">
-                    ✅ All products sufficiently stocked
-                </td>
-            </tr>
-        </table>
+        <div class="card">
+            <h4>Business Info</h4>
+            <p>City: <span th:text="${shop.city} ?: 'N/A'"></span></p>
+            <p>State: <span th:text="${shop.state} ?: 'N/A'"></span></p>
+            <p>UPI: <span th:text="${shop.upiId} ?: 'N/A'"></span></p>
+        </div>
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
-        © 2026 HisaabLite | Built with ❤️ for Smart Business Owners
+        © 2026 HisaabLite | Made with ❤️ in India
     </div>
 
 </div>
 
 <script th:inline="javascript">
 
-    let labels = /*[[${labels}]]*/ [];
-    let revenues = /*[[${revenues}]]*/ [];
+let labels = /*[[${labels}]]*/ [];
+let revenues = /*[[${revenues}]]*/ [];
 
-    const ctx = document.getElementById('revenueChart').getContext('2d');
+/* Line Chart */
+new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Revenue',
+            data: revenues,
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { left: 0, right: 10 } }
+    }
+});
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Revenue',
-                data: revenues,
-                borderWidth: 2,
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
+/* Pie Chart */
+new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Revenue', 'Invoices', 'Items'],
+        datasets: [{
+            data: [
+                [[${todayRevenue} ?: 0]],
+                [[${todayInvoices} ?: 0]],
+                [[${todayItems} ?: 0]]
+            ]
+        }]
+    }
+});
 
-    const pieCtx = document.getElementById('pieChart').getContext('2d');
-
-    new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Revenue', 'Invoices', 'Items'],
-            datasets: [{
-                data: [
-                    [[${todayRevenue} ?: 0]],
-                    [[${todayInvoices} ?: 0]],
-                    [[${todayItems} ?: 0]]
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
+/* Live Refresh */
+setInterval(() => {
+    fetch('/app/metrics')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("rev").innerText = data.todayRevenue;
+            document.getElementById("inv").innerText = data.todayInvoices;
+            document.getElementById("items").innerText = data.todayItems;
+            document.getElementById("staff").innerText = data.totalStaff;
+        });
+}, 30000);
 
 </script>
 

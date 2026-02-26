@@ -24,6 +24,7 @@ public class SecurityConfig {
                  .requestMatchers("/", "/login", "/register", "/css/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/products/new").hasRole("OWNER")
+                .requestMatchers("/profile/**").hasRole("OWNER")
                 .requestMatchers("/app/**").authenticated()
                 .anyRequest().authenticated()
             )

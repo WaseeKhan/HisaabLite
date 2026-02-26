@@ -1,5 +1,7 @@
 package com.hisaablite.repository;
 
+import com.hisaablite.entity.Role;
+import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     boolean existsByPhone(String phone);
+
+    Long countByShop(Shop shop);
+    Long countByShopAndRole(Shop shop, Role role);
 }

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -34,56 +36,93 @@ public class HomeController {
     private final ProductRepository productRepository;
     private final SaleService saleService;   // IMPORTANT
 
+        @GetMapping("/app")
+public String ultraDashboard(Model model, Authentication authentication) {
 
+    User user = userRepository
+            .findByUsername(authentication.getName())
+            .orElseThrow();
 
-    @GetMapping("/app")
-    public String ultraDashboard(Model model, Authentication authentication) {
+    Shop shop = user.getShop();
 
-        User user = userRepository
-                .findByUsername(authentication.getName())
-                .orElseThrow();
+    // ADD THIS LINE (FIX)
+    model.addAttribute("shop", shop);
 
-        Shop shop = user.getShop();
+    // =======================
+    // TODAY DATA
+    // =======================
 
-        // =======================
-        // TODAY DATA
-        // =======================
+    LocalDate today = LocalDate.now();
+    LocalDateTime startToday = today.atStartOfDay();
+    LocalDateTime endToday = today.atTime(23, 59, 59);
 
-        LocalDate today = LocalDate.now();
-        LocalDateTime startToday = today.atStartOfDay();
-        LocalDateTime endToday = today.atTime(23, 59, 59);
+    Double todayRevenue = saleRepository
+            .getTodayTotalRevenue(shop, startToday, endToday);
 
-        Double todayRevenue = saleRepository
-                .getTodayTotalRevenue(shop, startToday, endToday);
+    Long todayInvoices = saleRepository
+            .getTodayInvoiceCount(shop, startToday, endToday);
 
-        Long todayInvoices = saleRepository
-                .getTodayInvoiceCount(shop, startToday, endToday);
+    Long todayItems = saleItemRepository
+            .getTodayItemsSold(shop, startToday, endToday);
 
-        Long todayItems = saleItemRepository
-                .getTodayItemsSold(shop, startToday, endToday);
+    model.addAttribute("todayRevenue", todayRevenue != null ? todayRevenue : 0);
+    model.addAttribute("todayInvoices", todayInvoices != null ? todayInvoices : 0);
+    model.addAttribute("todayItems", todayItems != null ? todayItems : 0);
 
-        model.addAttribute("todayRevenue", todayRevenue != null ? todayRevenue : 0);
-        model.addAttribute("todayInvoices", todayInvoices != null ? todayInvoices : 0);
-        model.addAttribute("todayItems", todayItems != null ? todayItems : 0);
+    // =======================
+    // 7 DAY CHART DATA
+    // =======================
 
-        // =======================
-        // 7 DAY CHART DATA
-        // =======================
+    Map<String, Object> chartData = saleService.getLast7DaysChartData(shop);
 
-        Map<String, Object> chartData = saleService.getLast7DaysChartData(shop);
+    model.addAttribute("labels", chartData.get("labels"));
+    model.addAttribute("revenues", chartData.get("revenues"));
 
-        model.addAttribute("labels", chartData.get("labels"));
-        model.addAttribute("revenues", chartData.get("revenues"));
+    // =======================
+    // LOW STOCK
+    // =======================
 
-        // =======================
-        // LOW STOCK
-        // =======================
+    List<Product> lowStockProducts =
+            productRepository.findLowStockProducts(shop);
 
-        List<Product> lowStockProducts =
-                productRepository.findLowStockProducts(shop);
+    model.addAttribute("lowStockProducts", lowStockProducts);
 
-        model.addAttribute("lowStockProducts", lowStockProducts);
+    Long totalStaff = userRepository.countByShop(shop);
+        model.addAttribute("totalStaff", totalStaff);
 
-        return "ultra-dashboard";  // make sure file name matches
-    }
+    return "ultra-dashboard";
+}
+
+@GetMapping("/app/metrics")
+@ResponseBody
+public Map<String, Object> getLiveMetrics(Authentication authentication) {
+
+    User user = userRepository
+            .findByUsername(authentication.getName())
+            .orElseThrow();
+
+    Shop shop = user.getShop();
+
+    LocalDate today = LocalDate.now();
+    LocalDateTime startToday = today.atStartOfDay();
+    LocalDateTime endToday = today.atTime(23, 59, 59);
+
+    Map<String, Object> data = new HashMap<>();
+
+    data.put("todayRevenue",
+            saleRepository.getTodayTotalRevenue(shop, startToday, endToday));
+
+    data.put("todayInvoices",
+            saleRepository.getTodayInvoiceCount(shop, startToday, endToday));
+
+    data.put("todayItems",
+            saleItemRepository.getTodayItemsSold(shop, startToday, endToday));
+
+    data.put("totalStaff",
+            userRepository.countByShop(shop));
+
+    return data;
+}
+
+    
 }
