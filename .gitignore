@@ -1,0 +1,36 @@
+# Compiled class files
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven / Gradle
+target/
+build/
+Notes/
+
+# Eclipse / IntelliJ / VSCode
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Spring Boot sensitive files
+application.properties
+application.yml
+*.keystore
+
+# Generated files by Spring Boot Devtools
+spring-boot-devtools.properties
+
+# Temporary files
+*.tmp
+*.bak
