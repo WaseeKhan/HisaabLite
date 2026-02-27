@@ -1,14 +1,16 @@
 spring:
   application:
     name: hisaablite
+
   datasource:
-    url: jdbc:mysql://localhost:3306/hisaablite?useSSL=false&serverTimezone=Asia/Kolkata
+    url: jdbc:mysql://localhost:3306/hisaablite?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
     username: hisaab
     password: hisaab123
 
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
     properties:
       hibernate:
