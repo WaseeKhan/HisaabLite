@@ -29,17 +29,23 @@ public class RegisterController {
         return "register";
     }
 
-   
-    @PostMapping("/register")
+   @PostMapping("/register")
     public String register(@Valid @ModelAttribute RegisterRequest request,
                        BindingResult bindingResult) {
+
+    if (shopRepository.existsByPanNumber(request.getPanNumber())) {
+        bindingResult.rejectValue("panNumber", null, "PAN already registered");
+    }
+
+    if (userRepository.existsByUsername(request.getUsername())) {
+        bindingResult.rejectValue("username", null, "Username already registered");
+    }
 
     if (bindingResult.hasErrors()) {
         return "register";
     }
 
     registrationService.registerShop(request);
-
     return "redirect:/login";
 }
 }

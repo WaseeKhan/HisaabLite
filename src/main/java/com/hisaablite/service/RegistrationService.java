@@ -24,10 +24,16 @@ public class RegistrationService {
             throw new DuplicateResourceException("Email already registered");
         }
 
+        // if (shopRepository.existsByPanNumber(request.getPanNumber())) {
+        //     throw new DuplicateResourceException("PAN already registered");
+        // }
+
         if (shopRepository.existsByPanNumber(request.getPanNumber())) {
-            throw new DuplicateResourceException("PAN already registered");
+            throw new DuplicateResourceException("PAN already registered. Please use a different PAN.");    
         }
 
+
+        
         // 1 Save shop
         Shop shop = Shop.builder()
                 .name(request.getShopName())
@@ -39,6 +45,14 @@ public class RegistrationService {
                 .subscriptionPlan(SubscriptionPlan.FREE)
                 .active(true)
                 .build();
+
+        if (shopRepository.existsByPanNumber(request.getPanNumber())) {
+            throw new DuplicateResourceException("PAN already registered.");
+        }
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new DuplicateResourceException("Email already registered.");
+        }
 
         shop = shopRepository.save(shop);
 
@@ -52,6 +66,8 @@ public class RegistrationService {
                 .shop(shop)
                 .active(true)
                 .build();
+
+                
 
         userRepository.save(owner);
     }

@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Long countByShop(Shop shop);
     Long countByShopAndRole(Shop shop, Role role);
+    
+
+    
 }

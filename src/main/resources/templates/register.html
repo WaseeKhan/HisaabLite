@@ -105,6 +105,8 @@
                    th:errors="*{phone}"></small>
         </div>
 
+
+        
         <!-- PAN -->
         <div class="form-group">
             <label>PAN Number</label>
@@ -112,7 +114,9 @@
             <small style="color:red"
                    th:if="${#fields.hasErrors('panNumber')}"
                    th:errors="*{panNumber}"></small>
+            <!-- <div th:if="${#fields.hasErrors('panNumber')}" th:errors="*{panNumber}" class="text-danger"></div> -->
         </div>
+       
 
         <!-- Password -->
         <div class="form-group">

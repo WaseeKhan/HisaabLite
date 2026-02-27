@@ -23,6 +23,8 @@ public class GlobalExceptionHandler {
         return "register";
     }
 
+    
+
     // Database constraint fallback
     @ExceptionHandler(DataIntegrityViolationException.class)
     public String handleDatabaseException(DataIntegrityViolationException ex, Model model) {

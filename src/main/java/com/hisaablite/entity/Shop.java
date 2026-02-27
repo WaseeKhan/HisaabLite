@@ -13,10 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "shops",
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = "panNumber")
-       })
+@Table(name = "shops")
 public class Shop {
 
     @Id
@@ -27,7 +24,7 @@ public class Shop {
     private String name;
 
     @Column(nullable = false, unique = true)
-    private String panNumber;   // 🔥 Business Unique Identity
+    private String panNumber;   //  Business Unique Identity
 
     private String gstNumber;
 
