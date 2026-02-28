@@ -59,6 +59,6 @@ public class ProfileController {
 
         shopService.updateProfile(user, request);
 
-        return "redirect:/app";   // back to dashboard
+        return "redirect:/dashboard";   // back to dashboard
     }
 }

@@ -5,6 +5,10 @@ import com.hisaablite.entity.*;
 import com.hisaablite.exception.DuplicateResourceException;
 import com.hisaablite.repository.*;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +48,7 @@ public class RegistrationService {
                 .staffLimit(5)
                 .subscriptionPlan(SubscriptionPlan.FREE)
                 .active(true)
+                .createdAt(request.getCreatedAt())
                 .build();
 
         if (shopRepository.existsByPanNumber(request.getPanNumber())) {
@@ -53,6 +58,7 @@ public class RegistrationService {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateResourceException("Email already registered.");
         }
+
 
         shop = shopRepository.save(shop);
 

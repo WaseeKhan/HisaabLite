@@ -1,46 +1,112 @@
-<h2>Staff Management</h2>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Staff Management - HisaabLite</title>
 
-<a href="/staff/new">➕ Add Staff</a>
+<style>
+body {
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:#f4f6f9;
+    padding:30px;
+}
+
+.container {
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+h2 {
+    margin-bottom:20px;
+}
+
+.btn {
+    padding:6px 10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.btn-primary { background:#2563eb; color:white; }
+.btn-danger { background:#dc2626; color:white; }
+.btn-warning { background:#f59e0b; color:white; }
+.btn-secondary { background:#6b7280; color:white; }
+
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+th {
+    background:#111827;
+    color:white;
+    padding:10px;
+}
+
+td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>👥 Staff Management</h2>
+
+<a th:href="@{/staff/new}" class="btn btn-primary">➕ Add Staff</a>
+<a th:href="@{/dashboard}" class="btn btn-secondary">⬅ Dashboard</a>
+
+<br><br>
 
 <table>
-    <tr>
-        <th>Name</th>
-        <th>Username</th>
-        <th>Role</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
 
-    <tr th:each="user : ${staffList}">
-        <td th:text="${user.name}"></td>
-        <td th:text="${user.username}"></td>
-        <td th:text="${user.role}"></td>
-        <td th:text="${user.active ? 'Active' : 'Inactive'}"></td>
+<tr th:each="user : ${staffList}">
+<td th:text="${user.name}"></td>
+<td th:text="${user.username}"></td>
+<td th:text="${user.role}"></td>
+<td th:text="${user.active ? 'Active' : 'Inactive'}"></td>
 
-        <td>
-            <!-- Change Role -->
-            <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post">
-                <select name="role">
-                    <option value="MANAGER">Manager</option>
-                    <option value="CASHIER">Cashier</option>
-                </select>
-                <button type="submit">Change</button>
-            </form>
+<td>
 
-            <!-- Reset Password -->
-            <form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post">
-                <button type="submit">Reset Password</button>
-            </form>
+<form th:action="@{/staff/{id}/role(id=${user.id})}" method="post">
+<select name="role">
+<option value="MANAGER">Manager</option>
+<option value="CASHIER">Cashier</option>
+</select>
+<button class="btn btn-warning">Change</button>
+</form>
 
-            <!-- Toggle Status -->
-            <form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post">
-                <button type="submit">Activate / Deactivate</button>
-            </form>
+<form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post">
+<button class="btn btn-secondary">Reset</button>
+</form>
 
-            <!-- Delete -->
-            <form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post">
-                <button type="submit">Delete</button>
-            </form>
-        </td>
-    </tr>
+<form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post">
+<button class="btn btn-warning">Toggle</button>
+</form>
+
+<form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post">
+<button class="btn btn-danger">Delete</button>
+</form>
+
+</td>
+</tr>
+
 </table>
+
+</div>
+
+</body>
+</html>

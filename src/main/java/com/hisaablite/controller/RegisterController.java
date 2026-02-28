@@ -31,7 +31,8 @@ public class RegisterController {
 
    @PostMapping("/register")
     public String register(@Valid @ModelAttribute RegisterRequest request,
-                       BindingResult bindingResult) {
+                       BindingResult bindingResult,
+                       Model model) {
 
     if (shopRepository.existsByPanNumber(request.getPanNumber())) {
         bindingResult.rejectValue("panNumber", null, "PAN already registered");
@@ -46,6 +47,14 @@ public class RegisterController {
     }
 
     registrationService.registerShop(request);
-    return "redirect:/login";
+
+    // Success message for display
+    model.addAttribute("success", "Shop registered successfully! You will be redirected to login.");
+
+    // Reset form
+    model.addAttribute("registerRequest", new RegisterRequest());
+
+    return "register";
 }
+
 }

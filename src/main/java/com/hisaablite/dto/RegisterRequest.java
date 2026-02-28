@@ -1,5 +1,7 @@
 package com.hisaablite.dto;
 
+import java.time.LocalDateTime;
+
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -34,4 +36,5 @@ public class RegisterRequest {
     private String state;
     private String pincode;
     private String upiId;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
