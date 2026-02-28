@@ -105,6 +105,8 @@
 
 <div class="login-container">
     <h2>🔐 HisaabLite Login</h2>
+    
+<!-- <p th:if="${param.error}" th:text="${param.error[0]}"></p>  -->
 
     <form method="post" th:action="@{/login}">
         <div class="form-group">
@@ -126,23 +128,30 @@
         ✅ You have been logged out successfully.
     </div>
 
-    <div th:if="${param.error}" style="color:red; margin-top:10px;">
+
+<div th:if="${param.error}" 
+     style="color:red; margin-top:10px; text-align:center;">
+
+    <span th:if="${param.error[0] == 'bad'}">
         ❌ Invalid username or password.
-    </div>
+    </span>
+
+    <span th:if="${param.error[0] != 'bad'}"
+          th:text="${param.error[0]}">
+    </span>
+
+</div>
+
 
     <div style="margin-top:15px; text-align:center;">
-<div style="margin-top:20px; text-align:center;">
-
+<div style="margin-top:15px; text-align:center;">
     <a th:href="@{/register}" class="link-register">
         ➕ Register Your Shop
     </a>
-
-    <br/><br/>
-
+    &nbsp; | &nbsp;
     <a th:href="@{/forgot-password}" class="link-forgot">
         🔑 Forgot Password?
     </a>
-
 </div>
     
 

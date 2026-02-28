@@ -1,0 +1,25 @@
+<h2>Add Staff</h2>
+<p th:if="${error}" style="color:red;" th:text="${error}"></p>
+<form th:action="@{/staff}" method="post" th:object="${user}">
+
+    Name:
+    <input type="text" th:field="*{name}" required/>
+
+    Username (Email):
+    <input type="email" th:field="*{username}" required/>
+
+    Phone:
+    <input type="text" th:field="*{phone}" required/>
+
+    Password:
+    <input type="password" th:field="*{password}" required/>
+
+    Role:
+    <select th:field="*{role}">
+        <option value="MANAGER">Manager</option>
+        <option value="CASHIER">Cashier</option>
+    </select>
+
+    <button type="submit">Save</button>
+
+</form>

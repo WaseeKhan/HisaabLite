@@ -1,0 +1,46 @@
+<h2>Staff Management</h2>
+
+<a href="/staff/new">➕ Add Staff</a>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+
+    <tr th:each="user : ${staffList}">
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.role}"></td>
+        <td th:text="${user.active ? 'Active' : 'Inactive'}"></td>
+
+        <td>
+            <!-- Change Role -->
+            <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post">
+                <select name="role">
+                    <option value="MANAGER">Manager</option>
+                    <option value="CASHIER">Cashier</option>
+                </select>
+                <button type="submit">Change</button>
+            </form>
+
+            <!-- Reset Password -->
+            <form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post">
+                <button type="submit">Reset Password</button>
+            </form>
+
+            <!-- Toggle Status -->
+            <form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post">
+                <button type="submit">Activate / Deactivate</button>
+            </form>
+
+            <!-- Delete -->
+            <form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+</table>

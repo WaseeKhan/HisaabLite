@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.hisaablite.controller.CustomAuthFailureHandler;
 import com.hisaablite.security.CustomUserDetailsService;
 
 @Configuration
@@ -14,6 +16,7 @@ import com.hisaablite.security.CustomUserDetailsService;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthFailureHandler failureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
@@ -28,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/cashier/**").hasAnyRole("OWNER", "CASHIER")
                 .requestMatchers("/products/new").hasAnyRole("OWNER", "MANAGER")
                 .requestMatchers("/profile/**").hasRole("OWNER")
+                .requestMatchers("/staff/**").hasRole("OWNER")
                 .requestMatchers("/app/**").authenticated()
                 .anyRequest().authenticated()
             )
@@ -36,9 +40,10 @@ public class SecurityConfig {
             
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true)
+                .failureHandler(failureHandler)
+                .defaultSuccessUrl("/dashboard")
                 .permitAll()
-            )
+)
             .logout(logout -> logout
             .logoutUrl("/logout")
             .logoutSuccessUrl("/login?logout")
