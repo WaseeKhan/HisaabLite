@@ -1,6 +1,8 @@
 spring:
   application:
     name: hisaablite
+  config:
+    import: optional:application-secrets.yml
 
   datasource:
     url: jdbc:mysql://localhost:3306/hisaablite?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
@@ -18,6 +20,18 @@ spring:
 
   thymeleaf:
     cache: false
+
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8080

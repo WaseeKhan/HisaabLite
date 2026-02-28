@@ -34,3 +34,6 @@ spring-boot-devtools.properties
 # Temporary files
 *.tmp
 *.bak
+
+# Secrets
+application-secrets.yml

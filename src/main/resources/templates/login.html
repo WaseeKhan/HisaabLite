@@ -77,6 +77,28 @@
             font-size: 12px;
             color: #777;
         }
+
+       
+.link-register {
+    font-size:13px;
+    text-decoration:none;
+    color:#3498db;
+}
+
+.link-register:hover {
+    text-decoration:underline;
+}
+
+.link-forgot {
+    font-size:13px;
+    text-decoration:none;
+    color:#e67e22;
+}
+
+.link-forgot:hover {
+    text-decoration:underline;
+}
+
     </style>
 </head>
 <body>
@@ -109,18 +131,20 @@
     </div>
 
     <div style="margin-top:15px; text-align:center;">
+<div style="margin-top:20px; text-align:center;">
 
-    <a th:href="@{/register}" 
-       style="font-size:13px; text-decoration:none; color:#3498db;">
+    <a th:href="@{/register}" class="link-register">
         ➕ Register Your Shop
     </a>
 
     <br/><br/>
 
-    <a th:href="@{/forgot-password}" 
-       style="font-size:13px; text-decoration:none; color:#e67e22;">
+    <a th:href="@{/forgot-password}" class="link-forgot">
         🔑 Forgot Password?
     </a>
+
+</div>
+    
 
 </div>
 

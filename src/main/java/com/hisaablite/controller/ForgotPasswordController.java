@@ -13,22 +13,29 @@ import com.hisaablite.entity.PasswordResetToken;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.PasswordResetTokenRepository;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.service.EmailService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequiredArgsConstructor
 public class ForgotPasswordController {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    // Constructor Injection (ALL DEPENDENCIES)
-    public ForgotPasswordController(UserRepository userRepository,
-                                    PasswordResetTokenRepository passwordResetTokenRepository,
-                                    PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordResetTokenRepository = passwordResetTokenRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    // // Constructor Injection (ALL DEPENDENCIES)
+    // public ForgotPasswordController(UserRepository userRepository,
+    //                                 PasswordResetTokenRepository passwordResetTokenRepository,
+    //                                 PasswordEncoder passwordEncoder) {
+    //     this.userRepository = userRepository;
+    //     this.passwordResetTokenRepository = passwordResetTokenRepository;
+    //     this.passwordEncoder = passwordEncoder;
+    // }
 
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
@@ -37,7 +44,7 @@ public class ForgotPasswordController {
 
     @PostMapping("/forgot-password")
 public String processForgotPassword(@RequestParam String username,
-                                    Model model) {
+                                    Model model, HttpServletRequest request) {
 
     Optional<User> userOpt = userRepository.findByUsername(username);
 
@@ -60,9 +67,15 @@ public String processForgotPassword(@RequestParam String username,
 
     passwordResetTokenRepository.save(resetToken);
 
-    System.out.println("Reset Link: http://localhost:8080/reset-password?token=" + token);
+    String appUrl = request.getRequestURL().toString()
+                    .replace(request.getServletPath(), "");
 
-    model.addAttribute("message", "Reset link generated. Check console.");
+    String resetLink = appUrl + "/reset-password?token=" + token;
+
+    emailService.sendResetEmail(user.getUsername(), resetLink);
+
+    // model.addAttribute("message", "Reset link generated. Check console.");
+    model.addAttribute("message", "Reset link sent to your email.");
     return "forgot-password";
 }
 
