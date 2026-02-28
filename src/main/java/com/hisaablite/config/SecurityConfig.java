@@ -21,9 +21,12 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                 .requestMatchers("/", "/login", "/register", "/forgot-password","/reset-password", "/css/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/forgot-password","/reset-password", "/css/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/products/new").hasRole("OWNER")
+                .requestMatchers("/owner/**").hasRole("OWNER")
+                .requestMatchers("/manager/**").hasAnyRole("OWNER", "MANAGER")
+                .requestMatchers("/cashier/**").hasAnyRole("OWNER", "CASHIER")
+                .requestMatchers("/products/new").hasAnyRole("OWNER", "MANAGER")
                 .requestMatchers("/profile/**").hasRole("OWNER")
                 .requestMatchers("/app/**").authenticated()
                 .anyRequest().authenticated()
@@ -33,7 +36,7 @@ public class SecurityConfig {
             
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/app", true)
+                .defaultSuccessUrl("/dashboard", true)
                 .permitAll()
             )
             .logout(logout -> logout

@@ -1,11 +1,10 @@
 package com.hisaablite.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -46,4 +45,7 @@ public class Shop {
     private boolean active = true;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @OneToMany(mappedBy = "shop")
+    private List<User> users;
 }

@@ -166,16 +166,35 @@
 
 <div class="sidebar">
    <div class="logo">
-        <!-- Sample Logo -->
         <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
         <h3 style="margin:0;">HisaabLite</h3>
     </div>
 
-    <a href="/app">📊 Dashboard</a>
-    <a href="/sales/new">💰 New Sale</a>
-    <a href="/products">📦 Products</a>
-    <a href="/sales/history">📑 Sales History</a>
-    <a href="/profile">🏪 Profile</a>
+    <!-- Dashboard (All roles) -->
+    <a th:href="@{/dashboard}">📊 Dashboard</a>
+
+    <!-- New Sale (Owner + Cashier) -->
+    <a th:if="${role == 'OWNER' or role == 'CASHIER'}"
+       th:href="@{/sales/new}">
+       💰 New Sale
+    </a>
+
+    <!-- Products (Owner + Manager) -->
+    <a th:if="${role == 'OWNER' or role == 'MANAGER'}"
+       th:href="@{/products}">
+       📦 Products
+    </a>
+
+    <!-- Sales History (All roles) -->
+    <a th:href="@{/sales/history}">
+        📑 Sales History
+    </a>
+
+    <!-- Profile (Only Owner) -->
+    <a th:if="${role == 'OWNER'}"
+       th:href="@{/profile}">
+       🏪 Profile
+    </a>
 
     <form th:action="@{/logout}" method="post">
         <button type="submit" class="logout-btn">🔓 Logout</button>
