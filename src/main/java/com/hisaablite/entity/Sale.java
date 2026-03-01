@@ -36,4 +36,26 @@ public class Sale {
 
     @Enumerated(EnumType.STRING)
     private SaleStatus status;
+
+        //billing page
+
+            // CUSTOMER DETAILS
+        private String customerName;
+        private String customerPhone;
+
+        // PAYMENT DETAILS
+        private String paymentMode; // CASH / UPI / CARD
+        private Double amountReceived;
+        private Double changeReturned;
+
+        //billiing page end here
+
+        //discount logic
+        private BigDecimal discountAmount = BigDecimal.ZERO;
+        private BigDecimal discountPercent = BigDecimal.ZERO;
+        private BigDecimal taxableAmount = BigDecimal.ZERO;
+
+     
+
+
 }

@@ -1,193 +1,216 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>Invoice - HisaabLite</title>
+    <title>Invoice - HisaabLite</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+            padding: 20px;
+        }
 
-<style>
-body {
-    font-family:'Roboto',sans-serif;
-    max-width:700px;
-    margin:auto;
-    padding:20px;
-    color:#111;
-}
+        .invoice-box {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-.invoice-box {
-    border:1px solid #ddd;
-    padding:25px;
-    border-radius:8px;
-}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
 
-.header {
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:20px;
-}
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
 
-.shop-info h2 {
-    margin:0;
-    font-size:22px;
-}
+        .invoice-title {
+            font-size: 20px;
+            color: #555;
+        }
 
-.shop-info p {
-    margin:2px 0;
-    font-size:13px;
-    color:#555;
-}
+        .section {
+            margin-bottom: 20px;
+        }
 
-.invoice-info {
-    text-align:right;
-    font-size:13px;
-}
+        .section h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
 
-hr {
-    border:none;
-    border-top:1px solid #eee;
-    margin:15px 0;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-table {
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-}
+        table th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
 
-th {
-    background:#111827;
-    color:white;
-    padding:10px;
-    font-size:13px;
-}
+        table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
 
-td {
-    padding:8px;
-    border-bottom:1px solid #eee;
-    font-size:13px;
-}
+        .totals {
+            margin-top: 20px;
+            width: 40%;
+            float: right;
+        }
 
-.right {
-    text-align:right;
-}
+        .totals td {
+            padding: 8px;
+        }
 
-.summary {
-    margin-top:15px;
-    width:100%;
-}
+        .grand-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
 
-.summary td {
-    padding:6px;
-}
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+        }
 
-.total-row {
-    font-weight:bold;
-    font-size:15px;
-}
+        .print-btn {
+            text-align: right;
+            margin-bottom: 15px;
+        }
 
-.footer {
-    text-align:center;
-    margin-top:25px;
-    font-size:12px;
-    color:#555;
-}
+        .print-btn button {
+            padding: 8px 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-.print-btn {
-    margin-top:20px;
-    padding:8px 15px;
-    background:#2563eb;
-    color:white;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
+        @media print {
+            .print-btn {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+        }
 
-@media print {
-    .print-btn { display:none; }
-    body { padding:0; }
-    .invoice-box { border:none; }
-}
-</style>
+    </style>
 </head>
 
 <body>
 
 <div class="invoice-box">
 
-<div class="header">
-    <div class="shop-info">
-        <h2 th:text="${sale.shop != null ? sale.shop.name : 'Shop Name'}">Shop Name</h2>
-        <p>
-            <span th:text="${sale.shop != null ? sale.shop.address : ''}"></span>,
-            <br>
-            <span th:text="${sale.shop != null ? sale.shop.city : ''}"></span>,
-            <span th:text="${sale.shop != null ? sale.shop.state : ''}"></span> - 
-            <span th:text="${sale.shop != null ? sale.shop.pincode : ''}"></span>
-        </p>
-        
-        <!-- <p th:text="${sale.shop != null ? sale.shop.phone : ''}">Phone</p> -->
+    <div class="print-btn">
+        <button onclick="window.print()">Print Invoice</button>
     </div>
 
-    <div class="invoice-info">
-        <div><strong>Invoice #:</strong> <span th:text="${sale.id}"></span></div>
-        <div><strong>Date:</strong>
-            <span th:text="${#temporals.format(sale.saleDate,'dd MMM yyyy HH:mm')}"></span> HRS
-        </div>
-        <div><strong>Cashier:</strong>
-            <span th:text="${sale.createdBy != null ? sale.createdBy.name : ''}"></span> 
-        </div>
-        <div><strong>GST #:</strong>
-            <span th:text="${sale.shop != null ? sale.shop.gstNumber : ''}"></span>
+    <div class="header">
+        <div>
+            <div class="brand">HisaabLite</div>
+            <div th:text="${sale.shop.name}"></div>
+            <div th:text="${sale.shop.address}"></div>
         </div>
 
-        <div><strong>Phone #:</strong>
-            <span th:text="${sale.shop != null ? sale.createdBy.phone : ''}"></span>
+        <div>
+            <div class="invoice-title">INVOICE</div>
+            <div>Invoice ID: <span th:text="${sale.id}"></span></div>
+            <div>Date: <span th:text="${#temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm')}"></span></div>
         </div>
     </div>
+
+    <!-- Customer Section -->
+    <div class="section">
+        <h4>Customer Details</h4>
+        <div>Name: <span th:text="${sale.customerName != null ? sale.customerName : 'Walk-in Customer'}"></span></div>
+        <div>Phone: <span th:text="${sale.customerPhone != null ? sale.customerPhone : '-'}"></span></div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="section">
+        <h4>Items</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item, stat : ${items}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${item.product.name}"></td>
+                    <td>₹ <span th:text="${item.product.price}"></span></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td>₹ <span th:text="${item.subtotal}"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Totals Section -->
+    <table class="totals">
+        <tr>
+            <td>Subtotal:</td>
+            <td>₹ <span th:text="${sale.totalAmount + sale.discountAmount}"></span></td>
+        </tr>
+
+        <tr>
+            <td>Discount:</td>
+            <td>
+                ₹ <span th:text="${sale.discountAmount}"></span>
+                (<span th:text="${sale.discountPercent}"></span>%)
+            </td>
+        </tr>
+
+        <tr class="grand-total">
+            <td>Grand Total:</td>
+            <td>₹ <span th:text="${sale.totalAmount}"></span></td>
+        </tr>
+
+        <tr>
+            <td>Payment Mode:</td>
+            <td th:text="${sale.paymentMode}"></td>
+        </tr>
+
+        <tr>
+            <td>Amount Received:</td>
+            <td>₹ <span th:text="${sale.amountReceived}"></span></td>
+        </tr>
+
+        <tr>
+            <td>Change Returned:</td>
+            <td>₹ <span th:text="${sale.changeReturned}"></span></td>
+        </tr>
+    </table>
+
+    <div style="clear: both;"></div>
+
+    <div class="footer">
+        Thank you for your business ❤️ <br>
+        Generated by HisaabLite POS System
+    </div>
+
 </div>
-
-<hr/>
-
-<table>
-<tr>
-<th>Item</th>
-<th class="right">Qty</th>
-<th class="right">Price</th>
-<th class="right">Subtotal</th>
-</tr>
-
-<tr th:each="item : ${items}">
-<td th:text="${item.product.name}"></td>
-<td class="right" th:text="${item.quantity}"></td>
-<td class="right" th:text="'₹' + ${item.priceAtSale}"></td>
-<td class="right" th:text="'₹' + ${item.subtotal}"></td>
-</tr>
-</table>
-
-<table class="summary">
-<tr>
-<td class="right">Subtotal:</td>
-<td class="right" th:text="'₹' + ${sale.totalAmount}"></td>
-</tr>
-
-<tr>
-<td class="right">GST (0%):</td>
-<td class="right">₹0.00</td>
-</tr>
-
-<tr class="total-row">
-<td class="right">Grand Total:</td>
-<td class="right" th:text="'₹' + ${sale.totalAmount}"></td>
-</tr>
-</table>
-
-<div class="footer">
-Thank you for shopping with us ❤️ Powered by <strong>HisaabLite</strong>
-</div>
-
-</div>
-
-<button class="print-btn" onclick="window.print()">🖨 Print Invoice</button>
 
 </body>
 </html>

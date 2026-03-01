@@ -4,7 +4,8 @@
 <title>Billing - HisaabLite</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 <style>
 body {
     margin:0;
@@ -93,6 +94,30 @@ td {
     justify-content:space-between;
     margin-bottom:15px;
 }
+
+/* css related to product search  */
+
+#searchResults {
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    position: absolute;
+    width: 300px;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background-color: #f0f0f0;
+}
+
+
 </style>
 </head>
 
@@ -101,9 +126,24 @@ td {
 <div class="container">
 
 <div class="top-actions">
-<h2>🧾 New Sale</h2>
+<h2>🧾 Billing Dashboard</h2>
+
+
 <a th:href="@{/dashboard}"><button>⬅ Dashboard</button></a>
 </div>
+
+<!-- search start here -->
+
+<div style="margin-bottom:15px;">
+    <input type="text"
+           id="searchInput" autocomplete="off"
+           placeholder="Search product..."
+           style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+</div>
+
+<div id="searchResults"></div>
+
+<!-- search end here  -->
 
 <div th:if="${success}" class="success" th:text="${success}"></div>
 <div th:if="${error}" class="error" th:text="${error}"></div>
@@ -155,10 +195,198 @@ td {
 </table>
 
 <form th:action="@{/sales/complete}" method="post" style="margin-top:20px;">
+
+<h3>💰 Payment Details</h3>
+
+<div class="form-row">
+    <select name="paymentMode" id="paymentMode">
+        <option value="CASH">Cash</option>
+        <option value="UPI">UPI</option>
+        <option value="CARD">Card</option>
+    </select>
+
+    <input type="number" step="0.01" 
+           name="amountReceived" 
+           id="amountReceived"
+           placeholder="Amount Received"
+           oninput="calculateChange()" />
+</div>
+
+<div class="form-row">
+    <input type="text" 
+           id="changeReturned" 
+           name="changeReturned"
+           placeholder="Change"
+           readonly />
+</div>
+
+<!-- 🔹 VERY IMPORTANT: Move customer fields inside this form -->
+<div class="form-row">
+    <input type="text" name="customerName" placeholder="Customer Name (Optional)" />
+    <input type="text" name="customerPhone" placeholder="Customer Phone" />
+</div>
+
+<!-- discount  -->
+
+<div>
+    <label>Discount (₹)</label>
+    <input type="number" step="0.01" name="discountAmount" />
+</div>
+
+<div>
+    <label>Discount (%)</label>
+    <input type="number" step="0.01" name="discountPercent" />
+</div>
+
 <button type="submit">Complete Sale</button>
+
 </form>
+
 
 </div>
 
 </body>
+<script>
+function calculateChange() {
+    let total = [[${totalAmount}]];
+    let received = document.getElementById("amountReceived").value;
+    let changeField = document.getElementById("changeReturned");
+
+    if (received && total) {
+        let change = parseFloat(received) - parseFloat(total);
+        changeField.value = change >= 0 ? change.toFixed(2) : "0.00";
+    }
+}
+</script>
+<!-- This is js related to product search  -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    let selectedIndex = -1;
+    let suggestions = [];
+    let selectedProduct = null;
+
+    const input = document.getElementById("searchInput");
+    const resultsBox = document.getElementById("searchResults");
+
+    input.addEventListener("keyup", function (e) {
+
+        if (e.key === "ArrowDown") {
+            selectedIndex++;
+            highlight();
+            return;
+        }
+
+        if (e.key === "ArrowUp") {
+            selectedIndex--;
+            highlight();
+            return;
+        }
+
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                selectProduct(suggestions[selectedIndex]);
+            }
+            return;
+        }
+
+        let keyword = this.value;
+
+        if (keyword.length < 1) {
+            resultsBox.innerHTML = "";
+            return;
+        }
+
+        fetch("/sales/search?keyword=" + keyword)
+            .then(res => res.json())
+            .then(data => {
+
+                suggestions = data;
+                selectedIndex = -1;
+
+                let html = "";
+
+                data.forEach((p, index) => {
+                    html += `
+                        <div class="suggestion-item" data-index="${index}">
+                            <strong>${p.name}</strong>
+                            - ₹${p.price}
+                            | Stock: ${p.stock}
+                        </div>
+                    `;
+                });
+
+                resultsBox.innerHTML = html;
+
+                document.querySelectorAll(".suggestion-item")
+                    .forEach(item => {
+                        item.addEventListener("click", function () {
+                            const index = this.getAttribute("data-index");
+                            selectProduct(suggestions[index]);
+                        });
+                    });
+
+            });
+    });
+
+    function highlight() {
+        const items = document.querySelectorAll(".suggestion-item");
+
+        if (selectedIndex >= items.length) selectedIndex = 0;
+        if (selectedIndex < 0) selectedIndex = items.length - 1;
+
+        items.forEach(i => i.classList.remove("active"));
+
+        if (items[selectedIndex]) {
+            items[selectedIndex].classList.add("active");
+        }
+    }
+
+    function selectProduct(product) {
+        selectedProduct = product;
+        input.value = product.name;
+        resultsBox.innerHTML = "";
+        showQuantity();
+    }
+
+    function showQuantity() {
+        let qtyDiv = document.getElementById("qtyDiv");
+
+        if (!qtyDiv) {
+            qtyDiv = document.createElement("div");
+            qtyDiv.id = "qtyDiv";
+            qtyDiv.innerHTML = `
+                <input type="number" id="qtyInput" value="1" min="1" style="width:70px;">
+                <button id="addBtn">Add</button>
+            `;
+            input.parentNode.appendChild(qtyDiv);
+
+            document.getElementById("addBtn")
+                .addEventListener("click", confirmAdd);
+        }
+
+        document.getElementById("qtyInput").focus();
+    }
+
+    function confirmAdd() {
+
+        const quantity = document.getElementById("qtyInput").value;
+        const csrfToken = document.querySelector("meta[name='_csrf']").content;
+
+        fetch("/sales/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "_csrf=" + csrfToken +
+                  "&productId=" + selectedProduct.id +
+                  "&quantity=" + quantity
+        })
+        .then(() => location.reload());
+    }
+
+});
+</script>
+
 </html>

@@ -109,35 +109,93 @@ public class SaleController {
     }
 
     // 4️ Complete sale
+@PostMapping("/complete")
+public String completeSale(
+        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String customerPhone,
+        @RequestParam(required = false) String paymentMode,
+        @RequestParam(required = false) Double amountReceived,
+        @RequestParam(required = false) Double changeReturned,
+        @RequestParam(required = false) BigDecimal discountAmount,
+        @RequestParam(required = false) BigDecimal discountPercent,
+        HttpSession session,
+        Authentication authentication,
+        RedirectAttributes redirectAttributes) {
 
-    @PostMapping("/complete")
-    public String completeSale(HttpSession session, Authentication authentication, RedirectAttributes redirectAttributes) {
     List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart == null || cart.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Cart is empty!");
-            return "redirect:/sales/new";
-        }
+
+    if (cart == null || cart.isEmpty()) {
+        redirectAttributes.addFlashAttribute("error", "Cart is empty!");
+        return "redirect:/sales/new";
+    }
 
     User user = userRepository.findByUsername(authentication.getName())
             .orElseThrow();
 
     try {
-        // Transactional save + stock deduction
-        saleService.completeSale(cart, user.getShop(), user);
 
-        // Clear cart after sale
+        // 🔹 EXISTING LOGIC (DO NOT TOUCH)
+        Sale sale = saleService.completeSale(cart, user.getShop(), user);
+
+        // ==========================
+        // DISCOUNT LOGIC START
+        // ==========================
+
+        if (discountAmount == null) discountAmount = BigDecimal.ZERO;
+        if (discountPercent == null) discountPercent = BigDecimal.ZERO;
+
+        BigDecimal originalTotal = sale.getTotalAmount();
+
+        // If percentage entered → calculate amount
+        if (discountPercent.compareTo(BigDecimal.ZERO) > 0) {
+
+            if (discountPercent.compareTo(BigDecimal.valueOf(100)) > 0) {
+                redirectAttributes.addFlashAttribute("error", "Discount % cannot exceed 100");
+                return "redirect:/sales/new";
+            }
+
+            discountAmount = originalTotal
+                    .multiply(discountPercent)
+                    .divide(BigDecimal.valueOf(100));
+        }
+
+        // Prevent over-discount
+        if (discountAmount.compareTo(originalTotal) > 0) {
+            redirectAttributes.addFlashAttribute("error", "Discount cannot exceed total amount");
+            return "redirect:/sales/new";
+        }
+
+        BigDecimal finalTotal = originalTotal.subtract(discountAmount);
+
+        // Save discount in Sale entity (if fields exist)
+        sale.setDiscountAmount(discountAmount);
+        sale.setDiscountPercent(discountPercent);
+        sale.setTotalAmount(finalTotal);
+
+        // ==========================
+        // DISCOUNT LOGIC END
+        // ==========================
+
+
+        // 🔹 Existing customer + payment logic
+        sale.setCustomerName(customerName);
+        sale.setCustomerPhone(customerPhone);
+        sale.setPaymentMode(paymentMode);
+        sale.setAmountReceived(amountReceived);
+        sale.setChangeReturned(changeReturned);
+
+        saleRepository.save(sale);
+
         session.removeAttribute("cart");
 
-        // Flash attribute for success
         redirectAttributes.addFlashAttribute("success", "Sale completed successfully!");
-        } catch (RuntimeException e) {
-        redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        
 
-        return "redirect:/sales/new";
+    } catch (RuntimeException e) {
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
     }
 
+    return "redirect:/sales/new";
+}
 
     //generate invoice
 
@@ -195,5 +253,20 @@ public class SaleController {
 
     return "redirect:/sales/history";
 }
+
+
+
+@GetMapping("/search")
+@ResponseBody
+public List<Product> searchProducts(
+        @RequestParam String keyword,
+        Authentication authentication) {
+
+    User user = userRepository.findByUsername(authentication.getName())
+            .orElseThrow();
+
+    return productService.searchProducts(keyword, user.getShop());
+}
+
 
 }

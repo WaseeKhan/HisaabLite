@@ -14,12 +14,21 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    // Existing method
     public List<Product> getProductsByShop(Shop shop) {
         return productRepository.findByShop(shop);
     }
 
+    // Existing method
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
+
+    //  NEW: AJAX Search Method
+    public List<Product> searchProducts(String keyword, Shop shop) {
+        return productRepository
+                .findByShopAndNameIgnoreCaseContaining(shop, keyword);
+    }
+
 }

@@ -20,5 +20,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
        AND p.stockQuantity <= p.minStock
        """)
     List<Product> findLowStockProducts(@Param("shop") Shop shop);
+
+    // List<Product> findByShopAndNameContainingIgnoreCase(Shop shop, String name);
+    // List<Product> findByShopAndNameStartingWithIgnoreCase(Shop shop, String name);
+    List<Product> findByShopAndNameIgnoreCaseContaining(Shop shop, String name);
+
+
+
+
 }
 

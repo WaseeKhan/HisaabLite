@@ -40,7 +40,7 @@ public class SaleService {
             throw new RuntimeException("Cart is empty!");
         }
 
-        // 1️⃣ Create Sale
+        // 1 Create Sale
         Sale sale = new Sale();
         sale.setSaleDate(LocalDateTime.now());
         sale.setShop(shop);
@@ -52,7 +52,7 @@ public class SaleService {
 
         BigDecimal totalAmount = BigDecimal.ZERO;
 
-        // 2️⃣ Process each cart item
+        // 2 Process each cart item
         for (CartItem cartItem : cartItems) {
 
             Product product = productRepository.findById(cartItem.getProductId())
