@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,4 +32,7 @@ public class ProductService {
                 .findByShopAndNameIgnoreCaseContaining(shop, keyword);
     }
 
+    public Optional<Product> getProductByIdAndShop(Long id, Shop shop) {
+    return productRepository.findByIdAndShop(id, shop);
+}
 }

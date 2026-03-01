@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/sales")
@@ -69,33 +70,62 @@ public class SaleController {
 
 
     // 2 Add to cart
-    @PostMapping("/add")
-    public String addToCart(@RequestParam Long productId,
-                            @RequestParam Integer quantity,
-                            HttpSession session) {
+@PostMapping("/add")
+@ResponseBody
+public List<CartItem> addToCart(
+        @RequestParam Long productId,
+        @RequestParam int quantity,
+        HttpSession session,
+        Authentication authentication) {
 
-        Product product = productService.getProductById(productId);
+    User user = userRepository.findByUsername(authentication.getName())
+            .orElseThrow();
 
-        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-        if (cart == null) {
-            cart = new ArrayList<>();
-        }
+    Product product = productService.getProductByIdAndShop(productId, user.getShop())
+            .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
-        CartItem item = CartItem.builder()
-                .productId(product.getId())
-                .productName(product.getName())
-                .price(product.getPrice())
-                .quantity(quantity)
-                .subtotal(subtotal)
-                .build();
-
-        cart.add(item);
-        session.setAttribute("cart", cart);
-
-        return "redirect:/sales/new";
+    if (cart == null) {
+        cart = new ArrayList<>();
     }
+
+    // 🔹 Check if product already in cart
+    boolean found = false;
+
+    for (CartItem item : cart) {
+        if (item.getProductId().equals(productId)) {
+
+            int newQty = item.getQuantity() + quantity;
+
+            item.setQuantity(newQty);
+            item.setSubtotal(
+                    product.getPrice().multiply(BigDecimal.valueOf(newQty))
+            );
+
+            found = true;
+            break;
+        }
+    }
+
+    // 🔹 If new product
+    if (!found) {
+        CartItem cartItem = new CartItem();
+        cartItem.setProductId(product.getId());
+        cartItem.setProductName(product.getName());
+        cartItem.setPrice(product.getPrice());
+        cartItem.setQuantity(quantity);
+        cartItem.setSubtotal(
+                product.getPrice().multiply(BigDecimal.valueOf(quantity))
+        );
+
+        cart.add(cartItem);
+    }
+
+    session.setAttribute("cart", cart);
+
+    return cart; // VERY IMPORTANT
+}
 
     // 3 Remove from cart
     @GetMapping("/remove/{index}")
@@ -266,6 +296,21 @@ public List<Product> searchProducts(
             .orElseThrow();
 
     return productService.searchProducts(keyword, user.getShop());
+}
+
+// cart live update 
+
+@RequestMapping("/cart")
+@ResponseBody
+public List<CartItem> getCart(HttpSession session) {
+
+    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+
+    if (cart == null) {
+        return new ArrayList<>();
+    }
+
+    return cart;
 }
 
 

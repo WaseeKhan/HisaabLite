@@ -1,392 +1,450 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>Billing - HisaabLite</title>
+<title>HisaabLite POS</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <meta name="_csrf" th:content="${_csrf.token}"/>
-<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
 <style>
-body {
+
+body{
     margin:0;
     font-family:'Poppins',sans-serif;
-    background:#f4f6f9;
-    padding:30px;
-}
-
-.container {
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.08);
-}
-
-h2 {
-    margin-bottom:20px;
-}
-
-.form-row {
     display:flex;
-    gap:10px;
-    margin-bottom:20px;
+    height:100vh;
+    background:#f4f6f9;
 }
 
-select, input {
-    padding:10px;
-    border:1px solid #ddd;
-    border-radius:8px;
+/* SIDEBAR */
+
+.sidebar{
+    width:230px;
+    background:linear-gradient(180deg,#111827,#1f2937);
+    color:white;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+}
+
+.sidebar h3{margin-bottom:25px;}
+
+.sidebar a{
+    color:white;
+    text-decoration:none;
+    padding:8px;
+    border-radius:6px;
+    margin-bottom:6px;
+}
+
+.sidebar a:hover{
+    background:rgba(255,255,255,0.08);
+}
+
+/* MAIN */
+
+.main{
     flex:1;
+    display:flex;
+    flex-direction:column;
 }
 
-button {
-    padding:10px 15px;
-    border:none;
+.topbar{
+    background:white;
+    padding:12px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.billing-layout{
+    flex:1;
+    display:grid;
+    grid-template-columns:1fr 1.5fr;
+    gap:20px;
+    padding:20px;
+}
+
+/* LEFT PANEL */
+
+.left-panel{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.06);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.left-panel input,
+.left-panel select{
+    padding:10px;
     border-radius:8px;
+    border:1px solid #ddd;
+}
+
+.left-panel button{
+    padding:10px;
+    border:none;
     background:#2563eb;
     color:white;
+    border-radius:8px;
     cursor:pointer;
 }
 
-button:hover {
+.left-panel button:hover{
     background:#1e40af;
 }
 
-table {
+/* RIGHT PANEL */
+
+.right-panel{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.06);
+    display:flex;
+    flex-direction:column;
+}
+
+.cart-table{
+    flex:1;
+    overflow:auto;
+}
+
+.cart-table table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
 }
 
-th {
-    background:#111827;
-    color:white;
-    padding:10px;
-}
-
-td {
+.cart-table th{
+    text-align:left;
     padding:10px;
     border-bottom:1px solid #eee;
+    font-size:13px;
+}
+
+.cart-table td{
+    padding:10px;
+    border-bottom:1px solid #f1f1f1;
+}
+
+.total-box{
+    margin-top:15px;
+    padding:20px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#111827,#1f2937);
+    color:white;
     text-align:center;
+    font-size:22px;
+    font-weight:600;
 }
 
-.total-row {
-    font-weight:bold;
+/* SEARCH */
+
+#searchResults{
+    border:1px solid #ddd;
+    border-radius:8px;
+    max-height:200px;
+    overflow-y:auto;
 }
 
-.success {
-    background:#dcfce7;
-    color:#166534;
+.suggestion-item{
     padding:8px;
-    border-radius:6px;
-    margin-bottom:10px;
+    cursor:pointer;
+    border-bottom:1px solid #eee;
 }
 
-.error {
-    background:#fee2e2;
-    color:#b91c1c;
-    padding:8px;
-    border-radius:6px;
-    margin-bottom:10px;
+.suggestion-item.active,
+.suggestion-item:hover{
+    background:#2563eb;
+    color:white;
 }
-
-.top-actions {
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:15px;
-}
-
-/* css related to product search  */
-
-#searchResults {
-    border: 1px solid #ddd;
-    max-height: 200px;
-    overflow-y: auto;
-    background: white;
-    position: absolute;
-    width: 300px;
-    z-index: 1000;
-}
-
-.suggestion-item {
-    padding: 8px;
-    cursor: pointer;
-}
-
-.suggestion-item:hover,
-.suggestion-item.active {
-    background-color: #f0f0f0;
-}
-
 
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<div class="top-actions">
-<h2>🧾 Billing Dashboard</h2>
-
-
-<a th:href="@{/dashboard}"><button>⬅ Dashboard</button></a>
+<div class="sidebar">
+    <h3>HisaabLite</h3>
+    <a th:href="@{/dashboard}">📊 Dashboard</a>
+    <a th:href="@{/sales/history}">📑 Sales</a>
+    <a th:href="@{/products}">📦 Products</a>
 </div>
 
-<!-- search start here -->
+<div class="main">
 
-<div style="margin-bottom:15px;">
-    <input type="text"
-           id="searchInput" autocomplete="off"
-           placeholder="Search product..."
-           style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
-</div>
+    <div class="topbar">
+        <div><strong>Billing Dashboard</strong></div>
+        <div>
+            Staff: <strong th:text="${#authentication.name}"></strong> |
+            Role: <strong th:text="${role}"></strong>
+        </div>
+    </div>
 
-<div id="searchResults"></div>
+    <div class="billing-layout">
 
-<!-- search end here  -->
+        <!-- LEFT -->
+        <div class="left-panel">
 
-<div th:if="${success}" class="success" th:text="${success}"></div>
-<div th:if="${error}" class="error" th:text="${error}"></div>
+            <label>Search Product</label>
+            <input type="text" id="searchInput" autocomplete="off"/>
 
-<form th:action="@{/sales/add}" method="post">
-<div class="form-row">
-<select name="productId">
-<option th:each="product : ${products}" 
-        th:value="${product.id}" 
-        th:text="|${product.name} - ₹${product.price}|">
-</option>
-</select>
+            <div id="searchResults"></div>
 
-<input type="number" name="quantity" min="1" value="1" required />
+            <label>Quantity</label>
+            <input type="number" id="qtyInput" value="1" min="1"/>
 
-<button type="submit">Add</button>
-</div>
-</form>
+            <button id="addBtn">Add Product</button>
 
-<h3>Cart</h3>
+            <hr>
 
-<table th:if="${cart != null and cart.size() > 0}">
-<tr>
-<th>#</th>
-<th>Product</th>
-<th>Price</th>
-<th>Qty</th>
-<th>Subtotal</th>
-<th>Action</th>
-</tr>
+            <form th:action="@{/sales/complete}" method="post">
+                <select name="paymentMode">
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="CARD">Card</option>
+                </select>
 
-<tr th:each="item, stat : ${cart}">
-<td th:text="${stat.index + 1}"></td>
-<td th:text="${item.productName}"></td>
-<td th:text="${item.price}"></td>
-<td th:text="${item.quantity}"></td>
-<td th:text="${item.subtotal}"></td>
-<td>
-<a th:href="@{/sales/remove/{index}(index=${stat.index})}">
-<button>Remove</button>
-</a>
-</td>
-</tr>
+                <input type="number" name="amountReceived" placeholder="Amount Received"/>
+                <input type="number" name="discountAmount" placeholder="Discount ₹"/>
 
-<tr class="total-row">
-<td colspan="4" style="text-align:right;">Total</td>
-<td colspan="2" th:text="${totalAmount}"></td>
-</tr>
-</table>
+                <button type="submit">Complete Billing</button>
+            </form>
 
-<form th:action="@{/sales/complete}" method="post" style="margin-top:20px;">
+        </div>
 
-<h3>💰 Payment Details</h3>
+        <!-- RIGHT -->
+        <div class="right-panel">
 
-<div class="form-row">
-    <select name="paymentMode" id="paymentMode">
-        <option value="CASH">Cash</option>
-        <option value="UPI">UPI</option>
-        <option value="CARD">Card</option>
-    </select>
+            <div class="cart-table">
+                <table id="cartTable">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${cart}">
+                            <td th:text="${item.productName}"></td>
+                            <td th:text="${item.quantity}"></td>
+                            <td th:text="${item.price}"></td>
+                            <td th:text="${item.subtotal}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <input type="number" step="0.01" 
-           name="amountReceived" 
-           id="amountReceived"
-           placeholder="Amount Received"
-           oninput="calculateChange()" />
-</div>
+            <div class="total-box">
+                ₹ <span id="totalAmount" th:text="${totalAmount}"></span>
+            </div>
 
-<div class="form-row">
-    <input type="text" 
-           id="changeReturned" 
-           name="changeReturned"
-           placeholder="Change"
-           readonly />
-</div>
+        </div>
 
-<!-- 🔹 VERY IMPORTANT: Move customer fields inside this form -->
-<div class="form-row">
-    <input type="text" name="customerName" placeholder="Customer Name (Optional)" />
-    <input type="text" name="customerPhone" placeholder="Customer Phone" />
-</div>
-
-<!-- discount  -->
-
-<div>
-    <label>Discount (₹)</label>
-    <input type="number" step="0.01" name="discountAmount" />
-</div>
-
-<div>
-    <label>Discount (%)</label>
-    <input type="number" step="0.01" name="discountPercent" />
-</div>
-
-<button type="submit">Complete Sale</button>
-
-</form>
-
+    </div>
 
 </div>
 
-</body>
-<script>
-function calculateChange() {
-    let total = [[${totalAmount}]];
-    let received = document.getElementById("amountReceived").value;
-    let changeField = document.getElementById("changeReturned");
-
-    if (received && total) {
-        let change = parseFloat(received) - parseFloat(total);
-        changeField.value = change >= 0 ? change.toFixed(2) : "0.00";
-    }
-}
-</script>
-<!-- This is js related to product search  -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    let selectedIndex = -1;
-    let suggestions = [];
-    let selectedProduct = null;
+let suggestions = [];
+let selectedIndex = -1;
+let selectedProduct = null;
 
-    const input = document.getElementById("searchInput");
-    const resultsBox = document.getElementById("searchResults");
+const searchInput = document.getElementById("searchInput");
+const qtyInput = document.getElementById("qtyInput");
+const resultsBox = document.getElementById("searchResults");
+const cartBody = document.querySelector("#cartTable tbody");
+const totalAmountEl = document.getElementById("totalAmount");
 
-    input.addEventListener("keyup", function (e) {
+searchInput.focus();
 
-        if (e.key === "ArrowDown") {
-            selectedIndex++;
-            highlight();
-            return;
-        }
+/* ================= SEARCH KEY CONTROL ================= */
 
-        if (e.key === "ArrowUp") {
-            selectedIndex--;
-            highlight();
-            return;
-        }
+searchInput.addEventListener("keydown", function (e) {
 
-        if (e.key === "Enter") {
-            e.preventDefault();
-            if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-                selectProduct(suggestions[selectedIndex]);
-            }
-            return;
-        }
+    const items = document.querySelectorAll(".suggestion-item");
 
-        let keyword = this.value;
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (items.length === 0) return;
 
-        if (keyword.length < 1) {
-            resultsBox.innerHTML = "";
-            return;
-        }
-
-        fetch("/sales/search?keyword=" + keyword)
-            .then(res => res.json())
-            .then(data => {
-
-                suggestions = data;
-                selectedIndex = -1;
-
-                let html = "";
-
-                data.forEach((p, index) => {
-                    html += `
-                        <div class="suggestion-item" data-index="${index}">
-                            <strong>${p.name}</strong>
-                            - ₹${p.price}
-                            | Stock: ${p.stock}
-                        </div>
-                    `;
-                });
-
-                resultsBox.innerHTML = html;
-
-                document.querySelectorAll(".suggestion-item")
-                    .forEach(item => {
-                        item.addEventListener("click", function () {
-                            const index = this.getAttribute("data-index");
-                            selectProduct(suggestions[index]);
-                        });
-                    });
-
-            });
-    });
-
-    function highlight() {
-        const items = document.querySelectorAll(".suggestion-item");
-
+        selectedIndex++;
         if (selectedIndex >= items.length) selectedIndex = 0;
+
+        updateHighlight(items);
+    }
+
+    if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (items.length === 0) return;
+
+        selectedIndex--;
         if (selectedIndex < 0) selectedIndex = items.length - 1;
 
-        items.forEach(i => i.classList.remove("active"));
-
-        if (items[selectedIndex]) {
-            items[selectedIndex].classList.add("active");
-        }
+        updateHighlight(items);
     }
 
-    function selectProduct(product) {
-        selectedProduct = product;
-        input.value = product.name;
+    if (e.key === "Enter") {
+        e.preventDefault();
+
+        if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+
+            selectedProduct = suggestions[selectedIndex];
+
+            searchInput.value = selectedProduct.name;
+            resultsBox.innerHTML = "";
+
+            qtyInput.focus();
+            qtyInput.select();
+        }
+    }
+});
+
+/* ================= FETCH SEARCH ================= */
+
+searchInput.addEventListener("input", function () {
+
+    const keyword = this.value.trim();
+
+    if (keyword.length === 0) {
         resultsBox.innerHTML = "";
-        showQuantity();
+        selectedIndex = -1;
+        suggestions = [];
+        return;
     }
 
-    function showQuantity() {
-        let qtyDiv = document.getElementById("qtyDiv");
+    fetch("/sales/search?keyword=" + keyword)
+        .then(res => res.json())
+        .then(data => {
 
-        if (!qtyDiv) {
-            qtyDiv = document.createElement("div");
-            qtyDiv.id = "qtyDiv";
-            qtyDiv.innerHTML = `
-                <input type="number" id="qtyInput" value="1" min="1" style="width:70px;">
-                <button id="addBtn">Add</button>
-            `;
-            input.parentNode.appendChild(qtyDiv);
+            suggestions = data;
+            selectedIndex = -1;
+            resultsBox.innerHTML = "";
 
-            document.getElementById("addBtn")
-                .addEventListener("click", confirmAdd);
-        }
+            data.forEach((p, index) => {
 
-        document.getElementById("qtyInput").focus();
+                const div = document.createElement("div");
+                div.classList.add("suggestion-item");
+                div.innerText =
+                    p.name + " - ₹" + p.price + " (Stock: " + p.stock + ")";
+                div.dataset.index = index;
+
+                div.addEventListener("click", function () {
+
+                    selectedIndex = index;
+                    selectedProduct = suggestions[index];
+
+                    searchInput.value = selectedProduct.name;
+                    resultsBox.innerHTML = "";
+
+                    qtyInput.focus();
+                    qtyInput.select();
+                });
+
+                resultsBox.appendChild(div);
+            });
+        });
+});
+
+/* ================= QTY ENTER ================= */
+
+qtyInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        addProduct();
+    }
+});
+
+/* ================= ADD PRODUCT ================= */
+
+function addProduct() {
+
+    if (!selectedProduct) {
+        alert("Select product first");
+        return;
     }
 
-    function confirmAdd() {
+    const csrfToken =
+        document.querySelector("meta[name='_csrf']").content;
 
-        const quantity = document.getElementById("qtyInput").value;
-        const csrfToken = document.querySelector("meta[name='_csrf']").content;
+    const qty = parseInt(qtyInput.value) || 1;
 
-        fetch("/sales/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: "_csrf=" + csrfToken +
-                  "&productId=" + selectedProduct.id +
-                  "&quantity=" + quantity
-        })
-        .then(() => location.reload());
+    fetch("/sales/add", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body:
+            "_csrf=" + csrfToken +
+            "&productId=" + selectedProduct.id +
+            "&quantity=" + qty
+    })
+    .then(res => res.json())
+    .then(cartData => {
+
+        updateCartUI(cartData);
+
+        // reset after successful add
+        searchInput.value = "";
+        qtyInput.value = 1;
+        selectedProduct = null;
+        selectedIndex = -1;
+
+        searchInput.focus();
+    });
+}
+
+/* ================= UPDATE UI ================= */
+
+function updateCartUI(cartData) {
+
+    cartBody.innerHTML = "";
+    let total = 0;
+
+    cartData.forEach(item => {
+
+        let subtotal = parseFloat(item.subtotal);
+        total += subtotal;
+
+        const row = `
+        <tr>
+            <td>${item.productName}</td>
+            <td>${item.quantity}</td>
+            <td>${item.price}</td>
+            <td>${subtotal.toFixed(2)}</td>
+        </tr>
+        `;
+
+        cartBody.insertAdjacentHTML("beforeend", row);
+    });
+
+    totalAmountEl.innerText = total.toFixed(2);
+}
+
+/* ================= HIGHLIGHT ================= */
+
+function updateHighlight(items) {
+
+    items.forEach(i => i.classList.remove("active"));
+
+    if (items[selectedIndex]) {
+        items[selectedIndex].classList.add("active");
+        items[selectedIndex].scrollIntoView({
+            block: "nearest"
+        });
     }
+}
 
 });
 </script>
 
+</body>
 </html>
