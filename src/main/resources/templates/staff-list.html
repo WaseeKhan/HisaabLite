@@ -1,112 +1,238 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>Staff Management - HisaabLite</title>
+    <title>Staff Management - HisaabLite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f4f6f9;
+        }
+        body { display: flex; }
 
-<style>
-body {
-    margin:0;
-    font-family:'Poppins',sans-serif;
-    background:#f4f6f9;
-    padding:30px;
-}
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #111827, #1f2937);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+        .logo img { width: 36px; height: 36px; }
+        .sidebar a {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 6px 0;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background: rgba(255,255,255,0.08); }
+        .sidebar a.active { background: rgba(255, 255, 255, 0.15); font-weight: 600; }
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            margin-top: auto;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: #dc2626; }
 
-.container {
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
+        /* MAIN */
+        .main { flex: 1; padding: 25px; display: flex; flex-direction: column; gap: 20px; }
 
-h2 {
-    margin-bottom:20px;
-}
+        .topbar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h2 { margin: 0; font-size: 22px; color: #111827; }
 
-.btn {
-    padding:6px 10px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:12px;
-}
+        /* Table card */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            overflow-x: auto;
+            transition: transform 0.2s ease;
+        }
+        .card:hover { transform: translateY(-3px); }
 
-.btn-primary { background:#2563eb; color:white; }
-.btn-danger { background:#dc2626; color:white; }
-.btn-warning { background:#f59e0b; color:white; }
-.btn-secondary { background:#6b7280; color:white; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td { padding: 12px 10px; text-align: left; }
+        th {
+            background: #111827;
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+        tr:nth-child(even) { background: #f9f9f9; }
+        tr:hover { background: #f1f5f9; transition: 0.2s; }
 
-table {
-    width:100%;
-    border-collapse:collapse;
-}
+        /* Buttons */
+        .btn {
+            padding: 6px 12px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:12px;
+            margin-right: 4px;
+            transition: all 0.2s;
+        }
+        .btn-primary { background:#2563eb; color:white; }
+        .btn-primary:hover { background:#1e40af; }
+        .btn-warning { background:#f59e0b; color:white; }
+        .btn-warning:hover { background:#b45309; }
+        .btn-secondary { background:#6b7280; color:white; }
+        .btn-secondary:hover { background:#4b5563; }
+        .btn-danger { background:#dc2626; color:white; }
+        .btn-danger:hover { background:#991b1b; }
 
-th {
-    background:#111827;
-    color:white;
-    padding:10px;
-}
+        /* Status tags */
+        .status-active {
+            color: #16a34a;
+            font-weight: 600;
+            background: #d1fae5;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .status-inactive {
+            color: #b91c1c;
+            font-weight: 600;
+            background: #fecaca;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
 
-td {
-    padding:10px;
-    border-bottom:1px solid #eee;
-}
-</style>
+        .back-btn {
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            background: #6b7280;
+            color: white;
+        }
+        .back-btn:hover { background: #4b5563; }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="sidebar">
+   <div class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
+        <h3 style="margin:0;">HisaabLite</h3>
+    </div>
 
-<h2>👥 Staff Management</h2>
+    <!-- Dashboard (All roles) -->
+    <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
 
-<a th:href="@{/staff/new}" class="btn btn-primary">➕ Add Staff</a>
-<a th:href="@{/dashboard}" class="btn btn-secondary">⬅ Dashboard</a>
+    <!-- New Sale (Owner + Cashier) -->
+    <a th:if="${role == 'OWNER' or role == 'CASHIER'}"
+       th:href="@{/sales/new}">
+       💰 Billings
+    </a>
 
-<br><br>
+    <!-- Products (Owner + Manager) -->
+    <a th:if="${role == 'OWNER' or role == 'MANAGER'}"
+       th:href="@{/products}">
+       📦 Products
+    </a>
 
-<table>
-<tr>
-<th>Name</th>
-<th>Email</th>
-<th>Role</th>
-<th>Status</th>
-<th>Actions</th>
-</tr>
+    <!-- Sales History (All roles) -->
+    <a th:href="@{/sales/history}">
+        📑 Sales History
+    </a>
 
-<tr th:each="user : ${staffList}">
-<td th:text="${user.name}"></td>
-<td th:text="${user.username}"></td>
-<td th:text="${user.role}"></td>
-<td th:text="${user.active ? 'Active' : 'Inactive'}"></td>
+    <!-- Staff management -->
+    <a th:if="${role == 'OWNER'}"
+   th:href="@{/staff}">
+   👥 Staff Management
+    </a>
+    
 
-<td>
+    <!-- Profile (Only Owner) -->
+    <a th:if="${role == 'OWNER'}"
+       th:href="@{/profile}">
+       🏪 Profile
+    </a>
 
-<form th:action="@{/staff/{id}/role(id=${user.id})}" method="post">
-<select name="role">
-<option value="MANAGER">Manager</option>
-<option value="CASHIER">Cashier</option>
-</select>
-<button class="btn btn-warning">Change</button>
-</form>
 
-<form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post">
-<button class="btn btn-secondary">Reset</button>
-</form>
 
-<form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post">
-<button class="btn btn-warning">Toggle</button>
-</form>
-
-<form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post">
-<button class="btn btn-danger">Delete</button>
-</form>
-
-</td>
-</tr>
-
-</table>
-
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">🔓 Logout</button>
+    </form>
 </div>
 
+<div class="main">
+    <div class="topbar">
+        <h2>👥 Staff Management</h2>
+        <a th:href="@{/staff/new}" class="btn btn-primary">➕ Add Staff</a>
+    </div>
+
+    <div class="card">
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            <tr th:each="user : ${staffList}">
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.role}"></td>
+                <td>
+                    <span th:text="${user.active ? 'Active' : 'Inactive'}"
+                          th:classappend="${user.active ? 'status-active' : 'status-inactive'}"></span>
+                </td>
+                <td>
+                    <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" style="display:inline;">
+                        <select name="role">
+                            <option value="MANAGER">Manager</option>
+                            <option value="CASHIER">Cashier</option>
+                        </select>
+                        <button class="btn btn-warning">Change</button>
+                    </form>
+
+                    <form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post" style="display:inline;">
+                        <button class="btn btn-secondary">Reset</button>
+                    </form>
+
+                    <form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post" style="display:inline;">
+                        <button class="btn btn-warning">Toggle</button>
+                    </form>
+
+                    <form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post" style="display:inline;">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <a th:href="@{/dashboard}" class="back-btn">⬅ Back to Dashboard</a>
+</div>
 </body>
 </html>

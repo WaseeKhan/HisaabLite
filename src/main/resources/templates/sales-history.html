@@ -2,114 +2,308 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Sales History - HisaabLite</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: Arial; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #2c3e50; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            background: #f4f6f9;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #111827, #1f2937);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar a {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 6px 0;
+            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .sidebar a.active {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            margin-top: auto;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f3f4f6;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
 
         .btn {
-            padding: 5px 10px;
-            background-color: #3498db;
+            padding: 6px 10px;
+            background-color: #3b82f6;
             color: white;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
         }
 
         .cancel-btn {
-            background-color: #e74c3c;
+            background-color: #ef4444;
         }
 
-        .pagination { margin-top: 15px; }
-        .pagination a { margin: 0 5px; text-decoration: none; }
+        .cancel-btn:hover {
+            background-color: #dc2626;
+        }
 
-        .status-completed { color: green; font-weight: bold; }
-        .status-cancelled { color: red; font-weight: bold; }
+        .status-completed {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .status-cancelled {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            color: #3b82f6;
+        }
+
+        .pagination span {
+            font-weight: 600;
+        }
+
+           .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
     </style>
 </head>
+
 <body>
+<div class="sidebar">
+   <div class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
+        <h3 style="margin:0;">HisaabLite</h3>
+    </div>
 
-<h2>Sales History</h2>
+    <!-- Dashboard (All roles) -->
+    <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
 
-<table>
-    <tr>
-        <th>Invoice #</th>
-        <th>Date</th>
-        <th>Total (₹)</th>
-        <th>Cashier</th>
-        <th>Action</th>
-        <th>Status</th>
-    </tr>
-
-    <tr th:each="sale : ${salesPage.content}">
-        <td th:text="${sale.id}">1</td>
-
-        <td th:text="${sale.saleDate != null ? 
-                      #temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm') 
-                      : 'N/A'}"></td>
-
-        <td th:text="${sale.totalAmount}"></td>
-
-        <td th:text="${sale.createdBy != null ? 
-                      sale.createdBy.username : 'N/A'}"></td>
-
-        <td>
-            <!-- View Button -->
-            <a th:href="@{/sales/invoice/{id}(id=${sale.id})}"
-               class="btn" target="_blank">
-                View
-            </a>
-
-            <!-- Cancel Button SAFE -->
-            <a th:if="${sale.status != null 
-                       and sale.status.name() == 'COMPLETED'}"
-               class="btn cancel-btn"
-               th:href="@{/sales/cancel/{id}(id=${sale.id})}">
-                Cancel
-            </a>
-        </td>
-
-        <!-- SAFE Status Display -->
-        <td>
-            <span th:if="${sale.status != null 
-                          and sale.status.name() == 'COMPLETED'}"
-                  class="status-completed">
-                COMPLETED
-            </span>
-
-            <span th:if="${sale.status != null 
-                          and sale.status.name() == 'CANCELLED'}"
-                  class="status-cancelled">
-                CANCELLED
-            </span>
-
-            <span th:if="${sale.status == null}">
-                N/A
-            </span>
-        </td>
-    </tr>
-</table>
-
-<!-- Pagination -->
-<div class="pagination">
-    <a th:if="${salesPage.hasPrevious()}"
-       th:href="@{/sales/history(page=${currentPage - 1})}">
-        Previous
+    <!-- New Sale (Owner + Cashier) -->
+    <a th:if="${role == 'OWNER' or role == 'CASHIER'}"
+       th:href="@{/sales/new}">
+       💰 Billings
     </a>
 
-    Page <span th:text="${currentPage + 1}"></span>
-
-    <a th:if="${salesPage.hasNext()}"
-       th:href="@{/sales/history(page=${currentPage + 1})}">
-        Next
+    <!-- Products (Owner + Manager) -->
+    <a th:if="${role == 'OWNER' or role == 'MANAGER'}"
+       th:href="@{/products}">
+       📦 Products
     </a>
 
+    <!-- Sales History (All roles) -->
+    <a th:href="@{/sales/history}">
+        📑 Sales History
+    </a>
+
+    <!-- Staff management -->
+    <a th:if="${role == 'OWNER'}"
+   th:href="@{/staff}">
+   👥 Staff Management
+    </a>
     
+
+    <!-- Profile (Only Owner) -->
+    <a th:if="${role == 'OWNER'}"
+       th:href="@{/profile}">
+       🏪 Profile
+    </a>
+
+
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">🔓 Logout</button>
+    </form>
 </div>
 
-<a th:href="@{/dashboard}" class="btn">⬅ Dashboard</a>
+<!-- MAIN -->
+<div class="main">
 
+    <h2>📑 Sales History</h2>
+
+    <div class="card">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Date</th>
+                    <th>Total (₹)</th>
+                    <th>Cashier</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="sale : ${salesPage.content}">
+
+                    <td th:text="${sale.id}"></td>
+
+                    <td th:text="${sale.saleDate != null ? 
+                                  #temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm') 
+                                  : 'N/A'}"></td>
+
+                    <td>₹ <span th:text="${sale.totalAmount}"></span></td>
+
+                    <td th:text="${sale.createdBy != null ? 
+                                  sale.createdBy.username : 'N/A'}"></td>
+
+                   <td style="white-space: nowrap;">
+
+    <!-- View (Eye Icon) -->
+    <a th:href="@{/sales/invoice/{id}(id=${sale.id})}"
+       target="_blank"
+       title="View Invoice"
+       style="margin-right:10px; font-size:18px; text-decoration:none;">
+        👁
+    </a>
+
+    <!-- Cancel (X Icon) -->
+    <a th:if="${sale.status != null 
+               and sale.status.name() == 'COMPLETED'}"
+       th:href="@{/sales/cancel/{id}(id=${sale.id})}"
+       title="Cancel Sale"
+       style="color:#ef4444; font-size:18px; text-decoration:none;">
+        ✖
+    </a>
+
+</td>
+
+                    <td>
+                        <span th:if="${sale.status != null 
+                                      and sale.status.name() == 'COMPLETED'}"
+                              class="status-completed">
+                            COMPLETED
+                        </span>
+
+                        <span th:if="${sale.status != null 
+                                      and sale.status.name() == 'CANCELLED'}"
+                              class="status-cancelled">
+                            CANCELLED
+                        </span>
+
+                        <span th:if="${sale.status == null}">
+                            N/A
+                        </span>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+
+            <a th:if="${salesPage.hasPrevious()}"
+               th:href="@{/sales/history(page=${currentPage - 1})}">
+                ◀ Previous
+            </a>
+
+            <span>
+                Page <span th:text="${currentPage + 1}"></span>
+            </span>
+
+            <a th:if="${salesPage.hasNext()}"
+               th:href="@{/sales/history(page=${currentPage + 1})}">
+                Next ▶
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
 
 </body>
 </html>
