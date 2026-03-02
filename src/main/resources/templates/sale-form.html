@@ -1,619 +1,851 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<title>HisaabLite POS</title>
+    <title>HisaabLite POS</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<meta name="_csrf" th:content="${_csrf.token}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="_csrf" th:content="${_csrf.token}" />
 
-<style>
-
-body{
-    margin:0;
-    font-family:'Poppins',sans-serif;
-    display:flex;
-    height:100vh;
-    background:#f4f6f9;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-    width:230px;
-    background:linear-gradient(180deg,#111827,#1f2937);
-    color:white;
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-}
-
-.sidebar h3{margin-bottom:25px;}
-
-.sidebar a{
-    color:white;
-    text-decoration:none;
-    padding:8px;
-    border-radius:6px;
-    margin-bottom:6px;
-}
-
-.sidebar a:hover{
-    background:rgba(255,255,255,0.08);
-}
-
-/* MAIN */
-
-.main{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-}
-
-.topbar{
-    background:white;
-    padding:12px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
-}
-
-.billing-layout{
-    flex:1;
-    display:grid;
-    grid-template-columns:1fr 1.5fr;
-    gap:20px;
-    padding:20px;
-}
-
-/* LEFT PANEL */
-
-.left-panel{
-    background:white;
-    border-radius:12px;
-    padding:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.06);
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-
-.left-panel input,
-.left-panel select{
-    padding:10px;
-    border-radius:8px;
-    border:1px solid #ddd;
-}
-
-.left-panel button{
-    padding:10px;
-    border:none;
-    background:#2563eb;
-    color:white;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-.left-panel button:hover{
-    background:#1e40af;
-}
-
-/* RIGHT PANEL */
-
-.right-panel{
-    background:white;
-    border-radius:12px;
-    padding:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.06);
-    display:flex;
-    flex-direction:column;
-}
-
-.cart-table{
-    flex:1;
-    overflow:auto;
-}
-
-.cart-table table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-.cart-table th{
-    text-align:left;
-    padding:10px;
-    border-bottom:1px solid #eee;
-    font-size:13px;
-}
-
-.cart-table td{
-    padding:10px;
-    border-bottom:1px solid #f1f1f1;
-}
-
-.total-box{
-    margin-top:15px;
-    padding:20px;
-    border-radius:12px;
-    background:linear-gradient(135deg,#111827,#1f2937);
-    color:white;
-    text-align:center;
-    font-size:22px;
-    font-weight:600;
-}
-
-/* SEARCH */
-
-#searchResults{
-    border:1px solid #ddd;
-    border-radius:8px;
-    max-height:200px;
-    overflow-y:auto;
-}
-
-.suggestion-item{
-    padding:8px;
-    cursor:pointer;
-    border-bottom:1px solid #eee;
-}
-
-.suggestion-item.active,
-.suggestion-item:hover{
-    background:#2563eb;
-    color:white;
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            height: 100vh;
+            background: #f4f6f9;
+        }
 
 
-/* ====== PROFESSIONAL LAYOUT ====== */
-.left-panel {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
+        /* SIDEBAR */
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #111827, #1f2937);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
 
-.left-panel label {
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 10px;
-}
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
 
-.left-panel input,
-.left-panel select {
-    width: 100%;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    margin-top: 4px;
-}
+        .sidebar a {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 6px 0;
+            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+        }
 
-.left-panel button {
-    width: 100%;
-    margin-top: 15px;
-    padding: 10px;
-    background: #2e7d32;
-    color: white;
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+
+        /* MAIN */
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .topbar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+
+        .billing-layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 10px;
+
+        }
+
+        /* LEFT PANEL */
+
+        
+
+
+
+
+        /* RIGHT PANEL */
+
+        .right-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-table {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .cart-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .cart-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .total-box {
+            margin-top: 5px;
+            padding: 10px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #111827, #1f2937);
+            color: white;
+            text-align: right;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* SEARCH */
+
+        #searchResults {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-item.active,
+        .suggestion-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+
+        /* ====== PROFESSIONAL LAYOUT ====== */
+        .left-panel {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .left-panel label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .left-panel input,
+        .left-panel select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-top: 4px;
+        }
+
+        .left-panel button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            background: linear-gradient(180deg, #111827, #1f2937);
+            color: white;
+
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .left-panel button:hover {
+            background: #1b5e20;
+        }
+
+        /* ====== TOAST STYLE ====== */
+        .toast {
+            visibility: hidden;
+            min-width: 300px;
+            background-color: #323232;
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 16px;
+            position: fixed;
+            z-index: 9999;
+            right: 20px;
+            bottom: 30px;
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .invoice-btn {
+            background: #ff9800;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #ef4444;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            margin-top: auto;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* ===== CART TABLE STYLING ===== */
+
+        .cart-container {
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        #cartTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top:-10px;
+        }
+
+        #cartTable thead {
+            background: #f1f5f9;
+        }
+
+        #cartTable thead th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        #cartTable tbody tr {
+            transition: 0.2s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        #cartTable tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        #cartTable tbody td {
+            padding: 12px;
+            color: #475569;
+        }
+
+        /* Qty Column Center */
+        #cartTable tbody td:nth-child(2) {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Price & Subtotal Right Align */
+        #cartTable tbody td:nth-child(3),
+        #cartTable tbody td:nth-child(4) {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        /* Subtotal Highlight */
+        #cartTable tbody td:nth-child(4) {
+            color: #0f172a;
+        }
+
+        .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;  /* Equal columns */
+        gap: 20px;
+        width: 100%;
+    }
+    
+    .left { 
+        padding: 10px; 
+    }
+    .right { 
+        
+        padding: 10px; }
+
+
+        #cartTable button {
+    padding: 4px 8px;
     border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.left-panel button:hover {
-    background: #1b5e20;
-}
-
-/* ====== TOAST STYLE ====== */
-.toast {
-    visibility: hidden;
-    min-width: 300px;
-    background-color: #323232;
-    color: #fff;
-    text-align: center;
-    border-radius: 10px;
-    padding: 16px;
-    position: fixed;
-    z-index: 9999;
-    right: 20px;
-    bottom: 30px;
-    font-size: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    opacity: 0;
-    transition: opacity 0.5s, bottom 0.5s;
-}
-
-.toast.show {
-    visibility: visible;
-    opacity: 1;
-    bottom: 50px;
-}
-
-.invoice-btn {
-    background: #ff9800;
+    background: #2563eb;
     color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 13px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 4px;
 }
 
-
-</style>
+#cartTable button:hover {
+    background: #1d4ed8;
+}
+    </style>
 </head>
 
 <body>
 
-<div id="successToast" class="toast">
-    ✅ Sale Completed Successfully!
-    <br>
-    Redirecting to invoice...
-    <br><br>
-    <a id="invoiceBtn" href="#" class="invoice-btn">View Invoice</a>
-</div>
-<div class="sidebar">
-    <h3>HisaabLite</h3>
-    <a th:href="@{/dashboard}">📊 Dashboard</a>
-    <a th:href="@{/sales/history}">📑 Sales</a>
-    <a th:href="@{/products}">📦 Products</a>
-</div>
+    <!-- sidebar start here  -->
 
-<div class="main">
-
-    <div class="topbar">
-        <div><strong>Billing Dashboard</strong></div>
-        <div>
-            Staff: <strong th:text="${#authentication.name}"></strong> |
-            Role: <strong th:text="${role}"></strong>
-        </div>
-    </div>
-
-    <div class="billing-layout">
-
-        <!-- LEFT -->
-        <div class="left-panel">
-
-            <label>Search Product</label>
-            <input type="text" id="searchInput" autocomplete="off"/>
-
-            <div id="searchResults"></div>
-
-            <label>Quantity</label>
-            <input type="number" id="qtyInput" value="1" min="1"/>
-
-            <button id="addBtn">Add Product</button>
-
-
-            <hr>
-
-<form th:action="@{/sales/complete}" method="post">
-
-    <!-- CUSTOMER DETAILS -->
-    <label>Customer Name</label>
-    <input type="text" name="customerName" placeholder="Customer Name"/>
-
-    <label>Customer Phone</label>
-    <input type="text" name="customerPhone" placeholder="Customer Phone"/>
-
-    <hr>
-
-    <!-- PAYMENT MODE -->
-    <label>Payment Mode</label>
-    <select name="paymentMode">
-        <option value="CASH">Cash</option>
-        <option value="UPI">UPI</option>
-        <option value="CARD">Card</option>
-    </select>
-
-    <!-- AMOUNT RECEIVED -->
-    <label>Amount Received</label>
-    <input type="number" id="amountReceived" name="amountReceived" placeholder="Amount Received" min="0"/>
-
-    <!-- DISCOUNT ₹ -->
-    <label>Discount ₹</label>
-    <input type="number" id="discountAmount" name="discountAmount" placeholder="Discount ₹" value="0" min="0"/>
-
-    <!-- DISCOUNT % -->
-    <label>Discount %</label>
-    <input type="number" id="discountPercent" name="discountPercent" placeholder="Discount %" value="0" min="0" max="100"/>
-
-    <!-- CHANGE RETURNED (Hidden Field For DB) -->
-    <input type="hidden" id="changeReturned" name="changeReturned"/>
-
-    <div style="margin-top:8px; font-weight:600;">
-        Change Return: ₹ <span id="changeAmount">0</span>
-    </div>
-
-    <button type="submit">Complete Billing</button>
-</form>    
-
+    <div class="sidebar">
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
+            <h3 style="margin:0;">HisaabLite</h3>
         </div>
 
-        <!-- RIGHT -->
-        <div class="right-panel">
+        <!-- Dashboard (All roles) -->
+        <a th:href="@{/dashboard}">📊 Dashboard</a>
 
-            <div class="cart-table">
-                <table id="cartTable">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="item : ${cart}">
-                            <td th:text="${item.productName}"></td>
-                            <td th:text="${item.quantity}"></td>
-                            <td th:text="${item.price}"></td>
-                            <td th:text="${item.subtotal}"></td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- New Sale (Owner + Cashier) -->
+        <a class="active" th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}">
+            💰 Billings
+        </a>
+
+        <!-- Products (Owner + Manager) -->
+        <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}">
+            📦 Products
+        </a>
+
+        <!-- Sales History (All roles) -->
+        <a th:href="@{/sales/history}">
+            📑 Sales History
+        </a>
+
+        <!-- Staff management -->
+        <a th:if="${role == 'OWNER'}" th:href="@{/staff}">
+            👥 Staff Management
+        </a>
+
+
+        <!-- Profile (Only Owner) -->
+        <a th:if="${role == 'OWNER'}" th:href="@{/profile}">
+            🏪 Profile
+        </a>
+
+
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">🔓 Logout</button>
+        </form>
+    </div>
+
+
+
+    <!-- side bar end here  -->
+
+
+
+
+    <div class="main">
+
+
+        <div class="topbar">
+            <div>
+                <strong th:text="${shop.name}">Shop Name</strong> |
+                PAN: <span th:text="${shop.panNumber}"></span> |
+                GST: <span th:text="${shop.gstNumber} ?: 'N/A'"></span>
             </div>
 
-            <div class="total-box">
-                ₹ <span id="totalAmount" th:text="${totalAmount}"></span>
+            <div>
+                ROLE: <strong th:text="${role}"></strong> &nbsp; | &nbsp;
+                BUSSINESS ID: <strong th:text="'HL'+${shop.id}"></strong> &nbsp; | &nbsp;
+                Plan: <strong th:text="${shop.subscriptionPlan}"></strong>
+            </div>
+        </div>
+
+        <div class="billing-layout">
+
+            <!-- LEFT -->
+            <div class="left-panel">
+
+                <label>Search Product</label>
+                <input type="text" id="searchInput" autocomplete="off" />
+
+                <div id="searchResults"></div>
+
+
+                
+
+                
+                
+
+                <hr>
+
+                <div class="grid-container">
+                    <div class="left">
+                        <input type="number" id="qtyInput" value="1" min="1" />
+                    </div>
+                    <div class="right">
+                        <button style="margin-top: 5px;" id="addBtn">Add Product</button>
+                    </div>
+                </div>
+
+
+                <form th:action="@{/sales/complete}" method="post">
+
+                    <!-- CUSTOMER DETAILS -->
+
+                
+
+                <div class="grid-container">
+                    <div class="left">
+                           <input type="text" name="customerName" placeholder="Customer Name" />
+                    </div>
+                    <div class="right">
+                            <input type="text" name="customerPhone" placeholder="Customer Phone" />
+                    </div>
+                </div>
+
+              
+
+                    <hr>
+
+                  
+
+                     <div class="grid-container">
+                    <div class="left">
+                            <!-- PAYMENT MODE -->
+                    <label>Payment Mode</label>
+                    <select name="paymentMode">
+                        <option value="CASH">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="CARD">Card</option>
+                    </select>
+                    </div>
+                    <div class="right">
+                              <!-- AMOUNT RECEIVED -->
+                    <label>Amount Received</label>
+                    <input type="number" id="amountReceived" name="amountReceived" placeholder="Amount Received"
+                        min="0" />
+                    </div>
+                </div>
+
+
+                 
+
+                <div class="grid-container">
+                    <div class="left">
+                           
+                    <!-- DISCOUNT ₹ -->
+                    <label>Discount ₹</label>
+                    <input type="number" id="discountAmount" name="discountAmount" placeholder="Discount ₹" value="0"
+                        min="0" />
+                    </div>
+                    <div class="right">
+                             <!-- DISCOUNT % -->
+                    <label>Discount %</label>
+                    <input type="number" id="discountPercent" name="discountPercent" placeholder="Discount %" value="0"
+                        min="0" max="100" />
+                    </div>
+                </div>
+
+
+
+                  
+
+                    <!-- CHANGE RETURNED (Hidden Field For DB) -->
+                    <input type="hidden" id="changeReturned" name="changeReturned" />
+
+                    <div style="margin-top:8px; font-weight:600;">
+                        Change Return: ₹ <span id="changeAmount">0</span>
+                    </div>
+
+                    <button type="submit">Complete Billing</button>
+                </form>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-panel">
+                <div class="cart-container">
+                    <div class="cart-table">
+                        <table id="cartTable">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${cart}">
+                                    <td th:text="${item.productName}"></td>
+                                    <td th:text="${item.quantity}"></td>
+                                    <td th:text="${item.price}"></td>
+                                    <td th:text="${item.subtotal}"></td>
+                                    
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="total-box">
+                        <span style="float: left;"> TOTAL</span>
+                        ₹: <span id="totalAmount" th:text="${totalAmount}"></span>
+                    </div>
+                </div>
+
+
+
             </div>
 
         </div>
 
     </div>
 
-</div>
+ 
 
-<script>
+    <div id="successToast" class="toast">
+        ✅ Sale Completed Successfully!
+        <br>
+        Redirecting to invoice...
+        <br><br>
+        <a id="invoiceBtn" href="#" target="_blank" class="invoice-btn">View Invoice</a>
+    </div>
+
+    <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-let suggestions = [];
-let selectedIndex = -1;
-let selectedProduct = null;
+    let suggestions = [];
+    let selectedIndex = -1;
+    let selectedProduct = null;
 
-const searchInput = document.getElementById("searchInput");
-const qtyInput = document.getElementById("qtyInput");
-const resultsBox = document.getElementById("searchResults");
-const cartBody = document.querySelector("#cartTable tbody");
-const totalAmountEl = document.getElementById("totalAmount");
+    const searchInput = document.getElementById("searchInput");
+    const qtyInput = document.getElementById("qtyInput");
+    const resultsBox = document.getElementById("searchResults");
+    const cartBody = document.querySelector("#cartTable tbody");
+    const totalAmountEl = document.getElementById("totalAmount");
 
-searchInput.focus();
+    searchInput.focus();
 
-/* ================= SEARCH KEY CONTROL ================= */
+    /* ================= SEARCH KEY CONTROL ================= */
 
-searchInput.addEventListener("keydown", function (e) {
+    searchInput.addEventListener("keydown", function (e) {
 
-    const items = document.querySelectorAll(".suggestion-item");
+        const items = document.querySelectorAll(".suggestion-item");
 
-    if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (items.length === 0) return;
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (items.length === 0) return;
 
-        selectedIndex++;
-        if (selectedIndex >= items.length) selectedIndex = 0;
+            selectedIndex++;
+            if (selectedIndex >= items.length) selectedIndex = 0;
 
-        updateHighlight(items);
-    }
+            updateHighlight(items);
+        }
 
-    if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (items.length === 0) return;
+        if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (items.length === 0) return;
 
-        selectedIndex--;
-        if (selectedIndex < 0) selectedIndex = items.length - 1;
+            selectedIndex--;
+            if (selectedIndex < 0) selectedIndex = items.length - 1;
 
-        updateHighlight(items);
-    }
+            updateHighlight(items);
+        }
 
-    if (e.key === "Enter") {
-        e.preventDefault();
+        if (e.key === "Enter") {
+            e.preventDefault();
 
-        if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+            if (selectedIndex >= 0 && suggestions[selectedIndex]) {
 
-            selectedProduct = suggestions[selectedIndex];
+                selectedProduct = suggestions[selectedIndex];
 
-            searchInput.value = selectedProduct.name;
+                searchInput.value = selectedProduct.name;
+                resultsBox.innerHTML = "";
+
+                qtyInput.focus();
+                qtyInput.select();
+            }
+        }
+    });
+
+    /* ================= FETCH SEARCH ================= */
+
+    searchInput.addEventListener("input", function () {
+
+        const keyword = this.value.trim();
+
+        if (keyword.length === 0) {
             resultsBox.innerHTML = "";
+            selectedIndex = -1;
+            suggestions = [];
+            return;
+        }
 
-            qtyInput.focus();
-            qtyInput.select();
+        fetch("/sales/search?keyword=" + keyword)
+            .then(res => res.json())
+            .then(data => {
+
+                suggestions = data;
+                selectedIndex = -1;
+                resultsBox.innerHTML = "";
+
+                data.forEach((p, index) => {
+
+                    const div = document.createElement("div");
+                    div.classList.add("suggestion-item");
+                    div.innerText =
+                        p.name + " - ₹" + p.price + " (Stock: " + p.stock + ")";
+
+                    div.dataset.index = index;
+
+                    div.addEventListener("click", function () {
+
+                        selectedIndex = index;
+                        selectedProduct = suggestions[index];
+
+                        searchInput.value = selectedProduct.name;
+                        resultsBox.innerHTML = "";
+
+                        qtyInput.focus();
+                        qtyInput.select();
+                    });
+
+                    resultsBox.appendChild(div);
+                });
+            });
+    });
+
+    /* ================= QTY ENTER ================= */
+
+    qtyInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addProduct();
+        }
+    });
+
+    /* ================= ADD PRODUCT ================= */
+
+    function addProduct() {
+
+        if (!selectedProduct) {
+            alert("Select product first");
+            return;
+        }
+
+        const csrfToken =
+            document.querySelector("meta[name='_csrf']").content;
+
+        const qty = parseInt(qtyInput.value) || 1;
+
+        fetch("/sales/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body:
+                "_csrf=" + csrfToken +
+                "&productId=" + selectedProduct.id +
+                "&quantity=" + qty
+        })
+
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => { throw new Error(text); });
+            }
+            return res.json();
+        })
+
+        .then(cartData => {
+
+            updateCartUI(cartData);
+
+            searchInput.value = "";
+            qtyInput.value = 1;
+            selectedProduct = null;
+            selectedIndex = -1;
+
+            searchInput.focus();
+        })
+
+        .catch(err => {
+            alert(err.message);
+        });
+    }
+
+    /* ================= UPDATE UI ================= */
+
+    function updateCartUI(cartData) {
+
+        cartBody.innerHTML = "";
+
+        const amountReceivedInput = document.getElementById("amountReceived");
+        const discountInput = document.getElementById("discountAmount");
+        const changeAmountEl = document.getElementById("changeAmount");
+
+        function calculateChange() {
+
+            const total = parseFloat(totalAmountEl.innerText) || 0;
+            const discountAmt = parseFloat(discountInput.value) || 0;
+            const discountPercent = parseFloat(
+                document.getElementById("discountPercent").value
+            ) || 0;
+
+            let finalDiscount = discountAmt;
+
+            if (discountPercent > 0) {
+                finalDiscount = (total * discountPercent) / 100;
+            }
+
+            const finalTotal = total - finalDiscount;
+            const received = parseFloat(amountReceivedInput.value) || 0;
+            const change = received - finalTotal;
+
+            const finalChange = change > 0 ? change.toFixed(2) : 0;
+
+            changeAmountEl.innerText = finalChange;
+            document.getElementById("changeReturned").value = finalChange;
+        }
+
+        // Prevent multiple event bindings (IMPORTANT FIX)
+        amountReceivedInput.oninput = calculateChange;
+        discountInput.oninput = calculateChange;
+        document.getElementById("discountPercent").oninput = calculateChange;
+
+        let total = 0;
+
+        cartData.forEach((item, index) => {
+
+            let subtotal = parseFloat(item.subtotal);
+            total += subtotal;
+
+            const row = `
+<tr>
+    <td>${item.productName}</td>
+    <td>
+        <button onclick="changeQty(${index}, -1)">-</button>
+        ${item.quantity}
+        <button onclick="changeQty(${index}, 1)">+</button>
+    </td>
+    <td>${item.price}</td>
+    <td>${subtotal.toFixed(2)}</td>
+</tr>
+`;
+
+            cartBody.insertAdjacentHTML("beforeend", row);
+        });
+
+        totalAmountEl.innerText = total.toFixed(2);
+        calculateChange();
+    }
+
+    /* ================= GLOBAL CHANGE QTY FIX ================= */
+
+    window.changeQty = function (index, change) {
+
+        const csrfToken =
+            document.querySelector("meta[name='_csrf']").content;
+
+        fetch("/sales/update-qty", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "_csrf=" + csrfToken +
+                  "&index=" + index +
+                  "&change=" + change
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Server error");
+            }
+            return response.json();
+        })
+        .then(cartData => {
+            updateCartUI(cartData);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    };
+
+    /* ================= HIGHLIGHT ================= */
+
+    function updateHighlight(items) {
+
+        items.forEach(i => i.classList.remove("active"));
+
+        if (items[selectedIndex]) {
+            items[selectedIndex].classList.add("active");
+            items[selectedIndex].scrollIntoView({
+                block: "nearest"
+            });
         }
     }
-});
-
-/* ================= FETCH SEARCH ================= */
-
-searchInput.addEventListener("input", function () {
-
-    const keyword = this.value.trim();
-
-    if (keyword.length === 0) {
-        resultsBox.innerHTML = "";
-        selectedIndex = -1;
-        suggestions = [];
-        return;
-    }
-
-    fetch("/sales/search?keyword=" + keyword)
-        .then(res => res.json())
-        .then(data => {
-
-            suggestions = data;
-            selectedIndex = -1;
-            resultsBox.innerHTML = "";
-
-            data.forEach((p, index) => {
-
-                const div = document.createElement("div");
-                div.classList.add("suggestion-item");
-                div.innerText =
-                    p.name + " - ₹" + p.price + " (Stock: " + p.stock + ")";
-                    
-                div.dataset.index = index;
-
-                div.addEventListener("click", function () {
-
-                    selectedIndex = index;
-                    selectedProduct = suggestions[index];
-
-                    searchInput.value = selectedProduct.name;
-                    resultsBox.innerHTML = "";
-
-                    qtyInput.focus();
-                    qtyInput.select();
-                });
-
-                resultsBox.appendChild(div);
-            });
-        });
-});
-
-/* ================= QTY ENTER ================= */
-
-qtyInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-        e.preventDefault();
-        addProduct();
-    }
-});
-
-/* ================= ADD PRODUCT ================= */
-
-function addProduct() {
-
-    if (!selectedProduct) {
-        alert("Select product first");
-        return;
-    }
-
-    const csrfToken =
-        document.querySelector("meta[name='_csrf']").content;
-
-    const qty = parseInt(qtyInput.value) || 1;
-
-    fetch("/sales/add", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body:
-            "_csrf=" + csrfToken +
-            "&productId=" + selectedProduct.id +
-            "&quantity=" + qty
-    })
-
-    .then(res => {
-    if (!res.ok) {
-        return res.text().then(text => { throw new Error(text); });
-    }
-    return res.json();
-})
-   
-    .then(cartData => {
-
-        updateCartUI(cartData);
-
-        // reset after successful add
-        searchInput.value = "";
-        qtyInput.value = 1;
-        selectedProduct = null;
-        selectedIndex = -1;
-
-        searchInput.focus();
-    })
-
-    .catch(err => {
-        alert(err.message);
-    });
-}
-
-/* ================= UPDATE UI ================= */
-
-function updateCartUI(cartData) {
-
-    /* ================= CHANGE CALCULATION ================= */
-
-const amountReceivedInput = document.getElementById("amountReceived");
-const discountInput = document.getElementById("discountAmount");
-const changeAmountEl = document.getElementById("changeAmount");
-
-function calculateChange() {
-
-    const total = parseFloat(totalAmountEl.innerText) || 0;
-    const discountAmt = parseFloat(discountInput.value) || 0;
-    const discountPercent = parseFloat(
-        document.getElementById("discountPercent").value
-    ) || 0;
-
-    let finalDiscount = discountAmt;
-
-    // If % entered → calculate ₹ discount
-    if (discountPercent > 0) {
-        finalDiscount = (total * discountPercent) / 100;
-    }
-
-    const finalTotal = total - finalDiscount;
-
-    const received = parseFloat(amountReceivedInput.value) || 0;
-
-    const change = received - finalTotal;
-
-    const finalChange = change > 0 ? change.toFixed(2) : 0;
-
-    changeAmountEl.innerText = finalChange;
-
-    
-    document.getElementById("changeReturned").value = finalChange;
-}
-
-amountReceivedInput.addEventListener("input", calculateChange);
-discountInput.addEventListener("input", calculateChange);
-
-document.getElementById("discountPercent").addEventListener("input", calculateChange);
-
-    cartBody.innerHTML = "";
-    let total = 0;
-
-    cartData.forEach(item => {
-
-        let subtotal = parseFloat(item.subtotal);
-        total += subtotal;
-
-        const row = `
-        <tr>
-            <td>${item.productName}</td>
-            <td>${item.quantity}</td>
-            <td>${item.price}</td>
-            <td>${subtotal.toFixed(2)}</td>
-        </tr>
-        `;
-
-        cartBody.insertAdjacentHTML("beforeend", row);
-    });
-
-    totalAmountEl.innerText = total.toFixed(2);
-
-    totalAmountEl.innerText = total;
-calculateChange();
-}
-
-/* ================= HIGHLIGHT ================= */
-
-function updateHighlight(items) {
-
-    items.forEach(i => i.classList.remove("active"));
-
-    if (items[selectedIndex]) {
-        items[selectedIndex].classList.add("active");
-        items[selectedIndex].scrollIntoView({
-            block: "nearest"
-        });
-    }
-}
 
 });
 
+/* ================= TOAST ================= */
 
-
-window.onload = function() {
+window.onload = function () {
 
     const params = new URLSearchParams(window.location.search);
 
@@ -622,20 +854,17 @@ window.onload = function() {
         const toast = document.getElementById("successToast");
         const invoiceId = params.get("invoiceId");
 
-        // Set invoice link
         document.getElementById("invoiceBtn").href =
             "/sales/invoice/" + invoiceId;
 
         toast.classList.add("show");
 
-        // Auto hide after 5 sec
         setTimeout(() => {
             toast.classList.remove("show");
         }, 5000);
     }
 };
 </script>
-
-
 </body>
+
 </html>

@@ -48,6 +48,11 @@
             background: rgba(255,255,255,0.08);
         }
 
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
         .logout-btn {
             width: 100%;
             padding: 10px;
@@ -171,7 +176,7 @@
     </div>
 
     <!-- Dashboard (All roles) -->
-    <a th:href="@{/dashboard}">📊 Dashboard</a>
+    <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
 
     <!-- New Sale (Owner + Cashier) -->
     <a th:if="${role == 'OWNER' or role == 'CASHIER'}"
