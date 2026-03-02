@@ -202,46 +202,28 @@ body{
 
             <hr>
 
-<form th:action="@{/sales/complete}" method="post">
+            <form th:action="@{/sales/complete}" method="post">
+                <select name="paymentMode">
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="CARD">Card</option>
+                </select>
 
-    <!-- CUSTOMER DETAILS -->
-    <label>Customer Name</label>
-    <input type="text" name="customerName" placeholder="Customer Name"/>
+                <!-- <input type="number" name="amountReceived" placeholder="Amount Received"/>
+                <input type="number" name="discountAmount" placeholder="Discount ₹"/> -->
 
-    <label>Customer Phone</label>
-    <input type="text" name="customerPhone" placeholder="Customer Phone"/>
 
-    <hr>
+                <input type="number" id="amountReceived" name="amountReceived" placeholder="Amount Received" min="0"/>
 
-    <!-- PAYMENT MODE -->
-    <label>Payment Mode</label>
-    <select name="paymentMode">
-        <option value="CASH">Cash</option>
-        <option value="UPI">UPI</option>
-        <option value="CARD">Card</option>
-    </select>
+<input type="number" id="discountAmount" name="discountAmount" placeholder="Discount ₹" value="0" min="0"/>
 
-    <!-- AMOUNT RECEIVED -->
-    <label>Amount Received</label>
-    <input type="number" id="amountReceived" name="amountReceived" placeholder="Amount Received" min="0"/>
+<div style="margin-top:8px; font-weight:600;">
+    Change Return: ₹ <span id="changeAmount">0</span>
+</div>
 
-    <!-- DISCOUNT ₹ -->
-    <label>Discount ₹</label>
-    <input type="number" id="discountAmount" name="discountAmount" placeholder="Discount ₹" value="0" min="0"/>
 
-    <!-- DISCOUNT % -->
-    <label>Discount %</label>
-    <input type="number" id="discountPercent" name="discountPercent" placeholder="Discount %" value="0" min="0" max="100"/>
-
-    <!-- CHANGE RETURNED (Hidden Field For DB) -->
-    <input type="hidden" id="changeReturned" name="changeReturned"/>
-
-    <div style="margin-top:8px; font-weight:600;">
-        Change Return: ₹ <span id="changeAmount">0</span>
-    </div>
-
-    <button type="submit">Complete Billing</button>
-</form>    
+                <button type="submit">Complete Billing</button>
+            </form>
 
         </div>
 
@@ -443,36 +425,17 @@ const changeAmountEl = document.getElementById("changeAmount");
 function calculateChange() {
 
     const total = parseFloat(totalAmountEl.innerText) || 0;
-    const discountAmt = parseFloat(discountInput.value) || 0;
-    const discountPercent = parseFloat(
-        document.getElementById("discountPercent").value
-    ) || 0;
-
-    let finalDiscount = discountAmt;
-
-    // If % entered → calculate ₹ discount
-    if (discountPercent > 0) {
-        finalDiscount = (total * discountPercent) / 100;
-    }
-
-    const finalTotal = total - finalDiscount;
-
+    const discount = parseFloat(discountInput.value) || 0;
     const received = parseFloat(amountReceivedInput.value) || 0;
 
+    const finalTotal = total - discount;
     const change = received - finalTotal;
 
-    const finalChange = change > 0 ? change.toFixed(2) : 0;
-
-    changeAmountEl.innerText = finalChange;
-
-    
-    document.getElementById("changeReturned").value = finalChange;
+    changeAmountEl.innerText = change > 0 ? change.toFixed(2) : 0;
 }
 
 amountReceivedInput.addEventListener("input", calculateChange);
 discountInput.addEventListener("input", calculateChange);
-
-document.getElementById("discountPercent").addEventListener("input", calculateChange);
 
     cartBody.innerHTML = "";
     let total = 0;
