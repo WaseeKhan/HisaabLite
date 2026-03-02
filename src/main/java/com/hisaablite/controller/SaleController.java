@@ -81,8 +81,21 @@ public List<CartItem> addToCart(
     User user = userRepository.findByUsername(authentication.getName())
             .orElseThrow();
 
-    Product product = productService.getProductByIdAndShop(productId, user.getShop())
+    Product product = productService
+            .getProductByIdAndShop(productId, user.getShop())
             .orElseThrow(() -> new RuntimeException("Product not found"));
+
+    // ================= STOCK VALIDATION =================
+
+    if (product.getStockQuantity() <= 0) {
+        throw new RuntimeException("Product is out of stock");
+    }
+
+    if (quantity > product.getStockQuantity()) {
+        throw new RuntimeException("Only " + product.getStockQuantity() + " items available");
+    }
+
+    // ====================================================
 
     List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
@@ -90,13 +103,18 @@ public List<CartItem> addToCart(
         cart = new ArrayList<>();
     }
 
-    // 🔹 Check if product already in cart
     boolean found = false;
 
     for (CartItem item : cart) {
+
         if (item.getProductId().equals(productId)) {
 
             int newQty = item.getQuantity() + quantity;
+
+            //  RECHECK STOCK FOR UPDATED QTY
+            if (newQty > product.getStockQuantity()) {
+                throw new RuntimeException("Not enough stock available");
+            }
 
             item.setQuantity(newQty);
             item.setSubtotal(
@@ -108,8 +126,8 @@ public List<CartItem> addToCart(
         }
     }
 
-    // 🔹 If new product
     if (!found) {
+
         CartItem cartItem = new CartItem();
         cartItem.setProductId(product.getId());
         cartItem.setProductName(product.getName());
@@ -124,9 +142,8 @@ public List<CartItem> addToCart(
 
     session.setAttribute("cart", cart);
 
-    return cart; // VERY IMPORTANT
+    return cart;
 }
-
     // 3 Remove from cart
     @GetMapping("/remove/{index}")
     public String removeFromCart(@PathVariable int index, HttpSession session) {
@@ -139,6 +156,8 @@ public List<CartItem> addToCart(
     }
 
     // 4️ Complete sale
+
+// 4️ Complete sale
 @PostMapping("/complete")
 public String completeSale(
         @RequestParam(required = false) String customerName,
@@ -156,16 +175,18 @@ public String completeSale(
 
     if (cart == null || cart.isEmpty()) {
         redirectAttributes.addFlashAttribute("error", "Cart is empty!");
-        return "redirect:/sales/new";
+        return "redirect:/sales/new";   // 🔥 FIXED
     }
 
     User user = userRepository.findByUsername(authentication.getName())
             .orElseThrow();
 
+    Sale savedSale = null;
+
     try {
 
-        // 🔹 EXISTING LOGIC (DO NOT TOUCH)
-        Sale sale = saleService.completeSale(cart, user.getShop(), user);
+        // 🔹 EXISTING LOGIC (UNCHANGED)
+        savedSale = saleService.completeSale(cart, user.getShop(), user);
 
         // ==========================
         // DISCOUNT LOGIC START
@@ -174,58 +195,62 @@ public String completeSale(
         if (discountAmount == null) discountAmount = BigDecimal.ZERO;
         if (discountPercent == null) discountPercent = BigDecimal.ZERO;
 
-        BigDecimal originalTotal = sale.getTotalAmount();
+        BigDecimal originalTotal = savedSale.getTotalAmount();
 
-        // If percentage entered → calculate amount
         if (discountPercent.compareTo(BigDecimal.ZERO) > 0) {
 
-            if (discountPercent.compareTo(BigDecimal.valueOf(100)) > 0) {
-                redirectAttributes.addFlashAttribute("error", "Discount % cannot exceed 100");
-                return "redirect:/sales/new";
-            }
+if (discountPercent.compareTo(BigDecimal.valueOf(100)) > 0) {
+    throw new RuntimeException("Discount % cannot exceed 100 %");
+}  
+
+
 
             discountAmount = originalTotal
                     .multiply(discountPercent)
                     .divide(BigDecimal.valueOf(100));
         }
 
-        // Prevent over-discount
-        if (discountAmount.compareTo(originalTotal) > 0) {
-            redirectAttributes.addFlashAttribute("error", "Discount cannot exceed total amount");
-            return "redirect:/sales/new";
-        }
+       if (discountAmount.compareTo(originalTotal) > 0) {
+    throw new RuntimeException("Discount cannot exceed total amount");
+}
 
         BigDecimal finalTotal = originalTotal.subtract(discountAmount);
 
-        // Save discount in Sale entity (if fields exist)
-        sale.setDiscountAmount(discountAmount);
-        sale.setDiscountPercent(discountPercent);
-        sale.setTotalAmount(finalTotal);
+        // FIX: use savedSale instead of sale
+        savedSale.setDiscountAmount(discountAmount);
+        savedSale.setDiscountPercent(discountPercent);
+        savedSale.setTotalAmount(finalTotal);
 
         // ==========================
         // DISCOUNT LOGIC END
         // ==========================
 
+        // 🔹 Customer + payment logic
+        savedSale.setCustomerName(customerName);
+        savedSale.setCustomerPhone(customerPhone);
+        savedSale.setPaymentMode(paymentMode);
+        savedSale.setAmountReceived(
+        amountReceived != null ? amountReceived : 0.0
+);
 
-        // 🔹 Existing customer + payment logic
-        sale.setCustomerName(customerName);
-        sale.setCustomerPhone(customerPhone);
-        sale.setPaymentMode(paymentMode);
-        sale.setAmountReceived(amountReceived);
-        sale.setChangeReturned(changeReturned);
+savedSale.setChangeReturned(
+        changeReturned != null ? changeReturned : 0.0
+);
 
-        saleRepository.save(sale);
+        saleRepository.save(savedSale);
 
         session.removeAttribute("cart");
 
-        redirectAttributes.addFlashAttribute("success", "Sale completed successfully!");
-
     } catch (RuntimeException e) {
         redirectAttributes.addFlashAttribute("error", e.getMessage());
+        return "redirect:/sales/new";
     }
 
-    return "redirect:/sales/new";
+    // SUCCESS REDIRECT WITH INVOICE ID
+    return "redirect:/sales/new?saved=true&invoiceId=" + savedSale.getId();
 }
+
+    //complete sale end here
 
     //generate invoice
 

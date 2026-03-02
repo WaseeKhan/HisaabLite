@@ -6,6 +6,11 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.WebRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -38,4 +43,22 @@ public class GlobalExceptionHandler {
         model.addAttribute("error", "Something went wrong. Please try again.");
         return "error";
     }
+
+@ExceptionHandler(RuntimeException.class)
+public Object handleRuntime(RuntimeException ex, HttpServletRequest request) {
+
+    String uri = request.getRequestURI();
+
+    // ONLY handle /sales/add as JSON
+    if (uri.equals("/sales/add")) {
+        return ResponseEntity
+                .badRequest()
+                .body(ex.getMessage());
+    }
+
+    // Baaki sab normal HTML flow
+    request.setAttribute("error", ex.getMessage());
+    return "error";
+}
+
 }

@@ -163,11 +163,93 @@ body{
     color:white;
 }
 
+
+/* ====== PROFESSIONAL LAYOUT ====== */
+.left-panel {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.left-panel label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.left-panel input,
+.left-panel select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    margin-top: 4px;
+}
+
+.left-panel button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.left-panel button:hover {
+    background: #1b5e20;
+}
+
+/* ====== TOAST STYLE ====== */
+.toast {
+    visibility: hidden;
+    min-width: 300px;
+    background-color: #323232;
+    color: #fff;
+    text-align: center;
+    border-radius: 10px;
+    padding: 16px;
+    position: fixed;
+    z-index: 9999;
+    right: 20px;
+    bottom: 30px;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.5s, bottom 0.5s;
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+    bottom: 50px;
+}
+
+.invoice-btn {
+    background: #ff9800;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+
 </style>
 </head>
 
 <body>
 
+<div id="successToast" class="toast">
+    ✅ Sale Completed Successfully!
+    <br>
+    Redirecting to invoice...
+    <br><br>
+    <a id="invoiceBtn" href="#" class="invoice-btn">View Invoice</a>
+</div>
 <div class="sidebar">
     <h3>HisaabLite</h3>
     <a th:href="@{/dashboard}">📊 Dashboard</a>
@@ -199,6 +281,7 @@ body{
             <input type="number" id="qtyInput" value="1" min="1"/>
 
             <button id="addBtn">Add Product</button>
+
 
             <hr>
 
@@ -363,6 +446,7 @@ searchInput.addEventListener("input", function () {
                 div.classList.add("suggestion-item");
                 div.innerText =
                     p.name + " - ₹" + p.price + " (Stock: " + p.stock + ")";
+                    
                 div.dataset.index = index;
 
                 div.addEventListener("click", function () {
@@ -415,7 +499,14 @@ function addProduct() {
             "&productId=" + selectedProduct.id +
             "&quantity=" + qty
     })
-    .then(res => res.json())
+
+    .then(res => {
+    if (!res.ok) {
+        return res.text().then(text => { throw new Error(text); });
+    }
+    return res.json();
+})
+   
     .then(cartData => {
 
         updateCartUI(cartData);
@@ -427,6 +518,10 @@ function addProduct() {
         selectedIndex = -1;
 
         searchInput.focus();
+    })
+
+    .catch(err => {
+        alert(err.message);
     });
 }
 
@@ -515,7 +610,32 @@ function updateHighlight(items) {
 }
 
 });
+
+
+
+window.onload = function() {
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("saved") === "true") {
+
+        const toast = document.getElementById("successToast");
+        const invoiceId = params.get("invoiceId");
+
+        // Set invoice link
+        document.getElementById("invoiceBtn").href =
+            "/sales/invoice/" + invoiceId;
+
+        toast.classList.add("show");
+
+        // Auto hide after 5 sec
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 5000);
+    }
+};
 </script>
+
 
 </body>
 </html>
