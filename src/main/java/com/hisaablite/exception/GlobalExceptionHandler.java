@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -38,11 +39,11 @@ public class GlobalExceptionHandler {
     }
 
     // Generic fallback
-    @ExceptionHandler(Exception.class)
-    public String handleGeneric(Exception ex, Model model) {
-        model.addAttribute("error", "Something went wrong. Please try again.");
-        return "error";
-    }
+    // @ExceptionHandler(Exception.class)
+    // public String handleGeneric(Exception ex, Model model) {
+    //     model.addAttribute("error", "Something went wrong. Please try again.");
+    //     return "error";
+    // }
 
 @ExceptionHandler(RuntimeException.class)
 public Object handleRuntime(RuntimeException ex, HttpServletRequest request) {
@@ -60,5 +61,18 @@ public Object handleRuntime(RuntimeException ex, HttpServletRequest request) {
     request.setAttribute("error", ex.getMessage());
     return "error";
 }
+// Handle Whitelabel Exception in Porduction. 
+
+    @ExceptionHandler(Exception.class)
+    public String handleException(Exception ex, Model model) {
+        model.addAttribute("message", "Something went wrong.");
+        return "error/500";
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public String handle404(NoHandlerFoundException ex, Model model) {
+        model.addAttribute("message", "Page not found.");
+        return "error/404";
+    }
 
 }
