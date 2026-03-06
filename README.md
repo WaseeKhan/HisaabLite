@@ -10,12 +10,9 @@ The system provides a **modern billing dashboard**, real-time product search, an
 ## 🚀 Live Demo
 
 **Application URL:**  
-http://80.225.241.135:8080/
+Live Demo:  https://hisaablite.duckdns.org
 
-⚠️ **Note:**  
-The application is hosted on a personal cloud VM.  
-If the VM is stopped or under maintenance, the URL may not be accessible when you try it.
-
+Note: Since the application is hosted on a personal VM, the URL may occasionally be unavailable if the VM is stopped.
 ---
 
 ## ✨ Features
@@ -108,6 +105,12 @@ cd hisaablite
 spring.datasource.url=jdbc:mysql://localhost:3306/hisaablite
 spring.datasource.username=root
 spring.datasource.password=yourpassword
+spring.mail.host={your-smtp-provider}
+spring.mail.port={smtp-port}
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
 4. Run application
@@ -122,29 +125,6 @@ Application will start at:
 http://localhost:8080
 ```
 
----
-
-## 🧑‍💻 Author
-
-**Waseem Khan**
-
-Java Backend Developer
-
-Tech Focus:
-- Spring Boot
-- Microservices
-- REST APIs
-- Cloud Deployment
-
----
-
-## 📌 Future Improvements
-
-- GST calculation support
-- Advanced sales reports
-- Barcode scanning
-- Multi-store support
-- Docker deployment
 
 ---
 
