@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Login - HisaabLite</title>
     <style>
@@ -78,94 +79,93 @@
             color: #777;
         }
 
-       
-.link-register {
-    font-size:13px;
-    text-decoration:none;
-    color:#3498db;
-}
 
-.link-register:hover {
-    text-decoration:underline;
-}
+        .link-register {
+            font-size: 13px;
+            text-decoration: none;
+            color: #3498db;
+        }
 
-.link-forgot {
-    font-size:13px;
-    text-decoration:none;
-    color:#e67e22;
-}
+        .link-register:hover {
+            text-decoration: underline;
+        }
 
-.link-forgot:hover {
-    text-decoration:underline;
-}
+        .link-forgot {
+            font-size: 13px;
+            text-decoration: none;
+            color: #e67e22;
+        }
 
+        .link-forgot:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="login-container">
-    <h2>🔐 HisaabLite Login</h2>
-    
-<!-- <p th:if="${param.error}" th:text="${param.error[0]}"></p>  -->
+    <div class="login-container">
+        <h2>🔐 HisaabLite Login</h2>
 
-    <form method="post" th:action="@{/login}">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" required />
+        <!-- <p th:if="${param.error}" th:text="${param.error[0]}"></p>  -->
+
+        <form method="post" th:action="@{/login}">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required />
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required />
+            </div>
+
+            <button type="submit" class="btn-login">
+                Login
+            </button>
+        </form>
+
+        <div th:if="${param.logout}" class="logout-msg">
+            ✅ You have been logged out successfully.
         </div>
 
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" required />
+
+        <div th:if="${param.error}" style="color:red; margin-top:10px; text-align:center;">
+
+            <span th:if="${param.error[0] == 'bad'}">
+                ❌ Invalid username or password.
+            </span>
+
+            <span th:if="${param.error[0] != 'bad'}" th:text="${param.error[0]}">
+            </span>
+
         </div>
 
-        <button type="submit" class="btn-login">
-            Login
-        </button>
-    </form>
 
-    <div th:if="${param.logout}" class="logout-msg">
-        ✅ You have been logged out successfully.
+        <div style="margin-top:15px; text-align:center;">
+            <div style="margin-top:15px; text-align:center;">
+                <a th:href="@{/register}" class="link-register">
+                    ➕ Start Free
+                </a>
+                |
+                <a th:href="@{/forgot-password}" class="link-forgot">
+                    🔑 Forgot Password?
+                </a>
+
+                |
+                <a th:href="@{/}" class="link-forgot">
+                    🏠 Home
+                </a>
+            </div>
+
+
+        </div>
+
+        <div class="footer-text">
+            © 2026 HisaabLite | Smart Retail Management
+        </div>
     </div>
-
-
-<div th:if="${param.error}" 
-     style="color:red; margin-top:10px; text-align:center;">
-
-    <span th:if="${param.error[0] == 'bad'}">
-        ❌ Invalid username or password.
-    </span>
-
-    <span th:if="${param.error[0] != 'bad'}"
-          th:text="${param.error[0]}">
-    </span>
-
-</div>
-
-
-    <div style="margin-top:15px; text-align:center;">
-<div style="margin-top:15px; text-align:center;">
-    <a th:href="@{/register}" class="link-register">
-        ➕ Register Your Shop
-    </a>
-     | 
-    <a th:href="@{/forgot-password}" class="link-forgot">
-        🔑 Forgot Password?
-    </a>
-
-     | 
-    <a th:href="@{/}" class="link-forgot">
-        🏠 Home
-    </a>
-</div>
-    
-
-</div>
-
-    <div class="footer-text">
-        © 2026 HisaabLite | Smart Retail Management
-    </div>
-</div>
 
 </body>
+
 </html>

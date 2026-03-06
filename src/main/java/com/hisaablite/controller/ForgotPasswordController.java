@@ -3,20 +3,18 @@ package com.hisaablite.controller;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.hisaablite.entity.PasswordResetToken;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.PasswordResetTokenRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.EmailService;
-
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -30,11 +28,11 @@ public class ForgotPasswordController {
 
     // // Constructor Injection (ALL DEPENDENCIES)
     // public ForgotPasswordController(UserRepository userRepository,
-    //                                 PasswordResetTokenRepository passwordResetTokenRepository,
-    //                                 PasswordEncoder passwordEncoder) {
-    //     this.userRepository = userRepository;
-    //     this.passwordResetTokenRepository = passwordResetTokenRepository;
-    //     this.passwordEncoder = passwordEncoder;
+    // PasswordResetTokenRepository passwordResetTokenRepository,
+    // PasswordEncoder passwordEncoder) {
+    // this.userRepository = userRepository;
+    // this.passwordResetTokenRepository = passwordResetTokenRepository;
+    // this.passwordEncoder = passwordEncoder;
     // }
 
     @GetMapping("/forgot-password")
@@ -43,50 +41,49 @@ public class ForgotPasswordController {
     }
 
     @PostMapping("/forgot-password")
-public String processForgotPassword(@RequestParam String username,
-                                    Model model, HttpServletRequest request) {
+    public String processForgotPassword(@RequestParam String username,
+            Model model, HttpServletRequest request) {
 
-    Optional<User> userOpt = userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findByUsername(username);
 
-    if (userOpt.isEmpty()) {
-        model.addAttribute("error", "No account found.");
+        if (userOpt.isEmpty()) {
+            model.addAttribute("error", "No account found.");
+            return "forgot-password";
+        }
+
+        User user = userOpt.get();
+
+        // DELETE OLD TOKEN IF EXISTS
+        passwordResetTokenRepository.deleteByUser(user);
+
+        String token = UUID.randomUUID().toString();
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String appUrl = request.getRequestURL().toString()
+                .replace(request.getServletPath(), "");
+
+        String resetLink = appUrl + "/reset-password?token=" + token;
+
+        emailService.sendResetEmail(user.getUsername(), resetLink);
+
+        // model.addAttribute("message", "Reset link generated. Check console.");
+        model.addAttribute("message", "Reset link sent to your email.");
         return "forgot-password";
     }
-
-    User user = userOpt.get();
-
-    // DELETE OLD TOKEN IF EXISTS
-    passwordResetTokenRepository.deleteByUser(user);
-
-    String token = UUID.randomUUID().toString();
-
-    PasswordResetToken resetToken = new PasswordResetToken();
-    resetToken.setToken(token);
-    resetToken.setUser(user);
-    resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
-
-    passwordResetTokenRepository.save(resetToken);
-
-    String appUrl = request.getRequestURL().toString()
-                    .replace(request.getServletPath(), "");
-
-    String resetLink = appUrl + "/reset-password?token=" + token;
-
-    emailService.sendResetEmail(user.getUsername(), resetLink);
-
-    // model.addAttribute("message", "Reset link generated. Check console.");
-    model.addAttribute("message", "Reset link sent to your email.");
-    return "forgot-password";
-}
 
     @GetMapping("/reset-password")
     public String showResetPassword(@RequestParam String token, Model model) {
 
-        Optional<PasswordResetToken> tokenOpt =
-                passwordResetTokenRepository.findByToken(token);
+        Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByToken(token);
 
         if (tokenOpt.isEmpty() ||
-            tokenOpt.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+                tokenOpt.get().getExpiryDate().isBefore(LocalDateTime.now())) {
 
             model.addAttribute("error", "Invalid or expired token.");
             return "error";
@@ -98,11 +95,10 @@ public String processForgotPassword(@RequestParam String username,
 
     @PostMapping("/reset-password")
     public String processResetPassword(@RequestParam String token,
-                                       @RequestParam String password,
-                                       Model model) {
+            @RequestParam String password,
+            Model model) {
 
-        Optional<PasswordResetToken> tokenOpt =
-                passwordResetTokenRepository.findByToken(token);
+        Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByToken(token);
 
         if (tokenOpt.isEmpty()) {
             model.addAttribute("error", "Invalid token.");

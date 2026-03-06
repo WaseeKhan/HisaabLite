@@ -1,8 +1,6 @@
 package com.hisaablite.entity;
 
 import java.time.LocalDateTime;
-
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,7 +9,6 @@ import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @NoArgsConstructor
@@ -30,5 +27,4 @@ public class PasswordResetToken {
     @OneToOne
     private User user;
 
-    //  Add getters & setters OR use Lombok @Data
 }

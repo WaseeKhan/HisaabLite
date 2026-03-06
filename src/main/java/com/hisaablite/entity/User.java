@@ -11,11 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users",
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = "username"),
-           @UniqueConstraint(columnNames = "phone")
-       })
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "phone")
+})
 public class User {
 
     @Id
@@ -26,10 +25,10 @@ public class User {
     private String name;
 
     @Column(unique = true, nullable = false)
-    private String username;   // Email (Login ID)
+    private String username; // Email will be username
 
     @Column(unique = true, nullable = false)
-    private String phone;      //  moved here (Owner/Staff)
+    private String phone;
 
     @Column(nullable = false)
     private String password;

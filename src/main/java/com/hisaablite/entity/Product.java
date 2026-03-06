@@ -2,9 +2,7 @@ package com.hisaablite.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -40,5 +38,4 @@ public class Product {
 
     private boolean active = true;
 
-    
 }

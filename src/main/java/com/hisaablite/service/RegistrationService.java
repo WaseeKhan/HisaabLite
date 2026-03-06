@@ -1,17 +1,17 @@
 package com.hisaablite.service;
 
-import com.hisaablite.dto.RegisterRequest;
-import com.hisaablite.entity.*;
-import com.hisaablite.exception.DuplicateResourceException;
-import com.hisaablite.repository.*;
-import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.hisaablite.dto.RegisterRequest;
+import com.hisaablite.entity.Role;
+import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.SubscriptionPlan;
+import com.hisaablite.entity.User;
+import com.hisaablite.exception.DuplicateResourceException;
+import com.hisaablite.repository.ShopRepository;
+import com.hisaablite.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -28,17 +28,11 @@ public class RegistrationService {
             throw new DuplicateResourceException("Email already registered");
         }
 
-        // if (shopRepository.existsByPanNumber(request.getPanNumber())) {
-        //     throw new DuplicateResourceException("PAN already registered");
-        // }
-
         if (shopRepository.existsByPanNumber(request.getPanNumber())) {
-            throw new DuplicateResourceException("PAN already registered. Please use a different PAN.");    
+            throw new DuplicateResourceException("PAN already registered. Please use a different PAN.");
         }
 
-
-        
-        // 1 Save shop
+        // Save shop
         Shop shop = Shop.builder()
                 .name(request.getShopName())
                 .panNumber(request.getPanNumber())
@@ -59,10 +53,9 @@ public class RegistrationService {
             throw new DuplicateResourceException("Email already registered.");
         }
 
-
         shop = shopRepository.save(shop);
 
-        // 2 Save owner
+        // Save owner
         User owner = User.builder()
                 .name(request.getOwnerName())
                 .username(request.getUsername())
@@ -72,8 +65,6 @@ public class RegistrationService {
                 .shop(shop)
                 .active(true)
                 .build();
-
-                
 
         userRepository.save(owner);
     }

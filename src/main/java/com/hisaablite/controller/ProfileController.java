@@ -24,7 +24,7 @@ public class ProfileController {
     @GetMapping
     @Transactional(readOnly = true)
     public String profilePage(Authentication authentication,
-                              Model model) {
+            Model model) {
 
         User user = userRepository
                 .findByUsername(authentication.getName())
@@ -43,7 +43,6 @@ public class ProfileController {
 
         model.addAttribute("shop", shop);
         model.addAttribute("profileRequest", request);
-
         return "profile";
     }
 
@@ -59,6 +58,6 @@ public class ProfileController {
 
         shopService.updateProfile(user, request);
 
-        return "redirect:/dashboard";   // back to dashboard
+        return "redirect:/dashboard"; // back to dashboard
     }
 }

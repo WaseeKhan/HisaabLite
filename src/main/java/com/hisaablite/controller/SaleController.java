@@ -1,34 +1,34 @@
 package com.hisaablite.controller;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.hisaablite.dto.CartItem;
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
-import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.User;
-import com.hisaablite.service.ProductService;
-import com.hisaablite.service.SaleService;
 import com.hisaablite.repository.SaleItemRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.service.ProductService;
+import com.hisaablite.service.SaleService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -57,7 +57,7 @@ public class SaleController {
         }
         model.addAttribute("cart", cart);
 
-        // Compute total amount
+        // calculate total amount here
         BigDecimal totalAmount = cart.stream()
                 .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -68,7 +68,7 @@ public class SaleController {
         return "sale-form";
     }
 
-    // 2 Add to cart
+    // Add to cart
     @PostMapping("/add")
     @ResponseBody
     public List<CartItem> addToCart(
@@ -84,8 +84,6 @@ public class SaleController {
                 .getProductByIdAndShop(productId, user.getShop())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // ================= STOCK VALIDATION =================
-
         if (product.getStockQuantity() <= 0) {
             throw new RuntimeException("Product is out of stock");
         }
@@ -93,8 +91,6 @@ public class SaleController {
         if (quantity > product.getStockQuantity()) {
             throw new RuntimeException("Only " + product.getStockQuantity() + " items available");
         }
-
-        // ====================================================
 
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
@@ -142,7 +138,7 @@ public class SaleController {
         return cart;
     }
 
-    // 3 Remove from cart
+    // Remove from cart
     @GetMapping("/remove/{index}")
     public String removeFromCart(@PathVariable int index, HttpSession session) {
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
@@ -153,9 +149,7 @@ public class SaleController {
         return "redirect:/sales/new";
     }
 
-    // 4️ Complete sale
-
-    // 4️ Complete sale
+    // Complete sale
     @PostMapping("/complete")
     public String completeSale(
             @RequestParam(required = false) String customerName,
@@ -173,7 +167,7 @@ public class SaleController {
 
         if (cart == null || cart.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Cart is empty!");
-            return "redirect:/sales/new"; // 🔥 FIXED
+            return "redirect:/sales/new";
         }
 
         User user = userRepository.findByUsername(authentication.getName())
@@ -183,12 +177,9 @@ public class SaleController {
 
         try {
 
-            // 🔹 EXISTING LOGIC (UNCHANGED)
             savedSale = saleService.completeSale(cart, user.getShop(), user);
 
-            // ==========================
             // DISCOUNT LOGIC START
-            // ==========================
 
             if (discountAmount == null)
                 discountAmount = BigDecimal.ZERO;
@@ -213,17 +204,12 @@ public class SaleController {
             }
 
             BigDecimal finalTotal = originalTotal.subtract(discountAmount);
-
-            // FIX: use savedSale instead of sale
             savedSale.setDiscountAmount(discountAmount);
             savedSale.setDiscountPercent(discountPercent);
             savedSale.setTotalAmount(finalTotal);
 
-            // ==========================
             // DISCOUNT LOGIC END
-            // ==========================
 
-            // 🔹 Customer + payment logic
             savedSale.setCustomerName(customerName);
             savedSale.setCustomerPhone(customerPhone);
             savedSale.setPaymentMode(paymentMode);
@@ -246,8 +232,6 @@ public class SaleController {
         return "redirect:/sales/new?saved=true&invoiceId=" + savedSale.getId();
     }
 
-    // complete sale end here
-
     // generate invoice
 
     @GetMapping("/invoice/{saleId}")
@@ -263,7 +247,7 @@ public class SaleController {
         model.addAttribute("sale", sale);
         model.addAttribute("items", items);
 
-        return "invoice"; // templates/invoice.html render hoga
+        return "invoice";
     }
 
     // Sales History
@@ -328,33 +312,31 @@ public class SaleController {
         return cart;
     }
 
-
-
     @PostMapping("/update-qty")
-@ResponseBody
-public List<CartItem> updateQuantity(
-        @RequestParam int index,
-        @RequestParam int change,
-        HttpSession session) {
+    @ResponseBody
+    public List<CartItem> updateQuantity(
+            @RequestParam int index,
+            @RequestParam int change,
+            HttpSession session) {
 
-    List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
+        List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
-    if (cart != null && index >= 0 && index < cart.size()) {
+        if (cart != null && index >= 0 && index < cart.size()) {
 
-        CartItem item = cart.get(index);
+            CartItem item = cart.get(index);
 
-        int newQty = item.getQuantity() + change;
+            int newQty = item.getQuantity() + change;
 
-        // Agar quantity 0 ya negative ho gayi to remove
-        if (newQty <= 0) {
-            cart.remove(index);
-        } else {
-            item.setQuantity(newQty);
+            // Agar quantity 0 ya negative ho gayi to remove
+            if (newQty <= 0) {
+                cart.remove(index);
+            } else {
+                item.setQuantity(newQty);
+            }
+
+            session.setAttribute("cart", cart);
         }
 
-        session.setAttribute("cart", cart);
+        return cart;
     }
-
-    return cart;
-}
 }

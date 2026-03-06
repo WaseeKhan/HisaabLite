@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>HisaabLite Dashboard</title>
+    <title> Dashboard - HisaabLite</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
 
-        html, body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-}
         body {
             margin: 0;
             font-family: 'Poppins', sans-serif;
@@ -21,7 +23,6 @@
             background: #f4f6f9;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 240px;
             background: linear-gradient(180deg, #111827, #1f2937);
@@ -45,7 +46,7 @@
         }
 
         .sidebar a:hover {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .sidebar a.active {
@@ -68,7 +69,6 @@
             background: #dc2626;
         }
 
-        /* MAIN */
         .main {
             flex: 1;
             padding: 20px;
@@ -84,10 +84,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
-        /* KPI GRID */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -98,7 +97,7 @@
             background: white;
             padding: 18px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         .card .value {
@@ -107,7 +106,6 @@
             margin-top: 6px;
         }
 
-        /* CHARTS */
         .charts {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -118,14 +116,13 @@
             background: white;
             padding: 12px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         canvas {
             height: 240px !important;
         }
 
-        /* BOTTOM */
         .bottom-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -169,195 +166,175 @@
 
 <body>
 
-<div class="sidebar">
-   <div class="logo">
-        <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
-        <h3 style="margin:0;">HisaabLite</h3>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
+            <h3 style="margin:0;">HisaabLite</h3>
+        </div>
+        <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
+
+        <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}">
+            💰 Billings
+        </a>
+
+        <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}">
+            📦 Products
+        </a>
+
+        <a th:href="@{/sales/history}">
+            📑 Sales History
+        </a>
+
+        <a th:if="${role == 'OWNER'}" th:href="@{/staff}">
+            👥 Staff Management
+        </a>
+
+        <a th:if="${role == 'OWNER'}" th:href="@{/profile}">
+            🏪 Profile
+        </a>
+
+
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">🔓 Logout</button>
+        </form>
     </div>
 
-    <!-- Dashboard (All roles) -->
-    <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <strong th:text="${shop.name}">Shop Name</strong> |
+                PAN: <span th:text="${shop.panNumber}"></span> |
+                GST: <span th:text="${shop.gstNumber} ?: 'N/A'"></span>
 
-    <!-- New Sale (Owner + Cashier) -->
-    <a th:if="${role == 'OWNER' or role == 'CASHIER'}"
-       th:href="@{/sales/new}">
-       💰 Billings
-    </a>
+            </div>
 
-    <!-- Products (Owner + Manager) -->
-    <a th:if="${role == 'OWNER' or role == 'MANAGER'}"
-       th:href="@{/products}">
-       📦 Products
-    </a>
-
-    <!-- Sales History (All roles) -->
-    <a th:href="@{/sales/history}">
-        📑 Sales History
-    </a>
-
-    <!-- Staff management -->
-    <a th:if="${role == 'OWNER'}"
-   th:href="@{/staff}">
-   👥 Staff Management
-    </a>
-    
-
-    <!-- Profile (Only Owner) -->
-    <a th:if="${role == 'OWNER'}"
-       th:href="@{/profile}">
-       🏪 Profile
-    </a>
-
-
-
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="logout-btn">🔓 Logout</button>
-    </form>
-</div>
-
-<div class="main">
-
-    <!-- TOP BAR -->
-    <div class="topbar">
-        <div>
-            <strong th:text="${shop.name}">Shop Name</strong> |
-            PAN: <span th:text="${shop.panNumber}"></span> |
-            GST: <span th:text="${shop.gstNumber} ?: 'N/A'"></span>
-            
+            <div>
+                ROLE: <strong th:text="${role}"></strong> &nbsp; | &nbsp;
+                BUSSINESS ID: <strong th:text="'HL'+${shop.id}"></strong> &nbsp; | &nbsp;
+                Plan: <strong th:text="${shop.subscriptionPlan}"></strong>
+            </div>
         </div>
-        
-        <div>
-            ROLE: <strong th:text="${role}"></strong> &nbsp; | &nbsp;
-            BUSSINESS ID: <strong th:text="'HL'+${shop.id}"></strong> &nbsp; | &nbsp;
-            Plan: <strong th:text="${shop.subscriptionPlan}"></strong>
+
+        <div class="kpi-grid">
+            <div class="card">
+                Today's Revenue
+                <div class="value">₹ <span id="rev" th:text="${todayRevenue} ?: 0"></span></div>
+            </div>
+            <div class="card">
+                Invoices
+                <div class="value" id="inv" th:text="${todayInvoices} ?: 0"></div>
+            </div>
+            <div class="card">
+                Items Sold
+                <div class="value" id="items" th:text="${todayItems} ?: 0"></div>
+            </div>
+            <div class="card">
+                Total Staff
+                <div class="value" id="staff" th:text="${totalStaff} ?: 0"></div>
+            </div>
         </div>
+
+        <div class="charts">
+            <div class="chart-box">
+                <h4>This Week Revenue</h4>
+                <canvas id="revenueChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h4>Today's Split</h4>
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="card">
+                <h5>Low Stock Products</h5>
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                    </tr>
+                    <tr th:each="product : ${lowStockProducts}">
+                        <td th:text="${product.name}"></td>
+                        <td class="danger" th:text="${product.stockQuantity}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(lowStockProducts)}">
+                        <td colspan="2" style="text-align:center; color:green;">
+                            ✅ All products sufficiently stocked
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h5>Business Info</h5>
+                <p style="font-size: small;"><strong>Address:</strong> <span th:text="${shop.Address} ?: 'N/A'"></span>,
+                    <span th:text="${shop.city} ?: 'N/A'"></span>,
+                    <span th:text="${shop.state} ?: 'N/A'"></span>,
+                    - <span th:text="${shop.pincode} ?: 'N/A'"></span>
+                </p>
+                <p style="font-size: small;"> <strong>UPI:</strong> <span th:text="${shop.upiId} ?: 'N/A'"></span></p>
+                <p style="font-size: small;"> <strong>SINCE: </strong> <span
+                        th:text="${shop.createdAt} ?: 'N/A'"></span></p>
+
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2026 HisaabLite | All Rights Reserved. 
+        </div>
+
     </div>
 
-    <!-- KPI -->
-    <div class="kpi-grid">
-        <div class="card">
-            Today Revenue
-            <div class="value">₹ <span id="rev" th:text="${todayRevenue} ?: 0"></span></div>
-        </div>
-        <div class="card">
-            Invoices
-            <div class="value" id="inv" th:text="${todayInvoices} ?: 0"></div>
-        </div>
-        <div class="card">
-            Items Sold
-            <div class="value" id="items" th:text="${todayItems} ?: 0"></div>
-        </div>
-        <div class="card">
-            Total Staff
-            <div class="value" id="staff" th:text="${totalStaff} ?: 0"></div>
-        </div>
-    </div>
-
-    <!-- CHARTS -->
-    <div class="charts">
-        <div class="chart-box">
-            <h4>7 Day Revenue</h4>
-            <canvas id="revenueChart"></canvas>
-        </div>
-        <div class="chart-box">
-            <h4>Today Split</h4>
-            <canvas id="pieChart"></canvas>
-        </div>
-    </div>
-
-    <!-- BOTTOM -->
-    <div class="bottom-grid">
-        <div class="card">
-            <h5>Low Stock Products</h5>
-            <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Stock</th>
-                </tr>
-                <tr th:each="product : ${lowStockProducts}">
-                    <td th:text="${product.name}"></td>
-                    <td class="danger" th:text="${product.stockQuantity}"></td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(lowStockProducts)}">
-                    <td colspan="2" style="text-align:center; color:green;">
-                        ✅ All products sufficiently stocked
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="card">
-            <h5>Business Info</h5>
-            <p style="font-size: small;"><strong>Address:</strong>  <span th:text="${shop.Address} ?: 'N/A'"></span>, 
-            <span th:text="${shop.city} ?: 'N/A'"></span>, 
-            <span th:text="${shop.state} ?: 'N/A'"></span>, 
-            - <span th:text="${shop.pincode} ?: 'N/A'"></span>
-            </p>
-            <p style="font-size: small;"> <strong>UPI:</strong>  <span th:text="${shop.upiId} ?: 'N/A'"></span></p>
-            <p style="font-size: small;"> <strong>SINCE: </strong> <span th:text="${shop.createdAt} ?: 'N/A'"></span></p>
-           
-        </div>
-    </div>
-
-    <div class="footer">
-        © 2026 HisaabLite | Made with ❤️ in India
-    </div>
-
-</div>
-
-<script th:inline="javascript">
-
-let labels = /*[[${labels}]]*/ [];
-let revenues = /*[[${revenues}]]*/ [];
-
-/* Line Chart */
-new Chart(document.getElementById('revenueChart'), {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Revenue',
-            data: revenues,
-            borderWidth: 2,
-            tension: 0.3,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: { padding: { left: 0, right: 10 } }
-    }
-});
-
-/* Pie Chart */
-new Chart(document.getElementById('pieChart'), {
-    type: 'doughnut',
-    data: {
-        labels: ['Revenue', 'Invoices', 'Items'],
-        datasets: [{
-            data: [
-                [[${todayRevenue} ?: 0]],
-                [[${todayInvoices} ?: 0]],
-                [[${todayItems} ?: 0]]
-            ]
-        }]
-    }
-});
-
-/* Live Refresh */
-setInterval(() => {
-    fetch('/app/metrics')
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("rev").innerText = data.todayRevenue;
-            document.getElementById("inv").innerText = data.todayInvoices;
-            document.getElementById("items").innerText = data.todayItems;
-            document.getElementById("staff").innerText = data.totalStaff;
+    <script th:inline="javascript">
+        let labels = /*[[${labels}]]*/[];
+        let revenues = /*[[${revenues}]]*/[];
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: revenues,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { left: 0, right: 10 } }
+            }
         });
-}, 30000);
 
-</script>
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Revenue', 'Invoices', 'Items'],
+                datasets: [{
+                    data: [
+                        [[${ todayRevenue } ?: 0]],
+                        [[${ todayInvoices } ?: 0]],
+                        [[${ todayItems } ?: 0]]
+                    ]
+                }]
+            }
+        });
+
+        setInterval(() => {
+            fetch('/app/metrics')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("rev").innerText = data.todayRevenue;
+                    document.getElementById("inv").innerText = data.todayInvoices;
+                    document.getElementById("items").innerText = data.todayItems;
+                    document.getElementById("staff").innerText = data.totalStaff;
+                });
+        }, 30000);
+
+    </script>
 
 </body>
+
 </html>

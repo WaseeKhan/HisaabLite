@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Products - HisaabLite</title>
+    <title> Products - HisaabLite</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
         }
@@ -17,7 +19,6 @@
             background: #f4f6f9;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 240px;
             background: linear-gradient(180deg, #111827, #1f2937);
@@ -37,11 +38,11 @@
         }
 
         .sidebar a:hover {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .sidebar a.active {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             font-weight: 600;
         }
 
@@ -60,7 +61,6 @@
             background: #dc2626;
         }
 
-        /* MAIN */
         .main {
             flex: 1;
             padding: 30px;
@@ -89,7 +89,7 @@
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         table {
@@ -136,7 +136,7 @@
             background: #dc2626;
         }
 
-        
+
         .logo {
             display: flex;
             align-items: center;
@@ -153,87 +153,84 @@
 
 <body>
 
-<!-- SIDEBAR (Copied from Dashboard) -->
-<div class="sidebar">
+    <div class="sidebar">
 
-    <div class="logo">
-        <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
-        <h3 style="margin:0;">HisaabLite</h3>
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
+            <h3 style="margin:0;">HisaabLite</h3>
+        </div>
+
+        <a th:href="@{/dashboard}">📊 Dashboard</a>
+
+        <a th:href="@{/sales/new}">💰 Billings</a>
+
+        <a class="active" th:href="@{/products}">📦 Products</a>
+
+        <a th:href="@{/sales/history}">📑 Sales History</a>
+
+        <a th:href="@{/staff}">👥 Staff Management</a>
+
+        <a th:href="@{/profile}">🏪 Profile</a>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">🔓 Logout</button>
+        </form>
+
     </div>
 
-    <a th:href="@{/dashboard}">📊 Dashboard</a>
+    <!-- MAIN CONTENT -->
+    <div class="main">
 
-    <a th:href="@{/sales/new}">💰 Billings</a>
+        <div class="page-header">
+            <h2>📦 Products</h2>
 
-    <a class="active" th:href="@{/products}">📦 Products</a>
+            <a th:href="@{/products/new}" class="add-btn">➕ Add Product</a>
+        </div>
 
-    <a th:href="@{/sales/history}">📑 Sales History</a>
+        <div class="card">
 
-    <a th:href="@{/staff}">👥 Staff Management</a>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price (₹)</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-    <a th:href="@{/profile}">🏪 Profile</a>
+                <tbody>
+                    <tr th:each="product : ${products}">
+                        <td th:text="${product.name}"></td>
 
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="logout-btn">🔓 Logout</button>
-    </form>
+                        <td>₹ <span th:text="${product.price}"></span></td>
 
-</div>
+                        <td th:classappend="${product.stockQuantity <= product.minStock} ? 'low-stock'">
+                            <span th:text="${product.stockQuantity}"></span>
+                            <span th:if="${product.stockQuantity <= product.minStock}">
+                                ⚠
+                            </span>
+                        </td>
 
-<!-- MAIN CONTENT -->
-<div class="main">
+                        <td>
+                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn-edit">Edit</a>
 
-    <div class="page-header">
-        <h2>📦 Products</h2>
-
-        <a th:href="@{/products/new}" class="add-btn">➕ Add Product</a>
-    </div>
-
-    <div class="card">
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Price (₹)</th>
-                    <th>Stock</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr th:each="product : ${products}">
-                    <td th:text="${product.name}"></td>
-
-                    <td>₹ <span th:text="${product.price}"></span></td>
-
-                    <td th:classappend="${product.stockQuantity <= product.minStock} ? 'low-stock'">
-                        <span th:text="${product.stockQuantity}"></span>
-                        <span th:if="${product.stockQuantity <= product.minStock}">
-                            ⚠
-                        </span>
-                    </td>
-
-                    <td>
-                        <a th:href="@{/products/edit/{id}(id=${product.id})}"
-                           class="btn-edit">Edit</a>
-
-                        <form th:action="@{/products/delete/{id}(id=${product.id})}"
-                              method="post"
-                              style="display:inline;">
-                            <button type="submit"
-                                    class="btn-delete"
+                            <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post"
+                                style="display:inline;">
+                                <button type="submit" class="btn-delete"
                                     onclick="return confirm('Are you sure to delete?')">
-                                Delete
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
 
     </div>
-
-</div>
 
 </body>
+
 </html>

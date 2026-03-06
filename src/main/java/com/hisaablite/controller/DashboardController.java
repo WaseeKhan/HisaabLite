@@ -1,7 +1,5 @@
 package com.hisaablite.controller;
 
-
-
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
@@ -10,15 +8,12 @@ import com.hisaablite.repository.SaleItemRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.SaleService;
-
 import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,158 +26,144 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping
 public class DashboardController {
 
-    private final UserRepository userRepository;
-    private final SaleRepository saleRepository;
-    private final SaleItemRepository saleItemRepository;
-    private final ProductRepository productRepository;
-    private final SaleService saleService;
+        private final UserRepository userRepository;
+        private final SaleRepository saleRepository;
+        private final SaleItemRepository saleItemRepository;
+        private final ProductRepository productRepository;
+        private final SaleService saleService;
 
-    // ==============================
-    // ROLE BASED REDIRECT
-    // ==============================
-    @GetMapping("/dashboard")
-    public String dashboardRedirect(Authentication auth) {
+        // ROLE BASED REDIRECT
 
-        String role = auth.getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority();
+        @GetMapping("/dashboard")
+        public String dashboardRedirect(Authentication auth) {
 
-        if (role.equals("ROLE_OWNER")) {
-            return "redirect:/owner/dashboard";
-        } else if (role.equals("ROLE_MANAGER")) {
-            return "redirect:/manager/dashboard";
-        } else {
-            return "redirect:/cashier/dashboard";
+                String role = auth.getAuthorities()
+                                .iterator()
+                                .next()
+                                .getAuthority();
+
+                if (role.equals("ROLE_OWNER")) {
+                        return "redirect:/owner/dashboard";
+                } else if (role.equals("ROLE_MANAGER")) {
+                        return "redirect:/manager/dashboard";
+                } else {
+                        return "redirect:/cashier/dashboard";
+                }
         }
-    }
 
-    // ==============================
-    // OWNER DASHBOARD
-    // ==============================
-    @GetMapping("/owner/dashboard")
-    public String ownerDashboard(Model model, Authentication authentication) {
-        return loadDashboard(model, authentication, "OWNER");
-    }
+        // OWNER DASHBOARD
 
-    // ==============================
-    // MANAGER DASHBOARD
-    // ==============================
-    @GetMapping("/manager/dashboard")
-    public String managerDashboard(Model model, Authentication authentication) {
-        return loadDashboard(model, authentication, "MANAGER");
-    }
+        @GetMapping("/owner/dashboard")
+        public String ownerDashboard(Model model, Authentication authentication) {
+                return loadDashboard(model, authentication, "OWNER");
+        }
 
-    // ==============================
-    // CASHIER DASHBOARD
-    // ==============================
-    @GetMapping("/cashier/dashboard")
-    public String cashierDashboard(Model model, Authentication authentication) {
-        return loadDashboard(model, authentication, "CASHIER");
-    }
+        // MANAGER DASHBOARD
 
-    // ==============================
-    // COMMON DASHBOARD LOGIC
-    // ==============================
-    private String loadDashboard(Model model,
-                                 Authentication authentication,
-                                 String role) {
+        @GetMapping("/manager/dashboard")
+        public String managerDashboard(Model model, Authentication authentication) {
+                return loadDashboard(model, authentication, "MANAGER");
+        }
 
-        User user = userRepository
-                .findByUsername(authentication.getName())
-                .orElseThrow();
+        // CASHIER DASHBOARD
 
-        Shop shop = user.getShop();
+        @GetMapping("/cashier/dashboard")
+        public String cashierDashboard(Model model, Authentication authentication) {
+                return loadDashboard(model, authentication, "CASHIER");
+        }
 
-        model.addAttribute("shop", shop);
-        model.addAttribute("role", role);
+        // COMMON DASHBOARD LOGIC
 
-        // =======================
-        // TODAY DATA
-        // =======================
+        private String loadDashboard(Model model,
+                        Authentication authentication,
+                        String role) {
 
-        LocalDate today = LocalDate.now();
-        LocalDateTime startToday = today.atStartOfDay();
-        LocalDateTime endToday = today.atTime(23, 59, 59);
+                User user = userRepository
+                                .findByUsername(authentication.getName())
+                                .orElseThrow();
 
-        Double todayRevenue = saleRepository
-                .getTodayTotalRevenue(shop, startToday, endToday);
+                Shop shop = user.getShop();
 
-        Long todayInvoices = saleRepository
-                .getTodayInvoiceCount(shop, startToday, endToday);
+                model.addAttribute("shop", shop);
+                model.addAttribute("role", role);
 
-        Long todayItems = saleItemRepository
-                .getTodayItemsSold(shop, startToday, endToday);
+                // TODAY DATA
 
-        model.addAttribute("todayRevenue",
-                todayRevenue != null ? todayRevenue : 0);
+                LocalDate today = LocalDate.now();
+                LocalDateTime startToday = today.atStartOfDay();
+                LocalDateTime endToday = today.atTime(23, 59, 59);
 
-        model.addAttribute("todayInvoices",
-                todayInvoices != null ? todayInvoices : 0);
+                Double todayRevenue = saleRepository
+                                .getTodayTotalRevenue(shop, startToday, endToday);
 
-        model.addAttribute("todayItems",
-                todayItems != null ? todayItems : 0);
+                Long todayInvoices = saleRepository
+                                .getTodayInvoiceCount(shop, startToday, endToday);
 
-        // =======================
-        // 7 DAY CHART DATA
-        // =======================
+                Long todayItems = saleItemRepository
+                                .getTodayItemsSold(shop, startToday, endToday);
 
-        Map<String, Object> chartData =
-                saleService.getLast7DaysChartData(shop);
+                model.addAttribute("todayRevenue",
+                                todayRevenue != null ? todayRevenue : 0);
 
-        model.addAttribute("labels", chartData.get("labels"));
-        model.addAttribute("revenues", chartData.get("revenues"));
+                model.addAttribute("todayInvoices",
+                                todayInvoices != null ? todayInvoices : 0);
 
-        // =======================
-        // LOW STOCK
-        // =======================
+                model.addAttribute("todayItems",
+                                todayItems != null ? todayItems : 0);
 
-        List<Product> lowStockProducts =
-                productRepository.findLowStockProducts(shop);
+                // 7 DAY CHART DATA
 
-        model.addAttribute("lowStockProducts", lowStockProducts);
+                Map<String, Object> chartData = saleService.getLast7DaysChartData(shop);
 
-        Long totalStaff = userRepository.countByShop(shop);
-        model.addAttribute("totalStaff", totalStaff);
+                model.addAttribute("labels", chartData.get("labels"));
+                model.addAttribute("revenues", chartData.get("revenues"));
 
-        return "ultra-dashboard";
-    }
+                // LOW STOCK
 
-    // ==============================
-    // LIVE METRICS (AJAX)
-    // ==============================
-    @GetMapping("/app/metrics")
-    @ResponseBody
-    public Map<String, Object> getLiveMetrics(
-            Authentication authentication) {
+                List<Product> lowStockProducts = productRepository.findLowStockProducts(shop);
 
-        User user = userRepository
-                .findByUsername(authentication.getName())
-                .orElseThrow();
+                model.addAttribute("lowStockProducts", lowStockProducts);
 
-        Shop shop = user.getShop();
+                Long totalStaff = userRepository.countByShop(shop);
+                model.addAttribute("totalStaff", totalStaff);
 
-        LocalDate today = LocalDate.now();
-        LocalDateTime startToday = today.atStartOfDay();
-        LocalDateTime endToday = today.atTime(23, 59, 59);
+                return "ultra-dashboard";
+        }
 
-        Map<String, Object> data = new HashMap<>();
+        // LIVE METRICS (AJAX)
 
-        data.put("todayRevenue",
-                saleRepository.getTodayTotalRevenue(shop,
-                        startToday, endToday));
+        @GetMapping("/app/metrics")
+        @ResponseBody
+        public Map<String, Object> getLiveMetrics(
+                        Authentication authentication) {
 
-        data.put("todayInvoices",
-                saleRepository.getTodayInvoiceCount(shop,
-                        startToday, endToday));
+                User user = userRepository
+                                .findByUsername(authentication.getName())
+                                .orElseThrow();
 
-        data.put("todayItems",
-                saleItemRepository.getTodayItemsSold(shop,
-                        startToday, endToday));
+                Shop shop = user.getShop();
 
-        data.put("totalStaff",
-                userRepository.countByShop(shop));
+                LocalDate today = LocalDate.now();
+                LocalDateTime startToday = today.atStartOfDay();
+                LocalDateTime endToday = today.atTime(23, 59, 59);
 
-        return data;
-    }
+                Map<String, Object> data = new HashMap<>();
+
+                data.put("todayRevenue",
+                                saleRepository.getTodayTotalRevenue(shop,
+                                                startToday, endToday));
+
+                data.put("todayInvoices",
+                                saleRepository.getTodayInvoiceCount(shop,
+                                                startToday, endToday));
+
+                data.put("todayItems",
+                                saleItemRepository.getTodayItemsSold(shop,
+                                                startToday, endToday));
+
+                data.put("totalStaff",
+                                userRepository.countByShop(shop));
+
+                return data;
+        }
 }

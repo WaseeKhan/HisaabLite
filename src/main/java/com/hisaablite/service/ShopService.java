@@ -16,7 +16,7 @@ public class ShopService {
 
     @Transactional
     public void updateProfile(User loggedInUser,
-                              ShopProfileUpdateRequest request) {
+            ShopProfileUpdateRequest request) {
 
         Shop shop = loggedInUser.getShop();
 

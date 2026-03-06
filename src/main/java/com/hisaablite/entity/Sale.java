@@ -2,12 +2,9 @@ package com.hisaablite.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Getter
@@ -39,25 +36,22 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private SaleStatus status;
 
-        //billing page
+    // billing page
 
-            // CUSTOMER DETAILS
-        private String customerName;
-        private String customerPhone;
+    // CUSTOMER DETAILS
+    private String customerName;
+    private String customerPhone;
 
-        // PAYMENT DETAILS
-        private String paymentMode; // CASH / UPI / CARD
-        private Double amountReceived;
-        private Double changeReturned;
+    // PAYMENT DETAILS
+    private String paymentMode; // CASH / UPI / CARD
+    private Double amountReceived;
+    private Double changeReturned;
 
-        //billiing page end here
+    // billiing page end here
 
-        //discount logic
-        private BigDecimal discountAmount = BigDecimal.ZERO;
-        private BigDecimal discountPercent = BigDecimal.ZERO;
-        private BigDecimal taxableAmount = BigDecimal.ZERO;
-
-     
-
+    // discount logic
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+    private BigDecimal discountPercent = BigDecimal.ZERO;
+    private BigDecimal taxableAmount = BigDecimal.ZERO;
 
 }

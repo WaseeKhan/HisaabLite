@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Invoice - HisaabLite</title>
 
@@ -16,7 +17,7 @@
             background: #ffffff;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .header {
@@ -105,112 +106,113 @@
             .print-btn {
                 display: none;
             }
+
             body {
                 background: white;
             }
         }
-
     </style>
 </head>
 
 <body>
 
-<div class="invoice-box">
+    <div class="invoice-box">
 
-    <div class="print-btn">
-        <button onclick="window.print()">Print Invoice</button>
-    </div>
-
-    <div class="header">
-        <div>
-            <div class="brand">HisaabLite</div>
-            <div th:text="${sale.shop.name}"></div>
-            <div th:text="${sale.shop.address}"></div>
+        <div class="print-btn">
+            <button onclick="window.print()">Print Invoice</button>
         </div>
 
-        <div>
-            <div class="invoice-title">INVOICE</div>
-            <div>Invoice ID: <span th:text="${sale.id}"></span></div>
-            <div>Date: <span th:text="${#temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm')}"></span></div>
+        <div class="header">
+            <div>
+                <div class="brand">HisaabLite</div>
+                <div th:text="${sale.shop.name}"></div>
+                <div th:text="${sale.shop.address}"></div>
+            </div>
+
+            <div>
+                <div class="invoice-title">INVOICE</div>
+                <div>Invoice ID: <span th:text="${sale.id}"></span></div>
+                <div>Date: <span th:text="${#temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm')}"></span></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Customer Section -->
-    <div class="section">
-        <h4>Customer Details</h4>
-        <div>Name: <span th:text="${sale.customerName != null ? sale.customerName : 'Walk-in Customer'}"></span></div>
-        <div>Phone: <span th:text="${sale.customerPhone != null ? sale.customerPhone : '-'}"></span></div>
-    </div>
+        <!-- Customer Section -->
+        <div class="section">
+            <h4>Customer Details</h4>
+            <div>Name: <span th:text="${sale.customerName != null ? sale.customerName : 'Walk-in Customer'}"></span>
+            </div>
+            <div>Phone: <span th:text="${sale.customerPhone != null ? sale.customerPhone : '-'}"></span></div>
+        </div>
 
-    <!-- Items Table -->
-    <div class="section">
-        <h4>Items</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="item, stat : ${items}">
-                    <td th:text="${stat.index + 1}"></td>
-                    <td th:text="${item.product.name}"></td>
-                    <td>₹ <span th:text="${item.product.price}"></span></td>
-                    <td th:text="${item.quantity}"></td>
-                    <td>₹ <span th:text="${item.subtotal}"></span></td>
-                </tr>
-            </tbody>
+        <!-- Items Table -->
+        <div class="section">
+            <h4>Items</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, stat : ${items}">
+                        <td th:text="${stat.index + 1}"></td>
+                        <td th:text="${item.product.name}"></td>
+                        <td>₹ <span th:text="${item.product.price}"></span></td>
+                        <td th:text="${item.quantity}"></td>
+                        <td>₹ <span th:text="${item.subtotal}"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals Section -->
+        <table class="totals">
+            <tr>
+                <td>Subtotal:</td>
+                <td>₹ <span th:text="${sale.totalAmount + sale.discountAmount}"></span></td>
+            </tr>
+
+            <tr>
+                <td>Discount:</td>
+                <td>
+                    ₹ <span th:text="${sale.discountAmount}"></span>
+                    (<span th:text="${sale.discountPercent}"></span>%)
+                </td>
+            </tr>
+
+            <tr class="grand-total">
+                <td>Grand Total:</td>
+                <td>₹ <span th:text="${sale.totalAmount}"></span></td>
+            </tr>
+
+            <tr>
+                <td>Payment Mode:</td>
+                <td th:text="${sale.paymentMode}"></td>
+            </tr>
+
+            <tr>
+                <td>Amount Received:</td>
+                <td>₹ <span th:text="${sale.amountReceived}"></span></td>
+            </tr>
+
+            <tr>
+                <td>Change Returned:</td>
+                <td>₹ <span th:text="${sale.changeReturned}"></span></td>
+            </tr>
         </table>
+
+        <div style="clear: both;"></div>
+
+        <div class="footer">
+            Thank you for your business ❤️. Generated by HisaabLite Billing System
+        </div>
+
     </div>
-
-    <!-- Totals Section -->
-    <table class="totals">
-        <tr>
-            <td>Subtotal:</td>
-            <td>₹ <span th:text="${sale.totalAmount + sale.discountAmount}"></span></td>
-        </tr>
-
-        <tr>
-            <td>Discount:</td>
-            <td>
-                ₹ <span th:text="${sale.discountAmount}"></span>
-                (<span th:text="${sale.discountPercent}"></span>%)
-            </td>
-        </tr>
-
-        <tr class="grand-total">
-            <td>Grand Total:</td>
-            <td>₹ <span th:text="${sale.totalAmount}"></span></td>
-        </tr>
-
-        <tr>
-            <td>Payment Mode:</td>
-            <td th:text="${sale.paymentMode}"></td>
-        </tr>
-
-        <tr>
-            <td>Amount Received:</td>
-            <td>₹ <span th:text="${sale.amountReceived}"></span></td>
-        </tr>
-
-        <tr>
-            <td>Change Returned:</td>
-            <td>₹ <span th:text="${sale.changeReturned}"></span></td>
-        </tr>
-    </table>
-
-    <div style="clear: both;"></div>
-
-    <div class="footer">
-        Thank you for your business ❤️ <br>
-        Generated by HisaabLite POS System
-    </div>
-
-</div>
 
 </body>
+
 </html>

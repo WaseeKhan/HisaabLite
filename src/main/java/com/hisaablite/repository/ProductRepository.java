@@ -14,23 +14,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByShop(Shop shop);
 
     List<Product> findByShopAndActiveTrue(Shop shop);
-    
-   @Query("""
-       SELECT p FROM Product p
-       WHERE p.shop = :shop
-       AND p.stockQuantity <= p.minStock
-       """)
+
+    @Query("""
+            SELECT p FROM Product p
+            WHERE p.shop = :shop
+            AND p.stockQuantity <= p.minStock
+            """)
     List<Product> findLowStockProducts(@Param("shop") Shop shop);
 
-    // List<Product> findByShopAndNameContainingIgnoreCase(Shop shop, String name);
-    // List<Product> findByShopAndNameStartingWithIgnoreCase(Shop shop, String name);
     List<Product> findByShopAndNameIgnoreCaseContaining(Shop shop, String name);
 
     Optional<Product> findByIdAndShop(Long id, Shop shop);
 
-
-
-
-
 }
-
