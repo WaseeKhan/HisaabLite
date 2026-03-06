@@ -83,7 +83,7 @@
 
         /* LEFT PANEL */
 
-        
+
 
 
 
@@ -270,7 +270,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
-            margin-top:-10px;
+            margin-top: -10px;
         }
 
         #cartTable thead {
@@ -318,33 +318,36 @@
         }
 
         .grid-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;  /* Equal columns */
-        gap: 20px;
-        width: 100%;
-    }
-    
-    .left { 
-        padding: 10px; 
-    }
-    .right { 
-        
-        padding: 10px; }
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* Equal columns */
+            gap: 20px;
+            width: 100%;
+        }
+
+        .left {
+            padding: 10px;
+        }
+
+        .right {
+
+            padding: 10px;
+        }
 
 
         #cartTable button {
-    padding: 4px 8px;
-    border: none;
-    background: #2563eb;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0 4px;
-}
+            padding: 4px 8px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 4px;
+        }
 
-#cartTable button:hover {
-    background: #1d4ed8;
-}
+        #cartTable button:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
 
@@ -429,10 +432,10 @@
                 <div id="searchResults"></div>
 
 
-                
 
-                
-                
+
+
+
 
                 <hr>
 
@@ -450,63 +453,63 @@
 
                     <!-- CUSTOMER DETAILS -->
 
-                
 
-                <div class="grid-container">
-                    <div class="left">
-                           <input type="text" name="customerName" placeholder="Customer Name" />
-                    </div>
-                    <div class="right">
+
+                    <div class="grid-container">
+                        <div class="left">
+                            <input type="text" name="customerName" placeholder="Customer Name" />
+                        </div>
+                        <div class="right">
                             <input type="text" name="customerPhone" placeholder="Customer Phone" />
+                        </div>
                     </div>
-                </div>
 
-              
+
 
                     <hr>
 
-                  
 
-                     <div class="grid-container">
-                    <div class="left">
+
+                    <div class="grid-container">
+                        <div class="left">
                             <!-- PAYMENT MODE -->
-                    <label>Payment Mode</label>
-                    <select name="paymentMode">
-                        <option value="CASH">Cash</option>
-                        <option value="UPI">UPI</option>
-                        <option value="CARD">Card</option>
-                    </select>
+                            <label>Payment Mode</label>
+                            <select name="paymentMode">
+                                <option value="CASH">Cash</option>
+                                <option value="UPI">UPI</option>
+                                <option value="CARD">Card</option>
+                            </select>
+                        </div>
+                        <div class="right">
+                            <!-- AMOUNT RECEIVED -->
+                            <label>Amount Received</label>
+                            <input type="number" id="amountReceived" name="amountReceived" placeholder="Amount Received"
+                                min="0" />
+                        </div>
                     </div>
-                    <div class="right">
-                              <!-- AMOUNT RECEIVED -->
-                    <label>Amount Received</label>
-                    <input type="number" id="amountReceived" name="amountReceived" placeholder="Amount Received"
-                        min="0" />
+
+
+
+
+                    <div class="grid-container">
+                        <div class="left">
+
+                            <!-- DISCOUNT ₹ -->
+                            <label>Discount ₹</label>
+                            <input type="number" id="discountAmount" name="discountAmount" placeholder="Discount ₹"
+                                value="0" min="0" />
+                        </div>
+                        <div class="right">
+                            <!-- DISCOUNT % -->
+                            <label>Discount %</label>
+                            <input type="number" id="discountPercent" name="discountPercent" placeholder="Discount %"
+                                value="0" min="0" max="100" />
+                        </div>
                     </div>
-                </div>
-
-
-                 
-
-                <div class="grid-container">
-                    <div class="left">
-                           
-                    <!-- DISCOUNT ₹ -->
-                    <label>Discount ₹</label>
-                    <input type="number" id="discountAmount" name="discountAmount" placeholder="Discount ₹" value="0"
-                        min="0" />
-                    </div>
-                    <div class="right">
-                             <!-- DISCOUNT % -->
-                    <label>Discount %</label>
-                    <input type="number" id="discountPercent" name="discountPercent" placeholder="Discount %" value="0"
-                        min="0" max="100" />
-                    </div>
-                </div>
 
 
 
-                  
+
 
                     <!-- CHANGE RETURNED (Hidden Field For DB) -->
                     <input type="hidden" id="changeReturned" name="changeReturned" />
@@ -531,7 +534,7 @@
                                     <th>Qty</th>
                                     <th>Price</th>
                                     <th>Subtotal</th>
-                                   
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -540,7 +543,7 @@
                                     <td th:text="${item.quantity}"></td>
                                     <td th:text="${item.price}"></td>
                                     <td th:text="${item.subtotal}"></td>
-                                    
+
                                 </tr>
                             </tbody>
                         </table>
@@ -559,7 +562,7 @@
 
     </div>
 
- 
+
 
     <div id="successToast" class="toast">
         ✅ Sale Completed Successfully!
@@ -570,214 +573,219 @@
     </div>
 
     <script>
-document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-    let suggestions = [];
-    let selectedIndex = -1;
-    let selectedProduct = null;
+            let suggestions = [];
+            let selectedIndex = -1;
+            let selectedProduct = null;
 
-    const searchInput = document.getElementById("searchInput");
-    const qtyInput = document.getElementById("qtyInput");
-    const resultsBox = document.getElementById("searchResults");
-    const cartBody = document.querySelector("#cartTable tbody");
-    const totalAmountEl = document.getElementById("totalAmount");
+            const searchInput = document.getElementById("searchInput");
+            const qtyInput = document.getElementById("qtyInput");
+            const resultsBox = document.getElementById("searchResults");
+            const cartBody = document.querySelector("#cartTable tbody");
+            const totalAmountEl = document.getElementById("totalAmount");
 
-    searchInput.focus();
+            searchInput.focus();
 
-    /* ================= SEARCH KEY CONTROL ================= */
+            /* ================= SEARCH KEY CONTROL ================= */
 
-    searchInput.addEventListener("keydown", function (e) {
+            searchInput.addEventListener("keydown", function (e) {
 
-        const items = document.querySelectorAll(".suggestion-item");
+                const items = document.querySelectorAll(".suggestion-item");
 
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            if (items.length === 0) return;
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    if (items.length === 0) return;
 
-            selectedIndex++;
-            if (selectedIndex >= items.length) selectedIndex = 0;
+                    selectedIndex++;
+                    if (selectedIndex >= items.length) selectedIndex = 0;
 
-            updateHighlight(items);
-        }
+                    updateHighlight(items);
+                }
 
-        if (e.key === "ArrowUp") {
-            e.preventDefault();
-            if (items.length === 0) return;
+                if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    if (items.length === 0) return;
 
-            selectedIndex--;
-            if (selectedIndex < 0) selectedIndex = items.length - 1;
+                    selectedIndex--;
+                    if (selectedIndex < 0) selectedIndex = items.length - 1;
 
-            updateHighlight(items);
-        }
+                    updateHighlight(items);
+                }
 
-        if (e.key === "Enter") {
-            e.preventDefault();
+                if (e.key === "Enter") {
+                    e.preventDefault();
 
-            if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                    if (selectedIndex >= 0 && suggestions[selectedIndex]) {
 
-                selectedProduct = suggestions[selectedIndex];
-
-                searchInput.value = selectedProduct.name;
-                resultsBox.innerHTML = "";
-
-                qtyInput.focus();
-                qtyInput.select();
-            }
-        }
-    });
-
-    /* ================= FETCH SEARCH ================= */
-
-    searchInput.addEventListener("input", function () {
-
-        const keyword = this.value.trim();
-
-        if (keyword.length === 0) {
-            resultsBox.innerHTML = "";
-            selectedIndex = -1;
-            suggestions = [];
-            return;
-        }
-
-        fetch("/sales/search?keyword=" + keyword)
-            .then(res => res.json())
-            .then(data => {
-
-                suggestions = data;
-                selectedIndex = -1;
-                resultsBox.innerHTML = "";
-
-                data.forEach((p, index) => {
-
-                    const div = document.createElement("div");
-                    div.classList.add("suggestion-item");
-                    div.innerText =
-                        p.name + " - ₹" + p.price + " (Stock: " + p.stock + ")";
-
-                    div.dataset.index = index;
-
-                    div.addEventListener("click", function () {
-
-                        selectedIndex = index;
-                        selectedProduct = suggestions[index];
+                        selectedProduct = suggestions[selectedIndex];
 
                         searchInput.value = selectedProduct.name;
                         resultsBox.innerHTML = "";
 
                         qtyInput.focus();
                         qtyInput.select();
-                    });
-
-                    resultsBox.appendChild(div);
-                });
+                    }
+                }
             });
-    });
 
-    /* ================= QTY ENTER ================= */
+            /* ================= FETCH SEARCH ================= */
 
-    qtyInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            addProduct();
-        }
-    });
+            searchInput.addEventListener("input", function () {
 
-    /* ================= ADD PRODUCT ================= */
+                const keyword = this.value.trim();
 
-    function addProduct() {
+                if (keyword.length === 0) {
+                    resultsBox.innerHTML = "";
+                    selectedIndex = -1;
+                    suggestions = [];
+                    return;
+                }
 
-        if (!selectedProduct) {
-            alert("Select product first");
-            return;
-        }
+                fetch("/sales/search?keyword=" + keyword)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error("Search failed");
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
 
-        const csrfToken =
-            document.querySelector("meta[name='_csrf']").content;
+                        suggestions = data;
+                        selectedIndex = -1;
+                        resultsBox.innerHTML = "";
 
-        const qty = parseInt(qtyInput.value) || 1;
+                        data.forEach((p, index) => {
 
-        fetch("/sales/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body:
-                "_csrf=" + csrfToken +
-                "&productId=" + selectedProduct.id +
-                "&quantity=" + qty
-        })
+                            const div = document.createElement("div");
+                            div.classList.add("suggestion-item");
+                            div.innerText =
+                                p.name + " - ₹" + p.price + " (Stock: " + p.stockQuantity + ")";
 
-        .then(res => {
-            if (!res.ok) {
-                return res.text().then(text => { throw new Error(text); });
+                            div.dataset.index = index;
+
+                            div.addEventListener("click", function () {
+
+                                selectedIndex = index;
+                                selectedProduct = suggestions[index];
+
+                                searchInput.value = selectedProduct.name;
+                                resultsBox.innerHTML = "";
+
+                                qtyInput.focus();
+                                qtyInput.select();
+                            });
+
+                            resultsBox.appendChild(div);
+                        });
+                    });
+            });
+
+            /* ================= QTY ENTER ================= */
+
+            qtyInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    addProduct();
+                }
+            });
+
+            /* ================= ADD PRODUCT ================= */
+
+            function addProduct() {
+
+                if (!selectedProduct) {
+                    alert("Select product first");
+                    return;
+                }
+
+                const csrfToken =
+                    document.querySelector("meta[name='_csrf']").content;
+
+                const qty = parseInt(qtyInput.value) || 1;
+
+                fetch("/sales/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body:
+                        "_csrf=" + csrfToken +
+                        "&productId=" + selectedProduct.id +
+                        "&quantity=" + qty
+                })
+
+                    .then(res => {
+                        if (!res.ok) {
+                            return res.text().then(text => { throw new Error(text); });
+                        }
+                        return res.json();
+                    })
+
+                    .then(cartData => {
+
+                        updateCartUI(cartData);
+
+                        searchInput.value = "";
+                        qtyInput.value = 1;
+                        selectedProduct = null;
+                        selectedIndex = -1;
+
+                        searchInput.focus();
+                    })
+
+                    .catch(err => {
+                        alert(err.message);
+                    });
             }
-            return res.json();
-        })
 
-        .then(cartData => {
+            /* ================= UPDATE UI ================= */
 
-            updateCartUI(cartData);
+            function updateCartUI(cartData) {
 
-            searchInput.value = "";
-            qtyInput.value = 1;
-            selectedProduct = null;
-            selectedIndex = -1;
+                cartBody.innerHTML = "";
 
-            searchInput.focus();
-        })
+                const amountReceivedInput = document.getElementById("amountReceived");
+                const discountInput = document.getElementById("discountAmount");
+                const changeAmountEl = document.getElementById("changeAmount");
 
-        .catch(err => {
-            alert(err.message);
-        });
-    }
+                function calculateChange() {
 
-    /* ================= UPDATE UI ================= */
+                    const total = parseFloat(totalAmountEl.innerText) || 0;
+                    const discountAmt = parseFloat(discountInput.value) || 0;
+                    const discountPercent = parseFloat(
+                        document.getElementById("discountPercent").value
+                    ) || 0;
 
-    function updateCartUI(cartData) {
+                    let finalDiscount = discountAmt;
 
-        cartBody.innerHTML = "";
+                    if (discountPercent > 0) {
+                        finalDiscount = (total * discountPercent) / 100;
+                    }
 
-        const amountReceivedInput = document.getElementById("amountReceived");
-        const discountInput = document.getElementById("discountAmount");
-        const changeAmountEl = document.getElementById("changeAmount");
+                    const finalTotal = total - finalDiscount;
+                    const received = parseFloat(amountReceivedInput.value) || 0;
+                    const change = received - finalTotal;
 
-        function calculateChange() {
+                    const finalChange = change > 0 ? change.toFixed(2) : 0;
 
-            const total = parseFloat(totalAmountEl.innerText) || 0;
-            const discountAmt = parseFloat(discountInput.value) || 0;
-            const discountPercent = parseFloat(
-                document.getElementById("discountPercent").value
-            ) || 0;
+                    changeAmountEl.innerText = finalChange;
+                    document.getElementById("changeReturned").value = finalChange;
+                }
 
-            let finalDiscount = discountAmt;
+                // Prevent multiple event bindings (IMPORTANT FIX)
+                amountReceivedInput.oninput = calculateChange;
+                discountInput.oninput = calculateChange;
+                document.getElementById("discountPercent").oninput = calculateChange;
 
-            if (discountPercent > 0) {
-                finalDiscount = (total * discountPercent) / 100;
-            }
+                let total = 0;
 
-            const finalTotal = total - finalDiscount;
-            const received = parseFloat(amountReceivedInput.value) || 0;
-            const change = received - finalTotal;
+                cartData.forEach((item, index) => {
 
-            const finalChange = change > 0 ? change.toFixed(2) : 0;
+                    let subtotal = parseFloat(item.subtotal);
+                    total += subtotal;
 
-            changeAmountEl.innerText = finalChange;
-            document.getElementById("changeReturned").value = finalChange;
-        }
-
-        // Prevent multiple event bindings (IMPORTANT FIX)
-        amountReceivedInput.oninput = calculateChange;
-        discountInput.oninput = calculateChange;
-        document.getElementById("discountPercent").oninput = calculateChange;
-
-        let total = 0;
-
-        cartData.forEach((item, index) => {
-
-            let subtotal = parseFloat(item.subtotal);
-            total += subtotal;
-
-            const row = `
+                    const row = `
 <tr>
     <td>${item.productName}</td>
     <td>
@@ -790,81 +798,81 @@ document.addEventListener("DOMContentLoaded", function () {
 </tr>
 `;
 
-            cartBody.insertAdjacentHTML("beforeend", row);
-        });
+                    cartBody.insertAdjacentHTML("beforeend", row);
+                });
 
-        totalAmountEl.innerText = total.toFixed(2);
-        calculateChange();
-    }
-
-    /* ================= GLOBAL CHANGE QTY FIX ================= */
-
-    window.changeQty = function (index, change) {
-
-        const csrfToken =
-            document.querySelector("meta[name='_csrf']").content;
-
-        fetch("/sales/update-qty", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: "_csrf=" + csrfToken +
-                  "&index=" + index +
-                  "&change=" + change
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Server error");
+                totalAmountEl.innerText = total.toFixed(2);
+                calculateChange();
             }
-            return response.json();
-        })
-        .then(cartData => {
-            updateCartUI(cartData);
-        })
-        .catch(error => {
-            console.error("Error:", error);
+
+            /* ================= GLOBAL CHANGE QTY FIX ================= */
+
+            window.changeQty = function (index, change) {
+
+                const csrfToken =
+                    document.querySelector("meta[name='_csrf']").content;
+
+                fetch("/sales/update-qty", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "_csrf=" + csrfToken +
+                        "&index=" + index +
+                        "&change=" + change
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Server error");
+                        }
+                        return response.json();
+                    })
+                    .then(cartData => {
+                        updateCartUI(cartData);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+            };
+
+            /* ================= HIGHLIGHT ================= */
+
+            function updateHighlight(items) {
+
+                items.forEach(i => i.classList.remove("active"));
+
+                if (items[selectedIndex]) {
+                    items[selectedIndex].classList.add("active");
+                    items[selectedIndex].scrollIntoView({
+                        block: "nearest"
+                    });
+                }
+            }
+
         });
-    };
 
-    /* ================= HIGHLIGHT ================= */
+        /* ================= TOAST ================= */
 
-    function updateHighlight(items) {
+        window.onload = function () {
 
-        items.forEach(i => i.classList.remove("active"));
+            const params = new URLSearchParams(window.location.search);
 
-        if (items[selectedIndex]) {
-            items[selectedIndex].classList.add("active");
-            items[selectedIndex].scrollIntoView({
-                block: "nearest"
-            });
-        }
-    }
+            if (params.get("saved") === "true") {
 
-});
+                const toast = document.getElementById("successToast");
+                const invoiceId = params.get("invoiceId");
 
-/* ================= TOAST ================= */
+                document.getElementById("invoiceBtn").href =
+                    "/sales/invoice/" + invoiceId;
 
-window.onload = function () {
+                toast.classList.add("show");
 
-    const params = new URLSearchParams(window.location.search);
-
-    if (params.get("saved") === "true") {
-
-        const toast = document.getElementById("successToast");
-        const invoiceId = params.get("invoiceId");
-
-        document.getElementById("invoiceBtn").href =
-            "/sales/invoice/" + invoiceId;
-
-        toast.classList.add("show");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 5000);
-    }
-};
-</script>
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                }, 5000);
+            }
+        };
+    </script>
 </body>
 
 </html>
