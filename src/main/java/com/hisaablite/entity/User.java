@@ -41,7 +41,7 @@ public class User {
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    private boolean active = true;
+    private boolean active = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }

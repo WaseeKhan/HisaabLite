@@ -63,4 +63,56 @@ public class EmailService {
         }
     }
 
+
+//For email verification during onboardinhg shop
+
+    public void sendVerificationEmail(String to, String verifyLink) {
+
+    try {
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject("Verify Your Email - HisaabLite");
+        helper.setFrom("waseemk.aws@gmail.com");
+
+        String htmlContent = """
+                <div style="font-family: Arial, sans-serif; padding:20px;">
+                    <h2 style="color:#2c3e50;">Welcome to HisaabLite</h2>
+
+                    <p>Your shop account has been created successfully.</p>
+
+                    <p>Please verify your email to activate your account.</p>
+
+                    <a href="%s"
+                       style="
+                       display:inline-block;
+                       padding:12px 20px;
+                       margin:15px 0;
+                       font-size:16px;
+                       color:#ffffff;
+                       background-color:#27ae60;
+                       text-decoration:none;
+                       border-radius:5px;">
+                       Verify Account
+                    </a>
+
+                    <p>This verification link is valid for 24 hours.</p>
+
+                    <hr/>
+                    <p style="font-size:12px; color:#aaa;">
+                        © 2026 HisaabLite
+                    </p>
+                </div>
+                """.formatted(verifyLink);
+
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }

@@ -11,6 +11,8 @@ import com.hisaablite.dto.RegisterRequest;
 import com.hisaablite.repository.ShopRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.RegistrationService;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +34,9 @@ public class RegisterController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute RegisterRequest request,
             BindingResult bindingResult,
-            Model model) {
+            Model model,
+            HttpServletRequest httpRequest
+        ) {
 
         if (shopRepository.existsByPanNumber(request.getPanNumber())) {
             bindingResult.rejectValue("panNumber", null, "PAN already registered");
@@ -46,11 +50,16 @@ public class RegisterController {
             return "register";
         }
 
-        registrationService.registerShop(request);
+        String appUrl = httpRequest.getRequestURL().toString()
+        .replace(httpRequest.getServletPath(), "");
+
+        registrationService.registerShop(request, appUrl);
 
         // Success message for display
-        model.addAttribute("success", "Shop registered successfully! You will be redirected to login.");
-
+        // model.addAttribute("success", "Shop registered successfully! You will be redirected to login.");
+        
+        //changed msg 
+        model.addAttribute("success", "Shop registered successfully! Please check your email to verify your account.");
         // Reset form
         model.addAttribute("registerRequest", new RegisterRequest());
 

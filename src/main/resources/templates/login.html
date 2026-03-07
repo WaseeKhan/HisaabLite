@@ -108,7 +108,9 @@
         <h2>🔐 HisaabLite Login</h2>
 
         <!-- <p th:if="${param.error}" th:text="${param.error[0]}"></p>  -->
-
+        <div th:if="${param.verified}" style="color:green;">
+            Account verified successfully. Please login.
+        </div>
         <form method="post" th:action="@{/login}">
             <div class="form-group">
                 <label>Username</label>

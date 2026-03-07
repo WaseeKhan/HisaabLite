@@ -173,7 +173,7 @@
 
         if (msgDiv) {
             spinner.style.display = 'block'; // show spinner
-            let countdown = 10; // 10 seconds
+            let countdown = 5; // 10 seconds
             msgDiv.textContent = "We are onboarding your business 🚀";
 
             const interval = setInterval(() => {
@@ -181,10 +181,10 @@
                 if (countdown <= 0) {
                     clearInterval(interval);
                     spinner.style.display = 'none';
-                    msgDiv.textContent = "HisaabLite Welcomes You! 🎉";
+                    msgDiv.textContent = " You're almost there! Check your email and click the verification link to activate your account.";
                     setTimeout(() => {
                         window.location.href = '/login';
-                    }, 3000); // redirect after 3 seconds
+                    }, 5000); // redirect after 5 seconds
                 }
             }, 1000);
         }
