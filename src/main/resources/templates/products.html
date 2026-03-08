@@ -2,233 +2,585 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title> Products - HisaabLite</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Products • HisaabLite</title>
+   <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        html,
-        body {
-            height: 100%;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
             display: flex;
-            background: #f4f6f9;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        /* ===== SIDEBAR (SAME AS OTHER PAGES) ===== */
         .sidebar {
             width: 240px;
-            background: linear-gradient(180deg, #111827, #1f2937);
-            color: white;
-            padding: 20px;
+            background: #ffffff;
+            border-right: 1px solid #e9eef2;
+            padding: 32px 20px;
             display: flex;
             flex-direction: column;
+            box-shadow: none;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
-        .sidebar a {
-            padding: 10px;
-            border-radius: 8px;
-            margin: 6px 0;
-            text-decoration: none;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 4px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #0f172a;
             color: white;
-            transition: 0.2s;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #5b6778;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 20px;
+            font-size: 15px;
+            color: #8893a4;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .nav-links a:hover i {
+            color: #0f172a;
+        }
+
+        .nav-links a.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #0f172a;
         }
 
         .logout-btn {
             width: 100%;
-            padding: 10px;
-            background: #ef4444;
+            padding: 10px 14px;
+            background: #fef2f2;
             border: none;
-            color: white;
-            border-radius: 8px;
-            margin-top: auto;
+            color: #b91c1c;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+            margin-top: 20px;
+        }
+
+        .logout-btn i {
+            color: #b91c1c;
         }
 
         .logout-btn:hover {
-            background: #dc2626;
+            background: #fee2e2;
         }
 
+        /* ===== MAIN CONTENT ===== */
         .main {
             flex: 1;
-            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 24px 32px 0 32px;
         }
 
+        /* ===== TOPBAR (OPTIONAL - IF NEEDED) ===== */
+        .topbar {
+            background: white;
+            padding: 14px 24px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            margin-bottom: 24px;
+        }
+
+        .shop-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .shop-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #0f172a;
+        }
+
+        .info-tag {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        /* ===== PAGE HEADER ===== */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-header h2 i {
+            color: #2563eb;
         }
 
         .add-btn {
-            background: #3b82f6;
+            background: #0f172a;
             color: white;
-            padding: 8px 14px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 12px;
             text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
         }
 
         .add-btn:hover {
-            background: #2563eb;
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
         }
 
-        .card {
+        /* ===== PRODUCTS CARD ===== */
+        .products-card {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* ===== TABLE STYLES ===== */
+        .table-responsive {
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 14px;
         }
 
         th {
             text-align: left;
-            padding: 12px;
-            background: #f3f4f6;
+            padding: 16px 12px;
+            color: #5b6778;
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
         }
 
-        tr:hover {
-            background: #f9fafb;
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
         }
 
         .low-stock {
-            color: red;
+            color: #dc2626;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .low-stock-badge {
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .btn-edit {
-            color: #10b981;
+            color: #5b6778;
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 8px;
             text-decoration: none;
-            margin-right: 10px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .btn-edit:hover {
+            background: #e2e8f0;
+            color: #2563eb;
         }
 
         .btn-delete {
-            background: #ef4444;
+            background: #fef2f2;
+            color: #b91c1c;
             border: none;
-            color: white;
-            padding: 5px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
         }
 
         .btn-delete:hover {
-            background: #dc2626;
+            background: #fee2e2;
+            color: #dc2626;
         }
 
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #94a3b8;
+        }
 
-        .logo {
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state .add-first-btn {
+            background: #0f172a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== FOOTER (SAME AS OTHER PAGES) ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 16px 24px;
+            margin: 0 -32px 0 -32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        .footer-left {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 16px;
         }
 
-        .logo img {
-            width: 32px;
-            height: 32px;
+        .footer-left i {
+            color: #2563eb;
+            font-size: 14px;
+        }
+
+        .footer-left span {
+            color: #475569;
+        }
+
+        .footer-left .heart {
+            color: #ef4444;
+            margin: 0 4px;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-right a:hover {
+            color: #2563eb;
+        }
+
+        .footer-right .version {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            
+            .footer-left, .footer-right {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- ===== SIDEBAR ===== -->
     <div class="sidebar">
-
         <div class="logo">
-            <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
-            <h3 style="margin:0;">HisaabLite</h3>
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
         </div>
 
-        <a th:href="@{/dashboard}">📊 Dashboard</a>
-
-        <a th:href="@{/sales/new}">💰 Billings</a>
-
-        <a class="active" th:href="@{/products}">📦 Products</a>
-
-        <a th:href="@{/sales/history}">📑 Sales History</a>
-
-        <a th:href="@{/staff}">👥 Staff Management</a>
-
-        <a th:href="@{/profile}">🏪 Profile</a>
+         <div class="nav-links">
+            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
+                    class="fas fa-cash-register"></i> Billing</a>
+            <a class="active" th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i
+                    class="fas fa-box"></i> Products</a>
+            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
+            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
+            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
+        </div>
 
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">🔓 Logout</button>
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </form>
-
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="main">
-
+        
+        <!-- PAGE HEADER -->
         <div class="page-header">
-            <h2>📦 Products</h2>
+            <h2>
+                <i class="fas fa-box"></i>
+                Products
+            </h2>
 
-            <a th:href="@{/products/new}" class="add-btn">➕ Add Product</a>
+            <a th:href="@{/products/new}" class="add-btn">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
         </div>
 
-        <div class="card">
+        <!-- PRODUCTS CARD -->
+        <div class="products-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price (₹)</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Price (₹)</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+                    <tbody>
+                        <tr th:each="product : ${products}" th:unless="${#lists.isEmpty(products)}">
+                            <td>
+                                <div style="font-weight: 500;" th:text="${product.name}"></div>
+                            </td>
 
-                <tbody>
-                    <tr th:each="product : ${products}">
-                        <td th:text="${product.name}"></td>
+                            <td>
+                                <span style="font-weight: 600;">₹</span>
+                                <span th:text="${product.price}"></span>
+                            </td>
 
-                        <td>₹ <span th:text="${product.price}"></span></td>
+                            <td>
+                                <div th:classappend="${product.stockQuantity <= product.minStock} ? 'low-stock'">
+                                    <span th:text="${product.stockQuantity}"></span>
+                                    <span th:if="${product.stockQuantity <= product.minStock}" class="low-stock-badge">
+                                        Low Stock ⚠
+                                    </span>
+                                </div>
+                            </td>
 
-                        <td th:classappend="${product.stockQuantity <= product.minStock} ? 'low-stock'">
-                            <span th:text="${product.stockQuantity}"></span>
-                            <span th:if="${product.stockQuantity <= product.minStock}">
-                                ⚠
-                            </span>
-                        </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn-edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
 
-                        <td>
-                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn-edit">Edit</a>
+                                    <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn-delete"
+                                            onclick="return confirm('Are you sure you want to delete this product?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
 
-                            <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post"
-                                style="display:inline;">
-                                <button type="submit" class="btn-delete"
-                                    onclick="return confirm('Are you sure to delete?')">
-                                    Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
+                        <!-- Empty State -->
+                        <tr th:if="${#lists.isEmpty(products)}">
+                            <td colspan="4" class="empty-state">
+                                <i class="fas fa-box-open"></i>
+                                <p>No products yet. Start adding your first product!</p>
+                                <a th:href="@{/products/new}" class="add-first-btn">
+                                    <i class="fas fa-plus"></i> Add First Product
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
+        <!-- FOOTER (SAME AS OTHER PAGES) -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version">v1.2.0</span>
+                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
+            </div>
+        </div>
     </div>
 
 </body>

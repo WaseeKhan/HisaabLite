@@ -2,290 +2,647 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Sales History - HisaabLite</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Sales History • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        html,
-        body {
-            height: 100%;
+        /* (Your existing CSS - same as before) */
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
             display: flex;
-            background: #f4f6f9;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 240px;
-            background: linear-gradient(180deg, #111827, #1f2937);
-            color: white;
-            padding: 20px;
+            background: #ffffff;
+            border-right: 1px solid #e9eef2;
+            padding: 32px 20px;
             display: flex;
             flex-direction: column;
-        }
-
-        .sidebar a {
-            padding: 10px;
-            border-radius: 8px;
-            margin: 6px 0;
-            text-decoration: none;
-            color: white;
-            transition: 0.2s;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.15);
-            font-weight: 600;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px;
-            background: #ef4444;
-            border: none;
-            color: white;
-            border-radius: 8px;
-            margin-top: auto;
-            cursor: pointer;
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-        }
-
-        .main {
-            flex: 1;
-            padding: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px;
-            background: #f3f4f6;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            text-align: center;
-        }
-
-        tr:hover {
-            background: #f9fafb;
-        }
-
-        .btn {
-            padding: 6px 10px;
-            background-color: #3b82f6;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        .btn:hover {
-            background-color: #2563eb;
-        }
-
-        .cancel-btn {
-            background-color: #ef4444;
-        }
-
-        .cancel-btn:hover {
-            background-color: #dc2626;
-        }
-
-        .status-completed {
-            color: #10b981;
-            font-weight: 600;
-        }
-
-        .status-cancelled {
-            color: #ef4444;
-            font-weight: 600;
-        }
-
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .pagination a {
-            text-decoration: none;
-            color: #3b82f6;
-        }
-
-        .pagination span {
-            font-weight: 600;
+            box-shadow: none;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 4px;
         }
 
-        .logo img {
+        .logo-icon {
             width: 32px;
             height: 32px;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #5b6778;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 20px;
+            font-size: 15px;
+            color: #8893a4;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .nav-links a:hover i {
+            color: #0f172a;
+        }
+
+        .nav-links a.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #0f172a;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px 14px;
+            background: #fef2f2;
+            border: none;
+            color: #b91c1c;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+            margin-top: 20px;
+        }
+
+        .logout-btn i {
+            color: #b91c1c;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 24px 32px 0 32px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-header h2 i {
+            color: #2563eb;
+        }
+
+        .filter-badge {
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-badge i {
+            color: #2563eb;
+        }
+
+        /* ===== SALES CARD ===== */
+        .sales-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            padding: 24px;
+            margin-bottom: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 12px;
+            color: #5b6778;
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: #e6f7e6;
+            color: #059669;
+        }
+
+        .status-cancelled {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-view {
+            color: #5b6778;
+            background: #f1f5f9;
+            padding: 6px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
+
+        .btn-view:hover {
+            background: #e2e8f0;
+            color: #2563eb;
+        }
+
+        .btn-cancel {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn-cancel:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-cancel.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .pagination {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            color: #0f172a;
+            background: #f1f5f9;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .pagination a:hover {
+            background: #e2e8f0;
+            color: #2563eb;
+        }
+
+        .pagination a.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .pagination span {
+            font-size: 13px;
+            color: #5b6778;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 16px 24px;
+            margin: 0 -32px 0 -32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 14px;
+        }
+
+        .footer-left span {
+            color: #475569;
+        }
+
+        .footer-left .heart {
+            color: #ef4444;
+            margin: 0 4px;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-right a:hover {
+            color: #2563eb;
+        }
+
+        .footer-right .version {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- ===== SIDEBAR ===== -->
     <div class="sidebar">
         <div class="logo">
-            <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
-            <h3 style="margin:0;">HisaabLite</h3>
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
         </div>
 
-        <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
 
+            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}">
+                <i class="fas fa-cash-register"></i> Billing
+            </a>
 
-        <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}">
-            💰 Billings
-        </a>
+            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}">
+                <i class="fas fa-box"></i> Products
+            </a>
 
+            <a class="active" th:href="@{/sales/history}">
+                <i class="fas fa-clock"></i> Sales History
+            </a>
 
-        <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}">
-            📦 Products
-        </a>
+            <!-- Owner-only links - ye sab ab dikhenge -->
+            <a th:if="${role == 'OWNER'}" th:href="@{/staff}">
+                <i class="fas fa-users"></i> Staff
+            </a>
 
-        <a th:href="@{/sales/history}">
-            📑 Sales History
-        </a>
-
-
-        <a th:if="${role == 'OWNER'}" th:href="@{/staff}">
-            👥 Staff Management
-        </a>
-
-
-        <a th:if="${role == 'OWNER'}" th:href="@{/profile}">
-            🏪 Profile
-        </a>
+            <a th:if="${role == 'OWNER'}" th:href="@{/profile}">
+                <i class="fas fa-store"></i> Profile
+            </a>
+        </div>
 
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">🔓 Logout</button>
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </form>
     </div>
 
-
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="main">
 
-        <h2>📑 Sales History</h2>
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h2>
+                <i class="fas fa-clock"></i>
+                Sales History
+            </h2>
 
-        <div class="card">
+            <div class="filter-badge">
+                <i class="fas fa-filter"></i>
+                Showing page <span th:text="${currentPage + 1}"></span> of <span
+                    th:text="${salesPage.totalPages}"></span>
+            </div>
+        </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Invoice #</th>
-                        <th>Date</th>
-                        <th>Total (₹)</th>
-                        <th>Cashier</th>
-                        <th>Action</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
+        <!-- SALES CARD -->
+        <div class="sales-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Date & Time</th>
+                            <th>Total (₹)</th>
+                            <th>Cashier</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    <tr th:each="sale : ${salesPage.content}">
+                    <tbody>
+                        <tr th:each="sale : ${salesPage.content}" th:unless="${#lists.isEmpty(salesPage.content)}">
+                            <td>
+                                <span style="font-weight: 500;">#<span th:text="${sale.id}"></span></span>
+                            </td>
 
-                        <td th:text="${sale.id}"></td>
+                            <td>
+                                <i class="far fa-calendar" style="color: #94a3b8; margin-right: 6px;"></i>
+                                <span th:text="${sale.saleDate != null ? 
+                                          #temporals.format(sale.saleDate,'dd MMM yyyy, hh:mm a') 
+                                          : 'N/A'}"></span>
+                            </td>
 
-                        <td th:text="${sale.saleDate != null ? 
-                                  #temporals.format(sale.saleDate,'dd-MM-yyyy HH:mm') 
-                                  : 'N/A'}"></td>
+                            <td>
+                                <span style="font-weight: 600;">₹</span>
+                                <span th:text="${sale.totalAmount}"></span>
+                            </td>
 
-                        <td>₹ <span th:text="${sale.totalAmount}"></span></td>
+                            <td>
+                                <i class="far fa-user" style="color: #94a3b8; margin-right: 6px;"></i>
+                                <span th:text="${sale.createdBy != null ? 
+                                          sale.createdBy.name : 'N/A'}"></span>
+                            </td>
 
-                        <td th:text="${sale.createdBy != null ? 
-                                  sale.createdBy.username : 'N/A'}"></td>
+                            <td>
+                                <span th:if="${sale.status != null and sale.status.name() == 'COMPLETED'}"
+                                    class="status-badge status-completed">
+                                    <i class="fas fa-check-circle"></i> COMPLETED
+                                </span>
 
-                        <td style="white-space: nowrap;">
+                                <span th:if="${sale.status != null and sale.status.name() == 'CANCELLED'}"
+                                    class="status-badge status-cancelled">
+                                    <i class="fas fa-times-circle"></i> CANCELLED
+                                </span>
 
+                                <span th:if="${sale.status == null}" class="status-badge"
+                                    style="background: #f1f5f9; color: #64748b;">
+                                    <i class="fas fa-minus"></i> N/A
+                                </span>
+                            </td>
 
-                            <a th:href="@{/sales/invoice/{id}(id=${sale.id})}" target="_blank" title="View Invoice"
-                                style="margin-right:10px; font-size:18px; text-decoration:none;">
-                                👁
-                            </a>
+                            <td>
+                                <div class="action-buttons">
+                                    <a th:href="@{/sales/invoice/{id}(id=${sale.id})}" target="_blank" class="btn-view"
+                                        title="View Invoice">
+                                        <i class="fas fa-file-invoice"></i> View
+                                    </a>
 
+                                    <a th:if="${sale.status != null and sale.status.name() == 'COMPLETED'}"
+                                        th:href="@{/sales/cancel/{id}(id=${sale.id})}" class="btn-cancel"
+                                        onclick="return confirm('Are you sure you want to cancel this sale? This action cannot be undone.')"
+                                        title="Cancel Sale">
+                                        <i class="fas fa-ban"></i> Cancel
+                                    </a>
 
-                            <a th:if="${sale.status != null 
-               and sale.status.name() == 'COMPLETED'}" th:href="@{/sales/cancel/{id}(id=${sale.id})}"
-                                title="Cancel Sale" style="color:#ef4444; font-size:18px; text-decoration:none;">
-                                ✖
-                            </a>
+                                    <span th:if="${sale.status != null and sale.status.name() == 'CANCELLED'}"
+                                        class="btn-cancel disabled" title="Already cancelled">
+                                        <i class="fas fa-ban"></i> Cancelled
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
 
-                        </td>
+                        <tr th:if="${#lists.isEmpty(salesPage.content)}">
+                            <td colspan="6" class="empty-state">
+                                <i class="fas fa-receipt"></i>
+                                <p>No sales found</p>
+                                <div class="hint">Start by creating your first sale in the billing section</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                        <td>
-                            <span th:if="${sale.status != null 
-                                      and sale.status.name() == 'COMPLETED'}" class="status-completed">
-                                COMPLETED
-                            </span>
-
-                            <span th:if="${sale.status != null 
-                                      and sale.status.name() == 'CANCELLED'}" class="status-cancelled">
-                                CANCELLED
-                            </span>
-
-                            <span th:if="${sale.status == null}">
-                                N/A
-                            </span>
-                        </td>
-
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Pagination -->
-            <div class="pagination">
-
+            <div class="pagination" th:if="${salesPage.totalPages > 1}">
                 <a th:if="${salesPage.hasPrevious()}" th:href="@{/sales/history(page=${currentPage - 1})}">
-                    ◀ Previous
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+                <a th:if="${!salesPage.hasPrevious()}" class="disabled">
+                    <i class="fas fa-chevron-left"></i> Previous
                 </a>
 
                 <span>
-                    Page <span th:text="${currentPage + 1}"></span>
+                    <strong th:text="${currentPage + 1}"></strong> / <strong th:text="${salesPage.totalPages}"></strong>
                 </span>
 
                 <a th:if="${salesPage.hasNext()}" th:href="@{/sales/history(page=${currentPage + 1})}">
-                    Next ▶
+                    Next <i class="fas fa-chevron-right"></i>
                 </a>
-
+                <a th:if="${!salesPage.hasNext()}" class="disabled">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
             </div>
-
         </div>
 
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version">v1.2.0</span>
+                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
+                    operational</span>
+            </div>
+        </div>
     </div>
 
 </body>

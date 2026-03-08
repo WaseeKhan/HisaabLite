@@ -2,169 +2,499 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Login - HisaabLite</title>
+    <title>Login • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1f2c3a, #2c3e50);
-            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== NAVBAR (EXACT SAME AS LANDING PAGE) ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: white;
+            border-bottom: 1px solid #e9eef2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-links a {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .nav-links a.login {
+            color: #5b6778;
+            background: transparent;
+        }
+
+        .nav-links a.login:hover {
+            background: #f1f5f9;
+        }
+
+        .nav-links a.register {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .nav-links a.register:hover {
+            background: #1e293b;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 40px 20px;
         }
 
-        .login-container {
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        /* ===== LOGIN CARD ===== */
+        .login-card {
             background: white;
-            padding: 40px;
-            border-radius: 10px;
-            width: 350px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+        }
+
+        .login-header {
             text-align: center;
+            margin-bottom: 32px;
         }
 
-        .login-container h2 {
-            margin-bottom: 25px;
-            color: #2c3e50;
+        .login-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
         }
 
+        .login-header p {
+            font-size: 14px;
+            color: #5b6778;
+        }
+
+        /* ===== MESSAGES ===== */
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message.success {
+            background: #e6f7e6;
+            color: #059669;
+            border: 1px solid #bbf7d0;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fee2e2;
+        }
+
+        .message.info {
+            background: #f1f5f9;
+            color: #2563eb;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* ===== FORM ===== */
         .form-group {
-            margin-bottom: 15px;
-            text-align: left;
+            margin-bottom: 20px;
         }
 
         .form-group label {
-            font-weight: bold;
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5b6778;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            color: #94a3b8;
             font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            outline: none;
+            padding: 14px 16px 14px 44px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 400;
+            background: #fafbfc;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
         }
 
         .form-group input:focus {
-            border-color: #3498db;
+            border-color: #2563eb;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
         }
 
+        .form-group input::placeholder {
+            color: #a0aec0;
+            font-size: 13px;
+        }
+
+        /* ===== BUTTON ===== */
         .btn-login {
             width: 100%;
-            padding: 10px;
-            background-color: #3498db;
-            border: none;
+            padding: 16px;
+            background: #0f172a;
             color: white;
-            font-weight: bold;
-            border-radius: 5px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
             cursor: pointer;
-            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+            margin-top: 8px;
         }
 
         .btn-login:hover {
-            background-color: #2980b9;
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
         }
 
-        .logout-msg {
-            margin-top: 15px;
-            color: green;
+        /* ===== LINKS ===== */
+        .links {
+            margin-top: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+        }
+
+        .links a {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: all 0.15s;
+            font-weight: 500;
+        }
+
+        .register-link {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .register-link:hover {
+            background: #e2e8f0;
+        }
+
+        .forgot-link {
+            color: #5b6778;
+        }
+
+        .forgot-link:hover {
+            color: #2563eb;
+            background: #f1f5f9;
+        }
+
+        .separator {
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        /* ===== FOOTER (EXACT SAME AS LANDING PAGE) ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 40px 60px 24px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo .logo-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+
+        .footer-logo span {
+            font-weight: 500;
+            color: #1e293b;
             font-size: 14px;
         }
 
-        .footer-text {
-            margin-top: 20px;
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: #5b6778;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: #2563eb;
+        }
+
+        .footer-bottom {
+            text-align: center;
             font-size: 12px;
-            color: #777;
+            color: #94a3b8;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
         }
 
-
-        .link-register {
-            font-size: 13px;
-            text-decoration: none;
-            color: #3498db;
+        .footer-bottom .heart {
+            color: #ef4444;
+            margin: 0 4px;
         }
 
-        .link-register:hover {
-            text-decoration: underline;
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px 24px;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+            
+            .login-wrapper {
+                max-width: 90%;
+            }
         }
 
-        .link-forgot {
-            font-size: 13px;
-            text-decoration: none;
-            color: #e67e22;
-        }
-
-        .link-forgot:hover {
-            text-decoration: underline;
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+            
+            .links {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .separator {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="login-container">
-        <h2>🔐 HisaabLite Login</h2>
-
-        <!-- <p th:if="${param.error}" th:text="${param.error[0]}"></p>  -->
-        <div th:if="${param.verified}" style="color:green;">
-            Account verified successfully. Please login.
+    <!-- ===== NAVBAR (EXACT SAME AS LANDING PAGE) ===== -->
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
         </div>
-        <form method="post" th:action="@{/login}">
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" name="username" required />
+        <div class="nav-links">
+            <a href="/" class="login"><i class="fas fa-home"></i> Home</a>
+            <a href="/register" class="register"><i class="fas fa-rocket"></i> Start Free</a>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <div class="login-wrapper">
+            <div class="login-card">
+                
+                <div class="login-header">
+                    <h2>🔐 Welcome Back</h2>
+                    <p>Login to your business account</p>
+                </div>
+
+                <!-- VERIFIED MESSAGE -->
+                <div th:if="${param.verified}" class="message success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Account verified successfully. Please login.</span>
+                </div>
+
+                <!-- LOGOUT MESSAGE -->
+                <div th:if="${param.logout}" class="message info">
+                    
+                    <span>✅ You have been logged out successfully.</span>
+                </div>
+
+                <!-- ERROR MESSAGE -->
+                <div th:if="${param.error}" class="message error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:if="${param.error[0] == 'bad'}">
+                        ❌ Invalid username or password.
+                    </span>
+                    <span th:if="${param.error[0] != 'bad'}" th:text="${param.error[0]}"></span>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form method="post" th:action="@{/login}">
+                    
+                    <div class="form-group">
+                        <label>Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" name="username" placeholder="Enter your username" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" name="password" placeholder="••••••••" required />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-arrow-right-to-bracket"></i> Login
+                    </button>
+                </form>
+
+                <!-- LINKS SECTION -->
+                <div class="links">
+                    <a th:href="@{/register}" class="register-link">
+                        <i class="fas fa-plus-circle"></i> Onboard Business
+                    </a>
+                    <span class="separator">|</span>
+                    <a th:href="@{/forgot-password}" class="forgot-link">
+                        <i class="fas fa-key"></i> Forgot Password?
+                    </a>
+                </div>
+
             </div>
+        </div>
+    </div>
 
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" required />
+    <!-- ===== FOOTER (EXACT SAME AS LANDING PAGE) ===== -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">HL</div>
+                <span>HisaabLite</span>
             </div>
-
-            <button type="submit" class="btn-login">
-                Login
-            </button>
-        </form>
-
-        <div th:if="${param.logout}" class="logout-msg">
-            ✅ You have been logged out successfully.
-        </div>
-
-
-        <div th:if="${param.error}" style="color:red; margin-top:10px; text-align:center;">
-
-            <span th:if="${param.error[0] == 'bad'}">
-                ❌ Invalid username or password.
-            </span>
-
-            <span th:if="${param.error[0] != 'bad'}" th:text="${param.error[0]}">
-            </span>
-
-        </div>
-
-
-        <div style="margin-top:15px; text-align:center;">
-            <div style="margin-top:15px; text-align:center;">
-                <a th:href="@{/register}" class="link-register">
-                    ➕ Let's Onboard
-                </a>
-                |
-                <a th:href="@{/forgot-password}" class="link-forgot">
-                    🔑 Forgot Password?
-                </a>
-
-                |
-                <a th:href="@{/}" class="link-forgot">
-                    🏠 Home
-                </a>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Features</a>
+                <a href="#">Pricing</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
             </div>
-
-
         </div>
-
-        <div class="footer-text">
-            © 2026 HisaabLite | Smart Retail Management
+        <div class="footer-bottom">
+            <i class="far fa-copyright"></i> 2026 HisaabLite • Built with <span class="heart">❤️</span> in India by Waseem Khan
         </div>
     </div>
 

@@ -2,101 +2,380 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Onboarding Business - HisaabLite</title>
+    <title>Onboarding • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1f2c3a, #2c3e50);
-            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: white;
+            border-bottom: 1px solid #e9eef2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-links a {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .nav-links a.login {
+            color: #5b6778;
+            background: transparent;
+        }
+
+        .nav-links a.login:hover {
+            background: #f1f5f9;
+        }
+
+        .nav-links a.register {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .nav-links a.register:hover {
+            background: #1e293b;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 40px 20px;
         }
 
-        .card {
+        .onboarding-wrapper {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* ===== ONBOARDING CARD ===== */
+        .onboarding-card {
             background: white;
-            padding: 35px;
-            width: 400px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            position: relative;
+            border-radius: 24px;
+            padding: 40px 36px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+        }
+
+        .onboarding-header {
             text-align: center;
+            margin-bottom: 32px;
         }
 
-        h2 {
-            margin-bottom: 20px;
+        .onboarding-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
         }
 
+        .onboarding-header p {
+            font-size: 14px;
+            color: #5b6778;
+        }
+
+        /* ===== MESSAGES ===== */
+        .message {
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .message.success {
+            background: #e6f7e6;
+            color: #059669;
+            border: 1px solid #bbf7d0;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fee2e2;
+        }
+
+        .message i {
+            font-size: 18px;
+        }
+
+        /* ===== FORM ===== */
         .form-group {
-            margin-bottom: 15px;
-            text-align: left;
+            margin-bottom: 18px;
         }
 
-        input {
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5b6778;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .form-group input {
             width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            padding: 14px 16px 14px 44px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 400;
+            background: #fafbfc;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
         }
 
-        .btn {
-            width: 100%;
-            padding: 10px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
+        .form-group input:focus {
+            border-color: #2563eb;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
         }
 
-        .btn:hover {
-            background: #2980b9;
-        }
-
-        .back {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .back a {
-            text-decoration: none;
-            color: #6b7280;
+        .form-group input::placeholder {
+            color: #a0aec0;
             font-size: 13px;
         }
 
-        #successMsg {
-            color: #2c3e50;
+        .error-message {
+            color: #dc2626;
+            font-size: 11px;
+            margin-top: 4px;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* ===== BUTTON WITH SPINNER ===== */
+        .btn-register {
+            width: 100%;
+            padding: 16px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 14px;
             font-weight: 600;
-            margin-bottom: 15px;
-            font-size: 16px;
-            transition: opacity 1s ease;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+            margin-top: 20px;
         }
 
-        #successMsg.hide {
-            opacity: 0;
+        .btn-register:hover:not(:disabled) {
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
         }
 
-        #loadingSpinner {
-            display: none;
-            margin: 20px auto;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+        .btn-register:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-            100% {
-                transform: rotate(360deg);
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-link a {
+            text-decoration: none;
+            color: #5b6778;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: all 0.15s;
+        }
+
+        .back-link a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 40px 60px 24px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo .logo-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+
+        .footer-logo span {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: #5b6778;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: #2563eb;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .footer-bottom .heart {
+            color: #ef4444;
+            margin: 0 4px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px 24px;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+            
+            .onboarding-wrapper {
+                max-width: 90%;
             }
         }
     </style>
@@ -104,90 +383,188 @@
 
 <body>
 
-
-
-    <div class="card">
-        <h2>🚀 Onboarding Business</h2>
-
-        <!-- Success Message -->
-        <div id="successMsg" th:if="${success}">
-            We are onboarding your business 🚀
+    <!-- ===== NAVBAR ===== -->
+    <div class="navbar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
         </div>
-
-        <!-- Loading Spinner -->
-        <div id="loadingSpinner"></div>
-
-        <!-- Global Error -->
-        <div th:if="${error}" style="color: red; margin-bottom: 15px;">
-            <p th:text="${error}"></p>
+        <div class="nav-links">
+            <a href="/" class="login"><i class="fas fa-home"></i> Home</a>
+            <a href="/login" class="login"><i class="fas fa-sign-in-alt"></i> Login</a>
         </div>
+    </div>
 
-        <form th:action="@{/register}" th:object="${registerRequest}" method="post">
-            <div class="form-group">
-                <label>Shop Name</label>
-                <input type="text" th:field="*{shopName}" />
-                <small style="color:red" th:if="${#fields.hasErrors('shopName')}" th:errors="*{shopName}"></small>
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <div class="onboarding-wrapper">
+            <div class="onboarding-card">
+                
+                <div class="onboarding-header">
+                    <h2>🚀 Onboard Your Business</h2>
+                    <p>Start your journey with HisaabLite</p>
+                </div>
+
+                <!-- Success Message (shown after registration) -->
+                <div id="successContainer" style="display: none;">
+                    <div class="message success">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Registration successful! 🎉</strong>
+                            <div style="font-size: 13px; margin-top: 4px;">Please check your email to verify your account.</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; color: #5b6778; font-size: 13px; margin-top: 16px;">
+                        <i class="fas fa-clock"></i> Redirecting to login in <span id="countdown">5</span> seconds...
+                    </div>
+                </div>
+
+                <!-- Global Error -->
+                <div th:if="${error}" class="message error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <!-- Registration Form -->
+                <form id="registrationForm" th:action="@{/register}" th:object="${registerRequest}" method="post" onsubmit="return handleSubmit()">
+                    
+                    <div class="form-group">
+                        <label>Shop Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-store input-icon"></i>
+                            <input type="text" th:field="*{shopName}" placeholder="Enter shop name" />
+                        </div>
+                        <small class="error-message" th:if="${#fields.hasErrors('shopName')}" th:errors="*{shopName}"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Owner Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" th:field="*{ownerName}" placeholder="Enter owner name" />
+                        </div>
+                        <small class="error-message" th:if="${#fields.hasErrors('ownerName')}" th:errors="*{ownerName}"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="text" th:field="*{username}" placeholder="Enter email address" />
+                        </div>
+                        <small class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="text" th:field="*{phone}" placeholder="Enter phone number" />
+                        </div>
+                        <small class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>PAN Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card input-icon"></i>
+                            <input type="text" th:field="*{panNumber}" placeholder="Enter PAN number" />
+                        </div>
+                        <small class="error-message" th:if="${#fields.hasErrors('panNumber')}" th:errors="*{panNumber}"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" th:field="*{password}" placeholder="Create password" />
+                        </div>
+                        <small class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                    </div>
+
+                    <button type="submit" class="btn-register" id="submitBtn">
+                        <span id="buttonText"><i class="fas fa-rocket"></i> Register Business</span>
+                        <span id="buttonSpinner" style="display: none;" class="btn-spinner"></span>
+                    </button>
+                </form>
+
+                <!-- Back to Login Link -->
+                <div class="back-link">
+                    <a th:href="@{/login}">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </a>
+                </div>
+
             </div>
+        </div>
+    </div>
 
-            <div class="form-group">
-                <label>Owner Name</label>
-                <input type="text" th:field="*{ownerName}" />
-                <small style="color:red" th:if="${#fields.hasErrors('ownerName')}" th:errors="*{ownerName}"></small>
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">HL</div>
+                <span>HisaabLite</span>
             </div>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="text" th:field="*{username}" />
-                <small style="color:red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Features</a>
+                <a href="#">Pricing</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
             </div>
-
-            <div class="form-group">
-                <label>Phone</label>
-                <input type="text" th:field="*{phone}" />
-                <small style="color:red" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
-            </div>
-
-            <div class="form-group">
-                <label>PAN Number</label>
-                <input type="text" th:field="*{panNumber}" />
-                <small style="color:red" th:if="${#fields.hasErrors('panNumber')}" th:errors="*{panNumber}"></small>
-            </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" th:field="*{password}" />
-                <small style="color:red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
-            </div>
-
-            <button type="submit" class="btn">Register Business</button>
-
-            <div class="back">
-                <a th:href="@{/login}">⬅ Back to Login</a>
-            </div>
-        </form>
+        </div>
+        <div class="footer-bottom">
+            <i class="far fa-copyright"></i> 2026 HisaabLite • Built with <span class="heart">❤️</span> in India by Waseem Khan
+        </div>
     </div>
 
     <script th:inline="javascript">
-        const msgDiv = document.getElementById('successMsg');
-        const spinner = document.getElementById('loadingSpinner');
-
-        if (msgDiv) {
-            spinner.style.display = 'block'; // show spinner
-            let countdown = 5; // 10 seconds
-            msgDiv.textContent = "We are onboarding your business 🚀";
-
-            const interval = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    spinner.style.display = 'none';
-                    msgDiv.textContent = " You're almost there! Check your email and click the verification link to activate your account.";
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 5000); // redirect after 5 seconds
-                }
-            }, 1000);
+        // Handle form submission - show spinner in button
+        function handleSubmit() {
+            const submitBtn = document.getElementById('submitBtn');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            
+            // Disable button and show spinner
+            submitBtn.disabled = true;
+            buttonText.style.display = 'none';
+            buttonSpinner.style.display = 'inline-block';
+            
+            // Form will submit normally
+            return true;
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if success parameter exists (from server after registration)
+            const successParam = /*[[${success}]]*/ false;
+            
+            if (successParam) {
+                // Hide form, show success message
+                const form = document.getElementById('registrationForm');
+                const successContainer = document.getElementById('successContainer');
+                
+                if (form) form.style.display = 'none';
+                if (successContainer) successContainer.style.display = 'block';
+                
+                // Simple countdown
+                let countdown = 10;
+                const countdownEl = document.getElementById('countdown');
+                
+                const interval = setInterval(() => {
+                    countdown--;
+                    if (countdownEl) {
+                        countdownEl.innerText = countdown;
+                    }
+                    
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        window.location.href = '/login';
+                    }
+                }, 1000);
+            }
+        });
     </script>
 </body>
 

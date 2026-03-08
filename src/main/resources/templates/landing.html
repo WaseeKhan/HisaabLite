@@ -2,133 +2,527 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>HisaabLite - Smart Retail Management</title>
+    <title>HisaabLite • Smart Retail Management</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1f2c3a, #2c3e50);
-            color: white;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        /* ===== NAVBAR ===== */
         .navbar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 20px 60px;
+            background: white;
+            border-bottom: 1px solid #e9eef2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
         }
 
-        .navbar a {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #0f172a;
             color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: bold;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
         }
 
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-links a {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .nav-links a.login {
+            color: #5b6778;
+            background: transparent;
+        }
+
+        .nav-links a.login:hover {
+            background: #f1f5f9;
+        }
+
+        .nav-links a.register {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .nav-links a.register:hover {
+            background: #1e293b;
+        }
+
+        /* ===== HERO SECTION ===== */
         .hero {
             text-align: center;
-            padding: 100px 20px;
+            padding: 100px 20px 80px;
+            background: white;
+            border-bottom: 1px solid #e9eef2;
         }
 
         .hero h1 {
             font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #0f172a;
             margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero h1 span {
+            color: #2563eb;
+            position: relative;
+        }
+
+        .hero h1 span::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #2563eb;
+            border-radius: 2px;
+            opacity: 0.3;
         }
 
         .hero p {
             font-size: 18px;
-            color: #ddd;
-            margin-bottom: 30px;
+            color: #5b6778;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
         }
 
         .btn-primary {
-            padding: 12px 25px;
-            background-color: #3498db;
-            border-radius: 5px;
+            padding: 14px 32px;
+            background: #0f172a;
+            border-radius: 12px;
             color: white;
             text-decoration: none;
-            font-weight: bold;
-            margin-right: 15px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
         }
 
         .btn-primary:hover {
-            background-color: #2980b9;
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
         }
 
         .btn-outline {
-            padding: 12px 25px;
-            border: 2px solid white;
-            border-radius: 5px;
-            color: white;
+            padding: 14px 32px;
+            border: 1.5px solid #e2e8f0;
+            background: white;
+            border-radius: 12px;
+            color: #1e293b;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        /* ===== FEATURES SECTION ===== */
         .features {
-            background: white;
-            color: #2c3e50;
-            padding: 60px;
+            background: #f8fafc;
+            padding: 80px 40px;
             text-align: center;
         }
 
         .features h2 {
-            margin-bottom: 40px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
         }
 
-        .feature-box {
-            display: inline-block;
-            width: 250px;
-            margin: 20px;
+        .features-subtitle {
+            font-size: 16px;
+            color: #5b6778;
+            max-width: 600px;
+            margin: 0 auto 60px;
         }
 
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background: #111;
+        .features-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            width: 300px;
+            padding: 32px 24px;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.04);
+            border-color: #e2e8f0;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: #f1f5f9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2563eb;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
             font-size: 14px;
+            color: #5b6778;
+            line-height: 1.6;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta-section {
+            background: white;
+            padding: 80px 40px;
+            text-align: center;
+            border-top: 1px solid #e9eef2;
+        }
+
+        .cta-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #f8fafc;
+            padding: 48px;
+            border-radius: 32px;
+            border: 1px solid #edf2f7;
+        }
+
+        .cta-card h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
+
+        .cta-card p {
+            font-size: 16px;
+            color: #5b6778;
+            margin-bottom: 32px;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #059669;
+            color: white;
+            padding: 16px 40px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.15s;
+            box-shadow: 0 8px 16px rgba(5, 150, 105, 0.2);
+        }
+
+        .cta-button:hover {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(5, 150, 105, 0.3);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 40px 60px 24px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo .logo-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+
+        .footer-logo span {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: #5b6778;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: #2563eb;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            padding-top: 24px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .footer-bottom .heart {
+            color: #ef4444;
+            margin: 0 4px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px 24px;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
 
+    <!-- ===== NAVBAR ===== -->
     <div class="navbar">
-        <div><strong>HisaabLite</strong></div>
-        <div>
-            <a href="/login">Login</a>
-            <a href="/register">Start Free</a>
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+        <div class="nav-links">
+            <a href="/login" class="login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="/register" class="register"><i class="fas fa-rocket"></i> Start Free</a>
         </div>
     </div>
 
+    <!-- ===== HERO SECTION ===== -->
     <div class="hero">
-        <h1>Run Your Retail Business Smartly 🚀</h1>
-        <p>Inventory • Sales • Low Stock Alerts • Analytics — All in One Place</p>
-
-        <a href="/register" class="btn-primary">Start Onboarding Your Bussiness </a>
-        <a href="/login" class="btn-outline">Login</a>
+        <h1>
+            Run Your Retail Business <span>Smartly</span> 🚀
+        </h1>
+        <p>
+            Inventory • Sales • Low Stock Alerts • Analytics — All in One Place
+        </p>
+        <div class="hero-buttons">
+            <a href="/register" class="btn-primary">
+                <i class="fas fa-store"></i> Start Onboarding Your Business
+            </a>
+            <a href="/login" class="btn-outline">
+                <i class="fas fa-arrow-right"></i> Login
+            </a>
+        </div>
     </div>
 
+    <!-- ===== FEATURES SECTION ===== -->
     <div class="features">
         <h2>Why HisaabLite?</h2>
-
-        <div class="feature-box">
-            <h3>📦 Inventory</h3>
-            <p>Manage products with smart low stock alerts.</p>
+        <div class="features-subtitle">
+            Everything you need to manage your retail business efficiently
         </div>
 
-        <div class="feature-box">
-            <h3>💰 Sales</h3>
-            <p>Track daily revenue and generate invoices.</p>
-        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <h3>📦 Inventory Management</h3>
+                <p>Manage products with smart low stock alerts. Never run out of bestsellers.</p>
+            </div>
 
-        <div class="feature-box">
-            <h3>📊 Analytics</h3>
-            <p>Understand growth with dashboard insights.</p>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <h3>💰 Sales & Billing</h3>
+                <p>Track daily revenue, generate invoices, and manage discounts easily.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>📊 Analytics</h3>
+                <p>Understand your growth with dashboard insights and sales reports.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>⚡ Low Stock Alerts</h3>
+                <p>Get notified when products are running low. Never miss a restock.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>👥 Staff Management</h3>
+                <p>Manage roles and permissions for your staff members securely.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3>☁️ Cloud Backup</h3>
+                <p>Your data is safe with automatic backups and secure storage.</p>
+            </div>
         </div>
     </div>
 
+    <!-- ===== CTA SECTION ===== -->
+    <div class="cta-section">
+        <div class="cta-card">
+            <h2>Ready to Simplify Your Business?</h2>
+            <p>Join thousands of retailers who trust HisaabLite for their daily operations.</p>
+            <a href="/register" class="cta-button">
+                <i class="fas fa-check-circle"></i> Start Your Free Trial
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
     <div class="footer">
-        © 2026 HisaabLite | Built with ❤️ by Waseem Khan
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">HL</div>
+                <span>HisaabLite</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Features</a>
+                <a href="#">Pricing</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <i class="far fa-copyright"></i> 2026 HisaabLite • Built with <span class="heart">❤️</span> in India by Waseem Khan
+        </div>
     </div>
 
 </body>

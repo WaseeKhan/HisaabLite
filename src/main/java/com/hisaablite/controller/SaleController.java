@@ -2,11 +2,13 @@ package com.hisaablite.controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -64,6 +66,7 @@ public class SaleController {
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("shop", user.getShop());
         model.addAttribute("role", user.getRole().name());
+        
 
         return "sale-form";
     }
@@ -259,12 +262,13 @@ public class SaleController {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow();
 
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("saleDate").descending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("saleDate").descending());
 
         Page<Sale> salesPage = saleRepository.findByShop(user.getShop(), pageable);
 
         model.addAttribute("salesPage", salesPage);
         model.addAttribute("currentPage", page);
+        model.addAttribute("role", user.getRole().name());
 
         return "sales-history";
     }
@@ -339,4 +343,19 @@ public class SaleController {
 
         return cart;
     }
+
+    @PostMapping("/cancel")
+@ResponseBody
+public ResponseEntity<?> cancelSale(HttpSession session) {
+    try {
+        // Clear cart from session
+        session.removeAttribute("cart");
+        session.removeAttribute("totalAmount");
+        
+        // Return empty cart as JSON
+        return ResponseEntity.ok(Collections.emptyList());
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body("Error cancelling sale");
+    }
+}
 }

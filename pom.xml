@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.hisaablite</groupId>
 	<artifactId>hisaablite</artifactId>
-	<version>1.0.0</version>
+	<version>1.2.0</version>
 	<name>hisaablite</name>
 	<description>Retail Billing &amp; Inventory SaaS – Where Every Rupee Counts.</description>
 	<url/>

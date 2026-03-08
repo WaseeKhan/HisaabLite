@@ -2,113 +2,214 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Staff Management - HisaabLite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Staff Management • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <style>
-        html,
-        body {
-            height: 100%;
+        * {
             margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: #f4f6f9;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
             display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 240px;
-            background: linear-gradient(180deg, #111827, #1f2937);
-            color: white;
-            padding: 20px;
+            background: #ffffff;
+            border-right: 1px solid #e9eef2;
+            padding: 32px 20px;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            box-shadow: none;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 4px;
         }
 
-        .logo img {
-            width: 36px;
-            height: 36px;
-        }
-
-        .sidebar a {
-            padding: 12px;
-            border-radius: 8px;
-            margin: 6px 0;
-            text-decoration: none;
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #0f172a;
             color: white;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #5b6778;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 20px;
+            font-size: 15px;
+            color: #8893a4;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .nav-links a:hover i {
+            color: #0f172a;
+        }
+
+        .nav-links a.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #0f172a;
         }
 
         .logout-btn {
             width: 100%;
-            padding: 10px;
-            background: #ef4444;
+            padding: 10px 14px;
+            background: #fef2f2;
             border: none;
-            color: white;
-            border-radius: 8px;
-            margin-top: auto;
+            color: #b91c1c;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+            margin-top: 20px;
+        }
+
+        .logout-btn i {
+            color: #b91c1c;
         }
 
         .logout-btn:hover {
-            background: #dc2626;
+            background: #fee2e2;
         }
 
+        /* ===== MAIN CONTENT ===== */
         .main {
             flex: 1;
-            padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 24px 32px 0 32px;
         }
 
+        /* ===== TOPBAR ===== */
         .topbar {
             background: white;
-            padding: 15px 25px;
-            border-radius: 12px;
+            padding: 14px 24px;
+            border-radius: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            margin-bottom: 24px;
+            flex-shrink: 0;
         }
 
-        h2 {
-            margin: 0;
-            font-size: 22px;
-            color: #111827;
+        .topbar h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .card {
-            background: white;
-            padding: 20px;
+        .topbar h2 i {
+            color: #2563eb;
+        }
+
+        .add-btn {
+            background: #0f172a;
+            color: white;
+            padding: 10px 18px;
             border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-            overflow-x: auto;
-            transition: transform 0.2s ease;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
         }
 
-        .card:hover {
-            transform: translateY(-3px);
+        .add-btn:hover {
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
+        }
+
+        /* ===== STAFF CARD ===== */
+        .staff-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            padding: 24px;
+            margin-bottom: 24px;
+            flex: 1;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
         }
 
         table {
@@ -117,36 +218,72 @@
             font-size: 14px;
         }
 
-        th,
-        td {
-            padding: 12px 10px;
-            text-align: left;
-        }
-
         th {
-            background: #111827;
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        tr:hover {
-            background: #f1f5f9;
-            transition: 0.2s;
-        }
-
-
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+            text-align: left;
+            padding: 16px 12px;
+            color: #5b6778;
+            font-weight: 500;
             font-size: 12px;
-            margin-right: 4px;
-            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #f1f5f9;
+            background: transparent;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #e6f7e6;
+            color: #059669;
+        }
+
+        .status-inactive {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+            cursor: pointer;
+            border: none;
         }
 
         .btn-primary {
@@ -155,7 +292,7 @@
         }
 
         .btn-primary:hover {
-            background: #1e40af;
+            background: #1d4ed8;
         }
 
         .btn-warning {
@@ -164,7 +301,7 @@
         }
 
         .btn-warning:hover {
-            background: #b45309;
+            background: #d97706;
         }
 
         .btn-secondary {
@@ -182,134 +319,248 @@
         }
 
         .btn-danger:hover {
-            background: #991b1b;
+            background: #b91c1c;
         }
 
-
-        .status-active {
-            color: #16a34a;
-            font-weight: 600;
-            background: #d1fae5;
-            padding: 2px 8px;
+        select {
+            padding: 6px 10px;
             border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
             font-size: 12px;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.15s;
+            width: 90px;
         }
 
-        .status-inactive {
-            color: #b91c1c;
-            font-weight: 600;
-            background: #fecaca;
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 12px;
+        select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        .back-btn {
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 16px 24px;
+            margin: 0 -32px 0 -32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 14px;
+        }
+
+        .footer-left span {
+            color: #475569;
+        }
+
+        .footer-left .heart {
+            color: #ef4444;
+            margin: 0 4px;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-right a {
+            color: #64748b;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 14px;
-            border-radius: 6px;
-            background: #6b7280;
-            color: white;
+            transition: color 0.15s;
         }
 
-        .back-btn:hover {
-            background: #4b5563;
+        .footer-right a:hover {
+            color: #2563eb;
+        }
+
+        .footer-right .version {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- ===== SIDEBAR ===== -->
     <div class="sidebar">
         <div class="logo">
-            <img src="https://cdn-icons-png.flaticon.com/512/891/891419.png">
-            <h3 style="margin:0;">HisaabLite</h3>
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
         </div>
 
-
-        <a class="active" th:href="@{/dashboard}">📊 Dashboard</a>
-
-
-        <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}">
-            💰 Billings
-        </a>
-
-
-        <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}">
-            📦 Products
-        </a>
-
-
-        <a th:href="@{/sales/history}">
-            📑 Sales History
-        </a>
-
-
-        <a th:if="${role == 'OWNER'}" th:href="@{/staff}">
-            👥 Staff Management
-        </a>
-
-        <a th:if="${role == 'OWNER'}" th:href="@{/profile}">
-            🏪 Profile
-        </a>
+        <div class="nav-links">
+            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i class="fas fa-cash-register"></i> Billing</a>
+            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i> Products</a>
+            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
+            <a class="active" th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
+            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
+        </div>
 
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">🔓 Logout</button>
+            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </form>
     </div>
 
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="main">
+        
         <div class="topbar">
-            <h2>👥 Staff Management</h2>
-            <a th:href="@{/staff/new}" class="btn btn-primary">➕ Add Staff</a>
+            <h2><i class="fas fa-users"></i> Staff Management</h2>
+            <a th:href="@{/staff/new}" class="add-btn"><i class="fas fa-plus"></i> Add Staff</a>
         </div>
 
-        <div class="card">
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                <tr th:each="user : ${staffList}">
-                    <td th:text="${user.name}"></td>
-                    <td th:text="${user.username}"></td>
-                    <td th:text="${user.role}"></td>
-                    <td>
-                        <span th:text="${user.active ? 'Active' : 'Inactive'}"
-                            th:classappend="${user.active ? 'status-active' : 'status-inactive'}"></span>
-                    </td>
-                    <td>
-                        <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" style="display:inline;">
-                            <select name="role">
-                                <option value="MANAGER">Manager</option>
-                                <option value="CASHIER">Cashier</option>
-                            </select>
-                            <button class="btn btn-warning">Change</button>
-                        </form>
+        <div class="staff-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                        <form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post" style="display:inline;">
-                            <button class="btn btn-secondary">Reset</button>
-                        </form>
+                    <tbody>
+                        <tr th:each="user : ${staffList}" th:unless="${#lists.isEmpty(staffList)}">
+                            <td th:text="${user.name}"></td>
+                            <td><i class="far fa-envelope" style="color: #94a3b8; margin-right: 6px;"></i><span th:text="${user.username}"></span></td>
+                            <td><span th:text="${user.role}" style="background: #f1f5f9; padding: 4px 10px; border-radius: 30px; font-size: 12px;"></span></td>
+                            <td>
+                                <span th:text="${user.active ? 'Active' : 'Inactive'}"
+                                      th:classappend="${user.active ? 'status-badge status-active' : 'status-badge status-inactive'}"></span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <!-- Role Change Form with DEFAULT SELECTION -->
+                                    <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" style="display:inline;">
+                                        <select name="role">
+                                            <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                                            <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                                        </select>
+                                        <button type="submit" class="btn-sm btn-primary" title="Change Role"><i class="fas fa-save"></i></button>
+                                    </form>
 
-                        <form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post" style="display:inline;">
-                            <button class="btn btn-warning">Toggle</button>
-                        </form>
+                                    <!-- Reset Password -->
+                                    <form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-sm btn-secondary" title="Reset Password" 
+                                                onclick="return confirm('Reset password for this user?')"><i class="fas fa-key"></i></button>
+                                    </form>
 
-                        <form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post" style="display:inline;">
-                            <button class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+                                    <!-- Toggle Status -->
+                                    <form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-sm btn-warning" 
+                                                th:title="${user.active ? 'Deactivate' : 'Activate'}">
+                                            <i class="fas" th:class="${user.active ? 'fa-ban' : 'fa-check-circle'}"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete -->
+                                    <form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-sm btn-danger" title="Delete"
+                                                onclick="return confirm('Are you sure you want to delete this staff member?')"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Empty State -->
+                        <tr th:if="${#lists.isEmpty(staffList)}">
+                            <td colspan="5" class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <p>No staff members found</p>
+                                <div style="font-size: 12px; color: #cbd5e1;">Add your first staff member to get started</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <a th:href="@{/dashboard}" class="back-btn">⬅ Back to Dashboard</a>
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version">v1.2.0</span>
+                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
+            </div>
+        </div>
     </div>
+
 </body>
 
 </html>

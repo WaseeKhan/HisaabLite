@@ -2,105 +2,655 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Shop Profile - HisaabLite</title>
+    <title>Shop Profile • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f4f6f9;
-            padding: 40px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+            color: #1e293b;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 240px;
+            background: #ffffff;
+            border-right: 1px solid #e9eef2;
+            padding: 32px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: none;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
-        h2 {
-            margin-bottom: 20px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 4px;
         }
 
-        label {
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
             font-size: 14px;
         }
 
-        input {
+        .logo-text {
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.2px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #5b6778;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 20px;
+            font-size: 15px;
+            color: #8893a4;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .nav-links a:hover i {
+            color: #0f172a;
+        }
+
+        .nav-links a.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #0f172a;
+        }
+
+        .logout-btn {
             width: 100%;
-            padding: 8px;
-            margin: 6px 0 15px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        .readonly {
-            background: #f0f0f0;
-        }
-
-        button {
-            padding: 10px 15px;
-            background: #2563eb;
-            color: white;
+            padding: 10px 14px;
+            background: #fef2f2;
             border: none;
-            border-radius: 6px;
+            color: #b91c1c;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s;
+            margin-top: 20px;
         }
 
-        button:hover {
-            background: #1e40af;
+        .logout-btn i {
+            color: #b91c1c;
         }
 
-        .info-box {
-            background: #eef2ff;
-            padding: 10px;
-            border-radius: 6px;
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 24px 32px 0 32px;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-header h2 i {
+            color: #2563eb;
+        }
+
+        /* ===== PROFILE CARD ===== */
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            padding: 32px;
+            margin-bottom: 24px;
+            max-width: 700px;
+            width: 100%;
+            align-self: center;
+        }
+
+        /* ===== INFO BOX ===== */
+        .info-grid {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 28px;
+            border: 1px solid #edf2f7;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-item.full-width {
+            grid-column: span 2;
+        }
+
+        .info-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-label i {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: #0f172a;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-value.immutable {
+            background: #f1f5f9;
+            color: #475569;
+            font-family: monospace;
+        }
+
+        /* ===== PASSWORD RESET LINK STYLE ===== */
+        .password-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #0f172a;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+            margin-top: 4px;
+        }
+
+        .password-link:hover {
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
+        }
+
+        .password-link i {
+            font-size: 14px;
+        }
+
+        /* ===== FORM STYLES ===== */
+        .form-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .form-title i {
+            color: #2563eb;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5b6778;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-group label i {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .form-group input {
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 400;
+            background: #fafbfc;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+
+        .form-group input::placeholder {
+            color: #a0aec0;
+            font-size: 13px;
+        }
+
+        .form-group input[readonly] {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 28px;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #5b6778;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #2563eb;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9eef2;
+            padding: 16px 24px;
+            margin: 0 -32px 0 -32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #94a3b8;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 14px;
+        }
+
+        .footer-left span {
+            color: #475569;
+        }
+
+        .footer-left .heart {
+            color: #ef4444;
+            margin: 0 4px;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-right a:hover {
+            color: #2563eb;
+        }
+
+        .footer-right .version {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-item.full-width {
+                grid-column: span 1;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            
+            .footer-left, .footer-right {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
 
-
-
-    <div class="container">
-
-        <h2>🏪 Shop Profile</h2>
-
-        <div class="info-box">
-            <p><strong>Shop Name:</strong> <span th:text="${shop.name}"></span></p>
-            <p><strong>PAN (Immutable):</strong> <span th:text="${shop.panNumber}"></span></p>
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
         </div>
 
-        <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
+        <div class="nav-links">
+            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i class="fas fa-cash-register"></i> Billing</a>
+            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i> Products</a>
+            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
+            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
+            <a class="active" th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
+        </div>
 
-            <label>GST Number</label>
-            <input type="text" th:field="*{gstNumber}" />
-
-            <label>Address</label>
-            <input type="text" th:field="*{address}" th:value="${shop.address}" />
-
-            <label>City</label>
-            <input type="text" th:field="*{city}" th:value="${shop.city}" />
-
-            <label>State</label>
-            <input type="text" th:field="*{state}" th:value="${shop.state}" />
-
-            <label>Pincode</label>
-            <input type="text" th:field="*{pincode}" th:value="${shop.pincode}" />
-
-            <label>UPI ID</label>
-            <input type="text" th:field="*{upiId}" th:value="${shop.upiId}" />
-
-            <button type="submit">Update Profile</button>
-            <button th:href="@{/dashboard}" class="btn">⬅ Dashboard</button>
-
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </form>
+    </div>
 
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main">
+        
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <h2><i class="fas fa-store"></i> Shop Profile</h2>
+        </div>
+
+        <!-- PROFILE CARD -->
+        <div class="profile-card">
+            
+            <!-- READ-ONLY INFO SECTION -->
+            <div class="info-grid">
+                <div class="info-item full-width">
+                    <span class="info-label"><i class="fas fa-store"></i> Shop Name</span>
+                    <div class="info-value" th:text="${shop.name}">Shop Name</div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-id-card"></i> PAN Number (Immutable)</span>
+                    <div class="info-value immutable" th:text="${shop.panNumber}">ABCDE1234F</div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label"><i class="far fa-building"></i> Business ID</span>
+                    <div class="info-value immutable" th:text="'HL' + ${shop.id}">HL12345</div>
+                </div>
+                
+                <div class="info-item" th:if="${shop.createdAt}">
+                    <span class="info-label"><i class="far fa-calendar"></i> Member Since</span>
+                    <div class="info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-label"><i class="far fa-gem"></i> Subscription Plan</span>
+                    <div class="info-value" th:text="${shop.subscriptionPlan}">Premium</div>
+                </div>
+
+                <!-- CHANGE PASSWORD LINK - ADDED HERE (RIGHT SIDE OF SUBSCRIPTION) -->
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-key"></i> Password</span>
+                    <a th:href="@{/forgot-password}" class="password-link">
+                        <i class="fas fa-edit"></i> Change Password
+                    </a>
+                </div>
+            </div>
+
+            <!-- EDITABLE FORM SECTION -->
+            <div class="form-title">
+                <i class="fas fa-edit"></i> Edit Business Information
+            </div>
+
+            <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
+                <div class="form-grid">
+                    
+                    <!-- GST Number -->
+                    <div class="form-group">
+                        <label><i class="fas fa-file-invoice"></i> GST Number</label>
+                        <input type="text" th:field="*{gstNumber}" placeholder="Enter GST number" />
+                    </div>
+
+                    <!-- UPI ID -->
+                    <div class="form-group">
+                        <label><i class="fas fa-credit-card"></i> UPI ID</label>
+                        <input type="text" th:field="*{upiId}" th:value="${shop.upiId}" placeholder="Enter UPI ID" />
+                    </div>
+
+                    <!-- Address (Full Width) -->
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-map-pin"></i> Address</label>
+                        <input type="text" th:field="*{address}" th:value="${shop.address}" placeholder="Enter street address" />
+                    </div>
+
+                    <!-- City -->
+                    <div class="form-group">
+                        <label><i class="fas fa-city"></i> City</label>
+                        <input type="text" th:field="*{city}" th:value="${shop.city}" placeholder="Enter city" />
+                    </div>
+
+                    <!-- State -->
+                    <div class="form-group">
+                        <label><i class="fas fa-map"></i> State</label>
+                        <input type="text" th:field="*{state}" th:value="${shop.state}" placeholder="Enter state" />
+                    </div>
+
+                    <!-- Pincode -->
+                    <div class="form-group">
+                        <label><i class="fas fa-mail-bulk"></i> Pincode</label>
+                        <input type="text" th:field="*{pincode}" th:value="${shop.pincode}" placeholder="Enter pincode" />
+                    </div>
+
+                    <!-- Empty div for grid spacing -->
+                    <div></div>
+
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Update Profile
+                    </button>
+                    <a th:href="@{/dashboard}" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version">v1.2.0</span>
+                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
+            </div>
+        </div>
     </div>
 
 </body>

@@ -24,6 +24,7 @@ public class StaffController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    
 
     // LIST STAFF
 
@@ -34,11 +35,16 @@ public class StaffController {
                 .findByUsername(auth.getName())
                 .orElseThrow();
 
+        User user = userRepository
+                .findByUsername(auth.getName())
+                .orElseThrow();
+
         Shop shop = owner.getShop();
 
         List<User> staff = userRepository.findByShop(shop);
 
         model.addAttribute("staffList", staff);
+        model.addAttribute("role", user.getRole().name());
 
         return "staff-list";
     }
@@ -46,8 +52,12 @@ public class StaffController {
     // ADD STAFF FORM
 
     @GetMapping("/new")
-    public String newStaffForm(Model model) {
+    public String newStaffForm(Model model, Authentication authentication) {
         model.addAttribute("user", new User());
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
+        model.addAttribute("role", user.getRole().name());
         return "staff-form";
     }
 
@@ -61,6 +71,7 @@ public class StaffController {
         User owner = userRepository
                 .findByUsername(auth.getName())
                 .orElseThrow();
+        
 
         // Check duplicate username
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -83,6 +94,7 @@ public class StaffController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+      
 
         userRepository.save(user);
 

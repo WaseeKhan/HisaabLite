@@ -43,6 +43,7 @@ public class ProfileController {
 
         model.addAttribute("shop", shop);
         model.addAttribute("profileRequest", request);
+         model.addAttribute("role", user.getRole().name());
         return "profile";
     }
 

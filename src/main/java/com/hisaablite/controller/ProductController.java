@@ -33,6 +33,7 @@ public class ProductController {
 
         model.addAttribute("products",
                 productRepository.findByShopAndActiveTrue(user.getShop()));
+                model.addAttribute("role", user.getRole().name());
 
         return "products";
     }
@@ -40,9 +41,13 @@ public class ProductController {
     // NEW PRODUCT FORM
 
     @GetMapping("/new")
-    public String newProductForm(Model model) {
+    public String newProductForm(Model model, Authentication authentication) {
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
 
         model.addAttribute("product", new Product());
+        model.addAttribute("role", user.getRole().name());
         return "product-form";
     }
 
