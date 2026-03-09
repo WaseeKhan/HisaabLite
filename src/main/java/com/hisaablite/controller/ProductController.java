@@ -92,6 +92,7 @@ public class ProductController {
         }
 
         model.addAttribute("product", product);
+          model.addAttribute("role", user.getRole().name());
         return "product-form";
     }
 
