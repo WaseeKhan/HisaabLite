@@ -236,7 +236,8 @@
             font-size: 12px;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select {
             padding: 12px 14px;
             border: 1.5px solid #e2e8f0;
             border-radius: 12px;
@@ -247,7 +248,8 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             border-color: #2563eb;
             outline: none;
             background: white;
@@ -495,6 +497,21 @@
                     <div class="form-group">
                         <label><i class="fas fa-rupee-sign"></i> Price (₹)</label>
                         <input type="number" step="0.01" th:field="*{price}" placeholder="0.00" required />
+                    </div>
+
+                    <!-- GST PERCENTAGE DROPDOWN -->
+                    <div class="form-group">
+                        <label><i class="fas fa-percent"></i> GST (%)</label>
+                        <select th:field="*{gstPercent}">
+                            <option value="0">0% (No GST)</option>
+                            <option value="5">5%</option>
+                            <option value="12">12%</option>
+                            <option value="18">18%</option>
+                            <option value="28">28%</option>
+                        </select>
+                        <div class="hint-text">
+                            <i class="fas fa-info-circle"></i> Select applicable GST rate
+                        </div>
                     </div>
 
                     <!-- Stock Quantity -->

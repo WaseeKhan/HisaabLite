@@ -4,12 +4,15 @@
 <head>
     <title>HisaabLite • Billing</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
+        /* ALL EXISTING STYLES REMAIN SAME - upar wale */
         * {
             margin: 0;
             padding: 0;
@@ -17,7 +20,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #f3f4f6;
             display: flex;
             height: 100vh;
@@ -25,7 +28,7 @@
             overflow: hidden;
         }
 
-        /* ===== SIDEBAR FIXED ===== */
+        /* Sidebar styles (same) */
         .sidebar {
             width: 240px;
             background: #ffffff;
@@ -33,7 +36,6 @@
             padding: 32px 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: none;
             height: 100vh;
             position: sticky;
             top: 0;
@@ -139,7 +141,7 @@
             background: #fee2e2;
         }
 
-        /* ===== MAIN SCROLLABLE AREA ===== */
+        /* Main Content */
         .main {
             flex: 1;
             display: flex;
@@ -149,7 +151,6 @@
             padding: 0 32px;
         }
 
-        /* ===== TOPBAR ===== */
         .topbar {
             background: white;
             padding: 14px 24px;
@@ -208,7 +209,7 @@
             background: #e2e8f0;
         }
 
-        /* ===== BILLING LAYOUT ===== */
+        /* Billing Layout */
         .billing-layout {
             flex: 1;
             display: grid;
@@ -218,7 +219,7 @@
             margin-bottom: 16px;
         }
 
-        /* ===== LEFT PANEL ===== */
+        /* Left Panel */
         .left-panel {
             background: white;
             border-radius: 20px;
@@ -463,7 +464,7 @@
             background: #047857;
         }
 
-        /* ===== RIGHT PANEL ===== */
+        /* Right Panel */
         .right-panel {
             background: white;
             border-radius: 20px;
@@ -536,6 +537,16 @@
             color: #64748b;
         }
 
+        .gst-badge {
+            font-size: 10px;
+            color: #2563eb;
+            background: #e6f0ff;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-left: 4px;
+            display: inline-block;
+        }
+
         .cart-item-qty {
             display: flex;
             align-items: center;
@@ -569,7 +580,7 @@
             text-align: right;
         }
 
-        /* ===== TOTAL BOX FIXED ===== */
+        /* ===== TOTAL BOX WITH GST ROWS ===== */
         .total-box {
             background: #f8fafc;
             border-radius: 16px;
@@ -589,13 +600,30 @@
             padding: 8px 0;
             font-size: 13px;
             color: #475569;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .gst-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0 4px 12px;
+            font-size: 12px;
+            color: #2563eb;
+            border-bottom: 1px dotted #e2e8f0;
+        }
+
+        .gst-line .label {
+            color: #2563eb;
+            font-weight: 500;
+        }
+
+        .gst-line .value {
+            font-weight: 600;
         }
 
         .total-line.discount {
             color: #b45309;
-            border-bottom: 1px dashed #e2e8f0;
-            padding-bottom: 12px;
-            margin-bottom: 4px;
         }
 
         .total-line.final {
@@ -603,6 +631,7 @@
             font-weight: 600;
             color: #0f172a;
             font-size: 15px;
+            border-bottom: none;
         }
 
         .final-amount {
@@ -611,6 +640,7 @@
             color: #059669;
         }
 
+        /* Rest of styles remain same */
         .footer {
             background: white;
             border-top: 1px solid #e9eef2;
@@ -726,7 +756,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -748,7 +778,7 @@
             max-width: 400px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
         }
 
         .popup-icon {
@@ -811,7 +841,6 @@
             background: #b91c1c;
         }
 
-        /* Temporary toast */
         .temp-toast {
             position: fixed;
             bottom: 40px;
@@ -822,7 +851,7 @@
             border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             z-index: 10001;
             display: flex;
             align-items: center;
@@ -835,6 +864,7 @@
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -844,9 +874,11 @@
         ::-webkit-scrollbar {
             width: 4px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 10px;
@@ -858,9 +890,7 @@
     <!-- Cancel Popup -->
     <div id="cancelPopup" class="popup-overlay">
         <div class="popup-card">
-            <div class="popup-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
+            <div class="popup-icon"><i class="fas fa-exclamation-triangle"></i></div>
             <div class="popup-title">Cancel Sale?</div>
             <div class="popup-text">All items in cart will be removed. This action cannot be undone.</div>
             <div class="popup-actions">
@@ -877,8 +907,10 @@
         </div>
         <div class="nav-links">
             <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a class="active" th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i> Products</a>
+            <a class="active" th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
+                    class="fas fa-cash-register"></i> Billing</a>
+            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
+                Products</a>
             <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
@@ -896,7 +928,8 @@
                 <span class="info-tag">GST <span th:text="${shop.gstNumber} ?: '—'"></span></span>
             </div>
             <div class="user-info">
-                <span class="user-role"><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> <span th:text="${role}"></span></span>
+                <span class="user-role"><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> <span
+                        th:text="${role}"></span></span>
                 <span class="divider"></span>
                 <span><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
                 <span class="divider"></span>
@@ -911,7 +944,8 @@
                     <div class="section-header"><i class="fas fa-search"></i><span>Search products</span></div>
                     <div class="search-wrapper">
                         <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" autocomplete="off" placeholder="Type name or scan barcode..." />
+                        <input type="text" id="searchInput" autocomplete="off"
+                            placeholder="Type name or scan barcode..." />
                     </div>
                     <div id="searchResults"></div>
                     <div class="qty-row">
@@ -923,14 +957,24 @@
                 <div class="section">
                     <div class="section-header"><i class="fas fa-user"></i><span>Customer details</span></div>
                     <div class="form-row">
-                        <div class="field"><label>Name</label><input type="text" name="customerName" placeholder="Walk-in customer" /></div>
-                        <div class="field"><label>Phone</label><input type="text" name="customerPhone" placeholder="—" /></div>
+                        <div class="field"><label>Name</label><input type="text" name="customerName"
+                                placeholder="Walk-in customer" /></div>
+                        <div class="field"><label>Phone</label><input type="text" name="customerPhone"
+                                placeholder="—" /></div>
                     </div>
                 </div>
 
                 <div class="section">
                     <div class="section-header"><i class="fas fa-credit-card"></i><span>Payment & discount</span></div>
                     <form id="billingForm" th:action="@{/sales/complete}" method="post">
+
+                        <div class="discount-grid">
+                            <div class="field"><label>Discount ₹</label><input type="number" id="discountAmount"
+                                    name="discountAmount" placeholder="0" value="0" min="0" /></div>
+                            <div class="field"><label>Discount %</label><input type="number" id="discountPercent"
+                                    name="discountPercent" placeholder="0" value="0" min="0" max="100" /></div>
+                        </div>
+
                         <div class="form-row">
                             <div class="field"><label>Mode</label>
                                 <select name="paymentMode">
@@ -939,17 +983,17 @@
                                     <option value="CARD">Card</option>
                                 </select>
                             </div>
-                            <div class="field"><label>Received</label><input type="number" id="amountReceived" name="amountReceived" placeholder="0" min="0" /></div>
-                        </div>
-                        <div class="discount-grid">
-                            <div class="field"><label>Discount ₹</label><input type="number" id="discountAmount" name="discountAmount" placeholder="0" value="0" min="0" /></div>
-                            <div class="field"><label>Discount %</label><input type="number" id="discountPercent" name="discountPercent" placeholder="0" value="0" min="0" max="100" /></div>
+                            <div class="field"><label>Received</label><input type="number" id="amountReceived"
+                                    name="amountReceived" placeholder="0" min="0" /></div>
                         </div>
                         <input type="hidden" id="changeReturned" name="changeReturned" />
-                        <div class="change-box"><span><i class="fas fa-exchange-alt"></i> Change</span><span>₹ <span id="changeAmount">0</span></span></div>
+                        <div class="change-box"><span><i class="fas fa-exchange-alt"></i> Change</span><span>₹ <span
+                                    id="changeAmount">0</span></span></div>
                         <div class="action-buttons">
-                            <button type="button" class="cancel-btn" onclick="showPopup()"><i class="fas fa-times-circle"></i> Cancel Sale</button>
-                            <button type="submit" class="complete-btn"><i class="fas fa-check-circle"></i> Complete</button>
+                            <button type="button" class="cancel-btn" onclick="showPopup()"><i
+                                    class="fas fa-times-circle"></i> Cancel Sale</button>
+                            <button type="submit" class="complete-btn"><i class="fas fa-check-circle"></i>
+                                Complete</button>
                         </div>
                     </form>
                 </div>
@@ -962,214 +1006,255 @@
                     <span class="item-count" th:text="${#lists.size(cart)} + ' items'">0 items</span>
                 </div>
                 <div class="cart-scroll" id="cartContainer"></div>
-                <div class="total-box">
-                    <div class="total-line"><span>Subtotal</span><span>₹ <span id="subtotalAmount" th:text="${totalAmount}"></span></span></div>
-                    <div class="total-line discount"><span>Discount</span><span>- ₹ <span id="discountDisplay">0</span></span></div>
-                    <div class="total-line final"><span>Final total</span><span class="final-amount">₹ <span id="finalTotalAmount" th:text="${totalAmount}"></span></span></div>
+
+                <!-- ✅ FIXED TOTAL BOX - Now matches Invoice -->
+                <div class="total-box" id="totalBox">
+                    <!-- Taxable Amount -->
+                    <div class="total-line" id="taxableRow">
+                        <span>Taxable Amount</span>
+                        <span>₹ <span id="taxableAmount">0.00</span></span>
+                    </div>
+
+                    <!-- CGST -->
+                    <div class="gst-line" id="cgstRow">
+                        <span class="label">CGST @9%</span>
+                        <span class="value">₹ <span id="cgstAmount">0.00</span></span>
+                    </div>
+
+                    <!-- SGST -->
+                    <div class="gst-line" id="sgstRow">
+                        <span class="label">SGST @9%</span>
+                        <span class="value">₹ <span id="sgstAmount">0.00</span></span>
+                    </div>
+
+                    <!-- Total GST -->
+                    <div class="total-line" id="totalGstRow">
+                        <span>Total GST</span>
+                        <span>₹ <span id="totalGstAmount">0.00</span></span>
+                    </div>
+
+                    <!-- Subtotal (without GST) - Already shown as Taxable -->
+
+                    <!-- Discount -->
+                    <div class="total-line discount" id="discountRow" style="display: none;">
+                        <span>Discount</span>
+                        <span>- ₹ <span id="discountDisplay">0.00</span> (<span
+                                id="discountPercentDisplay">0</span>%)</span>
+                    </div>
+
+                    <!-- Final Total -->
+                    <div class="total-line final">
+                        <span>FINAL TOTAL</span>
+                        <span class="final-amount">₹ <span id="finalTotalAmount">0.00</span></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <div class="footer-left"><i class="fas fa-store"></i><span>© 2026 HisaabLite</span><span>·</span><span>Made with <span class="heart">❤️</span> in India</span></div>
+            <div class="footer-left"><i class="fas fa-store"></i><span>© 2026 HisaabLite</span><span>·</span><span>Made
+                    with <span class="heart">❤️</span> in India</span></div>
             <div class="footer-right">
                 <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Support</a>
                 <span class="version">v1.2.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
+                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
+                    operational</span>
             </div>
         </div>
     </div>
 
     <div id="successToast" class="toast">
-        <div class="toast-content"><div class="toast-icon">✓</div><div><strong style="color: #0f172a;">Sale completed</strong><br><span style="color: #5b6778; font-size: 12px;">Redirecting to invoice...</span></div></div>
+        <div class="toast-content">
+            <div class="toast-icon">✓</div>
+            <div><strong style="color: #0f172a;">Sale completed</strong><br><span
+                    style="color: #5b6778; font-size: 12px;">Redirecting to invoice...</span></div>
+        </div>
         <a id="invoiceBtn" href="#" target="_blank" class="invoice-link">View invoice →</a>
     </div>
 
     <script>
         // ========== POPUP FUNCTIONS ==========
-        function showPopup() {
-            document.getElementById('cancelPopup').classList.add('show');
-        }
-
-        function hidePopup() {
-            document.getElementById('cancelPopup').classList.remove('show');
-        }
+        function showPopup() { document.getElementById('cancelPopup').classList.add('show'); }
+        function hidePopup() { document.getElementById('cancelPopup').classList.remove('show'); }
 
         function showTempToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = 'temp-toast';
             toast.style.background = type === 'success' ? '#059669' : '#2563eb';
-            toast.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
-                <span>${message}</span>
-            `;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i><span>${message}</span>`;
             document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 2000);
+            setTimeout(() => toast.remove(), 2000);
         }
 
         function confirmCancel() {
             hidePopup();
-            
             const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-            
-            if (!csrfToken) {
-                alert("CSRF token missing");
-                return;
-            }
-
-            // Show loading state
+            if (!csrfToken) { alert("CSRF token missing"); return; }
             const cancelBtn = document.querySelector('.cancel-btn');
             const originalText = cancelBtn.innerHTML;
             cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
             cancelBtn.disabled = true;
-
             const formData = new URLSearchParams();
             formData.append("_csrf", csrfToken);
-
             fetch("/sales/cancel", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: formData.toString()
             })
-            .then(res => {
-                if (!res.ok) throw new Error("Cancel failed");
-                return res.json(); // Expecting updated cart (empty array)
-            })
-            .then(cartData => {
-                // Update cart UI with empty cart
-                if (typeof updateCartUI === 'function') {
-                    updateCartUI([]);
-                }
-                
-                // Reset all inputs
-                const amountReceived = document.getElementById('amountReceived');
-                const discountAmount = document.getElementById('discountAmount');
-                const discountPercent = document.getElementById('discountPercent');
-                const changeAmount = document.getElementById('changeAmount');
-                const subtotalEl = document.getElementById('subtotalAmount');
-                const finalTotalEl = document.getElementById('finalTotalAmount');
-                const discountDisplay = document.getElementById('discountDisplay');
-                
-                if (amountReceived) amountReceived.value = '';
-                if (discountAmount) discountAmount.value = '0';
-                if (discountPercent) discountPercent.value = '0';
-                if (changeAmount) changeAmount.innerText = '0';
-                if (discountDisplay) discountDisplay.innerText = '0';
-                if (subtotalEl) subtotalEl.innerText = '0.00';
-                if (finalTotalEl) finalTotalEl.innerText = '0.00';
-                
-                // Update item count
-                const itemCount = document.querySelector('.item-count');
-                if (itemCount) itemCount.innerText = '0 items';
-                
-                // Show success message
-                showTempToast('Sale cancelled successfully', 'info');
-            })
-            .catch(err => {
-                console.error("Cancel error:", err);
-                alert("Failed to cancel sale: " + err.message);
-            })
-            .finally(() => {
-                cancelBtn.innerHTML = originalText;
-                cancelBtn.disabled = false;
-            });
+                .then(res => { if (!res.ok) throw new Error("Cancel failed"); return res.json(); })
+                .then(cartData => {
+                    if (typeof updateCartUI === 'function') updateCartUI([]);
+                    document.getElementById('amountReceived').value = '';
+                    document.getElementById('discountAmount').value = '0';
+                    document.getElementById('discountPercent').value = '0';
+                    document.getElementById('changeAmount').innerText = '0';
+                    document.getElementById('discountDisplay').innerText = '0';
+                    document.getElementById('discountPercentDisplay').innerText = '0';
+                    document.getElementById('taxableAmount').innerText = '0.00';
+                    document.getElementById('cgstAmount').innerText = '0.00';
+                    document.getElementById('sgstAmount').innerText = '0.00';
+                    document.getElementById('totalGstAmount').innerText = '0.00';
+                    document.getElementById('finalTotalAmount').innerText = '0.00';
+                    document.querySelector('.item-count').innerText = '0 items';
+                    showTempToast('Sale cancelled successfully', 'info');
+                })
+                .catch(err => { console.error("Cancel error:", err); alert("Failed to cancel sale: " + err.message); })
+                .finally(() => { cancelBtn.innerHTML = originalText; cancelBtn.disabled = false; });
         }
 
         // ========== MAIN BILLING LOGIC ==========
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             console.log("✅ Billing page loaded");
 
-            // Get CSRF token
             const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
             const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
-            // DOM elements
             const searchInput = document.getElementById("searchInput");
             const qtyInput = document.getElementById("qtyInput");
             const resultsBox = document.getElementById("searchResults");
             const addBtn = document.getElementById("addBtn");
             const cartContainer = document.getElementById("cartContainer");
-            
+
             const amountReceived = document.getElementById("amountReceived");
             const discountAmount = document.getElementById("discountAmount");
             const discountPercent = document.getElementById("discountPercent");
             const changeAmount = document.getElementById("changeAmount");
             const changeReturned = document.getElementById("changeReturned");
-            const subtotalEl = document.getElementById("subtotalAmount");
+
+            // ✅ GST elements
+            const taxableAmount = document.getElementById("taxableAmount");
+            const cgstAmount = document.getElementById("cgstAmount");
+            const sgstAmount = document.getElementById("sgstAmount");
+            const totalGstAmount = document.getElementById("totalGstAmount");
             const finalTotalEl = document.getElementById("finalTotalAmount");
             const discountDisplay = document.getElementById("discountDisplay");
+            const discountPercentDisplay = document.getElementById("discountPercentDisplay");
+            const discountRow = document.getElementById("discountRow");
 
             let suggestions = [];
             let selectedIndex = -1;
             let selectedProduct = null;
 
-            // Focus search
             if (searchInput) searchInput.focus();
 
-            // Calculate change
+            // ✅ FIXED: Calculate GST totals
+            function calculateGST() {
+                let totalTaxable = 0;
+                let totalGst = 0;
+
+                // Get cart from session or use current UI
+                const cart = window.currentCart || [];
+
+                cart.forEach(item => {
+                    const subtotal = parseFloat(item.subtotal || 0);
+                    const gstPercent = parseFloat(item.gstPercent || 0);
+
+                    const gstMultiplier = gstPercent / 100;
+                    const gst = subtotal * gstMultiplier;
+
+                    totalTaxable += subtotal;
+                    totalGst += gst;
+                });
+
+                // Update GST fields
+                if (taxableAmount) taxableAmount.innerText = totalTaxable.toFixed(2);
+                if (totalGstAmount) totalGstAmount.innerText = totalGst.toFixed(2);
+                if (cgstAmount) cgstAmount.innerText = (totalGst / 2).toFixed(2);
+                if (sgstAmount) sgstAmount.innerText = (totalGst / 2).toFixed(2);
+
+                return { totalTaxable, totalGst };
+            }
+
+            // ✅ FIXED: calculateChange with correct discount on FINAL total
             function calculateChange() {
-                const total = parseFloat(subtotalEl?.innerText) || 0;
+                const { totalTaxable, totalGst } = calculateGST();
+
+                // Final amount before discount = Taxable + GST
+                const finalBeforeDiscount = totalTaxable + totalGst;
+
                 const discAmt = parseFloat(discountAmount?.value) || 0;
                 const discPct = parseFloat(discountPercent?.value) || 0;
 
                 let finalDiscount = discAmt;
-                if (discPct > 0) finalDiscount = (total * discPct) / 100;
+                if (discPct > 0) {
+                    // ✅ DISCOUNT SHOULD APPLY ON FINAL AMOUNT (WITH GST)
+                    finalDiscount = (finalBeforeDiscount * discPct) / 100;
+                }
 
-                const finalTotal = total - finalDiscount;
+                const finalAfterDiscount = finalBeforeDiscount - finalDiscount;
                 const received = parseFloat(amountReceived?.value) || 0;
-                const change = Math.max(0, received - finalTotal);
+                const change = Math.max(0, received - finalAfterDiscount);
 
                 if (changeAmount) changeAmount.innerText = change.toFixed(2);
                 if (changeReturned) changeReturned.value = change.toFixed(2);
-                if (discountDisplay) discountDisplay.innerText = finalDiscount.toFixed(2);
-                if (finalTotalEl) finalTotalEl.innerText = finalTotal.toFixed(2);
+
+                if (finalDiscount > 0) {
+                    if (discountDisplay) discountDisplay.innerText = finalDiscount.toFixed(2);
+                    if (discountPercentDisplay) discountPercentDisplay.innerText = discPct.toFixed(2);
+                    if (discountRow) discountRow.style.display = 'flex';
+                } else {
+                    if (discountRow) discountRow.style.display = 'none';
+                }
+
+                if (finalTotalEl) finalTotalEl.innerText = finalAfterDiscount.toFixed(2);
             }
 
-            // Event listeners for calculations
+            // Event listeners
             [amountReceived, discountAmount, discountPercent].forEach(el => {
                 if (el) el.addEventListener("input", calculateChange);
             });
 
-            // Search functionality
+            // Search functionality (same as before)
             if (searchInput) {
-                searchInput.addEventListener("input", function() {
+                searchInput.addEventListener("input", function () {
                     const keyword = this.value.trim();
-                    if (keyword.length < 1) {
-                        if (resultsBox) resultsBox.innerHTML = "";
-                        return;
-                    }
-
+                    if (keyword.length < 1) { if (resultsBox) resultsBox.innerHTML = ""; return; }
                     fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
                         headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
                     })
-                    .then(res => res.ok ? res.json() : Promise.reject("Search failed"))
-                    .then(data => {
-                        suggestions = data;
-                        selectedIndex = -1;
-                        if (resultsBox) resultsBox.innerHTML = "";
-
-                        data.forEach((p, i) => {
-                            const div = document.createElement("div");
-                            div.className = "suggestion-item";
-                            div.textContent = `${p.name} - ₹${p.price} (Stock: ${p.stockQuantity || 0})`;
-                            div.onclick = () => {
-                                selectedIndex = i;
-                                selectedProduct = p;
-                                searchInput.value = p.name;
-                                if (resultsBox) resultsBox.innerHTML = "";
-                                if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
-                            };
-                            if (resultsBox) resultsBox.appendChild(div);
-                        });
-                    })
-                    .catch(err => console.error("Search error:", err));
+                        .then(res => res.ok ? res.json() : Promise.reject("Search failed"))
+                        .then(data => {
+                            suggestions = data;
+                            selectedIndex = -1;
+                            if (resultsBox) resultsBox.innerHTML = "";
+                            data.forEach((p, i) => {
+                                const div = document.createElement("div");
+                                div.className = "suggestion-item";
+                                div.textContent = `${p.name} - ₹${p.price} (Stock: ${p.stockQuantity || 0})`;
+                                div.onclick = () => {
+                                    selectedIndex = i;
+                                    selectedProduct = p;
+                                    searchInput.value = p.name;
+                                    if (resultsBox) resultsBox.innerHTML = "";
+                                    if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
+                                };
+                                if (resultsBox) resultsBox.appendChild(div);
+                            });
+                        })
+                        .catch(err => console.error("Search error:", err));
                 });
 
-                // Keyboard navigation
-                searchInput.addEventListener("keydown", function(e) {
+                searchInput.addEventListener("keydown", function (e) {
                     const items = document.querySelectorAll(".suggestion-item");
                     if (e.key === "ArrowDown") {
                         e.preventDefault();
@@ -1197,15 +1282,8 @@
 
             // Add product
             function addProduct() {
-                if (!selectedProduct) {
-                    alert("Please select a product first");
-                    return;
-                }
-
-                if (!csrfToken) {
-                    alert("CSRF token missing - refresh the page");
-                    return;
-                }
+                if (!selectedProduct) { alert("Please select a product first"); return; }
+                if (!csrfToken) { alert("CSRF token missing - refresh the page"); return; }
 
                 const formData = new URLSearchParams();
                 formData.append("_csrf", csrfToken);
@@ -1217,117 +1295,95 @@
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: formData.toString()
                 })
-                .then(async res => {
-                    if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(text.substring(0, 100));
-                    }
-                    return res.json();
-                })
-                .then(cartData => {
-                    updateCartUI(cartData);
-                    if (searchInput) searchInput.value = "";
-                    if (qtyInput) qtyInput.value = "1";
-                    selectedProduct = null;
-                    selectedIndex = -1;
-                    if (searchInput) searchInput.focus();
-                })
-                .catch(err => {
-                    console.error("Add error:", err);
-                    alert("Failed to add product: " + err.message);
-                });
+                    .then(async res => {
+                        if (!res.ok) { const text = await res.text(); throw new Error(text.substring(0, 100)); }
+                        return res.json();
+                    })
+                    .then(cartData => {
+                        updateCartUI(cartData);
+                        if (searchInput) searchInput.value = "";
+                        if (qtyInput) qtyInput.value = "1";
+                        selectedProduct = null;
+                        selectedIndex = -1;
+                        if (searchInput) searchInput.focus();
+                    })
+                    .catch(err => { console.error("Add error:", err); alert("Failed to add product: " + err.message); });
             }
 
-            // Update cart UI (GLOBAL FUNCTION for cancel to use)
-            window.updateCartUI = function(cart) {
+            // ✅ FIXED: cart UI with correct calculations
+            window.currentCart = [];
+
+            window.updateCartUI = function (cart) {
+                window.currentCart = cart || [];
                 if (!cartContainer) return;
 
                 if (!cart || cart.length === 0) {
                     cartContainer.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Cart empty</div>';
-                    if (subtotalEl) subtotalEl.innerText = "0.00";
-                    if (finalTotalEl) finalTotalEl.innerText = "0.00";
-                    document.querySelector('.item-count').innerText = '0 items';
+                    window.currentCart = [];
+                    calculateGST();
                     calculateChange();
+                    document.querySelector('.item-count').innerText = '0 items';
                     return;
                 }
 
                 let html = '';
-                let total = 0;
-
                 cart.forEach((item, idx) => {
                     const subtotal = parseFloat(item.subtotal || 0);
-                    total += subtotal;
+                    const gstPercent = parseFloat(item.gstPercent || 0);
+
+                    // ✅ SHOW TOTAL WITH GST in cart item
+                    const totalWithGst = subtotal * (1 + gstPercent / 100);
+
                     html += `
                         <div class="cart-item">
                             <div class="cart-item-info">
                                 <div class="cart-item-name">${escapeHtml(item.productName)}</div>
-                                <div class="cart-item-price">₹${parseFloat(item.price || 0).toFixed(2)}</div>
+                                <div class="cart-item-price">
+                                    ₹${parseFloat(item.price || 0).toFixed(2)}
+                                    ${gstPercent > 0 ? `<span class="gst-badge">GST @${gstPercent}%</span>` : ''}
+                                </div>
                             </div>
                             <div class="cart-item-qty">
                                 <button class="qty-btn-sm" onclick="window.changeQty(${idx}, -1)">−</button>
                                 <span>${item.quantity || 0}</span>
                                 <button class="qty-btn-sm" onclick="window.changeQty(${idx}, 1)">+</button>
                             </div>
-                            <div class="cart-item-subtotal">₹${subtotal.toFixed(2)}</div>
+                            <div class="cart-item-subtotal">₹${totalWithGst.toFixed(2)}</div>
                         </div>
                     `;
                 });
 
                 cartContainer.innerHTML = html;
-                if (subtotalEl) subtotalEl.innerText = total.toFixed(2);
-                if (finalTotalEl) finalTotalEl.innerText = total.toFixed(2);
                 document.querySelector('.item-count').innerText = cart.length + ' items';
+                calculateGST();
                 calculateChange();
             };
 
-            // Helper: escape HTML
-            function escapeHtml(text) {
-                if (!text) return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
+            function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
             // Change quantity
-            window.changeQty = function(index, change) {
-                if (!csrfToken) {
-                    alert("CSRF token missing");
-                    return;
-                }
-
+            window.changeQty = function (index, change) {
+                if (!csrfToken) { alert("CSRF token missing"); return; }
                 const formData = new URLSearchParams();
                 formData.append("_csrf", csrfToken);
                 formData.append("index", index);
                 formData.append("change", change);
-
                 fetch("/sales/update-qty", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: formData.toString()
                 })
-                .then(res => res.ok ? res.json() : Promise.reject("Update failed"))
-                .then(cartData => window.updateCartUI(cartData))
-                .catch(err => {
-                    console.error("Qty error:", err);
-                    alert("Failed to update quantity");
-                });
+                    .then(res => res.ok ? res.json() : Promise.reject("Update failed"))
+                    .then(cartData => window.updateCartUI(cartData))
+                    .catch(err => { console.error("Qty error:", err); alert("Failed to update quantity"); });
             };
 
-            // Add button click
             if (addBtn) addBtn.addEventListener("click", addProduct);
-
-            // Qty input Enter
             if (qtyInput) {
-                qtyInput.addEventListener("keydown", e => {
-                    if (e.key === "Enter") {
-                        e.preventDefault();
-                        addProduct();
-                    }
-                });
+                qtyInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addProduct(); } });
             }
 
-            // Initial cart from Thymeleaf (if any)
-            const initialCart = /*[[${cart}]]*/ [];
+            const initialCart = /*[[${cart}]]*/[];
             if (initialCart && initialCart.length) {
                 window.updateCartUI(initialCart);
             } else {
@@ -1335,20 +1391,17 @@
             }
         });
 
-        // Toast on sale complete
-        window.onload = function() {
+        window.onload = function () {
             const params = new URLSearchParams(window.location.search);
             if (params.get("saved") === "true") {
                 const toast = document.getElementById("successToast");
                 const invoiceId = params.get("invoiceId");
                 const btn = document.getElementById("invoiceBtn");
                 if (btn && invoiceId) btn.href = "/sales/invoice/" + invoiceId;
-                if (toast) {
-                    toast.classList.add("show");
-                    setTimeout(() => toast.classList.remove("show"), 5000);
-                }
+                if (toast) { toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 5000); }
             }
         };
     </script>
 </body>
+
 </html>

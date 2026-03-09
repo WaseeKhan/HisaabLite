@@ -12,17 +12,13 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #f3f4f6;
             color: #1e293b;
-            padding: 30px 20px;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -33,15 +29,15 @@
             max-width: 800px;
             width: 100%;
             background: white;
-            border-radius: 20px;
+            border-radius: 16px;
             border: 1px solid #edf2f7;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.03);
             overflow: hidden;
         }
 
         /* ===== HEADER ===== */
         .invoice-header {
-            padding: 24px 28px 16px;
+            padding: 16px 24px 10px;
             border-bottom: 1px solid #e9eef2;
             display: flex;
             justify-content: space-between;
@@ -52,21 +48,20 @@
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .logo-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             background: #0f172a;
             color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 16px;
-            box-shadow: 0 4px 8px rgba(15, 23, 42, 0.1);
+            font-size: 14px;
         }
 
         .brand-text {
@@ -75,18 +70,15 @@
         }
 
         .brand-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            letter-spacing: -0.2px;
             color: #0f172a;
+            line-height: 1.2;
         }
 
         .brand-tagline {
-            font-size: 9px;
-            font-weight: 400;
+            font-size: 8px;
             color: #94a3b8;
-            letter-spacing: 0.3px;
-            margin-top: 2px;
         }
 
         .invoice-badge {
@@ -94,20 +86,18 @@
         }
 
         .invoice-badge .label {
-            font-size: 10px;
-            font-weight: 500;
+            font-size: 9px;
             color: #5b6778;
-            letter-spacing: 0.5px;
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .invoice-badge .number {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #0f172a;
             background: #f1f5f9;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 30px;
             display: inline-block;
         }
@@ -116,111 +106,94 @@
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 20px 28px;
+            gap: 12px;
+            padding: 14px 24px;
             background: #f8fafc;
             border-bottom: 1px solid #e9eef2;
         }
 
         .info-card {
             background: white;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 12px;
+            border-radius: 12px;
             border: 1px solid #edf2f7;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
 
         .info-title {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #5b6778;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
-        .info-title i {
-            color: #2563eb;
-            font-size: 12px;
-        }
+        .info-title i { color: #2563eb; font-size: 11px; }
 
         .info-content {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
         }
 
         .info-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 12px;
+            gap: 6px;
+            font-size: 11px;
         }
 
         .info-row .icon {
-            width: 18px;
+            width: 16px;
             color: #94a3b8;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
         }
 
-        .info-row .value {
-            color: #1e293b;
-            font-weight: 400;
-            line-height: 1.4;
-        }
-
-        .info-row .value strong {
-            font-weight: 600;
-            color: #0f172a;
-            margin-right: 4px;
-        }
+        .info-row .value { color: #1e293b; }
 
         /* ===== ITEMS SECTION ===== */
         .items-section {
-            padding: 16px 28px 12px;
+            padding: 12px 24px 8px;
         }
 
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .section-header h3 {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #0f172a;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .section-header h3 i {
-            color: #2563eb;
-        }
+        .section-header h3 i { color: #2563eb; }
 
         .badge {
-            font-size: 10px;
+            font-size: 9px;
             color: #5b6778;
             background: #f1f5f9;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 30px;
             font-weight: 500;
         }
 
+        /* Table with exact column widths */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 11px;
             table-layout: fixed;
         }
 
@@ -229,36 +202,65 @@
         }
 
         .items-table th {
-            padding: 10px 4px 8px 0;
-            font-size: 10px;
+            padding: 8px 4px 6px 4px;
+            font-size: 9px;
             font-weight: 600;
             color: #5b6778;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            text-align: left;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
         }
 
         .items-table td {
-            padding: 10px 4px 8px 0;
-            font-size: 12px;
+            padding: 8px 4px 6px 4px;
+            font-size: 11px;
             color: #1e293b;
             border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
         }
 
-        .text-right {
-            text-align: right;
+        /* Column-specific widths */
+        .col-sno { width: 8%; text-align: center; }
+        .col-product { width: 42%; text-align: left; }
+        .col-price { width: 15%; text-align: right; }
+        .col-qty { width: 10%; text-align: center; }
+        .col-subtotal { width: 25%; text-align: right; }
+
+        /* Text alignment classes */
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* Product cell with GST */
+        .product-name-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
-        .text-center {
-            text-align: center;
+        .product-main {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .gst-tag {
+            font-size: 8px;
+            color: #2563eb;
+            background: #e6f0ff;
+            padding: 1px 4px;
+            border-radius: 10px;
+            display: inline-block;
+            width: fit-content;
         }
 
         /* ===== BOTTOM SECTION ===== */
         .bottom-section {
-            padding: 12px 28px 24px;
+            padding: 8px 24px 16px;
             display: flex;
             justify-content: space-between;
-            gap: 24px;
+            gap: 20px;
         }
 
         /* LEFT - SIGNATURE */
@@ -267,39 +269,33 @@
         }
 
         .terms-line {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #0f172a;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .terms-line i {
-            color: #2563eb;
+            gap: 4px;
         }
 
         .signature-block {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .signature-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
         .signature-label {
-            font-size: 10px;
+            font-size: 9px;
             color: #5b6778;
-            min-width: 65px;
+            min-width: 55px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
             font-weight: 500;
         }
 
@@ -310,131 +306,118 @@
         }
 
         .signature-text {
-            font-size: 9px;
+            font-size: 8px;
             color: #94a3b8;
-            min-width: 55px;
+            min-width: 45px;
             font-style: italic;
         }
 
         .stamp-placeholder {
-            margin-top: 16px;
+            margin-top: 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .stamp-circle {
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             border: 1.5px dashed #94a3b8;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #64748b;
-            font-size: 8px;
+            font-size: 7px;
             text-transform: uppercase;
-            opacity: 0.7;
         }
 
         .stamp-text {
-            font-size: 9px;
+            font-size: 8px;
             color: #94a3b8;
             font-style: italic;
         }
 
         .computer-note {
-            margin-top: 12px;
-            font-size: 8px;
+            margin-top: 8px;
+            font-size: 7px;
             color: #94a3b8;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
         }
 
         /* RIGHT - SUMMARY */
         .summary-card {
-            width: 260px;
+            width: 230px;
             background: #f8fafc;
-            padding: 18px;
-            border-radius: 18px;
+            padding: 14px;
+            border-radius: 14px;
             border: 1px solid #edf2f7;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            font-size: 12px;
+            padding: 6px 0;
+            font-size: 11px;
             border-bottom: 1px dashed #e2e8f0;
         }
 
-        .summary-row:last-child {
+        .summary-row.total {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            padding-top: 8px;
+            margin-top: 2px;
+            border-top: 2px solid #0f172a;
             border-bottom: none;
         }
 
-        .summary-row.total {
-            font-size: 14px;
-            font-weight: 700;
-            color: #0f172a;
-            padding-top: 12px;
-            margin-top: 4px;
-            border-top: 2px solid #0f172a;
-        }
+        .summary-label { color: #5b6778; font-weight: 500; }
+        .summary-value { font-weight: 600; color: #1e293b; }
+        .summary-value.highlight { font-size: 14px; color: #059669; }
 
-        .summary-label {
-            color: #5b6778;
-            font-weight: 500;
-        }
-
-        .summary-value {
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .summary-value.highlight {
-            font-size: 16px;
-            color: #059669;
+        .gst-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0 3px 8px;
+            font-size: 10px;
+            color: #2563eb;
+            border-bottom: 1px dotted #e2e8f0;
         }
 
         .payment-details {
-            margin-top: 16px;
-            padding: 12px;
+            margin-top: 12px;
+            padding: 10px;
             background: white;
-            border-radius: 14px;
+            border-radius: 12px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 8px;
             border: 1px solid #edf2f7;
         }
 
-        .payment-item {
-            display: flex;
-            flex-direction: column;
-        }
-
         .payment-item .label {
-            font-size: 8px;
+            font-size: 7px;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 2px;
         }
 
         .payment-item .value {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #1e293b;
         }
 
         /* ===== FOOTER ===== */
         .invoice-footer {
-            padding: 16px 28px;
+            padding: 12px 24px;
             border-top: 1px solid #e9eef2;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
             background: white;
         }
@@ -442,22 +425,15 @@
         .footer-note {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .footer-note .heart {
-            color: #ef4444;
-        }
-
-        .print-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .footer-note .heart { color: #ef4444; }
 
         .btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: none;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
             cursor: pointer;
             background: #f1f5f9;
@@ -466,50 +442,22 @@
             transition: all 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .btn:hover {
-            background: #e2e8f0;
-            color: #2563eb;
-        }
+        .btn:hover { background: #e2e8f0; color: #2563eb; }
 
         @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .invoice-wrapper {
-                box-shadow: none;
-                border: none;
-            }
-            
-            .print-actions, .btn {
-                display: none;
-            }
-            
-            .info-grid {
-                background: white;
-            }
-            
-            .summary-card {
-                background: white;
-            }
+            body { background: white; padding: 0; }
+            .invoice-wrapper { box-shadow: none; border: none; }
+            .print-actions, .btn { display: none; }
+            .info-grid { background: white; }
+            .summary-card { background: white; }
         }
 
-        /* scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 
@@ -517,13 +465,13 @@
 
     <div class="invoice-wrapper">
 
-        <!-- ===== HEADER WITH LOGO ===== -->
+        <!-- ===== HEADER ===== -->
         <div class="invoice-header">
             <div class="logo-section">
                 <div class="logo-icon">HL</div>
                 <div class="brand-text">
                     <div class="brand-name">HisaabLite</div>
-                    <div class="brand-tagline">RETAIL BILLING SOLUTION</div>
+                    <div class="brand-tagline">RETAIL BILLING</div>
                 </div>
             </div>
             <div class="invoice-badge">
@@ -551,7 +499,7 @@
                     </div>
                     <div class="info-row">
                         <span class="icon"><i class="fas fa-tag"></i></span>
-                        <span class="value" th:text="${sale.shop.gstNumber ?: 'GST Not Available'}">GST Number</span>
+                        <span class="value" th:text="${sale.shop.gstNumber ?: 'N/A'}">GST</span>
                     </div>
                 </div>
             </div>
@@ -564,7 +512,7 @@
                 <div class="info-content">
                     <div class="info-row">
                         <span class="icon"><i class="fas fa-user"></i></span>
-                        <span class="value" th:text="${sale.customerName != null ? sale.customerName : 'Walk-in Customer'}">Walk-in Customer</span>
+                        <span class="value" th:text="${sale.customerName != null ? sale.customerName : 'Walk-in'}">Walk-in</span>
                     </div>
                     <div class="info-row">
                         <span class="icon"><i class="fas fa-phone"></i></span>
@@ -588,64 +536,96 @@
                 <span class="badge" th:text="${#lists.size(items)} + ' items'">0 items</span>
             </div>
 
+            <!-- Table with exact column classes -->
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th style="width: 8%;">#</th>
-                        <th style="width: 42%;">PRODUCT</th>
-                        <th style="width: 15%;" class="text-right">PRICE</th>
-                        <th style="width: 10%;" class="text-center">QTY</th>
-                        <th style="width: 25%;" class="text-right">SUBTOTAL</th>
+                        <th class="col-sno">#</th>
+                        <th class="col-product">PRODUCT</th>
+                        <th class="col-price">PRICE</th>
+                        <th class="col-qty">QTY</th>
+                        <th class="col-subtotal">SUBTOTAL</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="item, stat : ${items}">
-                        <td style="width: 8%;" th:text="${stat.index + 1}">1</td>
-                        <td style="width: 42%;" th:text="${item.product.name}">Product Name</td>
-                        <td style="width: 15%;" class="text-right">₹<span th:text="${item.product.price}">100</span></td>
-                        <td style="width: 10%;" class="text-center" th:text="${item.quantity}">2</td>
-                        <td style="width: 25%;" class="text-right">₹<span th:text="${item.subtotal}">200</span></td>
+                        <td class="col-sno" th:text="${stat.index + 1}">1</td>
+                        <td class="col-product">
+                            <div class="product-name-cell">
+                                <span class="product-main" th:text="${item.product.name}">Product Name</span>
+                                <span th:if="${item.gstPercent > 0}" class="gst-tag">
+                                    GST @<span th:text="${item.gstPercent}"></span>%
+                                </span>
+                            </div>
+                        </td>
+                        <td class="col-price">₹<span th:text="${item.product.price}">100</span></td>
+                        <td class="col-qty" th:text="${item.quantity}">2</td>
+                        <td class="col-subtotal">₹<span th:text="${item.totalWithGst ?: item.subtotal}">200</span></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- ===== BOTTOM SECTION (SIGNATURE + SUMMARY) ===== -->
+        <!-- ===== BOTTOM SECTION ===== -->
         <div class="bottom-section">
             
             <!-- LEFT: SIGNATURE & TERMS -->
             <div class="signature-area">
                 <div class="terms-line">
-                    <i class="fas fa-file-signature"></i> TERMS & CONDITIONS
+                    <i class="fas fa-file-signature"></i> TERMS
                 </div>
                 <div class="signature-block">
                     <div class="signature-row">
                         <span class="signature-label">AUTHORISED</span>
                         <span class="signature-line"></span>
-                        <span class="signature-text">(Signature)</span>
+                        <span class="signature-text">(Sign)</span>
                     </div>
                     <div class="signature-row">
-                        <span class="signature-label">RECEIVED BY</span>
+                        <span class="signature-label">RECEIVED</span>
                         <span class="signature-line"></span>
-                        <span class="signature-text">(Customer)</span>
+                        <span class="signature-text">(Sign)</span>
                     </div>
                 </div>
                 <div class="stamp-placeholder">
                     <div class="stamp-circle">STAMP</div>
-                    <div class="stamp-text">(Company Seal)</div>
+                    <div class="stamp-text">(Seal)</div>
                 </div>
                 <div class="computer-note">
-                    <i class="fas fa-print"></i> This is a computer generated invoice
+                    <i class="fas fa-print"></i> Computer generated
                 </div>
             </div>
 
             <!-- RIGHT: SUMMARY CARD -->
             <div class="summary-card">
                 
+                <!-- Taxable Amount -->
+                <div class="summary-row" th:if="${sale.totalGstAmount != null and sale.totalGstAmount > 0}">
+                    <span class="summary-label">Taxable</span>
+                    <span class="summary-value">₹<span th:text="${sale.totalAmount - sale.totalGstAmount}"></span></span>
+                </div>
+
+                <!-- CGST + SGST -->
+                <div th:if="${sale.totalGstAmount != null and sale.totalGstAmount > 0}">
+                    <div class="gst-row">
+                        <span>CGST @9%</span>
+                        <span>₹<span th:text="${sale.totalGstAmount / 2}"></span></span>
+                    </div>
+                    <div class="gst-row">
+                        <span>SGST @9%</span>
+                        <span>₹<span th:text="${sale.totalGstAmount / 2}"></span></span>
+                    </div>
+                </div>
+                
+                <!-- Total GST -->
+                <div class="summary-row" th:if="${sale.totalGstAmount != null and sale.totalGstAmount > 0}">
+                    <span class="summary-label">Total GST</span>
+                    <span class="summary-value">₹<span th:text="${sale.totalGstAmount}"></span></span>
+                </div>
+
                 <!-- Subtotal -->
                 <div class="summary-row">
                     <span class="summary-label">Subtotal</span>
-                    <span class="summary-value">₹<span th:text="${sale.totalAmount + sale.discountAmount}"></span></span>
+                    <span class="summary-value">₹<span th:text="${sale.totalAmount - (sale.totalGstAmount ?: 0)}"></span></span>
                 </div>
 
                 <!-- Discount -->
@@ -664,20 +644,20 @@
                 <!-- Payment Details -->
                 <div class="payment-details">
                     <div class="payment-item">
-                        <span class="label">PAYMENT</span>
-                        <span class="value" th:text="${sale.paymentMode}">Cash</span>
+                        <div class="label">PAYMENT</div>
+                        <div class="value" th:text="${sale.paymentMode}">Cash</div>
                     </div>
                     <div class="payment-item">
-                        <span class="label">RECEIVED</span>
-                        <span class="value">₹<span th:text="${sale.amountReceived}"></span></span>
+                        <div class="label">RECEIVED</div>
+                        <div class="value">₹<span th:text="${sale.amountReceived}"></span></div>
                     </div>
                     <div class="payment-item">
-                        <span class="label">CHANGE</span>
-                        <span class="value">₹<span th:text="${sale.changeReturned}"></span></span>
+                        <div class="label">CHANGE</div>
+                        <div class="value">₹<span th:text="${sale.changeReturned}"></span></div>
                     </div>
                     <div class="payment-item">
-                        <span class="label">STATUS</span>
-                        <span class="value">Paid</span>
+                        <div class="label">STATUS</div>
+                        <div class="value">Paid</div>
                     </div>
                 </div>
             </div>
@@ -691,12 +671,11 @@
             </div>
             <div class="print-actions">
                 <button class="btn" onclick="window.print()">
-                    <i class="fas fa-print"></i> Print Invoice
+                    <i class="fas fa-print"></i> Print
                 </button>
             </div>
         </div>
     </div>
 
 </body>
-
 </html>

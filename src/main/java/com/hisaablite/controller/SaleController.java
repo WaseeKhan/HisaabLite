@@ -1,6 +1,7 @@
 package com.hisaablite.controller;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,12 +67,11 @@ public class SaleController {
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("shop", user.getShop());
         model.addAttribute("role", user.getRole().name());
-        
 
         return "sale-form";
     }
 
-    // Add to cart
+    // Add to cart start here
     @PostMapping("/add")
     @ResponseBody
     public List<CartItem> addToCart(
@@ -114,9 +114,21 @@ public class SaleController {
                     throw new RuntimeException("Not enough stock available");
                 }
 
+                BigDecimal price = product.getPrice();
+                BigDecimal subtotal = price.multiply(BigDecimal.valueOf(newQty));
+
+                // GST calculation
+                Integer gstPercent = product.getGstPercent() != null ? product.getGstPercent() : 0;
+                BigDecimal gstMultiplier = BigDecimal.valueOf(gstPercent)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                BigDecimal gstAmount = subtotal.multiply(gstMultiplier);
+                BigDecimal totalWithGst = subtotal.add(gstAmount);
+
                 item.setQuantity(newQty);
-                item.setSubtotal(
-                        product.getPrice().multiply(BigDecimal.valueOf(newQty)));
+                item.setSubtotal(subtotal);
+                item.setGstPercent(gstPercent);
+                item.setGstAmount(gstAmount);
+                item.setTotalWithGst(totalWithGst);
 
                 found = true;
                 break;
@@ -125,13 +137,26 @@ public class SaleController {
 
         if (!found) {
 
-            CartItem cartItem = new CartItem();
-            cartItem.setProductId(product.getId());
-            cartItem.setProductName(product.getName());
-            cartItem.setPrice(product.getPrice());
-            cartItem.setQuantity(quantity);
-            cartItem.setSubtotal(
-                    product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+            BigDecimal price = product.getPrice();
+            BigDecimal subtotal = price.multiply(BigDecimal.valueOf(quantity));
+
+            // GST calculation
+            Integer gstPercent = product.getGstPercent() != null ? product.getGstPercent() : 0;
+            BigDecimal gstMultiplier = BigDecimal.valueOf(gstPercent)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            BigDecimal gstAmount = subtotal.multiply(gstMultiplier);
+            BigDecimal totalWithGst = subtotal.add(gstAmount);
+
+            CartItem cartItem = CartItem.builder()
+                    .productId(product.getId())
+                    .productName(product.getName())
+                    .price(price)
+                    .quantity(quantity)
+                    .subtotal(subtotal)
+                    .gstPercent(gstPercent)
+                    .gstAmount(gstAmount)
+                    .totalWithGst(totalWithGst)
+                    .build();
 
             cart.add(cartItem);
         }
@@ -140,6 +165,8 @@ public class SaleController {
 
         return cart;
     }
+
+    // add to cart end here
 
     // Remove from cart
     @GetMapping("/remove/{index}")
@@ -345,17 +372,17 @@ public class SaleController {
     }
 
     @PostMapping("/cancel")
-@ResponseBody
-public ResponseEntity<?> cancelSale(HttpSession session) {
-    try {
-        // Clear cart from session
-        session.removeAttribute("cart");
-        session.removeAttribute("totalAmount");
-        
-        // Return empty cart as JSON
-        return ResponseEntity.ok(Collections.emptyList());
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body("Error cancelling sale");
+    @ResponseBody
+    public ResponseEntity<?> cancelSale(HttpSession session) {
+        try {
+            // Clear cart from session
+            session.removeAttribute("cart");
+            session.removeAttribute("totalAmount");
+
+            // Return empty cart as JSON
+            return ResponseEntity.ok(Collections.emptyList());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error cancelling sale");
+        }
     }
-}
 }

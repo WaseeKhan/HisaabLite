@@ -23,6 +23,11 @@ public class SaleItem {
 
     private BigDecimal subtotal;
 
+     // GST fields here
+    private Integer gstPercent;
+    private BigDecimal gstAmount;
+    private BigDecimal totalWithGst;
+
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;

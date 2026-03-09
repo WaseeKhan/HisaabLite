@@ -1,6 +1,7 @@
 package com.hisaablite.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,11 +44,14 @@ public class SaleService {
         sale.setShop(shop);
         sale.setCreatedBy(createdBy);
         sale.setTotalAmount(BigDecimal.ZERO);
+        sale.setTotalGstAmount(BigDecimal.ZERO);
+        sale.setTaxableAmount(BigDecimal.ZERO);
         sale.setStatus(SaleStatus.COMPLETED);
 
         Sale savedSale = saleRepository.save(sale);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalGstAmount = BigDecimal.ZERO;
 
         // Process each cart item
         for (CartItem cartItem : cartItems) {
@@ -64,54 +68,62 @@ public class SaleService {
             product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
             productRepository.save(product);
 
-            BigDecimal subtotal = product.getPrice()
-                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            // Calculate GST
+            BigDecimal price = product.getPrice();
+            Integer gstPercent = product.getGstPercent() != null ? product.getGstPercent() : 0;
+            
+            BigDecimal subtotal = price.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            
+            // GST calculation
+            BigDecimal gstMultiplier = BigDecimal.valueOf(gstPercent)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            BigDecimal gstAmount = subtotal.multiply(gstMultiplier);
+            BigDecimal totalWithGst = subtotal.add(gstAmount);
 
-            // Save SaleItem
+            // Save SaleItem with GST
             SaleItem saleItem = SaleItem.builder()
                     .sale(savedSale)
                     .product(product)
                     .quantity(cartItem.getQuantity())
-                    .priceAtSale(product.getPrice())
+                    .priceAtSale(price)
                     .subtotal(subtotal)
+                    .gstPercent(gstPercent)
+                    .gstAmount(gstAmount)
+                    .totalWithGst(totalWithGst)
                     .build();
             saleItemRepository.save(saleItem);
-            totalAmount = totalAmount.add(subtotal);
+            
+            totalAmount = totalAmount.add(totalWithGst);
+            totalGstAmount = totalGstAmount.add(gstAmount);
         }
 
-        // Update total amount
+        // Update totals
         savedSale.setTotalAmount(totalAmount);
+        savedSale.setTotalGstAmount(totalGstAmount);
+        savedSale.setTaxableAmount(totalAmount.subtract(totalGstAmount));
+        
         saleRepository.save(savedSale);
 
         return savedSale;
     }
 
-    // cancel sale logic here
-
     @Transactional
     public void cancelSale(Long saleId) {
-
         Sale sale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
 
-        // Already cancelled check
         if (sale.getStatus() == SaleStatus.CANCELLED) {
             throw new RuntimeException("Sale already cancelled");
         }
 
         // Restore stock
         for (SaleItem item : sale.getItems()) {
-
             Product product = item.getProduct();
-
             product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
-
             productRepository.save(product);
         }
 
-        // Update sale status
         sale.setStatus(SaleStatus.CANCELLED);
-
         saleRepository.save(sale);
     }
 
@@ -124,38 +136,29 @@ public class SaleService {
     }
 
     public Map<String, Object> getLast7DaysChartData(Shop shop) {
-
         LocalDate today = LocalDate.now();
         LocalDateTime start = today.minusDays(6).atStartOfDay();
-
         List<Object[]> results = saleRepository.getLast7DaysRevenue(shop, start);
-
         Map<LocalDate, Double> revenueMap = new HashMap<>();
 
         for (Object[] row : results) {
-
             LocalDate date;
-
-            // Safe date conversion
             if (row[0] instanceof java.sql.Date sqlDate) {
                 date = sqlDate.toLocalDate();
             } else {
                 date = (LocalDate) row[0];
             }
-
             Double total = 0.0;
-
             if (row[1] instanceof java.math.BigDecimal bigDecimal) {
                 total = bigDecimal.doubleValue();
             } else if (row[1] instanceof Double d) {
                 total = d;
             }
-
             revenueMap.put(date, total);
         }
+
         List<String> labels = new ArrayList<>();
         List<Double> revenues = new ArrayList<>();
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM");
 
         for (int i = 6; i >= 0; i--) {
@@ -167,7 +170,6 @@ public class SaleService {
         Map<String, Object> response = new HashMap<>();
         response.put("labels", labels);
         response.put("revenues", revenues);
-
         return response;
     }
 }

@@ -726,7 +726,8 @@
                     
                     <div class="info-item info-full">
                         <span class="info-label">Member Since</span>
-                        <span class="info-value" th:text="${shop.createdAt} ?: 'N/A'"></span>
+                      
+                        <span class="info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM YYYY')} ?: 'N/A'"></span>
                     </div>
                 </div>
             </div>

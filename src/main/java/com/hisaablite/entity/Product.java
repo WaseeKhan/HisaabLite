@@ -31,6 +31,9 @@ public class Product {
     @Column(nullable = false)
     private Integer minStock = 5;
 
+    //GST Related 
+    private Integer gstPercent = 0;
+
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
     @JsonIgnore

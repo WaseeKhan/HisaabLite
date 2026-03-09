@@ -22,6 +22,11 @@ public class Sale {
 
     private BigDecimal totalAmount;
 
+    //Tax related fields
+    private BigDecimal totalGstAmount;
+    private BigDecimal taxableAmount;
+
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_id")
     private Shop shop;
@@ -52,6 +57,8 @@ public class Sale {
     // discount logic
     private BigDecimal discountAmount = BigDecimal.ZERO;
     private BigDecimal discountPercent = BigDecimal.ZERO;
-    private BigDecimal taxableAmount = BigDecimal.ZERO;
+    // private BigDecimal taxableAmount = BigDecimal.ZERO;
 
+
+    
 }
