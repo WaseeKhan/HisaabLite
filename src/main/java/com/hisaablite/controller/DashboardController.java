@@ -42,6 +42,8 @@ public class DashboardController {
                                 .next()
                                 .getAuthority();
 
+
+                
                 if (role.equals("ROLE_OWNER")) {
                         return "redirect:/owner/dashboard";
                 } else if (role.equals("ROLE_MANAGER")) {
@@ -49,6 +51,8 @@ public class DashboardController {
                 } else {
                         return "redirect:/cashier/dashboard";
                 }
+
+
         }
 
         // OWNER DASHBOARD
@@ -130,17 +134,11 @@ public class DashboardController {
                 return "ultra-dashboard";
         }
 
-        // LIVE METRICS (AJAX)
-
         @GetMapping("/app/metrics")
         @ResponseBody
-        public Map<String, Object> getLiveMetrics(
-                        Authentication authentication) {
+        public Map<String, Object> getLiveMetrics(Authentication authentication) {
 
-                User user = userRepository
-                                .findByUsername(authentication.getName())
-                                .orElseThrow();
-
+                User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
                 Shop shop = user.getShop();
 
                 LocalDate today = LocalDate.now();
@@ -149,20 +147,26 @@ public class DashboardController {
 
                 Map<String, Object> data = new HashMap<>();
 
-                data.put("todayRevenue",
-                                saleRepository.getTodayTotalRevenue(shop,
-                                                startToday, endToday));
+                // COMPLETED sales revenue
+                Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop);
+                if (completedRevenue == null)
+                        completedRevenue = 0.0;
 
-                data.put("todayInvoices",
-                                saleRepository.getTodayInvoiceCount(shop,
-                                                startToday, endToday));
+                // CANCELLED sales amount
+                Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop);
+                if (cancelledAmount == null)
+                        cancelledAmount = 0.0;
 
-                data.put("todayItems",
-                                saleItemRepository.getTodayItemsSold(shop,
-                                                startToday, endToday));
+                //FIXED: Net Revenue - Never negative
+                Double netRevenue = Math.max(0, completedRevenue - cancelledAmount);
 
-                data.put("totalStaff",
-                                userRepository.countByShop(shop));
+                data.put("completedRevenue", completedRevenue);
+                data.put("cancelledAmount", cancelledAmount);
+                data.put("netRevenue", netRevenue); // Now always >= 0
+                data.put("todayInvoices", saleRepository.getTodayInvoiceCount(shop, startToday, endToday));
+                data.put("todayItems", saleItemRepository.getTodayItemsSold(shop, startToday, endToday));
+                data.put("returnedItems", saleRepository.getTodayReturnedItems(shop));
+                data.put("totalStaff", userRepository.countByShop(shop));
 
                 return data;
         }
