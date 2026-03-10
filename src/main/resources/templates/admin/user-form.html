@@ -6,102 +6,511 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- CSS -->
-    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+        
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+        
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+        
+        /* ===== HEADER ===== */
+        .admin-header {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+        
+        .admin-header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .admin-header h1 i {
+            color: #2563eb;
+        }
+        
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+        
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+        }
+        
+        /* ===== FORM CARD ===== */
+        .form-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        
+        .form-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .form-group label i {
+            color: #2563eb;
+            font-size: 10px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #2563eb;
+            outline: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            margin: 0 -16px 0 -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #94a3b8;
+        }
+        
+        .heart {
+            color: #ef4444;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .error {
+            color: #dc2626;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+           .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .quick-action-item:hover i {
+            color: white;
+        }
+   .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="admin-container">
-        <!-- Sidebar -->
-        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='users')}"></div>
-        
-        <!-- Main Content -->
-        <div class="admin-main">
-            <!-- Header -->
-            <div class="admin-header">
-                <h1>
-                    <i class="fas fa-user-edit"></i>
-                    <span th:text="${user.id == null} ? 'Add New User' : 'Edit User'">User Form</span>
-                </h1>
-                <div class="admin-user">
-                    <span class="role-badge">ADMIN</span>
-                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
-                </div>
+    <!-- Sidebar -->
+      <!-- ===== SIDEBAR WITH PROPER URLS ===== -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}" >
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}" class="active">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/users/new}" class="quick-action-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Add User</span>
+            </a>
+            <a th:href="@{/admin/shops/new}" class="quick-action-item">
+                <i class="fas fa-store-alt"></i>
+                <span>Add Shop</span>
+            </a>
+            <a th:href="@{/admin/subscriptions/new}" class="quick-action-item">
+                <i class="fas fa-credit-card"></i>
+                <span>New Plan</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+    <!-- Main Content -->
+    <div class="admin-main">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>
+                <i class="fas fa-user-edit"></i>
+                <span th:text="${user.id == null} ? 'Add New User' : 'Edit User'">User Form</span>
+            </h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@hisaablite.com</span>
             </div>
-            
-            <!-- Form Card -->
-            <div class="form-card">
-                <form th:action="@{/admin/users/save}" method="post">
-                    <input type="hidden" name="id" th:value="${user.id}">
-                    
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> Full Name *</label>
-                            <input type="text" name="name" th:value="${user.name}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-envelope"></i> Email/Username *</label>
-                            <input type="email" name="username" th:value="${user.username}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> Phone *</label>
-                            <input type="text" name="phone" th:value="${user.phone}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-lock"></i> Password</label>
-                            <input type="password" name="password" 
-                                   th:placeholder="${user.id == null} ? 'Enter password' : 'Leave blank to keep current'">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-tag"></i> Role *</label>
-                            <select name="role" required>
-                                <option value="">Select Role</option>
-                                <option value="OWNER" th:selected="${user.role == 'OWNER'}">Owner</option>
-                                <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
-                                <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-store"></i> Shop *</label>
-                            <select name="shop.id" required>
-                                <option value="">Select Shop</option>
-                                <option th:each="shop : ${shops}" 
-                                        th:value="${shop.id}" 
-                                        th:text="${shop.name}"
-                                        th:selected="${user.shop != null and user.shop.id == shop.id}">
-                                </option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group checkbox-group">
-                            <label>
-                                <input type="checkbox" name="active" th:checked="${user.active != null ? user.active : true}">
-                                <span>Active</span>
-                            </label>
-                        </div>
-                        
-                        <div class="form-group checkbox-group">
-                            <label>
-                                <input type="checkbox" name="approved" th:checked="${user.approved != null ? user.approved : true}">
-                                <span>Approved</span>
-                            </label>
-                        </div>
+        </div>
+        
+        <!-- Form Card -->
+        <div class="form-card">
+            <form th:action="@{/admin/users/save}" method="post">
+                <!-- Hidden ID for edit -->
+                <input type="hidden" name="id" th:value="${user.id}">
+                
+                <div class="form-grid">
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name *</label>
+                        <input type="text" name="name" th:value="${user.name}" placeholder="John Doe" required>
                     </div>
                     
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-save"></i> Save User
-                        </button>
-                        <a href="/admin/users" class="btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                    <!-- Email/Username -->
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email/Username *</label>
+                        <input type="email" name="username" th:value="${user.username}" placeholder="john@example.com" required>
                     </div>
-                </form>
+                    
+                    <!-- Phone -->
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Phone *</label>
+                        <input type="text" name="phone" th:value="${user.phone}" placeholder="9876543210" required>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" name="password" 
+                               th:placeholder="${user.id == null} ? 'Enter password' : 'Leave blank to keep current'"
+                               th:required="${user.id == null}">
+                    </div>
+                    
+                    <!-- Role -->
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Role *</label>
+                        <select name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="OWNER" th:selected="${user.role == 'OWNER'}">Owner</option>
+                            <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                            <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Shop -->
+                    <div class="form-group">
+                        <label><i class="fas fa-store"></i> Shop *</label>
+                        <select name="shop.id" required>
+                            <option value="">Select Shop</option>
+                            <option th:each="shop : ${shops}" 
+                                    th:value="${shop.id}" 
+                                    th:text="${shop.name}"
+                                    th:selected="${user.shop != null and user.shop.id == shop.id}">
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Active Status -->
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" name="active" th:checked="${user.active != null ? user.active : true}">
+                            <span>Active</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Approved Status -->
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" name="approved" th:checked="${user.approved != null ? user.approved : true}">
+                            <span>Approved</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> 
+                        <span th:text="${user.id == null} ? 'Save User' : 'Update User'">Save User</span>
+                    </button>
+                    <a th:href="@{/admin/users}" class="btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>v2.0.0</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <span class="version"><i class="fas fa-circle" style="color: #10b981;"></i> Live</span>
             </div>
         </div>
     </div>

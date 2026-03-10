@@ -23,7 +23,7 @@ public class Shop {
     private String name;
 
     @Column(nullable = false, unique = true)
-    private String panNumber;   //  Business Unique Identity
+    private String panNumber;  
 
     private String gstNumber;
 
@@ -49,4 +49,5 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop")
     private List<User> users;
+
 }

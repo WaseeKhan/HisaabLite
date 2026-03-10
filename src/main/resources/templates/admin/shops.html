@@ -350,14 +350,16 @@
             color: white;
         }
 
-        /* ===== TABLE CONTAINER ===== */
+        /* ===== TABLE CONTAINER - FIXED ===== */
         .table-container {
             background: white;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: auto;
             flex: 1;
             margin-bottom: 12px;
+            position: relative;
         }
 
         .data-table {
@@ -365,45 +367,69 @@
             border-collapse: collapse;
             font-size: 11px;
             min-width: 1200px;
+            table-layout: fixed; /* FIXED: Makes columns respect widths */
         }
+
+        /* FIXED: Column width distribution */
+        .data-table th:nth-child(1) { width: 5%; }  /* ID */
+        .data-table th:nth-child(2) { width: 15%; } /* Shop Name */
+        .data-table th:nth-child(3) { width: 15%; } /* Owner */
+        .data-table th:nth-child(4) { width: 8%; }  /* Plan */
+        .data-table th:nth-child(5) { width: 10%; } /* City */
+        .data-table th:nth-child(6) { width: 8%; }  /* Status */
+        .data-table th:nth-child(7) { width: 10%; } /* Created */
+        .data-table th:nth-child(8) { width: 29%; } /* Actions */
 
         .data-table th {
             text-align: left;
-            padding: 10px 8px;
+            padding: 12px 8px;
             background: #f8fafc;
             color: #475569;
             font-weight: 600;
             font-size: 10px;
             text-transform: uppercase;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 2px solid #e2e8f0;
             position: sticky;
             top: 0;
-            background: #f8fafc;
             z-index: 10;
+            white-space: nowrap;
         }
 
         .data-table td {
-            padding: 10px 8px;
+            padding: 12px 8px;
             border-bottom: 1px solid #f1f5f9;
             color: #1e293b;
+            vertical-align: middle;
+            word-break: break-word;
         }
 
         .data-table tbody tr:hover {
             background: #f8fafc;
         }
 
+        .data-table tbody tr td:first-child,
+        .data-table thead tr th:first-child {
+            padding-left: 16px;
+        }
+
+        .data-table tbody tr td:last-child,
+        .data-table thead tr th:last-child {
+            padding-right: 16px;
+        }
+
         .highlight {
-            background-color: #fef9c3;
+            background-color: #fef9c3 !important;
             font-weight: 500;
         }
 
         /* ===== BADGES ===== */
         .badge {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 4px 8px;
             border-radius: 20px;
             font-size: 9px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .badge-premium {
@@ -428,10 +454,11 @@
 
         .status-badge {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 4px 8px;
             border-radius: 20px;
             font-size: 9px;
             font-weight: 500;
+            white-space: nowrap;
         }
 
         .status-active {
@@ -447,26 +474,30 @@
         /* ===== ACTION BUTTONS ===== */
         .actions {
             display: flex;
-            gap: 4px;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
         .btn-icon {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 4px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             color: #64748b;
             background: #f1f5f9;
             text-decoration: none;
-            font-size: 11px;
+            font-size: 12px;
             transition: all 0.15s;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-icon:hover {
             background: #2563eb;
             color: white;
+            transform: translateY(-1px);
         }
 
         .btn-icon.activate:hover {
@@ -515,6 +546,7 @@
             transition: all 0.15s;
             min-width: 28px;
             text-align: center;
+            display: inline-block;
         }
 
         .pagination a:hover {
@@ -588,6 +620,11 @@
             text-align: center;
         }
 
+        .text-muted {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
         .loading {
             opacity: 0.5;
             pointer-events: none;
@@ -659,7 +696,7 @@
             </div>
         </div>
 
-        <!-- Stats Cards - Enhanced like Dashboard -->
+        <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon-wrapper"><i class="fas fa-store"></i></div>
@@ -698,7 +735,7 @@
             </div>
         </div>
 
-        <!-- Action Bar with Live Search -->
+        <!-- Action Bar -->
         <div class="action-bar">
             <a th:href="@{/admin/shops/new}" class="btn-primary">
                 <i class="fas fa-plus"></i> Add New Shop
@@ -707,7 +744,7 @@
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Live search shops (name, city, owner)..." id="liveSearchInput"
+                    <input type="text" placeholder="Search shops..." id="liveSearchInput"
                            th:value="${param.search != null ? param.search[0] : ''}" autocomplete="off">
                 </div>
                 <span class="search-info" id="searchStats"></span>
@@ -718,7 +755,7 @@
             </div>
         </div>
 
-        <!-- Shops Table -->
+        <!-- Shops Table - FIXED -->
         <div class="table-container" id="tableContainer">
             <table class="data-table" id="shopsTable">
                 <thead>
@@ -738,21 +775,16 @@
                         <td th:text="${shop.id}">1</td>
                         <td th:text="${shop.name}">Shop Name</td>
                         <td>
-                            <td>
-    <span th:if="${shop.users != null and !shop.users.isEmpty()}" 
-          th:each="user : ${shop.users}" 
-          th:with="owner=${user.role.name() == 'OWNER' ? user : null}">
-        <span th:if="${owner != null}" th:text="${owner.name}">Owner Name</span>
-        <span th:if="${owner == null and userStat.index == 0}" th:text="${user.name}">User Name</span>
-    </span>
-    <span th:if="${shop.users == null or shop.users.isEmpty()}" class="text-muted">No Owner</span>
-</td>
+                            <span th:if="${shop.users != null and !shop.users.isEmpty()}" 
+                                  th:text="${shop.users[0].name}">Owner Name</span>
+                            <span th:if="${shop.users == null or shop.users.isEmpty()}" 
+                                  class="text-muted">No Owner</span>
                         </td>
                         <td>
                             <span class="badge" th:text="${shop.planType}"
                                   th:classappend="${shop.planType == 'PREMIUM'} ? 'badge-premium' : 
-                                             (${shop.planType == 'BASIC'} ? 'badge-basic' : 
-                                             (${shop.planType == 'ENTERPRISE'} ? 'badge-enterprise' : 'badge-free'))">
+                                                 (${shop.planType == 'BASIC'} ? 'badge-basic' : 
+                                                 (${shop.planType == 'ENTERPRISE'} ? 'badge-enterprise' : 'badge-free'))">
                             </span>
                         </td>
                         <td th:text="${shop.city != null ? shop.city : 'N/A'}">Mumbai</td>
@@ -763,22 +795,22 @@
                         </td>
                         <td th:text="${#temporals.format(shop.createdAt, 'dd-MM-yyyy')}">09-03-2026</td>
                         <td class="actions">
-                            <a th:href="@{'/admin/shops/' + ${shop.id}}" class="btn-icon" title="View">
+                            <a th:href="@{/admin/shops/{id}(id=${shop.id})}" class="btn-icon" title="View">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a th:href="@{'/admin/shops/edit/' + ${shop.id}}" class="btn-icon" title="Edit">
+                            <a th:href="@{/admin/shops/edit/{id}(id=${shop.id})}" class="btn-icon" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a th:if="${!shop.active}" th:href="@{'/admin/shops/activate/' + ${shop.id}}" 
+                            <a th:if="${!shop.active}" th:href="@{/admin/shops/activate/{id}(id=${shop.id})}" 
                                class="btn-icon activate" title="Activate" onclick="return confirm('Activate this shop?')">
                                 <i class="fas fa-play-circle"></i>
                             </a>
-                            <a th:if="${shop.active}" th:href="@{'/admin/shops/suspend/' + ${shop.id}}" 
+                            <a th:if="${shop.active}" th:href="@{/admin/shops/suspend/{id}(id=${shop.id})}" 
                                class="btn-icon suspend" title="Suspend" onclick="return confirm('Suspend this shop?')">
                                 <i class="fas fa-pause-circle"></i>
                             </a>
-                            <a th:href="@{'/admin/shops/delete/' + ${shop.id}}" class="btn-icon delete" 
-                               title="Delete" onclick="return confirm('Permanently delete this shop? All associated data will be lost.')">
+                            <a th:href="@{/admin/shops/delete/{id}(id=${shop.id})}" class="btn-icon delete" 
+                               title="Delete" onclick="return confirm('Delete this shop?')">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
@@ -790,21 +822,18 @@
             </table>
         </div>
 
-        <!-- Pagination (20 per page) -->
+        <!-- Pagination -->
         <div class="pagination" th:if="${totalPages > 0}">
             <div class="pagination-info">
                 Showing <span th:text="${(currentPage * pageSize) + 1}">1</span>
                 to <span th:text="${(currentPage * pageSize) + pageSize <= totalItems ? (currentPage * pageSize) + pageSize : totalItems}">20</span>
                 of <span th:text="${totalItems}">100</span> shops
-                <span th:if="${param.search != null}" style="margin-left: 8px; color: #2563eb;">
-                    (filtered by: "<span th:text="${param.search[0]}">search</span>")
-                </span>
             </div>
             <div class="pagination-controls">
                 <!-- First Page -->
                 <a th:if="${currentPage > 0}" 
                    th:href="@{/admin/shops(page=0, size=20, search=${param.search != null ? param.search[0] : ''})}"
-                    title="First Page">
+                   title="First Page">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
                 <span th:unless="${currentPage > 0}" class="disabled">
@@ -813,8 +842,8 @@
 
                 <!-- Previous Page -->
                 <a th:if="${currentPage > 0}"
-                    th:href="@{/admin/shops(page=${currentPage - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
-                    title="Previous Page">
+                   th:href="@{/admin/shops(page=${currentPage - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   title="Previous Page">
                     <i class="fas fa-angle-left"></i>
                 </a>
                 <span th:unless="${currentPage > 0}" class="disabled">
@@ -824,16 +853,16 @@
                 <!-- Page Numbers -->
                 <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                     <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                        th:href="@{/admin/shops(page=${i}, size=20, search=${param.search != null ? param.search[0] : ''})}" 
-                        th:text="${i + 1}"
-                        th:classappend="${i == currentPage} ? 'active' : ''">1</a>
+                       th:href="@{/admin/shops(page=${i}, size=20, search=${param.search != null ? param.search[0] : ''})}" 
+                       th:text="${i + 1}"
+                       th:classappend="${i == currentPage} ? 'active' : ''">1</a>
                     <span th:if="${i == currentPage + 3 and i < totalPages - 1}" class="disabled">...</span>
                 </th:block>
 
                 <!-- Next Page -->
                 <a th:if="${currentPage < totalPages - 1}"
-                    th:href="@{/admin/shops(page=${currentPage + 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
-                    title="Next Page">
+                   th:href="@{/admin/shops(page=${currentPage + 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   title="Next Page">
                     <i class="fas fa-angle-right"></i>
                 </a>
                 <span th:unless="${currentPage < totalPages - 1}" class="disabled">
@@ -842,8 +871,8 @@
 
                 <!-- Last Page -->
                 <a th:if="${currentPage < totalPages - 1}"
-                    th:href="@{/admin/shops(page=${totalPages - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
-                    title="Last Page">
+                   th:href="@{/admin/shops(page=${totalPages - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   title="Last Page">
                     <i class="fas fa-angle-double-right"></i>
                 </a>
                 <span th:unless="${currentPage < totalPages - 1}" class="disabled">
@@ -866,129 +895,37 @@
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>
                 <a href="#">Support</a>
-                <span class="version"><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live</span>
+                <span class="version"><i class="fas fa-circle" style="color: #10b981;"></i> Live</span>
             </div>
         </div>
     </div>
 
-    <!-- Live Search Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('liveSearchInput');
-            const tableContainer = document.getElementById('tableContainer');
             const searchStats = document.getElementById('searchStats');
             let timeoutId;
-            let previousSearch = '';
-
-            // Get current search from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentSearch = urlParams.get('search');
-            
-            if (currentSearch && searchStats) {
-                searchStats.textContent = `Showing results for "${currentSearch}"`;
-            }
 
             if (searchInput) {
-                // Live search with debounce
-                searchInput.addEventListener('input', function () {
+                searchInput.addEventListener('input', function() {
                     clearTimeout(timeoutId);
                     const searchTerm = this.value.trim();
                     
-                    // Don't search if it's the same as previous
-                    if (searchTerm === previousSearch) {
-                        return;
-                    }
-
-                    // Update stats
-                    if (searchTerm) {
-                        if (searchTerm.length < 2) {
-                            searchStats.textContent = `Type at least 2 characters (${searchTerm.length}/2)`;
-                            tableContainer.classList.remove('loading');
-                        } else {
-                            searchStats.textContent = `Searching for "${searchTerm}"...`;
-                            tableContainer.classList.add('loading');
-                            
-                            timeoutId = setTimeout(() => {
-                                performSearch(searchTerm);
-                                previousSearch = searchTerm;
-                            }, 800);
-                        }
-                    } else {
-                        searchStats.textContent = currentSearch ? `Showing results for "${currentSearch}"` : '';
-                        tableContainer.classList.remove('loading');
-                        if (currentSearch) {
-                            timeoutId = setTimeout(() => {
-                                performSearch('');
-                            }, 500);
-                        }
-                    }
-                });
-
-                // Handle enter key for immediate search
-                searchInput.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        clearTimeout(timeoutId);
-                        const searchTerm = this.value.trim();
+                    timeoutId = setTimeout(() => {
                         if (searchTerm.length >= 2 || searchTerm.length === 0) {
-                            performSearch(searchTerm);
-                            previousSearch = searchTerm;
-                        } else {
-                            searchStats.textContent = `Need at least 2 characters to search`;
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('page', '0');
+                            url.searchParams.set('size', '20');
+                            if (searchTerm.length >= 2) {
+                                url.searchParams.set('search', searchTerm);
+                            } else {
+                                url.searchParams.delete('search');
+                            }
+                            window.location.href = url.toString();
                         }
-                    }
+                    }, 500);
                 });
             }
-
-            function performSearch(searchTerm) {
-                const currentUrl = new URL(window.location.href);
-                const baseUrl = currentUrl.origin + currentUrl.pathname;
-
-                // Build URL with search parameter
-                let url = baseUrl + '?page=0&size=20';
-                if (searchTerm && searchTerm.length >= 2) {
-                    url += '&search=' + encodeURIComponent(searchTerm);
-                }
-
-                // Navigate to search results
-                window.location.href = url;
-            }
-
-            // Highlight search terms in table
-            function highlightSearchTerms() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const searchTerm = urlParams.get('search');
-
-                if (searchTerm && searchTerm.trim()) {
-                    const term = searchTerm.toLowerCase().trim();
-                    const rows = document.querySelectorAll('#shopsTable tbody tr');
-                    
-                    rows.forEach(row => {
-                        if (row.cells && row.cells.length > 1) {
-                            for (let i = 0; i < row.cells.length - 1; i++) {
-                                const cell = row.cells[i];
-                                const text = cell.textContent.toLowerCase();
-                                if (text.includes(term)) {
-                                    cell.classList.add('highlight');
-                                } else {
-                                    cell.classList.remove('highlight');
-                                }
-                            }
-                        }
-                    });
-                    
-                    if (searchStats) {
-                        const visibleRows = document.querySelectorAll('#shopsTable tbody tr:not([style*="display: none"])').length;
-                        if (visibleRows > 0) {
-                            searchStats.textContent = `Found ${visibleRows} results for "${searchTerm}"`;
-                        } else {
-                            searchStats.textContent = `No results found for "${searchTerm}"`;
-                        }
-                    }
-                }
-            }
-
-            // Run highlighting after page load
-            highlightSearchTerms();
         });
     </script>
 </body>

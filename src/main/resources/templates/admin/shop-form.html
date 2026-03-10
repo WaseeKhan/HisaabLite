@@ -1,110 +1,708 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title th:if="${shop.id == null}">Add Shop • HisaabLite Admin</title>
     <title th:if="${shop.id != null}">Edit Shop • HisaabLite Admin</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- CSS -->
-    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .nav-links a:hover i {
+            color: #2563eb;
+        }
+
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #2563eb;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .admin-header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-header h1 i {
+            color: #2563eb;
+            font-size: 13px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #bbf7d0;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            max-width: 700px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2563eb;
+            margin: 20px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            font-size: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-group label i {
+            color: #2563eb;
+            font-size: 10px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group input:read-only {
+            background: #f8fafc;
+            cursor: not-allowed;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-transform: none;
+            font-size: 12px;
+            font-weight: 500;
+            color: #0f172a;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .hint-text {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .hint-text i {
+            color: #2563eb;
+            font-size: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .required::after {
+            content: "*";
+            color: #dc2626;
+            margin-left: 2px;
+        }
+
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            margin: 0 -16px 0 -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #94a3b8;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 9px;
+        }
+
+        .heart {
+            color: #ef4444;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .version {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 7px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .quick-action-item:hover i {
+            color: white;
+        }
+
+        .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="admin-container">
-        <!-- Sidebar -->
-        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='shops')}"></div>
-        
-        <!-- Main Content -->
-        <div class="admin-main">
-            <!-- Header -->
-            <div class="admin-header">
-                <h1>
-                    <i class="fas fa-store-alt"></i>
-                    <span th:text="${shop.id == null} ? 'Add New Shop' : 'Edit Shop'">Shop Form</span>
-                </h1>
-                <div class="admin-user">
-                    <span class="role-badge">ADMIN</span>
-                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
-                </div>
+    <!-- Sidebar -->
+ 
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}" class="active">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/users/new}" class="quick-action-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Add User</span>
+            </a>
+            <a th:href="@{/admin/shops/new}" class="quick-action-item">
+                <i class="fas fa-store-alt"></i>
+                <span>Add Shop</span>
+            </a>
+            <a th:href="@{/admin/subscriptions/new}" class="quick-action-item">
+                <i class="fas fa-credit-card"></i>
+                <span>New Plan</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <div class="admin-header">
+            <h1>
+                <i class="fas fa-store-alt"></i>
+                <span th:text="${shop.id == null} ? 'Add New Shop' : 'Edit Shop'">Add New Shop</span>
+            </h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@hisaablite.com</span>
             </div>
-            
-            <!-- Form Card -->
-            <div class="form-card">
-                <form th:action="@{/admin/shops/save}" method="post">
-                    <input type="hidden" name="id" th:value="${shop.id}">
-                    
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label><i class="fas fa-store"></i> Shop Name *</label>
-                            <input type="text" name="name" th:value="${shop.name}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-map-pin"></i> Address</label>
-                            <input type="text" name="address" th:value="${shop.address}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-city"></i> City</label>
-                            <input type="text" name="city" th:value="${shop.city}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-map"></i> State</label>
-                            <input type="text" name="state" th:value="${shop.state}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-mail-bulk"></i> Pincode</label>
-                            <input type="text" name="pincode" th:value="${shop.pincode}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-file-invoice"></i> GST Number</label>
-                            <input type="text" name="gstNumber" th:value="${shop.gstNumber}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-id-card"></i> PAN Number</label>
-                            <input type="text" name="panNumber" th:value="${shop.panNumber}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-credit-card"></i> UPI ID</label>
-                            <input type="text" name="upiId" th:value="${shop.upiId}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label><i class="fas fa-crown"></i> Plan Type</label>
-                            <select name="planType">
-                                <option th:each="plan : ${planTypes}" 
-                                        th:value="${plan}" 
-                                        th:text="${plan}"
-                                        th:selected="${shop.planType == plan}">
-                                </option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group checkbox-group">
-                            <label>
-                                <input type="checkbox" name="active" th:checked="${shop.active != null ? shop.active : true}">
-                                <span>Active</span>
-                            </label>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${errors != null and not #lists.isEmpty(errors)}" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>
+                <strong>Please fix the following errors:</strong>
+                <ul style="margin-top: 4px; margin-left: 16px;">
+                    <li th:each="error : ${errors}" th:text="${error}"></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div th:if="${success != null}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}">Shop saved successfully</span>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <form th:action="@{/admin/shops/save}" method="post">
+                <!-- Hidden ID -->
+                <input type="hidden" name="id" th:value="${shop.id}">
+
+                <!-- Shop Details Section -->
+                <div class="section-title">
+                    <i class="fas fa-store"></i> Shop Details
+                </div>
+
+                <div class="form-grid">
+                    <!-- Shop Name - FIXED: name="name" matches entity field -->
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-store"></i> Shop Name <span class="required"></span></label>
+                        <input type="text" name="name" th:value="${shop.name}" placeholder="Enter shop name" required>
+                    </div>
+
+                    <!-- PAN Number -->
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> PAN Number <span class="required"></span></label>
+                        <input type="text" name="panNumber" th:value="${shop.panNumber}" placeholder="ABCDE1234F"
+                            required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                            title="Please enter a valid PAN number (e.g., ABCDE1234F)">
+                    </div>
+
+                    <!-- GST Number -->
+                    <div class="form-group">
+                        <label><i class="fas fa-file-invoice"></i> GST Number</label>
+                        <input type="text" name="gstNumber" th:value="${shop.gstNumber}" placeholder="27ABCDE1234F1Z5"
+                            pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}"
+                            title="Please enter a valid GST number">
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-map-pin"></i> Address</label>
+                        <input type="text" name="address" th:value="${shop.address}" placeholder="Enter street address">
+                    </div>
+
+                    <!-- City -->
+                    <div class="form-group">
+                        <label><i class="fas fa-city"></i> City</label>
+                        <input type="text" name="city" th:value="${shop.city}" placeholder="Enter city">
+                    </div>
+
+                    <!-- State -->
+                    <div class="form-group">
+                        <label><i class="fas fa-map"></i> State</label>
+                        <input type="text" name="state" th:value="${shop.state}" placeholder="Enter state">
+                    </div>
+
+                    <!-- Pincode -->
+                    <div class="form-group">
+                        <label><i class="fas fa-mail-bulk"></i> Pincode</label>
+                        <input type="text" name="pincode" th:value="${shop.pincode}" placeholder="Enter pincode"
+                            pattern="[0-9]{6}" title="Please enter a valid 6-digit pincode">
+                    </div>
+
+                    <!-- UPI ID -->
+                    <div class="form-group">
+                        <label><i class="fas fa-credit-card"></i> UPI ID</label>
+                        <input type="text" name="upiId" th:value="${shop.upiId}" placeholder="shop@okhdfcbank">
+                    </div>
+
+                    <!-- Plan Type -->
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Plan Type <span class="required"></span></label>
+                        <select name="planType" required>
+                            <option value="">Select Plan</option>
+                            <option th:each="plan : ${planTypes}" th:value="${plan}" th:text="${plan}"
+                                th:selected="${shop.planType == plan}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Active Status - FIXED: Proper checkbox handling -->
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" name="active" value="true" th:checked="${shop.active}">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                            <span>Active Shop</span>
+                        </label>
+                        <!-- Hidden field to handle unchecked state -->
+                        <input type="hidden" name="_active" value="on">
+                        <div class="hint-text">
+                            <i class="fas fa-info-circle"></i> Inactive shops cannot be accessed by users
                         </div>
                     </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-save"></i> Save Shop
-                        </button>
-                        <a href="/admin/shops" class="btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                </div>
+
+               
+                <div th:if="${shop.id == null}" class="section-title" style="color: #059669;">
+                    <i class="fas fa-user-plus"></i> Create Owner Account
+                </div>
+
+                <div th:if="${shop.id == null}" class="form-grid">
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-user"></i> Owner Name <span class="required"></span></label>
+                        <input type="text" name="ownerName" placeholder="Enter owner full name" required>
+                        <div class="hint-text">
+                            <i class="fas fa-info-circle"></i> Owner will have full access to manage this shop
+                        </div>
                     </div>
-                </form>
+
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email <span class="required"></span></label>
+                        <input type="email" name="ownerEmail" placeholder="owner@example.com" required>
+                    </div>
+
+                   
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Phone <span class="required"></span></label>
+                        <input type="tel" name="ownerPhone" placeholder="9876543210" required pattern="[0-9]{10}"
+                            title="Please enter a valid 10-digit phone number">
+                    </div>
+
+                   
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" name="password" placeholder="Leave blank for default password">
+                        <div class="hint-text">
+                            <i class="fas fa-info-circle"></i> Default password: <strong>hisaablite@123</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Mode Note (No owner creation) -->
+                <div th:if="${shop.id != null}" class="alert alert-info"
+                    style="background: #e0f2fe; color: #0369a1; padding: 8px 12px; border-radius: 6px; margin-top: 16px; font-size: 11px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Owner details cannot be modified here. To change owner information, please use the Users
+                        section.</span>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${shop.id == null} ? 'Save Shop' : 'Update Shop'">Save Shop</span>
+                    </button>
+                    <a th:href="@{/admin/shops}" class="btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>v2.0.0</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <span class="version">
+                    <i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live
+                </span>
             </div>
         </div>
     </div>
 </body>
+
 </html>

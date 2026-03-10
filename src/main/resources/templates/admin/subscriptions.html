@@ -372,14 +372,15 @@
             color: #0f172a;
         }
 
+        /* ===== FIXED: Action buttons with Edit and Delete ===== */
         .plan-actions {
             display: flex;
-            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
         }
 
-        .btn-edit {
-            background: #f1f5f9;
-            color: #475569;
+        .btn-action {
+            flex: 1;
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 11px;
@@ -387,15 +388,39 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.15s;
-            width: 100%;
             justify-content: center;
+            gap: 4px;
+            transition: all 0.15s;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .btn-action i {
+            font-size: 10px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-edit {
+            background: #f1f5f9;
+            color: #475569;
         }
 
         .btn-edit:hover {
-            background: #2563eb;
-            color: white;
+            background: #2563eb !important;
+            color: white !important;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626 !important;
+            color: white !important;
         }
 
         /* ===== STATS CARD ===== */
@@ -622,10 +647,28 @@
                         </li>
                     </ul>
 
+                    <!-- FIXED: Action buttons with Edit and Delete + Confirmation Popup -->
                     <div class="plan-actions">
-                        <a th:href="@{'/admin/subscriptions/edit/' + ${plan.planName}}" class="btn-edit">
+                        <a th:href="@{'/admin/subscriptions/edit/' + ${plan.planName}}" 
+                           class="btn-action btn-edit">
                             <i class="fas fa-edit"></i> Edit
                         </a>
+                        
+                        <!-- FIXED: Delete button with proper Thymeleaf syntax -->
+                        <a th:if="${plan.id != null}" 
+                           th:href="@{'/admin/subscriptions/delete/' + ${plan.id}}" 
+                           class="btn-action btn-delete"
+                           th:onclick="'return confirm(\'⚠️ DELETE PLAN\n\nAre you sure you want to delete the ' + \'' + ${plan.planName} + '\' + ' plan?\n\nThis action cannot be undone!\');'">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        
+                        <!-- For default plans without ID -->
+                        <span th:if="${plan.id == null}" 
+                              class="btn-action btn-delete" 
+                              style="opacity: 0.5; cursor: not-allowed;"
+                              onclick="alert('Default plans cannot be deleted. Please add custom plans instead.')">
+                            <i class="fas fa-trash"></i> Delete
+                        </span>
                     </div>
                 </div>
             </div>
@@ -652,7 +695,7 @@
             </div>
         </div>
 
-                <!-- Spacer to push footer down -->
+        <!-- Spacer to push footer down -->
         <div style="flex: 1; min-height: 50px;"></div>
 
         <!-- Footer -->

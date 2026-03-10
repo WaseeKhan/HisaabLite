@@ -1,36 +1,54 @@
 package com.hisaablite.admin.repository;
 
 import com.hisaablite.entity.User;
+import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.Role;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;  // Fixed import - should be from spring.data.domain
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public interface AdminUserRepository extends JpaRepository<User, Long> {
     
+    // ===== BASIC COUNTS =====
     long countByApprovedFalse();
     long countByActiveTrue();
-
-    Page<User> findAll(Pageable pageable);  // This will work with correct Pageable
     
+    // ===== EXISTENCE CHECKS =====
+    boolean existsByUsername(String username);
+    boolean existsByPhone(String phone);
+    
+    // ===== FIND BY USERNAME =====
+    Optional<User> findByUsername(String username);
+    
+    // ===== PAGINATION =====
+    Page<User> findAll(Pageable pageable);
+    
+    // ===== SEARCH =====
     @Query("SELECT u FROM User u WHERE " +
            "LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(u.phone) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<User> searchUsers(@Param("search") String search, Pageable pageable);
     
+    // ===== FETCH WITH SHOP =====
     @Query("SELECT u FROM User u JOIN FETCH u.shop ORDER BY u.createdAt DESC")
     List<User> findAllUsersWithShop();
     
-    List<User> findByRole(String role);
+    // ===== FIND BY ROLE =====
+    List<User> findByRole(Role role);
     
+    // ===== STATISTICS BY DATE =====
     @Query("SELECT DATE(u.createdAt) as date, COUNT(u) as count " +
            "FROM User u " +
            "WHERE u.createdAt BETWEEN :start AND :end " +
@@ -41,6 +59,7 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
         @Param("end") LocalDateTime end
     );
     
+    // ===== DASHBOARD STATS =====
     @Query("SELECT " +
            "COUNT(u) as totalUsers, " +
            "SUM(CASE WHEN u.active = true THEN 1 ELSE 0 END) as activeUsers, " +
@@ -48,6 +67,17 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
            "FROM User u")
     Map<String, Object> getUserDashboardStats();
     
-    @Query("SELECT u FROM User u ORDER BY u.createdAt DESC LIMIT 10")
-    List<User> findTop5ByOrderByCreatedAtDesc();
+   
+    @Query("SELECT u FROM User u ORDER BY u.createdAt DESC")
+    List<User> findTop10ByOrderByCreatedAtDesc(Pageable pageable);
+   
+    default List<User> findTop5ByOrderByCreatedAtDesc() {
+        return findTop10ByOrderByCreatedAtDesc(PageRequest.of(0, 5));
+    }
+    
+    // ===== FIND BY SHOP =====
+    List<User> findByShop(Shop shop);
+    
+    // ===== COUNT BY SHOP AND ROLE =====
+    long countByShopAndRole(Shop shop, Role role);
 }

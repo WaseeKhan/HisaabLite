@@ -127,6 +127,7 @@
             text-transform: uppercase;
             padding: 0 10px 4px 10px;
         }
+        
 
         .quick-action-item {
             display: flex;
@@ -514,6 +515,7 @@
             align-items: center;
             font-size: 8px;
             color: #94a3b8;
+            
         }
 
         .footer-left {
@@ -662,7 +664,7 @@
             </div>
         </div>
 
-        <!-- Plan Distribution Cards (from database) -->
+       
         <div class="plan-stats-grid" th:if="${stats.popularPlans != null}">
             <div class="plan-card" th:each="plan : ${stats.popularPlans}" 
                  th:classappend="'plan-' + ${#strings.toLowerCase(plan.planName)}">
@@ -718,13 +720,13 @@
 
         <!-- Tables with Recent 5 Records -->
         <div class="tables-grid">
-            <!-- Recent Shops - Last 10 -->
+            <!-- Recent Shops - Last 5 -->
             <div class="table-card">
                 <div class="table-header">
                     <h3>
                         <i class="fas fa-store-alt"></i>
                         Recent Shops
-                        <span class="recent-badge">Last 10</span>
+                        <span class="recent-badge">Last 5</span>
                     </h3>
                     <a th:href="@{/admin/shops}" class="view-all">View All</a>
                 </div>
@@ -773,13 +775,13 @@
                 </table>
             </div>
 
-            <!-- Recent Users - Last 10 -->
+            <!-- Recent Users - Last 5 -->
             <div class="table-card">
                 <div class="table-header">
                     <h3>
                         <i class="fas fa-users"></i>
                         Recent Users
-                        <span class="recent-badge">Last 10</span>
+                        <span class="recent-badge">Last 5</span>
                     </h3>
                     <a th:href="@{/admin/users}" class="view-all">View All</a>
                 </div>
