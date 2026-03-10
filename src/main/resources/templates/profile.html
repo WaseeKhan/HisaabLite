@@ -4,7 +4,9 @@
 <head>
     <title>Shop Profile • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
@@ -462,30 +464,31 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .form-group.full-width {
                 grid-column: span 1;
             }
-            
+
             .info-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .info-item.full-width {
                 grid-column: span 1;
             }
-            
+
             .action-buttons {
                 flex-direction: column;
             }
-            
+
             .footer {
                 flex-direction: column;
                 gap: 12px;
                 text-align: center;
             }
-            
-            .footer-left, .footer-right {
+
+            .footer-left,
+            .footer-right {
                 flex-wrap: wrap;
                 justify-content: center;
             }
@@ -494,9 +497,11 @@
         ::-webkit-scrollbar {
             width: 4px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 10px;
@@ -515,8 +520,10 @@
 
         <div class="nav-links">
             <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i> Products</a>
+            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
+                    class="fas fa-cash-register"></i> Billing</a>
+            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
+                Products</a>
             <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
             <a class="active" th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
@@ -529,7 +536,7 @@
 
     <!-- ===== MAIN CONTENT ===== -->
     <div class="main">
-        
+
         <!-- PAGE HEADER -->
         <div class="page-header">
             <h2><i class="fas fa-store"></i> Shop Profile</h2>
@@ -537,32 +544,33 @@
 
         <!-- PROFILE CARD -->
         <div class="profile-card">
-            
+
             <!-- READ-ONLY INFO SECTION -->
             <div class="info-grid">
                 <div class="info-item full-width">
                     <span class="info-label"><i class="fas fa-store"></i> Shop Name</span>
                     <div class="info-value" th:text="${shop.name}">Shop Name</div>
                 </div>
-                
+
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-id-card"></i> PAN Number (Immutable)</span>
                     <div class="info-value immutable" th:text="${shop.panNumber}">ABCDE1234F</div>
                 </div>
-                
+
                 <div class="info-item">
                     <span class="info-label"><i class="far fa-building"></i> Business ID</span>
                     <div class="info-value immutable" th:text="'HL' + ${shop.id}">HL12345</div>
                 </div>
-                
+
                 <div class="info-item" th:if="${shop.createdAt}">
                     <span class="info-label"><i class="far fa-calendar"></i> Member Since</span>
-                    <div class="info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
+                    <div class="info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026
+                    </div>
                 </div>
-                
+
                 <div class="info-item">
-                    <span class="info-label"><i class="far fa-gem"></i> Subscription Plan</span>
-                    <div class="info-value" th:text="${shop.subscriptionPlan}">Premium</div>
+                    <span class="info-label"><i class="fas fa-crown"></i> Subscription Plan</span>
+                    <div class="info-value" th:text="${planType}">PREMIUM</div>
                 </div>
 
                 <!-- CHANGE PASSWORD LINK - ADDED HERE (RIGHT SIDE OF SUBSCRIPTION) -->
@@ -581,7 +589,7 @@
 
             <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
                 <div class="form-grid">
-                    
+
                     <!-- GST Number -->
                     <div class="form-group">
                         <label><i class="fas fa-file-invoice"></i> GST Number</label>
@@ -597,7 +605,8 @@
                     <!-- Address (Full Width) -->
                     <div class="form-group full-width">
                         <label><i class="fas fa-map-pin"></i> Address</label>
-                        <input type="text" th:field="*{address}" th:value="${shop.address}" placeholder="Enter street address" />
+                        <input type="text" th:field="*{address}" th:value="${shop.address}"
+                            placeholder="Enter street address" />
                     </div>
 
                     <!-- City -->
@@ -615,7 +624,8 @@
                     <!-- Pincode -->
                     <div class="form-group">
                         <label><i class="fas fa-mail-bulk"></i> Pincode</label>
-                        <input type="text" th:field="*{pincode}" th:value="${shop.pincode}" placeholder="Enter pincode" />
+                        <input type="text" th:field="*{pincode}" th:value="${shop.pincode}"
+                            placeholder="Enter pincode" />
                     </div>
 
                     <!-- Empty div for grid spacing -->
@@ -648,7 +658,8 @@
                 <a href="#">Terms</a>
                 <a href="#">Support</a>
                 <span class="version">v1.3.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
+                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
+                    operational</span>
             </div>
         </div>
     </div>

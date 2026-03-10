@@ -12,7 +12,6 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        /* ALL EXISTING STYLES REMAIN SAME - upar wale */
         * {
             margin: 0;
             padding: 0;
@@ -28,7 +27,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar styles (same) */
+
         .sidebar {
             width: 240px;
             background: #ffffff;
@@ -640,7 +639,7 @@
             color: #059669;
         }
 
-        /* Rest of styles remain same */
+  
         .footer {
             background: white;
             border-top: 1px solid #e9eef2;
@@ -749,7 +748,7 @@
             display: inline-block;
         }
 
-        /* Popup styles */
+     
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -933,13 +932,14 @@
                 <span class="divider"></span>
                 <span><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
                 <span class="divider"></span>
-                <span><i class="far fa-gem"></i> <span th:text="${shop.subscriptionPlan}"></span></span>
+                <span><i class="far fa-gem"></i></i> <span th:text="${planType}">PREMIUM</span></span>
             </div>
         </div>
 
         <div class="billing-layout">
             <!-- LEFT PANEL -->
             <div class="left-panel">
+                <!-- Search Section (Outside Form) -->
                 <div class="section">
                     <div class="section-header"><i class="fas fa-search"></i><span>Search products</span></div>
                     <div class="search-wrapper">
@@ -954,49 +954,74 @@
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-user"></i><span>Customer details</span></div>
-                    <div class="form-row">
-                        <div class="field"><label>Name</label><input type="text" name="customerName"
-                                placeholder="Walk-in customer" /></div>
-                        <div class="field"><label>Phone</label><input type="text" name="customerPhone"
-                                placeholder="—" /></div>
-                    </div>
-                </div>
+               
+                <form id="billingForm" th:action="@{/sales/complete}" method="post">
 
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-credit-card"></i><span>Payment & discount</span></div>
-                    <form id="billingForm" th:action="@{/sales/complete}" method="post">
+                    <div class="section">
+                        <div class="section-header"><i class="fas fa-user"></i><span>Customer details</span></div>
+                        <div class="form-row">
+                            <div class="field" style="margin-bottom: 10px;">
+                                <label>Name</label>
+                                <input type="text" name="customerName" placeholder="Walk-in customer" />
+                            </div>
+                            <div class="field">
+                                <label>Phone</label>
+                                <input type="text" name="customerPhone" placeholder="—" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment & Discount Section -->
+                    <div class="section">
+                        <div class="section-header"><i class="fas fa-credit-card"></i><span>Payment & discount</span>
+                        </div>
 
                         <div class="discount-grid">
-                            <div class="field"><label>Discount ₹</label><input type="number" id="discountAmount"
-                                    name="discountAmount" placeholder="0" value="0" min="0" /></div>
-                            <div class="field"><label>Discount %</label><input type="number" id="discountPercent"
-                                    name="discountPercent" placeholder="0" value="0" min="0" max="100" /></div>
+                            <div class="field">
+                                <label>Discount ₹</label>
+                                <input type="number" id="discountAmount" name="discountAmount" placeholder="0" value="0"
+                                    min="0" />
+                            </div>
+                            <div class="field">
+                                <label>Discount %</label>
+                                <input type="number" id="discountPercent" name="discountPercent" placeholder="0"
+                                    value="0" min="0" max="100" />
+                            </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="field"><label>Mode</label>
+                            <div class="field">
+                                <label>Mode</label>
                                 <select name="paymentMode">
                                     <option value="CASH">Cash</option>
                                     <option value="UPI">UPI</option>
                                     <option value="CARD">Card</option>
                                 </select>
                             </div>
-                            <div class="field"><label>Received</label><input type="number" id="amountReceived"
-                                    name="amountReceived" placeholder="0" min="0" /></div>
+                            <div class="field">
+                                <label>Received</label>
+                                <input type="number" id="amountReceived" name="amountReceived" placeholder="0"
+                                    min="0" />
+                            </div>
                         </div>
+
                         <input type="hidden" id="changeReturned" name="changeReturned" />
-                        <div class="change-box"><span><i class="fas fa-exchange-alt"></i> Change</span><span>₹ <span
-                                    id="changeAmount">0</span></span></div>
-                        <div class="action-buttons">
-                            <button type="button" class="cancel-btn" onclick="showPopup()"><i
-                                    class="fas fa-times-circle"></i> Cancel Sale</button>
-                            <button type="submit" class="complete-btn"><i class="fas fa-check-circle"></i>
-                                Complete</button>
+
+                        <div class="change-box">
+                            <span><i class="fas fa-exchange-alt"></i> Change</span>
+                            <span>₹ <span id="changeAmount">0</span></span>
                         </div>
-                    </form>
-                </div>
+
+                        <div class="action-buttons">
+                            <button type="button" class="cancel-btn" onclick="showPopup()">
+                                <i class="fas fa-times-circle"></i> Cancel Sale
+                            </button>
+                            <button type="submit" class="complete-btn">
+                                <i class="fas fa-check-circle"></i> Complete
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
 
             <!-- RIGHT PANEL -->
@@ -1007,7 +1032,7 @@
                 </div>
                 <div class="cart-scroll" id="cartContainer"></div>
 
-                <!-- ✅ FIXED TOTAL BOX - Now matches Invoice -->
+                <!-- TOTAL BOX -->
                 <div class="total-box" id="totalBox">
                     <!-- Taxable Amount -->
                     <div class="total-line" id="taxableRow">
@@ -1032,8 +1057,6 @@
                         <span>Total GST</span>
                         <span>₹ <span id="totalGstAmount">0.00</span></span>
                     </div>
-
-                    <!-- Subtotal (without GST) - Already shown as Taxable -->
 
                     <!-- Discount -->
                     <div class="total-line discount" id="discountRow" style="display: none;">
@@ -1124,7 +1147,7 @@
 
         // ========== MAIN BILLING LOGIC ==========
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("✅ Billing page loaded");
+            console.log("Billing page loaded");
 
             const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
             const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
@@ -1141,7 +1164,7 @@
             const changeAmount = document.getElementById("changeAmount");
             const changeReturned = document.getElementById("changeReturned");
 
-            // ✅ GST elements
+            // GST elements
             const taxableAmount = document.getElementById("taxableAmount");
             const cgstAmount = document.getElementById("cgstAmount");
             const sgstAmount = document.getElementById("sgstAmount");
@@ -1157,12 +1180,11 @@
 
             if (searchInput) searchInput.focus();
 
-            // ✅ FIXED: Calculate GST totals
+            // Calculate GST totals
             function calculateGST() {
                 let totalTaxable = 0;
                 let totalGst = 0;
 
-                // Get cart from session or use current UI
                 const cart = window.currentCart || [];
 
                 cart.forEach(item => {
@@ -1176,7 +1198,6 @@
                     totalGst += gst;
                 });
 
-                // Update GST fields
                 if (taxableAmount) taxableAmount.innerText = totalTaxable.toFixed(2);
                 if (totalGstAmount) totalGstAmount.innerText = totalGst.toFixed(2);
                 if (cgstAmount) cgstAmount.innerText = (totalGst / 2).toFixed(2);
@@ -1185,11 +1206,10 @@
                 return { totalTaxable, totalGst };
             }
 
-            // ✅ FIXED: calculateChange with correct discount on FINAL total
+          
             function calculateChange() {
                 const { totalTaxable, totalGst } = calculateGST();
 
-                // Final amount before discount = Taxable + GST
                 const finalBeforeDiscount = totalTaxable + totalGst;
 
                 const discAmt = parseFloat(discountAmount?.value) || 0;
@@ -1197,7 +1217,6 @@
 
                 let finalDiscount = discAmt;
                 if (discPct > 0) {
-                    // ✅ DISCOUNT SHOULD APPLY ON FINAL AMOUNT (WITH GST)
                     finalDiscount = (finalBeforeDiscount * discPct) / 100;
                 }
 
@@ -1224,7 +1243,7 @@
                 if (el) el.addEventListener("input", calculateChange);
             });
 
-            // Search functionality (same as before)
+            // Search functionality
             if (searchInput) {
                 searchInput.addEventListener("input", function () {
                     const keyword = this.value.trim();
@@ -1310,7 +1329,6 @@
                     .catch(err => { console.error("Add error:", err); alert("Failed to add product: " + err.message); });
             }
 
-            // ✅ FIXED: cart UI with correct calculations
             window.currentCart = [];
 
             window.updateCartUI = function (cart) {
@@ -1331,7 +1349,6 @@
                     const subtotal = parseFloat(item.subtotal || 0);
                     const gstPercent = parseFloat(item.gstPercent || 0);
 
-                    // ✅ SHOW TOTAL WITH GST in cart item
                     const totalWithGst = subtotal * (1 + gstPercent / 100);
 
                     html += `
@@ -1361,7 +1378,6 @@
 
             function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-            // Change quantity
             window.changeQty = function (index, change) {
                 if (!csrfToken) { alert("CSRF token missing"); return; }
                 const formData = new URLSearchParams();

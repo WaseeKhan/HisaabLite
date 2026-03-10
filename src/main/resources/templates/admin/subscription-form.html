@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:if="${plan.planName == null}">Add Plan • HisaabLite Admin</title>
+    <title th:if="${plan.planName != null}">Edit Plan • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS -->
+    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='subscriptions')}"></div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-credit-card"></i>
+                    <span th:text="${plan.planName == null} ? 'Add New Plan' : 'Edit Plan'">Plan Form</span>
+                </h1>
+                <div class="admin-user">
+                    <span class="role-badge">ADMIN</span>
+                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+                </div>
+            </div>
+            
+            <!-- Form Card -->
+            <div class="form-card">
+                <form th:action="@{/admin/subscriptions/save}" method="post">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Plan Name *</label>
+                            <input type="text" name="planName" th:value="${plan.planName}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-rupee-sign"></i> Price (₹) *</label>
+                            <input type="number" step="0.01" name="price" th:value="${plan.price}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-clock"></i> Duration (Days) *</label>
+                            <input type="number" name="durationInDays" th:value="${plan.durationInDays}" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-align-left"></i> Description</label>
+                            <textarea name="description" rows="3" th:text="${plan.description}"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-users"></i> Max Users</label>
+                            <input type="number" name="maxUsers" th:value="${plan.maxUsers}" 
+                                   placeholder="-1 for unlimited">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-box"></i> Max Products</label>
+                            <input type="number" name="maxProducts" th:value="${plan.maxProducts}"
+                                   placeholder="-1 for unlimited">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-list"></i> Features (comma separated)</label>
+                            <input type="text" name="features" th:value="${plan.features}">
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" name="active" th:checked="${plan.active != null ? plan.active : true}">
+                                <span>Active</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save Plan
+                        </button>
+                        <a href="/admin/subscriptions" class="btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

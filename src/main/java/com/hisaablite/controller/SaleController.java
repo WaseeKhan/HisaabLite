@@ -25,6 +25,7 @@ import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
 import com.hisaablite.entity.User;
+import com.hisaablite.entity.PlanType;  
 import com.hisaablite.repository.SaleItemRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
@@ -32,10 +33,12 @@ import com.hisaablite.service.ProductService;
 import com.hisaablite.service.SaleService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;  
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/sales")
+@Slf4j 
 public class SaleController {
 
     private final ProductService productService;
@@ -67,6 +70,14 @@ public class SaleController {
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("shop", user.getShop());
         model.addAttribute("role", user.getRole().name());
+        
+     
+        PlanType planType = user.getShop().getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+        
+        log.info("Billing page loaded - Shop: {}, Plan: {}", 
+                user.getShop().getName(), planTypeDisplay);
 
         return "sale-form";
     }
@@ -109,7 +120,7 @@ public class SaleController {
 
                 int newQty = item.getQuantity() + quantity;
 
-                // RECHECK STOCK FOR UPDATED QTY
+           
                 if (newQty > product.getStockQuantity()) {
                     throw new RuntimeException("Not enough stock available");
                 }
@@ -296,6 +307,9 @@ public class SaleController {
         model.addAttribute("salesPage", salesPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("role", user.getRole().name());
+       
+        PlanType planType = user.getShop().getPlanType();
+        model.addAttribute("planType", planType != null ? planType.name() : "FREE");
 
         return "sales-history";
     }

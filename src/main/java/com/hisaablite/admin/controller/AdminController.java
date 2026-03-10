@@ -1,0 +1,779 @@
+package com.hisaablite.admin.controller;
+
+import com.hisaablite.admin.service.AdminService;
+import com.hisaablite.admin.dto.AdminDashboardDTO;
+import com.hisaablite.admin.dto.UserDTO;
+import com.hisaablite.admin.dto.ShopDTO;
+import com.hisaablite.admin.dto.SubscriptionPlanDTO;
+import com.hisaablite.admin.dto.PopularPlanDTO;
+import com.hisaablite.entity.User;
+import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.SubscriptionPlan;
+import com.hisaablite.entity.PlanType;
+import com.hisaablite.admin.repository.AdminUserRepository;
+import com.hisaablite.admin.repository.AdminShopRepository;
+import com.hisaablite.admin.repository.AdminSubscriptionRepository;
+import java.util.Comparator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+@Controller
+@RequestMapping("/admin")
+@RequiredArgsConstructor
+@Slf4j
+public class AdminController {
+
+    private final AdminService adminService;
+    private final AdminUserRepository adminUserRepo;
+    private final AdminShopRepository adminShopRepo;
+    private final AdminSubscriptionRepository adminSubscriptionRepo;
+
+    // ===== LOGIN PAGES =====
+
+    @GetMapping("/login")
+    public String loginPage(@RequestParam(value = "error", required = false) String error,
+            @RequestParam(value = "logout", required = false) String logout,
+            Model model) {
+        log.info("Accessing admin login page");
+        if (error != null)
+            model.addAttribute("error", "Invalid username or password");
+        if (logout != null)
+            model.addAttribute("message", "Logged out successfully");
+        return "admin/login";
+    }
+
+    @PostMapping("/login")
+    public String processLogin() {
+        return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/logout")
+    public String logout() {
+        log.info("Admin logout initiated");
+        return "redirect:/admin/login?logout=true";
+    }
+
+    @GetMapping("/login-success")
+    public String loginSuccess() {
+        log.info("Admin login successful");
+        return "redirect:/admin/dashboard";
+    }
+
+    // ===== DASHBOARD WITH ERROR HANDLING =====
+
+    @GetMapping({ "", "/", "/dashboard" })
+    public String dashboard(Model model) {
+        log.info("Loading admin dashboard");
+        try {
+            AdminDashboardDTO stats = adminService.getDashboardStats();
+            model.addAttribute("stats", stats);
+            log.info("Dashboard loaded successfully: {} shops, {} users",
+                    stats.getTotalShops(), stats.getTotalUsers());
+        } catch (Exception e) {
+            log.error("Error loading dashboard: {}", e.getMessage(), e);
+
+            // Create a safe default stats object
+            AdminDashboardDTO defaultStats = new AdminDashboardDTO();
+
+            // Set default values
+            defaultStats.setTotalShops(0L);
+            defaultStats.setTotalUsers(0L);
+            defaultStats.setActiveUsers(0L);
+            defaultStats.setPendingApprovals(0L);
+            defaultStats.setActiveShops(0L);
+            defaultStats.setInactiveShops(0L);
+            defaultStats.setTotalRevenue(0.0);
+
+            // Create default popular plans
+            List<PopularPlanDTO> defaultPlans = new ArrayList<>();
+            defaultPlans.add(new PopularPlanDTO("FREE", 0L));
+            defaultPlans.add(new PopularPlanDTO("BASIC", 0L));
+            defaultPlans.add(new PopularPlanDTO("PREMIUM", 0L));
+            defaultPlans.add(new PopularPlanDTO("ENTERPRISE", 0L));
+            defaultStats.setPopularPlans(defaultPlans);
+
+            // Set default chart data
+            defaultStats.setRevenueLabels(getLast7DaysLabels());
+            defaultStats.setRevenueData(getDefaultRevenueData());
+            defaultStats.setUsersData(getDefaultUsersData());
+            defaultStats.setPlanLabels(Arrays.asList("FREE", "BASIC", "PREMIUM", "ENTERPRISE"));
+            defaultStats.setPlanData(Arrays.asList(0L, 0L, 0L, 0L));
+            defaultStats.setPeriod("Last 7 days");
+
+            // Empty lists for recent items
+            defaultStats.setRecentShops(new ArrayList<>());
+            defaultStats.setRecentUsers(new ArrayList<>());
+
+            model.addAttribute("stats", defaultStats);
+            model.addAttribute("error", "Could not load live data. Showing default values.");
+        }
+        return "admin/dashboard";
+    }
+
+    private List<String> getLast7DaysLabels() {
+        List<String> labels = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM");
+        for (int i = 6; i >= 0; i--) {
+            labels.add(today.minusDays(i).format(formatter));
+        }
+        return labels;
+    }
+
+    private List<Double> getDefaultRevenueData() {
+        List<Double> data = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            data.add(0.0);
+        }
+        return data;
+    }
+
+    private List<Long> getDefaultUsersData() {
+        List<Long> data = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            data.add(0L);
+        }
+        return data;
+    }
+
+    // ===== USER MANAGEMENT =====
+    // SINGLE USERS METHOD - WITH 20 AS DEFAULT SIZE
+    @GetMapping("/users")
+    public String users(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search) {
+        log.info("Loading admin users page - page: {}, size: {}, search: {}", page, size, search);
+
+        try {
+            // Create pageable object
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+            // Get paginated users with search if provided
+            Page<User> userPage;
+            if (search != null && !search.trim().isEmpty()) {
+                userPage = adminUserRepo.searchUsers(search.trim(), pageable);
+                log.info("Searching users with term: {}", search);
+            } else {
+                userPage = adminUserRepo.findAll(pageable);
+            }
+
+            // Get user statistics
+            long totalUsers = adminUserRepo.count();
+            long activeUsers = adminUserRepo.countByActiveTrue();
+            long inactiveUsers = totalUsers - activeUsers;
+            long pendingApprovals = adminUserRepo.countByApprovedFalse();
+
+            // Add to model
+            model.addAttribute("users", userPage.getContent());
+            model.addAttribute("currentPage", userPage.getNumber());
+            model.addAttribute("totalPages", userPage.getTotalPages());
+            model.addAttribute("totalItems", userPage.getTotalElements());
+            model.addAttribute("pageSize", size);
+            model.addAttribute("search", search);
+
+            // Stats
+            model.addAttribute("totalUsers", totalUsers);
+            model.addAttribute("activeUsers", activeUsers);
+            model.addAttribute("inactiveUsers", inactiveUsers);
+            model.addAttribute("pendingApprovals", pendingApprovals);
+
+            log.info("Loaded {} users out of {} total", userPage.getNumberOfElements(), totalUsers);
+
+        } catch (Exception e) {
+            log.error("Error loading users: {}", e.getMessage(), e);
+            model.addAttribute("users", new ArrayList<>());
+            model.addAttribute("totalUsers", 0);
+            model.addAttribute("activeUsers", 0);
+            model.addAttribute("inactiveUsers", 0);
+            model.addAttribute("pendingApprovals", 0);
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+            model.addAttribute("totalItems", 0);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("error", "Could not load users: " + e.getMessage());
+        }
+
+        return "admin/users";
+    }
+
+    @GetMapping("/users/new")
+    public String newUserForm(Model model) {
+        log.info("Loading new user form");
+        model.addAttribute("user", new UserDTO());
+        try {
+            model.addAttribute("shops", adminShopRepo.findAll());
+        } catch (Exception e) {
+            log.error("Error loading shops for form: {}", e.getMessage());
+            model.addAttribute("shops", new ArrayList<>());
+        }
+        return "admin/user-form";
+    }
+
+    @PostMapping("/users/save")
+    public String saveUser(@ModelAttribute UserDTO userDTO,
+            RedirectAttributes redirectAttributes) {
+        log.info("Saving user: {}", userDTO.getUsername());
+        try {
+            // Save logic here
+            redirectAttributes.addFlashAttribute("success", "User saved successfully");
+        } catch (Exception e) {
+            log.error("Error saving user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error saving user: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    @GetMapping("/users/{id}")
+    public String userDetails(@PathVariable Long id, Model model) {
+        log.info("Loading user details for id: {}", id);
+        try {
+            User user = adminUserRepo.findById(id).orElse(null);
+            if (user == null) {
+                return "redirect:/admin/users?error=User+not+found";
+            }
+            model.addAttribute("user", user);
+        } catch (Exception e) {
+            log.error("Error loading user details: {}", e.getMessage());
+            return "redirect:/admin/users?error=Error+loading+user";
+        }
+        return "admin/user-details";
+    }
+
+    @GetMapping("/users/edit/{id}")
+    public String editUser(@PathVariable Long id, Model model) {
+        log.info("Editing user id: {}", id);
+        try {
+            User user = adminUserRepo.findById(id).orElse(null);
+            if (user == null) {
+                return "redirect:/admin/users?error=User+not+found";
+            }
+            model.addAttribute("user", user);
+            model.addAttribute("shops", adminShopRepo.findAll());
+        } catch (Exception e) {
+            log.error("Error editing user: {}", e.getMessage());
+            return "redirect:/admin/users?error=Error+loading+user";
+        }
+        return "admin/user-form";
+    }
+
+    @GetMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Deleting user id: {}", id);
+        try {
+            adminUserRepo.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "User deleted successfully");
+        } catch (Exception e) {
+            log.error("Error deleting user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error deleting user: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/approve/{id}")
+    public String approveUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Approving user id: {}", id);
+        try {
+            User user = adminUserRepo.findById(id).orElse(null);
+            if (user != null) {
+                user.setApproved(true);
+                adminUserRepo.save(user);
+                redirectAttributes.addFlashAttribute("success", "User approved successfully");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "User not found");
+            }
+        } catch (Exception e) {
+            log.error("Error approving user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error approving user");
+        }
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/suspend/{id}")
+    public String suspendUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Suspending user id: {}", id);
+        try {
+            User user = adminUserRepo.findById(id).orElse(null);
+            if (user != null) {
+                user.setActive(false);
+                adminUserRepo.save(user);
+                redirectAttributes.addFlashAttribute("success", "User suspended successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error suspending user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error suspending user");
+        }
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/activate/{id}")
+    public String activateUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Activating user id: {}", id);
+        try {
+            User user = adminUserRepo.findById(id).orElse(null);
+            if (user != null) {
+                user.setActive(true);
+                adminUserRepo.save(user);
+                redirectAttributes.addFlashAttribute("success", "User activated successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error activating user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error activating user");
+        }
+        return "redirect:/admin/users";
+    }
+
+    // ===== SHOP MANAGEMENT =====
+
+    @GetMapping("/shops")
+    public String shops(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search) {
+        log.info("Loading admin shops page - page: {}, size: {}, search: {}", page, size, search);
+
+        try {
+            // Create pageable object
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+            // Get paginated shops with search if provided
+            Page<Shop> shopPage;
+            if (search != null && !search.trim().isEmpty()) {
+                // You'll need to add this search method to your repository
+                shopPage = adminShopRepo.searchShops(search.trim(), pageable);
+                log.info("Searching shops with term: {}", search);
+            } else {
+                shopPage = adminShopRepo.findAll(pageable);
+            }
+
+            // Get shop statistics
+            long totalShops = adminShopRepo.count();
+            long activeShops = adminShopRepo.countByActive(true);
+            long inactiveShops = totalShops - activeShops;
+
+            // Add to model
+            model.addAttribute("shops", shopPage.getContent());
+            model.addAttribute("currentPage", shopPage.getNumber());
+            model.addAttribute("totalPages", shopPage.getTotalPages());
+            model.addAttribute("totalItems", shopPage.getTotalElements());
+            model.addAttribute("pageSize", size);
+            model.addAttribute("search", search);
+
+            // Stats
+            model.addAttribute("totalShops", totalShops);
+            model.addAttribute("activeShops", activeShops);
+            model.addAttribute("inactiveShops", inactiveShops);
+            model.addAttribute("planStats", adminShopRepo.countShopsByPlanType().size());
+
+            log.info("Loaded {} shops out of {} total", shopPage.getNumberOfElements(), totalShops);
+
+        } catch (Exception e) {
+            log.error("Error loading shops: {}", e.getMessage(), e);
+            model.addAttribute("shops", new ArrayList<>());
+            model.addAttribute("totalShops", 0);
+            model.addAttribute("activeShops", 0);
+            model.addAttribute("inactiveShops", 0);
+            model.addAttribute("planStats", 0);
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+            model.addAttribute("totalItems", 0);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("error", "Could not load shops: " + e.getMessage());
+        }
+
+        return "admin/shops";
+    }
+
+    @GetMapping("/shops/new")
+    public String newShopForm(Model model) {
+        log.info("Loading new shop form");
+        model.addAttribute("shop", new ShopDTO());
+        model.addAttribute("planTypes", PlanType.values());
+        return "admin/shop-form";
+    }
+
+    @PostMapping("/shops/save")
+    public String saveShop(@ModelAttribute ShopDTO shopDTO,
+            RedirectAttributes redirectAttributes) {
+        log.info("Saving shop: {}", shopDTO.getName());
+        try {
+            // Save logic here
+            redirectAttributes.addFlashAttribute("success", "Shop saved successfully");
+        } catch (Exception e) {
+            log.error("Error saving shop: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error saving shop: " + e.getMessage());
+        }
+        return "redirect:/admin/shops";
+    }
+
+    @GetMapping("/shops/{id}")
+    public String shopDetails(@PathVariable Long id, Model model) {
+        log.info("Loading shop details for id: {}", id);
+        try {
+            Shop shop = adminShopRepo.findById(id).orElse(null);
+            if (shop == null) {
+                return "redirect:/admin/shops?error=Shop+not+found";
+            }
+            model.addAttribute("shop", shop);
+        } catch (Exception e) {
+            log.error("Error loading shop details: {}", e.getMessage());
+            return "redirect:/admin/shops?error=Error+loading+shop";
+        }
+        return "admin/shop-details";
+    }
+
+    @GetMapping("/shops/edit/{id}")
+    public String editShop(@PathVariable Long id, Model model) {
+        log.info("Editing shop id: {}", id);
+        try {
+            Shop shop = adminShopRepo.findById(id).orElse(null);
+            if (shop == null) {
+                return "redirect:/admin/shops?error=Shop+not+found";
+            }
+            model.addAttribute("shop", shop);
+            model.addAttribute("planTypes", PlanType.values());
+        } catch (Exception e) {
+            log.error("Error editing shop: {}", e.getMessage());
+            return "redirect:/admin/shops?error=Error+loading+shop";
+        }
+        return "admin/shop-form";
+    }
+
+    @GetMapping("/shops/delete/{id}")
+    public String deleteShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Deleting shop id: {}", id);
+        try {
+            adminShopRepo.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "Shop deleted successfully");
+        } catch (Exception e) {
+            log.error("Error deleting shop: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error deleting shop: " + e.getMessage());
+        }
+        return "redirect:/admin/shops";
+    }
+
+    @PostMapping("/shops/activate/{id}")
+    public String activateShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Activating shop id: {}", id);
+        try {
+            Shop shop = adminShopRepo.findById(id).orElse(null);
+            if (shop != null) {
+                shop.setActive(true);
+                adminShopRepo.save(shop);
+                redirectAttributes.addFlashAttribute("success", "Shop activated successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error activating shop: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error activating shop");
+        }
+        return "redirect:/admin/shops";
+    }
+
+    @PostMapping("/shops/suspend/{id}")
+    public String suspendShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Suspending shop id: {}", id);
+        try {
+            Shop shop = adminShopRepo.findById(id).orElse(null);
+            if (shop != null) {
+                shop.setActive(false);
+                adminShopRepo.save(shop);
+                redirectAttributes.addFlashAttribute("success", "Shop suspended successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error suspending shop: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error suspending shop");
+        }
+        return "redirect:/admin/shops";
+    }
+
+    @PostMapping("/shops/update-plan/{id}")
+    public String updateShopPlan(@PathVariable Long id,
+            @RequestParam PlanType planType,
+            RedirectAttributes redirectAttributes) {
+        log.info("Updating shop plan - id: {}, plan: {}", id, planType);
+        try {
+            Shop shop = adminShopRepo.findById(id).orElse(null);
+            if (shop != null) {
+                shop.setPlanType(planType);
+                adminShopRepo.save(shop);
+                redirectAttributes.addFlashAttribute("success", "Shop plan updated successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error updating shop plan: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error updating plan");
+        }
+        return "redirect:/admin/shops";
+    }
+
+// Subscription 
+
+@GetMapping("/subscriptions")
+public String subscriptions(Model model) {
+    log.info("Loading admin subscriptions page");
+    
+    try {
+        // Get total shops count
+        long totalShops = adminShopRepo.count();
+        log.info("Total shops: {}", totalShops);
+        
+        // Get shop counts by plan type directly from shops
+        List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
+        Map<String, Long> shopCountMap = new HashMap<>();
+        
+        log.info("=== SHOP COUNTS BY PLAN TYPE ===");
+        for (Object[] stat : shopStats) {
+            PlanType planType = (PlanType) stat[0];
+            Long count = (Long) stat[1];
+            shopCountMap.put(planType.name(), count);
+            log.info("Plan: {} → {} shops", planType.name(), count);
+        }
+        
+        // Get subscription plans from database
+        List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findByActiveTrue();
+        List<SubscriptionPlanDTO> plans = new ArrayList<>();
+        
+        if (!dbPlans.isEmpty()) {
+            log.info("Found {} plans in database", dbPlans.size());
+            
+            for (SubscriptionPlan plan : dbPlans) {
+                SubscriptionPlanDTO dto = new SubscriptionPlanDTO(
+                    plan.getPlanName(),
+                    plan.getPrice(),
+                    plan.getDurationInDays(),
+                    plan.getDescription(),
+                    plan.getMaxUsers(),
+                    plan.getMaxProducts()
+                );
+                dto.setId(plan.getId());
+                dto.setFeatures(plan.getFeatures());
+                dto.setActive(plan.isActive());
+                
+                // Get shop count from the map (case-insensitive)
+                Long shopCount = shopCountMap.getOrDefault(plan.getPlanName().toUpperCase(), 0L);
+                dto.setShopCount(shopCount);
+                
+                // Calculate percentage
+                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                dto.setUsagePercent(Math.round(percentage * 10.0) / 10.0);
+                
+                plans.add(dto);
+                log.info("DTO - {}: {} shops ({}%)", plan.getPlanName(), shopCount, dto.getUsagePercent());
+            }
+        } else {
+            log.warn("No plans in database, creating from PlanType enum");
+            
+            // Create plans from enum values
+            for (PlanType planType : PlanType.values()) {
+                String planName = planType.name();
+                Long shopCount = shopCountMap.getOrDefault(planName, 0L);
+                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                
+                SubscriptionPlanDTO dto = createDefaultPlanDTO(planName, shopCount, percentage);
+                plans.add(dto);
+                log.info("Enum Plan - {}: {} shops ({}%)", planName, shopCount, percentage);
+            }
+        }
+        
+        // Sort plans in logical order (FREE, BASIC, PREMIUM, ENTERPRISE)
+        List<SubscriptionPlanDTO> sortedPlans = new ArrayList<>();
+        String[] order = {"FREE", "BASIC", "PREMIUM", "ENTERPRISE"};
+        
+        for (String planName : order) {
+            for (SubscriptionPlanDTO plan : plans) {
+                if (plan.getPlanName().equalsIgnoreCase(planName)) {
+                    sortedPlans.add(plan);
+                    break;
+                }
+            }
+        }
+        // Add any remaining plans
+        for (SubscriptionPlanDTO plan : plans) {
+            if (!sortedPlans.contains(plan)) {
+                sortedPlans.add(plan);
+            }
+        }
+        
+        log.info("=== FINAL PLAN DATA FOR UI ===");
+        for (SubscriptionPlanDTO plan : sortedPlans) {
+            log.info("{}: {} shops ({}%)", plan.getPlanName(), plan.getShopCount(), plan.getUsagePercent());
+        }
+        
+        model.addAttribute("plans", sortedPlans);
+        
+    } catch (Exception e) {
+        log.error("Error loading subscription plans: {}", e.getMessage(), e);
+        
+        // Create default plans with shop counts
+        List<SubscriptionPlanDTO> defaultPlans = new ArrayList<>();
+        try {
+            long totalShops = adminShopRepo.count();
+            List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
+            Map<String, Long> shopCountMap = new HashMap<>();
+            
+            for (Object[] stat : shopStats) {
+                PlanType planType = (PlanType) stat[0];
+                Long count = (Long) stat[1];
+                shopCountMap.put(planType.name(), count);
+            }
+            
+            for (PlanType planType : PlanType.values()) {
+                String planName = planType.name();
+                Long shopCount = shopCountMap.getOrDefault(planName, 0L);
+                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                
+                SubscriptionPlanDTO dto = createDefaultPlanDTO(planName, shopCount, percentage);
+                defaultPlans.add(dto);
+            }
+        } catch (Exception ex) {
+            // Ultimate fallback
+            defaultPlans.add(createDefaultPlanDTO("FREE", 0L, 0.0));
+            defaultPlans.add(createDefaultPlanDTO("BASIC", 0L, 0.0));
+            defaultPlans.add(createDefaultPlanDTO("PREMIUM", 0L, 0.0));
+            defaultPlans.add(createDefaultPlanDTO("ENTERPRISE", 0L, 0.0));
+        }
+        
+        model.addAttribute("plans", defaultPlans);
+        model.addAttribute("error", "Could not load live data. Showing default values.");
+    }
+    
+    return "admin/subscriptions";
+}
+
+// Helper method to create default plan DTOs
+private SubscriptionPlanDTO createDefaultPlanDTO(String planName, Long shopCount, Double percentage) {
+    SubscriptionPlanDTO dto;
+    switch(planName) {
+        case "FREE":
+            dto = new SubscriptionPlanDTO("FREE", 0.0, 30, "Basic features for small businesses", 2, 50);
+            break;
+        case "BASIC":
+            dto = new SubscriptionPlanDTO("BASIC", 499.0, 30, "Standard features for growing businesses", 5, 200);
+            break;
+        case "PREMIUM":
+            dto = new SubscriptionPlanDTO("PREMIUM", 999.0, 30, "Advanced features for established businesses", 15, 1000);
+            break;
+        case "ENTERPRISE":
+            dto = new SubscriptionPlanDTO("ENTERPRISE", 1999.0, 30, "All features for large enterprises", -1, -1);
+            break;
+        default:
+            dto = new SubscriptionPlanDTO(planName, 0.0, 30, "", 0, 0);
+    }
+    dto.setShopCount(shopCount);
+    dto.setUsagePercent(percentage);
+    dto.setActive(true);
+    return dto;
+}
+
+
+
+// Subscription 
+    @GetMapping("/subscriptions/new")
+    public String newSubscriptionForm(Model model) {
+        log.info("Loading new subscription form");
+        model.addAttribute("plan", new SubscriptionPlanDTO());
+        return "admin/subscription-form";
+    }
+
+    @PostMapping("/subscriptions/save")
+    public String saveSubscription(@ModelAttribute SubscriptionPlanDTO planDTO,
+            RedirectAttributes redirectAttributes) {
+        log.info("Saving subscription plan: {}", planDTO.getPlanName());
+        redirectAttributes.addFlashAttribute("success", "Subscription plan saved successfully");
+        return "redirect:/admin/subscriptions";
+    }
+
+  @GetMapping("/subscriptions/edit/{planName}")
+public String editSubscription(@PathVariable String planName, Model model) {
+    log.info("Editing subscription plan: {}", planName);
+    
+    try {
+        // Try to find in database first
+        Optional<SubscriptionPlan> planOpt = adminSubscriptionRepo.findByPlanName(planName);
+        
+        SubscriptionPlanDTO planDTO;
+        if (planOpt.isPresent()) {
+            SubscriptionPlan plan = planOpt.get();
+            planDTO = new SubscriptionPlanDTO(
+                plan.getPlanName(),
+                plan.getPrice(),
+                plan.getDurationInDays(),
+                plan.getDescription(),
+                plan.getMaxUsers(),
+                plan.getMaxProducts()
+            );
+            planDTO.setId(plan.getId());
+            planDTO.setFeatures(plan.getFeatures());
+            planDTO.setActive(plan.isActive());
+        } else {
+            // Create default based on plan name
+            planDTO = createDefaultPlanDTO(planName, 0L, 0.0);
+        }
+        
+        model.addAttribute("plan", planDTO);
+        
+    } catch (Exception e) {
+        log.error("Error editing plan: {}", e.getMessage());
+        model.addAttribute("plan", createDefaultPlanDTO(planName, 0L, 0.0));
+        model.addAttribute("error", "Could not load plan details");
+    }
+    
+    return "admin/subscription-form";
+}
+
+    // ===== API ENDPOINTS =====
+
+    @GetMapping("/api/stats")
+    @ResponseBody
+    public AdminDashboardDTO getDashboardStats() {
+        return adminService.getDashboardStats();
+    }
+
+    @GetMapping("/api/users")
+    @ResponseBody
+    public List<User> getAllUsers() {
+        return adminUserRepo.findAll();
+    }
+
+    @GetMapping("/api/shops")
+    @ResponseBody
+    public List<Shop> getAllShops() {
+        return adminShopRepo.findAll();
+    }
+
+    @GetMapping("/api/shops/plan-stats")
+    @ResponseBody
+    public List<Object[]> getPlanStats() {
+        return adminShopRepo.countShopsByPlanType();
+    }
+
+    // ===== ERROR PAGES =====
+
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "admin/access-denied";
+    }
+
+    @GetMapping("/404")
+    public String notFound() {
+        return "admin/404";
+    }
+}

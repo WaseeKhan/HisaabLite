@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:if="${user.id == null}">Add User • HisaabLite Admin</title>
+    <title th:if="${user.id != null}">Edit User • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS -->
+    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='users')}"></div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-user-edit"></i>
+                    <span th:text="${user.id == null} ? 'Add New User' : 'Edit User'">User Form</span>
+                </h1>
+                <div class="admin-user">
+                    <span class="role-badge">ADMIN</span>
+                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+                </div>
+            </div>
+            
+            <!-- Form Card -->
+            <div class="form-card">
+                <form th:action="@{/admin/users/save}" method="post">
+                    <input type="hidden" name="id" th:value="${user.id}">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" name="name" th:value="${user.name}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email/Username *</label>
+                            <input type="email" name="username" th:value="${user.username}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone *</label>
+                            <input type="text" name="phone" th:value="${user.phone}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Password</label>
+                            <input type="password" name="password" 
+                                   th:placeholder="${user.id == null} ? 'Enter password' : 'Leave blank to keep current'">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Role *</label>
+                            <select name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="OWNER" th:selected="${user.role == 'OWNER'}">Owner</option>
+                                <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                                <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-store"></i> Shop *</label>
+                            <select name="shop.id" required>
+                                <option value="">Select Shop</option>
+                                <option th:each="shop : ${shops}" 
+                                        th:value="${shop.id}" 
+                                        th:text="${shop.name}"
+                                        th:selected="${user.shop != null and user.shop.id == shop.id}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" name="active" th:checked="${user.active != null ? user.active : true}">
+                                <span>Active</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" name="approved" th:checked="${user.approved != null ? user.approved : true}">
+                                <span>Approved</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save User
+                        </button>
+                        <a href="/admin/users" class="btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Admin Dashboard • HisaabLite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== ULTRA COMPACT SIDEBAR ===== */
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .nav-links a:hover i {
+            color: #2563eb;
+        }
+
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #2563eb;
+        }
+
+        .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+
+        .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .quick-action-item:hover i {
+            color: white;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+
+        /* ===== COMPACT TOPBAR ===== */
+        .topbar {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .topbar h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .topbar h1 i {
+            color: #2563eb;
+            font-size: 13px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* ===== COMPACT STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon-wrapper {
+            width: 32px;
+            height: 32px;
+            background: #eef2ff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-title {
+            font-size: 9px;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 7px;
+            color: #94a3b8;
+        }
+
+        /* ===== COMPACT PLAN CARDS ===== */
+        .plan-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .plan-card {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .plan-icon {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .plan-name {
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .plan-count {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .plan-label {
+            font-size: 7px;
+            color: #94a3b8;
+        }
+
+        /* Plan colors */
+        .plan-free .plan-icon { color: #64748b; }
+        .plan-basic .plan-icon { color: #2563eb; }
+        .plan-premium .plan-icon { color: #7c3aed; }
+        .plan-enterprise .plan-icon { color: #dc2626; }
+        
+        .plan-free .plan-name { color: #64748b; }
+        .plan-basic .plan-name { color: #2563eb; }
+        .plan-premium .plan-name { color: #7c3aed; }
+        .plan-enterprise .plan-name { color: #dc2626; }
+
+        /* ===== COMPACT CHARTS ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .chart-header h3 {
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chart-header h3 i {
+            color: #2563eb;
+            font-size: 11px;
+        }
+
+        .chart-badge {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        canvas {
+            height: 120px !important;
+            width: 100% !important;
+        }
+
+        /* ===== COMPACT TABLES ===== */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .table-header h3 {
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .table-header h3 i {
+            color: #2563eb;
+            font-size: 11px;
+        }
+
+        .view-all {
+            font-size: 9px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 2px 6px;
+            border-radius: 20px;
+            background: #eef2ff;
+        }
+
+        .recent-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 7px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 6px 4px 4px 4px;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .admin-table td {
+            padding: 6px 4px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        .admin-table tr:first-child td {
+            background-color: #fefce8;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 4px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 600;
+        }
+
+        .badge-premium { background: #ede9fe; color: #7c3aed; }
+        .badge-basic { background: #dbeafe; color: #2563eb; }
+        .badge-free { background: #f1f5f9; color: #64748b; }
+        .badge-enterprise { background: #fee2e2; color: #dc2626; }
+        .badge-owner { background: #fef3c7; color: #b45309; }
+        .badge-manager { background: #dbeafe; color: #2563eb; }
+        .badge-cashier { background: #d1fae5; color: #059669; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 4px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 500;
+        }
+
+        .status-active { background: #d1fae5; color: #059669; }
+        .status-inactive { background: #fee2e2; color: #dc2626; }
+
+        .actions {
+            display: flex;
+            gap: 2px;
+        }
+
+        .btn-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            background: #f1f5f9;
+            text-decoration: none;
+            font-size: 9px;
+        }
+
+        .btn-icon:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* ===== COMPACT FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            margin: 0 -16px 0 -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #94a3b8;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 9px;
+        }
+
+        .heart {
+            color: #ef4444;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .version {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 7px;
+        }
+
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 4px; }
+    </style>
+</head>
+
+<body>
+    <!-- ===== SIDEBAR WITH PROPER URLS ===== -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}" class="active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/users/new}" class="quick-action-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Add User</span>
+            </a>
+            <a th:href="@{/admin/shops/new}" class="quick-action-item">
+                <i class="fas fa-store-alt"></i>
+                <span>Add Shop</span>
+            </a>
+            <a th:href="@{/admin/subscriptions/new}" class="quick-action-item">
+                <i class="fas fa-credit-card"></i>
+                <span>New Plan</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+            <h1>
+                <i class="fas fa-chart-pie"></i>
+                Admin Dashboard
+            </h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-store"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Shops</div>
+                    <div class="stat-value" th:text="${stats.totalShops}">0</div>
+                    <div class="stat-label">
+                        <span th:text="${stats.activeShops}">0</span> active
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Users</div>
+                    <div class="stat-value" th:text="${stats.totalUsers}">0</div>
+                    <div class="stat-label">
+                        <span th:text="${stats.activeUsers}">0</span> active
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Pending</div>
+                    <div class="stat-value" th:text="${stats.pendingApprovals}">0</div>
+                    <div class="stat-label">Awaiting approval</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Revenue</div>
+                    <div class="stat-value" th:text="${#numbers.formatDecimal(stats.totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</div>
+                    <div class="stat-label">This month</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan Distribution Cards (from database) -->
+        <div class="plan-stats-grid" th:if="${stats.popularPlans != null}">
+            <div class="plan-card" th:each="plan : ${stats.popularPlans}" 
+                 th:classappend="'plan-' + ${#strings.toLowerCase(plan.planName)}">
+                <div class="plan-icon" th:classappend="
+                    ${plan.planName == 'FREE'} ? 'fas fa-gem' : 
+                    (${plan.planName == 'BASIC'} ? 'fas fa-rocket' : 
+                     (${plan.planName == 'PREMIUM'} ? 'fas fa-crown' : 'fas fa-building'))">
+                </div>
+                <div class="plan-name" th:text="${plan.planName}">FREE</div>
+                <div class="plan-count" th:text="${plan.shopCount}">0</div>
+                <div class="plan-label">Shops</div>
+            </div>
+        </div>
+
+        <!-- Charts with Real Data -->
+        <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>
+                        <i class="fas fa-chart-line"></i>
+                        Revenue Trend
+                    </h3>
+                    <span class="chart-badge" th:text="${stats.period}">Last 7 days</span>
+                </div>
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+            <!-- Plan Distribution Pie Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>
+                        <i class="fas fa-chart-pie"></i>
+                        Plan Distribution
+                    </h3>
+                    <span class="chart-badge">Current</span>
+                </div>
+                <canvas id="planChart"></canvas>
+            </div>
+
+            <!-- Users Growth Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>
+                        <i class="fas fa-user-plus"></i>
+                        User Growth
+                    </h3>
+                    <span class="chart-badge" th:text="${stats.period}">Last 7 days</span>
+                </div>
+                <canvas id="usersChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tables with Recent 5 Records -->
+        <div class="tables-grid">
+            <!-- Recent Shops - Last 10 -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>
+                        <i class="fas fa-store-alt"></i>
+                        Recent Shops
+                        <span class="recent-badge">Last 10</span>
+                    </h3>
+                    <a th:href="@{/admin/shops}" class="view-all">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Shop</th>
+                            <th>Plan</th>
+                            <th>Owner</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="shop, iterStat : ${stats.recentShops}" 
+                            th:if="${not #lists.isEmpty(stats.recentShops)}"
+                            th:classappend="${iterStat.index == 0} ? 'latest-row' : ''">
+                            <td>
+                                <span th:text="${shop.name}">TechMart</span>
+                                <span th:if="${iterStat.index == 0}" class="recent-badge" style="margin-left: 4px;">Newest</span>
+                            </td>
+                            <td>
+                                <span class="badge" th:text="${shop.planType}" th:classappend="
+                                    ${shop.planType == 'PREMIUM'} ? 'badge-premium' : 
+                                    (${shop.planType == 'BASIC'} ? 'badge-basic' : 
+                                     (${shop.planType == 'ENTERPRISE'} ? 'badge-enterprise' : 'badge-free'))">
+                                    PREMIUM
+                                </span>
+                            </td>
+                            <td th:text="${shop.owner}">John Doe</td>
+                            <td>
+                                <span class="status-badge" th:text="${shop.active ? 'Active' : 'Inactive'}"
+                                    th:classappend="${shop.active} ? 'status-active' : 'status-inactive'">
+                                    Active
+                                </span>
+                            </td>
+                            <td class="actions">
+                                <a th:href="@{/admin/shops/{id}(id=${shop.id})}" class="btn-icon"><i class="fas fa-eye"></i></a>
+                                <a th:href="@{/admin/shops/edit/{id}(id=${shop.id})}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(stats.recentShops)}">
+                            <td colspan="5" class="text-center">No shops found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Users - Last 10 -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>
+                        <i class="fas fa-users"></i>
+                        Recent Users
+                        <span class="recent-badge">Last 10</span>
+                    </h3>
+                    <a th:href="@{/admin/users}" class="view-all">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Shop</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user, iterStat : ${stats.recentUsers}" 
+                            th:if="${not #lists.isEmpty(stats.recentUsers)}"
+                            th:classappend="${iterStat.index == 0} ? 'latest-row' : ''">
+                            <td>
+                                <span th:text="${user.name}">John Doe</span>
+                                <span th:if="${iterStat.index == 0}" class="recent-badge" style="margin-left: 4px;">Newest</span>
+                            </td>
+                            <td th:text="${user.username}">john@email.com</td>
+                            <td>
+                                <span class="badge" th:text="${user.role}" th:classappend="
+                                    ${user.role == 'OWNER'} ? 'badge-owner' : 
+                                    (${user.role == 'MANAGER'} ? 'badge-manager' : 'badge-cashier')">
+                                    OWNER
+                                </span>
+                            </td>
+                            <td th:text="${user.shop}">TechMart</td>
+                            <td class="actions">
+                                <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn-icon"><i class="fas fa-eye"></i></a>
+                                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(stats.recentUsers)}">
+                            <td colspan="5" class="text-center">No users found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>v2.0.0</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version"><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Initialization with Real Data -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get data from server
+            const revenueLabels = /*[[${stats.revenueLabels}]]*/ [];
+            const revenueData = /*[[${stats.revenueData}]]*/ [];
+            const planLabels = /*[[${stats.planLabels}]]*/ ['FREE', 'BASIC', 'PREMIUM', 'ENTERPRISE'];
+            const planData = /*[[${stats.planData}]]*/ [0, 0, 0, 0];
+            const usersData = /*[[${stats.usersData}]]*/ [];
+
+            // Colors
+            const planColors = {
+                'FREE': '#94a3b8',
+                'BASIC': '#2563eb',
+                'PREMIUM': '#7c3aed',
+                'ENTERPRISE': '#dc2626'
+            };
+            
+            const backgroundColors = planLabels.map(label => planColors[label] || '#94a3b8');
+
+            // Revenue Chart
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: revenueData,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                        borderWidth: 1.5,
+                        tension: 0.2,
+                        fill: true,
+                        pointRadius: 1,
+                        pointHoverRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.raw.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9', lineWidth: 0.5 },
+                            ticks: { 
+                                font: { size: 8 },
+                                callback: function(value) {
+                                    return '₹' + value;
+                                }
+                            }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { 
+                                font: { size: 8 },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Plan Distribution Pie Chart
+            new Chart(document.getElementById('planChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: planLabels,
+                    datasets: [{
+                        data: planData,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 8,
+                                padding: 6,
+                                font: { size: 8 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                    return `${label}: ${value} shops (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Users Growth Chart
+            new Chart(document.getElementById('usersChart'), {
+                type: 'bar',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'New Users',
+                        data: usersData,
+                        backgroundColor: '#10b981',
+                        borderRadius: 2,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + ' new users';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9', lineWidth: 0.5 },
+                            ticks: { 
+                                font: { size: 8 },
+                                stepSize: 1
+                            }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { 
+                                font: { size: 8 },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

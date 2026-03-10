@@ -9,6 +9,7 @@ import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.SaleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -23,151 +24,146 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping
 public class DashboardController {
 
-        private final UserRepository userRepository;
-        private final SaleRepository saleRepository;
-        private final SaleItemRepository saleItemRepository;
-        private final ProductRepository productRepository;
-        private final SaleService saleService;
+    private final UserRepository userRepository;
+    private final SaleRepository saleRepository;
+    private final SaleItemRepository saleItemRepository;
+    private final ProductRepository productRepository;
+    private final SaleService saleService;
 
-        // ROLE BASED REDIRECT
-
-        @GetMapping("/dashboard")
-        public String dashboardRedirect(Authentication auth) {
-
-                String role = auth.getAuthorities()
-                                .iterator()
-                                .next()
-                                .getAuthority();
-
-
-                
-                if (role.equals("ROLE_OWNER")) {
-                        return "redirect:/owner/dashboard";
-                } else if (role.equals("ROLE_MANAGER")) {
-                        return "redirect:/manager/dashboard";
-                } else {
-                        return "redirect:/cashier/dashboard";
-                }
-
-
+    // ROLE BASED REDIRECT
+    @GetMapping("/dashboard")
+    public String dashboardRedirect(Authentication auth) {
+        String role = auth.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+        if (role.equals("ROLE_OWNER")) {
+            return "redirect:/owner/dashboard";
+        } else if (role.equals("ROLE_MANAGER")) {
+            return "redirect:/manager/dashboard";
+        } else {
+            return "redirect:/cashier/dashboard";
         }
+    }
 
-        // OWNER DASHBOARD
+    // OWNER DASHBOARD
+    @GetMapping("/owner/dashboard")
+    public String ownerDashboard(Model model, Authentication authentication) {
+        return loadDashboard(model, authentication, "OWNER");
+    }
 
-        @GetMapping("/owner/dashboard")
-        public String ownerDashboard(Model model, Authentication authentication) {
-                return loadDashboard(model, authentication, "OWNER");
-        }
+    // MANAGER DASHBOARD
+    @GetMapping("/manager/dashboard")
+    public String managerDashboard(Model model, Authentication authentication) {
+        return loadDashboard(model, authentication, "MANAGER");
+    }
 
-        // MANAGER DASHBOARD
+    // CASHIER DASHBOARD
+    @GetMapping("/cashier/dashboard")
+    public String cashierDashboard(Model model, Authentication authentication) {
+        return loadDashboard(model, authentication, "CASHIER");
+    }
 
-        @GetMapping("/manager/dashboard")
-        public String managerDashboard(Model model, Authentication authentication) {
-                return loadDashboard(model, authentication, "MANAGER");
-        }
+    // COMMON DASHBOARD LOGIC - FIXED VERSION
+    private String loadDashboard(Model model,
+            Authentication authentication,
+            String role) {
 
-        // CASHIER DASHBOARD
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
 
-        @GetMapping("/cashier/dashboard")
-        public String cashierDashboard(Model model, Authentication authentication) {
-                return loadDashboard(model, authentication, "CASHIER");
-        }
+        Shop shop = user.getShop();
 
-        // COMMON DASHBOARD LOGIC
+        log.info("Loading dashboard for user: {}, shop: {}", user.getUsername(), shop.getName());
+        log.info("Shop plan type: {}", shop.getPlanType());
 
-        private String loadDashboard(Model model,
-                        Authentication authentication,
-                        String role) {
+        model.addAttribute("shop", shop);
+        model.addAttribute("role", role);
 
-                User user = userRepository
-                                .findByUsername(authentication.getName())
-                                .orElseThrow();
+        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+        log.info("Plan type display: {}", planTypeDisplay);
 
-                Shop shop = user.getShop();
+        // TODAY DATA
+        LocalDate today = LocalDate.now();
+        LocalDateTime startToday = today.atStartOfDay();
+        LocalDateTime endToday = today.atTime(23, 59, 59);
 
-                model.addAttribute("shop", shop);
-                model.addAttribute("role", role);
+        Double todayRevenue = saleRepository
+                .getTodayTotalRevenue(shop, startToday, endToday);
 
-                // TODAY DATA
+        Long todayInvoices = saleRepository
+                .getTodayInvoiceCount(shop, startToday, endToday);
 
-                LocalDate today = LocalDate.now();
-                LocalDateTime startToday = today.atStartOfDay();
-                LocalDateTime endToday = today.atTime(23, 59, 59);
+        Long todayItems = saleItemRepository
+                .getTodayItemsSold(shop, startToday, endToday);
 
-                Double todayRevenue = saleRepository
-                                .getTodayTotalRevenue(shop, startToday, endToday);
+        model.addAttribute("todayRevenue",
+                todayRevenue != null ? todayRevenue : 0);
 
-                Long todayInvoices = saleRepository
-                                .getTodayInvoiceCount(shop, startToday, endToday);
+        model.addAttribute("todayInvoices",
+                todayInvoices != null ? todayInvoices : 0);
 
-                Long todayItems = saleItemRepository
-                                .getTodayItemsSold(shop, startToday, endToday);
+        model.addAttribute("todayItems",
+                todayItems != null ? todayItems : 0);
 
-                model.addAttribute("todayRevenue",
-                                todayRevenue != null ? todayRevenue : 0);
+        // 7 DAY CHART DATA
+        Map<String, Object> chartData = saleService.getLast7DaysChartData(shop);
 
-                model.addAttribute("todayInvoices",
-                                todayInvoices != null ? todayInvoices : 0);
+        model.addAttribute("labels", chartData.get("labels"));
+        model.addAttribute("revenues", chartData.get("revenues"));
 
-                model.addAttribute("todayItems",
-                                todayItems != null ? todayItems : 0);
+        // LOW STOCK
+        List<Product> lowStockProducts = productRepository.findLowStockProducts(shop);
+        model.addAttribute("lowStockProducts", lowStockProducts);
 
-                // 7 DAY CHART DATA
+        Long totalStaff = userRepository.countByShop(shop);
+        model.addAttribute("totalStaff", totalStaff);
 
-                Map<String, Object> chartData = saleService.getLast7DaysChartData(shop);
+        return "ultra-dashboard";
+    }
 
-                model.addAttribute("labels", chartData.get("labels"));
-                model.addAttribute("revenues", chartData.get("revenues"));
+    @GetMapping("/app/metrics")
+    @ResponseBody
+    public Map<String, Object> getLiveMetrics(Authentication authentication) {
 
-                // LOW STOCK
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Shop shop = user.getShop();
 
-                List<Product> lowStockProducts = productRepository.findLowStockProducts(shop);
+        LocalDate today = LocalDate.now();
+        LocalDateTime startToday = today.atStartOfDay();
+        LocalDateTime endToday = today.atTime(23, 59, 59);
 
-                model.addAttribute("lowStockProducts", lowStockProducts);
+        Map<String, Object> data = new HashMap<>();
 
-                Long totalStaff = userRepository.countByShop(shop);
-                model.addAttribute("totalStaff", totalStaff);
+        // COMPLETED sales revenue
+        Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop);
+        if (completedRevenue == null)
+            completedRevenue = 0.0;
 
-                return "ultra-dashboard";
-        }
+        // CANCELLED sales amount
+        Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop);
+        if (cancelledAmount == null)
+            cancelledAmount = 0.0;
 
-        @GetMapping("/app/metrics")
-        @ResponseBody
-        public Map<String, Object> getLiveMetrics(Authentication authentication) {
+        // FIXED: Net Revenue - Never negative
+        Double netRevenue = Math.max(0, completedRevenue - cancelledAmount);
 
-                User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
-                Shop shop = user.getShop();
+        data.put("completedRevenue", completedRevenue);
+        data.put("cancelledAmount", cancelledAmount);
+        data.put("netRevenue", netRevenue);
+        data.put("todayInvoices", saleRepository.getTodayInvoiceCount(shop, startToday, endToday));
+        data.put("todayItems", saleItemRepository.getTodayItemsSold(shop, startToday, endToday));
+        data.put("returnedItems", saleRepository.getTodayReturnedItems(shop));
+        data.put("totalStaff", userRepository.countByShop(shop));
 
-                LocalDate today = LocalDate.now();
-                LocalDateTime startToday = today.atStartOfDay();
-                LocalDateTime endToday = today.atTime(23, 59, 59);
+        data.put("planType", shop.getPlanType() != null ? shop.getPlanType().name() : "FREE");
 
-                Map<String, Object> data = new HashMap<>();
-
-                // COMPLETED sales revenue
-                Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop);
-                if (completedRevenue == null)
-                        completedRevenue = 0.0;
-
-                // CANCELLED sales amount
-                Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop);
-                if (cancelledAmount == null)
-                        cancelledAmount = 0.0;
-
-                //FIXED: Net Revenue - Never negative
-                Double netRevenue = Math.max(0, completedRevenue - cancelledAmount);
-
-                data.put("completedRevenue", completedRevenue);
-                data.put("cancelledAmount", cancelledAmount);
-                data.put("netRevenue", netRevenue); // Now always >= 0
-                data.put("todayInvoices", saleRepository.getTodayInvoiceCount(shop, startToday, endToday));
-                data.put("todayItems", saleItemRepository.getTodayItemsSold(shop, startToday, endToday));
-                data.put("returnedItems", saleRepository.getTodayReturnedItems(shop));
-                data.put("totalStaff", userRepository.countByShop(shop));
-
-                return data;
-        }
+        return data;
+    }
 }

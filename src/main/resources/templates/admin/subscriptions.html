@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Subscription Plans • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .nav-links a:hover i {
+            color: #2563eb;
+        }
+
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #2563eb;
+        }
+
+        .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+
+        .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .quick-action-item:hover i {
+            color: white;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+
+        /* ===== HEADER ===== */
+        .admin-header {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .admin-header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-header h1 i {
+            color: #2563eb;
+            font-size: 13px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* ===== ACTION BAR ===== */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-primary i {
+            font-size: 10px;
+        }
+
+        /* ===== PLANS GRID ===== */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .plan-card-large {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .plan-card-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+            border-color: #2563eb;
+        }
+
+        .plan-header {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .plan-header.free {
+            background: #f8fafc;
+        }
+
+        .plan-header.basic {
+            background: #dbeafe;
+        }
+
+        .plan-header.premium {
+            background: #ede9fe;
+        }
+
+        .plan-header.enterprise {
+            background: #fee2e2;
+        }
+
+        .plan-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .plan-header.free h3 {
+            color: #475569;
+        }
+
+        .plan-header.basic h3 {
+            color: #2563eb;
+        }
+
+        .plan-header.premium h3 {
+            color: #7c3aed;
+        }
+
+        .plan-header.enterprise h3 {
+            color: #dc2626;
+        }
+
+        .plan-price {
+            margin-bottom: 4px;
+        }
+
+        .currency {
+            font-size: 12px;
+            font-weight: 600;
+            vertical-align: top;
+        }
+
+        .amount {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .period {
+            font-size: 9px;
+            color: #64748b;
+            margin-left: 2px;
+        }
+
+        .plan-body {
+            padding: 14px;
+        }
+
+        .description {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 12px;
+            min-height: 32px;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 14px;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            padding: 4px 0;
+            color: #334155;
+        }
+
+        .features-list li i {
+            color: #10b981;
+            font-size: 10px;
+            width: 14px;
+        }
+
+        .features-list li strong {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .plan-actions {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-edit {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* ===== STATS CARD ===== */
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .stats-card h3 {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .stats-card h3 i {
+            color: #2563eb;
+            font-size: 13px;
+        }
+
+        .plan-distribution {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .dist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .plan-name {
+            font-size: 11px;
+            font-weight: 600;
+            width: 70px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 20px;
+        }
+
+        .plan-count {
+            font-size: 11px;
+            color: #64748b;
+            width: 70px;
+            text-align: right;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            margin: 0 -16px 0 -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #94a3b8;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 9px;
+        }
+
+        .heart {
+            color: #ef4444;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .footer-right a:hover {
+            color: #2563eb;
+        }
+
+        .version {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 7px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}" class="active">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/users/new}" class="quick-action-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Add User</span>
+            </a>
+            <a th:href="@{/admin/shops/new}" class="quick-action-item">
+                <i class="fas fa-store-alt"></i>
+                <span>Add Shop</span>
+            </a>
+            <a th:href="@{/admin/subscriptions/new}" class="quick-action-item">
+                <i class="fas fa-credit-card"></i>
+                <span>New Plan</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>
+                <i class="fas fa-credit-card"></i>
+                Subscription Plans
+            </h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <a th:href="@{/admin/subscriptions/new}" class="btn-primary">
+                <i class="fas fa-plus"></i> Add New Plan
+            </a>
+        </div>
+
+        <!-- Plans Grid -->
+        <div class="plans-grid" th:if="${not #lists.isEmpty(plans)}">
+            <div class="plan-card-large" th:each="plan : ${plans}">
+                <div class="plan-header" th:classappend="${plan.planName == 'FREE' ? 'free' : 
+                                                             (plan.planName == 'BASIC' ? 'basic' : 
+                                                             (plan.planName == 'PREMIUM' ? 'premium' : 'enterprise'))}">
+                    <h3 th:text="${plan.planName}">PREMIUM</h3>
+                    <div class="plan-price">
+                        <span class="currency">₹</span>
+                        <span class="amount" th:text="${plan.price}">999</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+
+                <div class="plan-body">
+                    <p class="description" th:text="${plan.description}">Plan description</p>
+
+                    <ul class="features-list">
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Max Users: <strong th:text="${plan.maxUsers == -1 ? 'Unlimited' : plan.maxUsers}">10</strong></span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Max Products: <strong th:text="${plan.maxProducts == -1 ? 'Unlimited' : plan.maxProducts}">1000</strong></span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Duration: <strong th:text="${plan.durationInDays} + ' days'">30 days</strong></span>
+                        </li>
+                        <li>
+                            <i class="fas fa-shop"></i>
+                            <span>Active Shops: <strong th:text="${plan.shopCount}">5</strong></span>
+                        </li>
+                    </ul>
+
+                    <div class="plan-actions">
+                        <a th:href="@{'/admin/subscriptions/edit/' + ${plan.planName}}" class="btn-edit">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(plans)}" class="text-center" style="padding: 40px; background: white; border-radius: 8px;">
+            <i class="fas fa-credit-card" style="font-size: 40px; color: #94a3b8; margin-bottom: 16px;"></i>
+            <p>No subscription plans found</p>
+            <a th:href="@{/admin/subscriptions/new}" class="btn-primary" style="margin-top: 16px; display: inline-flex;">
+                <i class="fas fa-plus"></i> Add First Plan
+            </a>
+        </div>
+
+        <!-- Usage Statistics -->
+        <div class="stats-card" th:if="${not #lists.isEmpty(plans)}">
+            <h3><i class="fas fa-chart-pie"></i> Plan Distribution</h3>
+            <div class="plan-distribution">
+                <div class="dist-item" th:each="plan : ${plans}">
+                    <span class="plan-name" th:text="${plan.planName}">FREE</span>
+                    <div class="progress-bar">
+                        <div class="progress" th:style="'width: ' + ${plan.usagePercent} + '%'"></div>
+                    </div>
+                    <span class="plan-count" th:text="${plan.shopCount} + ' shops'">10 shops</span>
+                </div>
+            </div>
+        </div>
+
+                <!-- Spacer to push footer down -->
+        <div style="flex: 1; min-height: 50px;"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>v2.0.0</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version"><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

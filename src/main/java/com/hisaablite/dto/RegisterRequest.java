@@ -1,6 +1,7 @@
 package com.hisaablite.dto;
 
 import java.time.LocalDateTime;
+import com.hisaablite.entity.PlanType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -36,4 +37,11 @@ public class RegisterRequest {
     private String pincode;
     private String upiId;
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    
+    @NotNull(message = "Please select a subscription plan")
+    private PlanType planType = PlanType.FREE;  // Default to FREE
+
+   
+    
 }

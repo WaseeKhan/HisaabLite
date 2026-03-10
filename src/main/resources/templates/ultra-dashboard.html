@@ -4,7 +4,6 @@
 <head>
     <title>Dashboard • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <!-- Chart.js loaded from local - faster -->
     <script src="/js/chart.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -12,7 +11,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        /* Tumhara saara CSS same rahega - maine shorten kiya hai */
+     
         * {
             margin: 0;
             padding: 0;
@@ -438,7 +437,6 @@
             font-size: 16px;
         }
 
-        /* ===== LOW STOCK - PERFECT LINE HEIGHT ===== */
         .low-stock-container {
             display: flex;
             flex-direction: column;
@@ -522,7 +520,7 @@
             color: #cbd5e1;
         }
 
-        /* ===== BUSINESS OVERVIEW - MIRROR DESIGN ===== */
+   
         .business-container {
             display: flex;
             flex-direction: column;
@@ -757,7 +755,10 @@
                 <span class="divider"></span>
                 <span><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
                 <span class="divider"></span>
-                <span><i class="far fa-gem"></i> <span th:text="${shop.subscriptionPlan}"></span></span>
+                <span><i class="far fa-gem"></i> <span th:text="${planType}">PREMIUM</span></span>
+              <!-- <span th:text="${shop.planType != null ? shop.planType : 'FREE'}">PREMIUM</span> -->
+             
+                
             </div>
         </div>
 

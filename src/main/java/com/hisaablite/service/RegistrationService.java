@@ -2,7 +2,6 @@ package com.hisaablite.service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +9,7 @@ import com.hisaablite.dto.RegisterRequest;
 import com.hisaablite.entity.EmailVerificationToken;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Shop;
-import com.hisaablite.entity.SubscriptionPlan;
+import com.hisaablite.entity.PlanType; 
 import com.hisaablite.entity.TokenType;
 import com.hisaablite.entity.User;
 import com.hisaablite.exception.DuplicateResourceException;
@@ -18,9 +17,11 @@ import com.hisaablite.repository.EmailVerificationTokenRepository;
 import com.hisaablite.repository.ShopRepository;
 import com.hisaablite.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RegistrationService {
 
     private final ShopRepository shopRepository;
@@ -32,15 +33,25 @@ public class RegistrationService {
     @Transactional
     public void registerShop(RegisterRequest request, String appUrl) {
 
+        // Duplicate checks
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateResourceException("Email already registered");
         }
 
         if (shopRepository.existsByPanNumber(request.getPanNumber())) {
-            throw new DuplicateResourceException("PAN already registered. Please use a different PAN.");
+            throw new DuplicateResourceException("PAN already registered.");
         }
+        
+        if (shopRepository.existsByPanNumber(request.getPhone())) {
+            throw new DuplicateResourceException("Phone Number already registered.");
+        }
+        
 
-        // Save shop
+      
+        PlanType selectedPlan = request.getPlanType();
+        log.info("Selected plan: {}", selectedPlan);
+
+        // Save shop (WITH PLAN SELECTION)
         Shop shop = Shop.builder()
                 .name(request.getShopName())
                 .panNumber(request.getPanNumber())
@@ -48,20 +59,13 @@ public class RegistrationService {
                 .city(request.getCity())
                 .state(request.getState())
                 .staffLimit(5)
-                .subscriptionPlan(SubscriptionPlan.FREE)
+                .planType(selectedPlan)  
                 .active(true)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        if (shopRepository.existsByPanNumber(request.getPanNumber())) {
-            throw new DuplicateResourceException("PAN already registered.");
-        }
-
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateResourceException("Email already registered.");
-        }
-
         shop = shopRepository.save(shop);
+        log.info("Shop created: {} with plan: {}", shop.getName(), shop.getPlanType());
 
         // Save owner
         User owner = User.builder()
@@ -72,25 +76,27 @@ public class RegistrationService {
                 .role(Role.OWNER)
                 .shop(shop)
                 .active(false)
+                .approved(false)
                 .build();
 
         userRepository.save(owner);
 
+        // Create verification token
+        String token = UUID.randomUUID().toString();
 
-            String token = UUID.randomUUID().toString();
+        EmailVerificationToken verificationToken = new EmailVerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUser(owner);
+        verificationToken.setTokenType(TokenType.EMAIL_VERIFICATION);
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
 
-            EmailVerificationToken verificationToken = new EmailVerificationToken();
+        tokenRepository.save(verificationToken);
 
-            verificationToken.setToken(token);
-            verificationToken.setUser(owner);
-            verificationToken.setTokenType(TokenType.EMAIL_VERIFICATION);
-            verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
-
-            tokenRepository.save(verificationToken);
-
-            String verifyLink = appUrl + "/verify?token=" + token;
-
-            emailService.sendVerificationEmail(owner.getUsername(), verifyLink);
-
+        // Send verification email
+        String verifyLink = appUrl + "/verify?token=" + token;
+        emailService.sendVerificationEmail(owner.getUsername(), verifyLink);
+        
+        log.info("Registration completed - Shop: {}, Plan: {}, Owner: {}", 
+                shop.getName(), shop.getPlanType(), owner.getUsername());
     }
 }

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>User Management • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Your existing CSS remains exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .nav-links a:hover i {
+            color: #2563eb;
+        }
+
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #2563eb;
+        }
+
+        .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+
+        .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .quick-action-item:hover i {
+            color: white;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+
+        /* ===== HEADER ===== */
+        .admin-header {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .admin-header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-header h1 i {
+            color: #2563eb;
+            font-size: 13px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon-wrapper {
+            width: 32px;
+            height: 32px;
+            background: #eef2ff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-title {
+            font-size: 9px;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 7px;
+            color: #94a3b8;
+        }
+
+        /* ===== ACTION BAR ===== */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-primary i {
+            font-size: 10px;
+        }
+
+        .search-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 300px;
+        }
+
+        .search-box i {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            font-size: 11px;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .search-info {
+            font-size: 10px;
+            color: #64748b;
+            margin-left: 8px;
+        }
+
+        .clear-btn {
+            font-size: 11px;
+            color: #2563eb;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #eef2ff;
+        }
+
+        .clear-btn:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* ===== TABLE CONTAINER ===== */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            overflow: auto;
+            flex: 1;
+            margin-bottom: 12px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            min-width: 1200px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 10px 8px;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            z-index: 10;
+        }
+
+        .data-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .highlight {
+            background-color: #fef9c3;
+            font-weight: 500;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .badge-owner {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-manager {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-cashier {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-admin {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        /* ===== ACTION BUTTONS ===== */
+        .actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            background: #f1f5f9;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.15s;
+        }
+
+        .btn-icon:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-icon.approve:hover {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-icon.suspend:hover {
+            background: #b45309;
+            color: white;
+        }
+
+        .btn-icon.activate:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-icon.delete:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            gap: 4px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .pagination-info {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            text-decoration: none;
+            font-size: 10px;
+            transition: all 0.15s;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .pagination a:hover {
+            background: #f1f5f9;
+            border-color: #2563eb;
+        }
+
+        .pagination a.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .pagination span.disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            margin: 0 -16px 0 -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #94a3b8;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 9px;
+        }
+
+        .heart {
+            color: #ef4444;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .footer-right a:hover {
+            color: #2563eb;
+        }
+
+        .version {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 7px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}" class="active">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/users/new}" class="quick-action-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Add User</span>
+            </a>
+            <a th:href="@{/admin/shops/new}" class="quick-action-item">
+                <i class="fas fa-store-alt"></i>
+                <span>Add Shop</span>
+            </a>
+            <a th:href="@{/admin/subscriptions/new}" class="quick-action-item">
+                <i class="fas fa-credit-card"></i>
+                <span>New Plan</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>
+                <i class="fas fa-users"></i>
+                User Management
+            </h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Users</div>
+                    <div class="stat-value" th:text="${totalUsers}">0</div>
+                    <div class="stat-label">All accounts</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-user-check"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Active Users</div>
+                    <div class="stat-value" th:text="${activeUsers}">0</div>
+                    <div class="stat-label">Currently active</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-user-clock"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Inactive Users</div>
+                    <div class="stat-value" th:text="${inactiveUsers}">0</div>
+                    <div class="stat-label">Suspended</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Pending Approval</div>
+                    <div class="stat-value" th:text="${pendingApprovals}">0</div>
+                    <div class="stat-label">Awaiting review</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Bar with Live Search - FIXED with longer delay -->
+        <div class="action-bar">
+            <a th:href="@{/admin/users/new}" class="btn-primary">
+                <i class="fas fa-plus"></i> Add New User
+            </a>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Type to search (3 chars min)..." id="liveSearchInput"
+                           th:value="${param.search != null ? param.search[0] : ''}" autocomplete="off">
+                </div>
+                <span class="search-info" id="searchStats"></span>
+                <a th:href="@{/admin/users(page=0, size=20)}" class="clear-btn" id="clearSearch" 
+                   th:if="${param.search != null}">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container" id="tableContainer">
+            <table class="data-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Shop</th>
+                        <th>Status</th>
+                        <th>Approved</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr th:each="user : ${users}" th:if="${not #lists.isEmpty(users)}">
+                        <td th:text="${user.id}">1</td>
+                        <td th:text="${user.name}">John Doe</td>
+                        <td th:text="${user.username}">john@example.com</td>
+                        <td th:text="${user.phone}">9876543210</td>
+                        <td>
+                            <span class="badge" th:text="${user.role}" th:classappend="${user.role == 'OWNER'} ? 'badge-owner' : 
+                                             (${user.role == 'MANAGER'} ? 'badge-manager' : 
+                                             (${user.role == 'CASHIER'} ? 'badge-cashier' : 'badge-admin'))">
+                            </span>
+                        </td>
+                        <td th:text="${user.shop != null ? user.shop.name : 'N/A'}">Shop Name</td>
+                        <td>
+                            <span class="status-badge" th:text="${user.active ? 'Active' : 'Inactive'}"
+                                th:classappend="${user.active} ? 'status-active' : 'status-inactive'">
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge" th:text="${user.approved ? 'Approved' : 'Pending'}"
+                                th:classappend="${user.approved} ? 'status-approved' : 'status-pending'">
+                            </span>
+                        </td>
+                        <td class="actions">
+                            <a th:href="@{'/admin/users/' + ${user.id}}" class="btn-icon" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{'/admin/users/edit/' + ${user.id}}" class="btn-icon" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:if="${!user.approved}" th:href="@{'/admin/users/approve/' + ${user.id}}"
+                                class="btn-icon approve" title="Approve" onclick="return confirm('Approve this user?')">
+                                <i class="fas fa-check-circle"></i>
+                            </a>
+                            <a th:if="${user.active}" th:href="@{'/admin/users/suspend/' + ${user.id}}"
+                                class="btn-icon suspend" title="Suspend" onclick="return confirm('Suspend this user?')">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                            <a th:if="${!user.active}" th:href="@{'/admin/users/activate/' + ${user.id}}"
+                                class="btn-icon activate" title="Activate"
+                                onclick="return confirm('Activate this user?')">
+                                <i class="fas fa-play-circle"></i>
+                            </a>
+                            <a th:href="@{'/admin/users/delete/' + ${user.id}}" class="btn-icon delete" title="Delete"
+                                onclick="return confirm('Permanently delete this user?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(users)}">
+                        <td colspan="9" class="text-center">No users found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination (20 per page) - FIXED -->
+        <div class="pagination" th:if="${totalPages > 0}">
+            <div class="pagination-info">
+                Showing <span th:text="${(currentPage * pageSize) + 1}">1</span>
+                to <span th:text="${(currentPage * pageSize) + pageSize <= totalItems ? (currentPage * pageSize) + pageSize : totalItems}">20</span>
+                of <span th:text="${totalItems}">100</span> users
+                <span th:if="${param.search != null}" style="margin-left: 8px; color: #2563eb;">
+                    (filtered by: "<span th:text="${param.search[0]}">search</span>")
+                </span>
+            </div>
+            <div class="pagination-controls">
+                <!-- First Page -->
+                <a th:if="${currentPage > 0}" th:href="@{/admin/users(page=0, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                    title="First Page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <span th:unless="${currentPage > 0}" class="disabled">
+                    <i class="fas fa-angle-double-left"></i>
+                </span>
+
+                <!-- Previous Page -->
+                <a th:if="${currentPage > 0}"
+                    th:href="@{/admin/users(page=${currentPage - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                    title="Previous Page">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                <span th:unless="${currentPage > 0}" class="disabled">
+                    <i class="fas fa-angle-left"></i>
+                </span>
+
+                <!-- Page Numbers -->
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                        th:href="@{/admin/users(page=${i}, size=20, search=${param.search != null ? param.search[0] : ''})}" 
+                        th:text="${i + 1}"
+                        th:classappend="${i == currentPage} ? 'active' : ''">1</a>
+                    <span th:if="${i == currentPage + 3 and i < totalPages - 1}" class="disabled">...</span>
+                </th:block>
+
+                <!-- Next Page -->
+                <a th:if="${currentPage < totalPages - 1}"
+                    th:href="@{/admin/users(page=${currentPage + 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                    title="Next Page">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <span th:unless="${currentPage < totalPages - 1}" class="disabled">
+                    <i class="fas fa-angle-right"></i>
+                </span>
+
+                <!-- Last Page -->
+                <a th:if="${currentPage < totalPages - 1}"
+                    th:href="@{/admin/users(page=${totalPages - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                    title="Last Page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+                <span th:unless="${currentPage < totalPages - 1}" class="disabled">
+                    <i class="fas fa-angle-double-right"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>v2.0.0</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version"><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Search Script - FIXED with longer delay and minimum characters -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('liveSearchInput');
+            const tableContainer = document.getElementById('tableContainer');
+            const searchStats = document.getElementById('searchStats');
+            let timeoutId;
+            let previousSearch = '';
+
+            // Get current search from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentSearch = urlParams.get('search');
+            
+            if (currentSearch && searchStats) {
+                searchStats.textContent = `Showing results for "${currentSearch}"`;
+            }
+
+            if (searchInput) {
+                // Live search with longer debounce (1500ms)
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(timeoutId);
+                    const searchTerm = this.value.trim();
+                    
+                    // Don't search if it's the same as previous
+                    if (searchTerm === previousSearch) {
+                        return;
+                    }
+
+                    // Update stats
+                    if (searchTerm) {
+                        if (searchTerm.length < 3) {
+                            searchStats.textContent = `Type at least 3 characters (${searchTerm.length}/3)`;
+                            tableContainer.classList.remove('loading');
+                        } else {
+                            searchStats.textContent = `Searching for "${searchTerm}"...`;
+                            tableContainer.classList.add('loading');
+                            
+                            timeoutId = setTimeout(() => {
+                                performSearch(searchTerm);
+                                previousSearch = searchTerm;
+                            }, 1500); // 1.5 second delay
+                        }
+                    } else {
+                        searchStats.textContent = currentSearch ? `Showing results for "${currentSearch}"` : '';
+                        tableContainer.classList.remove('loading');
+                        // Clear search if empty
+                        if (currentSearch) {
+                            timeoutId = setTimeout(() => {
+                                performSearch('');
+                            }, 500);
+                        }
+                    }
+                });
+
+                // Handle enter key for immediate search
+                searchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        clearTimeout(timeoutId);
+                        const searchTerm = this.value.trim();
+                        if (searchTerm.length >= 3 || searchTerm.length === 0) {
+                            performSearch(searchTerm);
+                            previousSearch = searchTerm;
+                        } else {
+                            searchStats.textContent = `Need at least 3 characters to search`;
+                        }
+                    }
+                });
+            }
+
+            function performSearch(searchTerm) {
+                const currentUrl = new URL(window.location.href);
+                const baseUrl = currentUrl.origin + currentUrl.pathname;
+
+                // Build URL with search parameter
+                let url = baseUrl + '?page=0&size=20';
+                if (searchTerm && searchTerm.length >= 3) {
+                    url += '&search=' + encodeURIComponent(searchTerm);
+                }
+
+                // Navigate to search results
+                window.location.href = url;
+            }
+
+            // Highlight search terms in table
+            function highlightSearchTerms() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchTerm = urlParams.get('search');
+
+                if (searchTerm && searchTerm.trim()) {
+                    const term = searchTerm.toLowerCase().trim();
+                    const rows = document.querySelectorAll('#usersTable tbody tr');
+                    
+                    rows.forEach(row => {
+                        if (row.cells && row.cells.length > 1) {
+                            for (let i = 0; i < row.cells.length - 1; i++) { // Skip actions column
+                                const cell = row.cells[i];
+                                const text = cell.textContent.toLowerCase();
+                                if (text.includes(term)) {
+                                    cell.classList.add('highlight');
+                                } else {
+                                    cell.classList.remove('highlight');
+                                }
+                            }
+                        }
+                    });
+                    
+                    if (searchStats) {
+                        const visibleRows = document.querySelectorAll('#usersTable tbody tr:not([style*="display: none"])').length;
+                        if (visibleRows > 0) {
+                            searchStats.textContent = `Found ${visibleRows} results for "${searchTerm}"`;
+                        } else {
+                            searchStats.textContent = `No results found for "${searchTerm}"`;
+                        }
+                    }
+                }
+            }
+
+            // Run highlighting after page load
+            highlightSearchTerms();
+        });
+    </script>
+</body>
+
+</html>

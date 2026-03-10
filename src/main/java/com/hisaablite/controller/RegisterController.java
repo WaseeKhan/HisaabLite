@@ -1,12 +1,12 @@
 package com.hisaablite.controller;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+
 import com.hisaablite.dto.RegisterRequest;
 import com.hisaablite.repository.ShopRepository;
 import com.hisaablite.repository.UserRepository;
@@ -22,7 +22,6 @@ public class RegisterController {
 
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RegistrationService registrationService;
 
     @GetMapping("/register")
@@ -44,6 +43,10 @@ public class RegisterController {
 
         if (userRepository.existsByUsername(request.getUsername())) {
             bindingResult.rejectValue("username", null, "Username already registered");
+        }
+
+         if (userRepository.existsByPhone(request.getPhone())) {
+            bindingResult.rejectValue("phone", null, "Phone Number already registered");
         }
 
         if (bindingResult.hasErrors()) {

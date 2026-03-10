@@ -37,6 +37,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private boolean approved;
+
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;

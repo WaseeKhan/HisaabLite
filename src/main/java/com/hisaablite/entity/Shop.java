@@ -38,8 +38,9 @@ public class Shop {
     private Integer staffLimit;
 
     @Enumerated(EnumType.STRING)
-    private SubscriptionPlan subscriptionPlan;
-
+    @Column(name = "plan_type")
+    private PlanType planType = PlanType.FREE;
+    
     private String upiId;
 
     private boolean active = true;

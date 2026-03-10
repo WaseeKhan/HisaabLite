@@ -3,9 +3,11 @@ package com.hisaablite.controller;
 import com.hisaablite.dto.ShopProfileUpdateRequest;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
+import com.hisaablite.entity.PlanType;  
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.ShopService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;  
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/profile")
+@Slf4j  
 public class ProfileController {
 
     private final ShopService shopService;
@@ -43,7 +46,19 @@ public class ProfileController {
 
         model.addAttribute("shop", shop);
         model.addAttribute("profileRequest", request);
-         model.addAttribute("role", user.getRole().name());
+        model.addAttribute("role", user.getRole().name());
+        
+        
+        PlanType planType = shop.getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+        
+      
+        model.addAttribute("subscriptionPlan", planTypeDisplay);
+        
+        log.info("Profile page loaded - Shop: {}, Plan: {}", 
+                shop.getName(), planTypeDisplay);
+
         return "profile";
     }
 
@@ -58,6 +73,8 @@ public class ProfileController {
                 .orElseThrow();
 
         shopService.updateProfile(user, request);
+        
+        log.info("Profile updated for user: {}", user.getUsername());
 
         return "redirect:/dashboard"; // back to dashboard
     }

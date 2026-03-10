@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:if="${shop.id == null}">Add Shop • HisaabLite Admin</title>
+    <title th:if="${shop.id != null}">Edit Shop • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS -->
+    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='shops')}"></div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-store-alt"></i>
+                    <span th:text="${shop.id == null} ? 'Add New Shop' : 'Edit Shop'">Shop Form</span>
+                </h1>
+                <div class="admin-user">
+                    <span class="role-badge">ADMIN</span>
+                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+                </div>
+            </div>
+            
+            <!-- Form Card -->
+            <div class="form-card">
+                <form th:action="@{/admin/shops/save}" method="post">
+                    <input type="hidden" name="id" th:value="${shop.id}">
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-store"></i> Shop Name *</label>
+                            <input type="text" name="name" th:value="${shop.name}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-map-pin"></i> Address</label>
+                            <input type="text" name="address" th:value="${shop.address}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-city"></i> City</label>
+                            <input type="text" name="city" th:value="${shop.city}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-map"></i> State</label>
+                            <input type="text" name="state" th:value="${shop.state}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-mail-bulk"></i> Pincode</label>
+                            <input type="text" name="pincode" th:value="${shop.pincode}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-file-invoice"></i> GST Number</label>
+                            <input type="text" name="gstNumber" th:value="${shop.gstNumber}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-id-card"></i> PAN Number</label>
+                            <input type="text" name="panNumber" th:value="${shop.panNumber}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card"></i> UPI ID</label>
+                            <input type="text" name="upiId" th:value="${shop.upiId}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-crown"></i> Plan Type</label>
+                            <select name="planType">
+                                <option th:each="plan : ${planTypes}" 
+                                        th:value="${plan}" 
+                                        th:text="${plan}"
+                                        th:selected="${shop.planType == plan}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" name="active" th:checked="${shop.active != null ? shop.active : true}">
+                                <span>Active</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save Shop
+                        </button>
+                        <a href="/admin/shops" class="btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

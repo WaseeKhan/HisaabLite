@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Details • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS -->
+    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='users')}"></div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-user"></i>
+                    User Details
+                </h1>
+                <div class="admin-user">
+                    <span class="role-badge">ADMIN</span>
+                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+                </div>
+            </div>
+            
+            <!-- User Details Card -->
+            <div class="details-card" th:if="${user != null}">
+                <div class="details-header">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-title">
+                        <h2 th:text="${user.name}">John Doe</h2>
+                        <span class="badge" th:text="${user.role}">OWNER</span>
+                    </div>
+                    <div class="status-badges">
+                        <span class="status-badge" th:text="${user.active ? 'Active' : 'Inactive'}"
+                              th:classappend="${user.active} ? 'status-active' : 'status-inactive'">
+                        </span>
+                        <span class="status-badge" th:text="${user.approved ? 'Approved' : 'Pending'}"
+                              th:classappend="${user.approved} ? 'status-approved' : 'status-pending'">
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <label>User ID</label>
+                        <span th:text="${user.id}">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Username</label>
+                        <span th:text="${user.username}">john@example.com</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Phone</label>
+                        <span th:text="${user.phone}">9876543210</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Shop</label>
+                        <span th:text="${user.shop != null ? user.shop.name : 'N/A'}">Main Shop</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Created At</label>
+                        <span th:text="${user.createdAt}">2026-03-09</span>
+                    </div>
+                </div>
+                
+                <div class="details-actions">
+                    <a th:href="@{'/admin/users/edit/' + ${user.id}}" class="btn-primary">
+                        <i class="fas fa-edit"></i> Edit User
+                    </a>
+                    <a href="/admin/users" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Shop Details • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS -->
+    <link th:href="@{/admin/css/admin-styles.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div th:replace="~{admin/partials/sidebar :: sidebar (activePage='shops')}"></div>
+        
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-store"></i>
+                    Shop Details
+                </h1>
+                <div class="admin-user">
+                    <span class="role-badge">ADMIN</span>
+                    <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+                </div>
+            </div>
+            
+            <!-- Shop Details Card -->
+            <div class="details-card" th:if="${shop != null}">
+                <div class="details-header">
+                    <div class="shop-avatar">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="shop-title">
+                        <h2 th:text="${shop.name}">Shop Name</h2>
+                        <span class="badge" th:text="${shop.planType}">PREMIUM</span>
+                    </div>
+                    <div class="status-badges">
+                        <span class="status-badge" th:text="${shop.active ? 'Active' : 'Inactive'}"
+                              th:classappend="${shop.active} ? 'status-active' : 'status-inactive'">
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <label>Shop ID</label>
+                        <span th:text="${shop.id}">1</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>GST Number</label>
+                        <span th:text="${shop.gstNumber ?: 'N/A'}">GST123</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>PAN Number</label>
+                        <span th:text="${shop.panNumber ?: 'N/A'}">PAN123</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>UPI ID</label>
+                        <span th:text="${shop.upiId ?: 'N/A'}">shop@upi</span>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Address</label>
+                        <span th:text="${shop.address ?: 'N/A'}">Address Line</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>City</label>
+                        <span th:text="${shop.city ?: 'N/A'}">Mumbai</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>State</label>
+                        <span th:text="${shop.state ?: 'N/A'}">Maharashtra</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Pincode</label>
+                        <span th:text="${shop.pincode ?: 'N/A'}">400001</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Created At</label>
+                        <span th:text="${shop.createdAt}">2026-03-09</span>
+                    </div>
+                </div>
+                
+                <!-- Staff List -->
+                <div class="sub-section">
+                    <h3><i class="fas fa-users"></i> Staff Members</h3>
+                    <table class="sub-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${shop.users}">
+                                <td th:text="${user.name}">John Doe</td>
+                                <td th:text="${user.username}">john@example.com</td>
+                                <td th:text="${user.role}">MANAGER</td>
+                                <td>
+                                    <span class="status-badge" th:text="${user.active ? 'Active' : 'Inactive'}"
+                                          th:classappend="${user.active} ? 'status-active' : 'status-inactive'">
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="details-actions">
+                    <a th:href="@{'/admin/shops/edit/' + ${shop.id}}" class="btn-primary">
+                        <i class="fas fa-edit"></i> Edit Shop
+                    </a>
+                    <a th:href="@{'/admin/shops/update-plan/' + ${shop.id}}" class="btn-secondary">
+                        <i class="fas fa-crown"></i> Change Plan
+                    </a>
+                    <a href="/admin/shops" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Shops
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
