@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Terms of Service • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        /* Navbar - same as privacy page */
+        .navbar {
+            background: white;
+            padding: 16px 40px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+            color: #0f172a;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .nav-links a {
+            color: #5b6778;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #2563eb;
+        }
+        
+        /* Main Content */
+        .main-content {
+            max-width: 800px;
+            margin: 48px auto;
+            padding: 0 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 40px;
+        }
+        
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+        
+        .page-header .last-updated {
+            color: #64748b;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .terms-section {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .terms-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .terms-section h2 i {
+            color: #2563eb;
+        }
+        
+        .terms-section p {
+            color: #475569;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+        
+        .terms-section ul, .terms-section ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+            color: #475569;
+        }
+        
+        .terms-section li {
+            margin-bottom: 8px;
+        }
+        
+        .terms-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .terms-section th {
+            background: #f1f5f9;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        
+        .terms-section td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .notice-box {
+            background: #fef9e7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 48px 40px 24px;
+            margin-top: 48px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 48px;
+        }
+        
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        
+        .footer-column h4 {
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .footer-column a {
+            display: block;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 10px;
+            transition: color 0.15s;
+        }
+        
+        .footer-column a:hover {
+            color: #2563eb;
+        }
+        
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 32px auto 0;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <div class="logo-icon">HL</div>
+        <div class="logo-text">HisaabLite</div>
+    </div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/features">Features</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/support">Support</a>
+        <a href="/login">Login</a>
+        <a href="/register" style="color: #2563eb;">Register</a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="page-header">
+        <h1>Terms of Service</h1>
+        <div class="last-updated">
+            <i class="far fa-calendar-alt"></i>
+            Last Updated: March 13, 2026
+        </div>
+    </div>
+    
+    <div class="notice-box">
+        <i class="fas fa-gavel" style="color: #f59e0b; margin-right: 10px;"></i>
+        <strong>Please read these terms carefully before using HisaabLite.</strong> By registering, you agree to be bound by these terms.
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-file-contract"></i> 1. Agreement to Terms</h2>
+        <p>By accessing or using HisaabLite, you agree to be bound by these Terms of Service and our Privacy Policy. If you disagree with any part, you may not access the service.</p>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-id-card"></i> 2. Account Registration</h2>
+        <p>To use HisaabLite, you must register for an account. You agree to provide accurate, current, and complete information. You are responsible for:</p>
+        <ul>
+            <li>Maintaining account security</li>
+            <li>All activities under your account</li>
+            <li>Notifying us of unauthorized use</li>
+            <li>One account per business (multiple users allowed per plan)</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-credit-card"></i> 3. Subscription Plans & Payments</h2>
+        
+        <h3 style="margin: 20px 0 10px; font-size: 16px;">Available Plans:</h3>
+        <table>
+            <tr>
+                <th>Plan</th>
+                <th>Price (Monthly)</th>
+                <th>Features</th>
+            </tr>
+            <tr>
+                <td>Free</td>
+                <td>₹0</td>
+                <td>2 users, 50 products</td>
+            </tr>
+            <tr>
+                <td>Basic</td>
+                <td>₹499</td>
+                <td>5 users, 200 products, GST</td>
+            </tr>
+            <tr>
+                <td>Premium</td>
+                <td>₹999</td>
+                <td>15 users, 1000 products, API</td>
+            </tr>
+            <tr>
+                <td>Enterprise</td>
+                <td>₹1999</td>
+                <td>Unlimited, priority support</td>
+            </tr>
+        </table>
+        
+        <p><strong>Payment Terms:</strong></p>
+        <ul>
+            <li>Billed monthly in advance</li>
+            <li>No refunds for partial months</li>
+            <li>Downgrades effective next billing cycle</li>
+            <li>Taxes (GST) as applicable</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-undo-alt"></i> 4. Cancellation & Refunds</h2>
+        <p>You may cancel your subscription anytime from account settings. Upon cancellation:</p>
+        <ul>
+            <li>Access continues until end of billing period</li>
+            <li>No prorated refunds for unused time</li>
+            <li>Data retained for 30 days (reactivation possible)</li>
+            <li>After 30 days, data may be permanently deleted</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-chart-line"></i> 5. Usage Limits & Fair Use</h2>
+        <p>Each plan has defined limits. Exceeding limits may result in:</p>
+        <ul>
+            <li>Notification to upgrade plan</li>
+            <li>Temporary restrictions on adding new data</li>
+            <li>Additional charges for overage (Enterprise plans)</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-ban"></i> 6. Prohibited Activities</h2>
+        <p>You may not use HisaabLite to:</p>
+        <ul>
+            <li>Violate any laws or regulations</li>
+            <li>Infringe intellectual property rights</li>
+            <li>Distribute malware or harmful code</li>
+            <li>Attempt to access other users' data</li>
+            <li>Use for illegal transactions</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-shield-alt"></i> 7. Data Ownership</h2>
+        <p>You retain all rights to your business data. We claim no ownership over your:</p>
+        <ul>
+            <li>Product catalogs</li>
+            <li>Customer information</li>
+            <li>Sales records</li>
+            <li>Invoices generated</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-wifi"></i> 8. Service Availability</h2>
+        <p>We strive for 99.9% uptime but do not guarantee uninterrupted service. We reserve the right to:</p>
+        <ul>
+            <li>Perform maintenance with notice</li>
+            <li>Modify features with advance notice</li>
+            <li>Suspend service for violations</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-gavel"></i> 9. Limitation of Liability</h2>
+        <p>HisaabLite shall not be liable for:</p>
+        <ul>
+            <li>Indirect or consequential damages</li>
+            <li>Loss of profits or data</li>
+            <li>Service interruptions</li>
+            <li>Amount exceeding fees paid in last 12 months</li>
+        </ul>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-balance-scale"></i> 10. Governing Law</h2>
+        <p>These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Mumbai.</p>
+    </div>
+    
+    <div class="terms-section">
+        <h2><i class="fas fa-envelope"></i> 11. Contact Information</h2>
+        <p>For questions about these terms:</p>
+        <p style="margin-top: 10px;">
+            <i class="fas fa-envelope" style="color: #2563eb;"></i> legal@hisaablite.com<br>
+            <i class="fas fa-phone" style="color: #2563eb;"></i> +91 98765 43210<br>
+            <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> Registered Office: Mumbai, India
+        </p>
+    </div>
+</div>
+
+<!-- Footer (same as privacy page) -->
+<div class="footer">
+    <!-- ... same footer as privacy page ... -->
+    <div class="footer-content">
+        <div>
+            <div class="footer-logo">
+                <div class="logo-icon">HL</div>
+                <span style="font-weight: 600;">HisaabLite</span>
+            </div>
+            <p style="color: #64748b; font-size: 13px; margin-top: 16px;">
+                Simple billing & inventory<br>for Indian businesses
+            </p>
+        </div>
+        <div class="footer-links">
+            <div class="footer-column">
+                <h4>Product</h4>
+                <a href="/features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/demo">Demo</a>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <a href="/about">About</a>
+                <a href="/blog">Blog</a>
+                <a href="/careers">Careers</a>
+            </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <a href="/support">Help Center</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms" class="active">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 HisaabLite. All rights reserved.</span>
+        <span>Made with <span style="color: #ef4444;">❤️</span> in India</span>
+    </div>
+</div>
+
+</body>
+</html>

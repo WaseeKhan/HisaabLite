@@ -400,6 +400,86 @@
             color: #2563eb;
         }
 
+        /* WhatsApp specific styles */
+        .whatsapp-status-connected {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .whatsapp-status-disconnected {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .whatsapp-btn-primary {
+            background: #25D366;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .whatsapp-btn-primary:hover {
+            background: #20b859;
+            transform: translateY(-2px);
+        }
+
+        .whatsapp-btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .whatsapp-btn-danger:hover {
+            background: #fecaca;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            margin-top: 20px;
+            border: 2px solid #25D366;
+        }
+
+        .whatsapp-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+
+        .whatsapp-input:focus {
+            border-color: #25D366;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
         /* ===== FOOTER ===== */
         .footer {
             background: white;
@@ -506,6 +586,13 @@
             background: #cbd5e1;
             border-radius: 10px;
         }
+
+        #qrCodeImage {
+            min-height: 240px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -527,6 +614,7 @@
             <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
             <a class="active" th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
+            <a th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
         </div>
 
         <form th:action="@{/logout}" method="post">
@@ -573,7 +661,7 @@
                     <div class="info-value" th:text="${planType}">PREMIUM</div>
                 </div>
 
-                <!-- CHANGE PASSWORD LINK - ADDED HERE (RIGHT SIDE OF SUBSCRIPTION) -->
+                <!-- CHANGE PASSWORD LINK -->
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-key"></i> Password</span>
                     <a th:href="@{/forgot-password}" class="password-link">
@@ -643,6 +731,100 @@
                     </a>
                 </div>
             </form>
+
+            <!-- ===== WHATSAPP INTEGRATION SECTION ===== -->
+            <div style="margin-top: 40px; border-top: 2px solid #f1f5f9; padding-top: 24px;">
+
+                <!-- Section Title -->
+                <div class="form-title" style="margin-bottom: 20px;">
+                    <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp Business Integration
+                </div>
+
+                <!-- Status Display - Connected -->
+                <div th:if="${shop.whatsappConnected}" class="whatsapp-status-connected">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span
+                            style="background: #22c55e; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
+                        <span style="font-weight: 600; color: #166534;">WhatsApp Connected</span>
+                        <span style="color: #64748b; font-size: 14px;" th:if="${shop.whatsappNumber}">
+                            <i class="fab fa-whatsapp" style="color: #25D366;"></i> +91 <span
+                                th:text="${shop.whatsappNumber}">9876543210</span>
+                        </span>
+                        <button onclick="disconnectWhatsApp()" class="whatsapp-btn-danger" style="margin-left: auto;">
+                            <i class="fas fa-unlink"></i> Disconnect
+                        </button>
+                    </div>
+                    <p
+                        style="font-size: 13px; color: #166534; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-check-circle"></i>
+                        Your WhatsApp is active. Invoices will be sent from your business number.
+                    </p>
+                </div>
+
+                <!-- Status Display - Not Connected -->
+                <div th:unless="${shop.whatsappConnected}" class="whatsapp-status-disconnected">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <span
+                            style="background: #ef4444; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
+                        <span style="font-weight: 600; color: #991b1b;">WhatsApp Not Connected</span>
+                    </div>
+
+                    <!-- WhatsApp Number Input -->
+                    <div style="margin-bottom: 16px;">
+                        <label
+                            style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px;">
+                            <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp Business Number
+                        </label>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" id="whatsappNumber" class="whatsapp-input"
+                                placeholder="Enter 10-digit WhatsApp number" maxlength="10"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <button onclick="saveWhatsAppNumber()" class="whatsapp-btn-primary">
+                                <i class="fab fa-whatsapp"></i> Save & Generate QR
+                            </button>
+                        </div>
+                        <p style="font-size: 12px; color: #64748b; margin-top: 6px;">
+                            <i class="fas fa-info-circle"></i>
+                            This number will appear as sender when you send invoices to customers
+                        </p>
+                    </div>
+                </div>
+
+                <!-- QR Code Section (Hidden by default) -->
+                <div id="qrSection" style="display: none;" class="qr-container">
+                    <h4 style="margin-bottom: 16px; color: #0f172a;">
+                        <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                        Connect Your WhatsApp
+                    </h4>
+                    <p style="color: #475569; margin-bottom: 20px;">
+                        Scan this QR code with <strong th:text="${shop.name}"></strong>'s WhatsApp Business app
+                    </p>
+                    <div id="qrCodeImage"
+                        style="margin-bottom: 20px; min-height: 200px; display: flex; justify-content: center; align-items: center;">
+                        <!-- QR code will be injected here -->
+                        <div class="qr-placeholder" style="color: #64748b;">QR code will appear here after generation...
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">
+                        Instance: <span id="instanceName"
+                            style="font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;"></span>
+                    </p>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button onclick="closeQR()" class="btn-secondary" style="flex: 0 1 auto; padding: 10px 24px;">
+                            Close
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Reconnect Option (if connected) -->
+                <div th:if="${shop.whatsappConnected}" style="text-align: center; margin-top: 16px;">
+                    <button onclick="reconnectWhatsApp()" class="btn-secondary"
+                        style="flex: 0 1 auto; padding: 10px 24px;">
+                        <i class="fas fa-sync-alt"></i> Reconnect / Change Number
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- FOOTER -->
@@ -657,13 +839,249 @@
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>
                 <a href="#">Support</a>
-                <span class="version">v1.3.0</span>
+                <span class="version">v2.0.0</span>
                 <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
                     operational</span>
             </div>
         </div>
     </div>
 
+
+
+
+    <div id="whatsappModal" style="
+                display:none;
+                position:fixed;
+                top:0;
+                left:0;
+                width:100%;
+                height:100%;
+                background:rgba(0,0,0,0.5);
+                z-index:9999;
+                justify-content:center;
+                align-items:center;
+                ">
+
+        <div style="
+                background:white;
+                width:420px;
+                border-radius:16px;
+                padding:28px;
+                text-align:center;
+                box-shadow:0 20px 40px rgba(0,0,0,0.15);
+                ">
+
+            <h3 style="margin-bottom:10px;">
+                <i class="fab fa-whatsapp" style="color:#25D366"></i>
+                Connect WhatsApp
+            </h3>
+
+            <p style="font-size:14px;color:#64748b;margin-bottom:20px;">
+                Follow the steps to connect your WhatsApp
+            </p>
+
+            <div id="modalContent">
+                Loading...
+            </div>
+
+            <button onclick="closeWhatsAppModal()" class="btn-secondary" style="margin-top:20px;">
+                Close
+            </button>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        function renderWhatsAppQR(qrData) {
+
+            const modalContainer = document.querySelector("#whatsappModal #qrCodeImage");
+
+            if (!modalContainer) {
+                console.error("QR container not found in modal");
+                return;
+            }
+
+            modalContainer.innerHTML = "";
+
+            if (!qrData) {
+                modalContainer.innerHTML = '<div style="color:red">QR data not available</div>';
+                return;
+            }
+
+            // Evolution API QR ko modify mat karo
+            const cleanQR = qrData;
+
+            console.log("QR length:", cleanQR.length);
+            console.log("QR preview:", cleanQR.substring(0, 50));
+
+            try {
+
+                new QRCode(modalContainer, {
+                    text: cleanQR,
+                    width: 240,
+                    height: 240,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                console.log("QR generated successfully");
+
+                setTimeout(() => {
+                    const img = modalContainer.querySelector("img");
+                    if (img) {
+                        img.style.display = "block";
+                        img.style.margin = "0 auto";
+                    }
+                }, 100);
+
+            } catch (error) {
+                console.error("QR generation error:", error);
+                modalContainer.innerHTML =
+                    `<div style="color:red">QR generation failed</div>`;
+            }
+        }
+        function openWhatsAppModal() {
+            const modal = document.getElementById("whatsappModal");
+            if (modal) {
+                modal.style.display = "flex";
+            }
+        }
+
+        function closeWhatsAppModal() {
+            document.getElementById("whatsappModal").style.display = "none";
+        }
+
+        function startConnectionPolling(instanceName) {
+            const interval = setInterval(() => {
+                fetch('/profile/whatsapp/check-connection/' + instanceName)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.connected) {
+                            clearInterval(interval);
+                            closeWhatsAppModal();
+                            setTimeout(() => location.reload(), 500);
+                        }
+                    })
+                    .catch(err => console.error("Polling error:", err));
+            }, 3000);
+        }
+
+        window.saveWhatsAppNumber = function () {
+            const number = document.getElementById('whatsappNumber').value;
+
+            if (!number || number.length !== 10) {
+                alert('Please enter valid 10-digit WhatsApp number');
+                return;
+            }
+
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const btn = document.querySelector('button[onclick="saveWhatsAppNumber()"]');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            btn.disabled = true;
+
+            fetch('/profile/whatsapp/create-instance?whatsappNumber=' + number, {
+                method: 'POST',
+                headers: { [header]: token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Response:", data);
+
+                    if (data.success || data.qrCode) {
+                        const instanceName = data.instanceName;
+                        const qrData = data.qrCode;
+
+                        console.log("QR DATA:", qrData);
+
+                        // Modal content
+                        const modalHtml = `
+                <div style="padding:10px">
+                    <div style="background:#f0fdf4;border-radius:12px;padding:16px;margin-bottom:20px">
+                        <i class="fas fa-check-circle" style="color:#22c55e;font-size:40px"></i>
+                        <h3 style="margin:10px 0;color:#166534">Instance Created</h3>
+                        <p style="font-size:13px">Instance: <b>${instanceName}</b></p>
+                    </div>
+
+                    <div id="qrCodeImage" style="text-align:center;margin-bottom:20px;min-height:240px;display:flex;justify-content:center;align-items:center;"></div>
+
+                    <p style="font-size:12px;color:#64748b;margin-top:20px;text-align:center">
+                        Scan QR with WhatsApp
+                    </p>
+                </div>
+            `;
+
+                        document.getElementById("modalContent").innerHTML = modalHtml;
+
+                        
+                        setTimeout(() => {
+                            renderWhatsAppQR(qrData);
+                            openWhatsAppModal();
+                            startConnectionPolling(instanceName);
+                        }, 200);
+
+                    } else {
+                        alert('Error: ' + (data.error || 'Failed to create instance'));
+                    }
+
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        };
+
+        window.checkConnection = function () {
+            const instanceName = document.getElementById('instanceName').innerText;
+            if (!instanceName || instanceName === 'N/A') {
+                alert('No instance found');
+                return;
+            }
+
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+            fetch('/profile/whatsapp/check-connection/' + instanceName, {
+                headers: { [header]: token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.connected) {
+                        alert('WhatsApp connected successfully!');
+                        location.reload();
+                    } else {
+                        alert('Not connected yet. Please scan QR code.');
+                    }
+                });
+        };
+
+        window.disconnectWhatsApp = function () {
+            if (!confirm('Are you sure you want to disconnect WhatsApp?')) return;
+
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+            fetch('/profile/whatsapp/reset', {
+                method: 'POST',
+                headers: { [header]: token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+        };
+
+        window.reconnectWhatsApp = window.disconnectWhatsApp;
+    </script>
 </body>
 
 </html>

@@ -7,12 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
         * {
             margin: 0;
@@ -127,7 +129,7 @@
             text-transform: uppercase;
             padding: 0 10px 4px 10px;
         }
-        
+
 
         .quick-action-item {
             display: flex;
@@ -314,15 +316,37 @@
         }
 
         /* Plan colors */
-        .plan-free .plan-icon { color: #64748b; }
-        .plan-basic .plan-icon { color: #2563eb; }
-        .plan-premium .plan-icon { color: #7c3aed; }
-        .plan-enterprise .plan-icon { color: #dc2626; }
-        
-        .plan-free .plan-name { color: #64748b; }
-        .plan-basic .plan-name { color: #2563eb; }
-        .plan-premium .plan-name { color: #7c3aed; }
-        .plan-enterprise .plan-name { color: #dc2626; }
+        .plan-free .plan-icon {
+            color: #64748b;
+        }
+
+        .plan-basic .plan-icon {
+            color: #2563eb;
+        }
+
+        .plan-premium .plan-icon {
+            color: #7c3aed;
+        }
+
+        .plan-enterprise .plan-icon {
+            color: #dc2626;
+        }
+
+        .plan-free .plan-name {
+            color: #64748b;
+        }
+
+        .plan-basic .plan-name {
+            color: #2563eb;
+        }
+
+        .plan-premium .plan-name {
+            color: #7c3aed;
+        }
+
+        .plan-enterprise .plan-name {
+            color: #dc2626;
+        }
 
         /* ===== COMPACT CHARTS ===== */
         .charts-grid {
@@ -462,13 +486,40 @@
             font-weight: 600;
         }
 
-        .badge-premium { background: #ede9fe; color: #7c3aed; }
-        .badge-basic { background: #dbeafe; color: #2563eb; }
-        .badge-free { background: #f1f5f9; color: #64748b; }
-        .badge-enterprise { background: #fee2e2; color: #dc2626; }
-        .badge-owner { background: #fef3c7; color: #b45309; }
-        .badge-manager { background: #dbeafe; color: #2563eb; }
-        .badge-cashier { background: #d1fae5; color: #059669; }
+        .badge-premium {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .badge-basic {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-free {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .badge-enterprise {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-owner {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-manager {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-cashier {
+            background: #d1fae5;
+            color: #059669;
+        }
 
         .status-badge {
             display: inline-block;
@@ -478,8 +529,15 @@
             font-weight: 500;
         }
 
-        .status-active { background: #d1fae5; color: #059669; }
-        .status-inactive { background: #fee2e2; color: #dc2626; }
+        .status-active {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
 
         .actions {
             display: flex;
@@ -515,7 +573,7 @@
             align-items: center;
             font-size: 8px;
             color: #94a3b8;
-            
+
         }
 
         .footer-left {
@@ -551,8 +609,38 @@
             font-size: 7px;
         }
 
-        .text-center { text-align: center; }
-        .mt-1 { margin-top: 4px; }
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 {
+            margin-top: 4px;
+        }
+
+        /* Ensure stat cards are consistent height */
+        .stat-card {
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Make chart area full height */
+        .chart-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Responsive for mobile */
+        @media (max-width: 768px) {
+            div[style*="display: flex; gap: 12px;"] {
+                flex-direction: column;
+            }
+
+            .chart-card {
+                min-height: 200px;
+            }
+        }
     </style>
 </head>
 
@@ -581,6 +669,11 @@
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
             </a>
+            <a th:href="@{/admin/support}">
+
+                <i class="fas fa-headset"></i> <span> Support </span>
+            </a>
+
         </div>
 
         <div class="quick-actions">
@@ -633,7 +726,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
                 <div class="stat-content">
@@ -644,7 +737,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
                 <div class="stat-content">
@@ -653,21 +746,22 @@
                     <div class="stat-label">Awaiting approval</div>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon-wrapper"><i class="fas fa-chart-line"></i></div>
                 <div class="stat-content">
                     <div class="stat-title">Revenue</div>
-                    <div class="stat-value" th:text="${#numbers.formatDecimal(stats.totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</div>
+                    <div class="stat-value"
+                        th:text="${#numbers.formatDecimal(stats.totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</div>
                     <div class="stat-label">This month</div>
                 </div>
             </div>
         </div>
 
-       
+
         <div class="plan-stats-grid" th:if="${stats.popularPlans != null}">
-            <div class="plan-card" th:each="plan : ${stats.popularPlans}" 
-                 th:classappend="'plan-' + ${#strings.toLowerCase(plan.planName)}">
+            <div class="plan-card" th:each="plan : ${stats.popularPlans}"
+                th:classappend="'plan-' + ${#strings.toLowerCase(plan.planName)}">
                 <div class="plan-icon" th:classappend="
                     ${plan.planName == 'FREE'} ? 'fas fa-gem' : 
                     (${plan.planName == 'BASIC'} ? 'fas fa-rocket' : 
@@ -741,12 +835,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="shop, iterStat : ${stats.recentShops}" 
+                        <tr th:each="shop, iterStat : ${stats.recentShops}"
                             th:if="${not #lists.isEmpty(stats.recentShops)}"
                             th:classappend="${iterStat.index == 0} ? 'latest-row' : ''">
                             <td>
                                 <span th:text="${shop.name}">TechMart</span>
-                                <span th:if="${iterStat.index == 0}" class="recent-badge" style="margin-left: 4px;">Newest</span>
+                                <span th:if="${iterStat.index == 0}" class="recent-badge"
+                                    style="margin-left: 4px;">Newest</span>
                             </td>
                             <td>
                                 <span class="badge" th:text="${shop.planType}" th:classappend="
@@ -764,8 +859,10 @@
                                 </span>
                             </td>
                             <td class="actions">
-                                <a th:href="@{/admin/shops/{id}(id=${shop.id})}" class="btn-icon"><i class="fas fa-eye"></i></a>
-                                <a th:href="@{/admin/shops/edit/{id}(id=${shop.id})}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                                <a th:href="@{/admin/shops/{id}(id=${shop.id})}" class="btn-icon"><i
+                                        class="fas fa-eye"></i></a>
+                                <a th:href="@{/admin/shops/edit/{id}(id=${shop.id})}" class="btn-icon"><i
+                                        class="fas fa-edit"></i></a>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(stats.recentShops)}">
@@ -796,12 +893,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="user, iterStat : ${stats.recentUsers}" 
+                        <tr th:each="user, iterStat : ${stats.recentUsers}"
                             th:if="${not #lists.isEmpty(stats.recentUsers)}"
                             th:classappend="${iterStat.index == 0} ? 'latest-row' : ''">
                             <td>
                                 <span th:text="${user.name}">John Doe</span>
-                                <span th:if="${iterStat.index == 0}" class="recent-badge" style="margin-left: 4px;">Newest</span>
+                                <span th:if="${iterStat.index == 0}" class="recent-badge"
+                                    style="margin-left: 4px;">Newest</span>
                             </td>
                             <td th:text="${user.username}">john@email.com</td>
                             <td>
@@ -813,8 +911,10 @@
                             </td>
                             <td th:text="${user.shop}">TechMart</td>
                             <td class="actions">
-                                <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn-icon"><i class="fas fa-eye"></i></a>
-                                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                                <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn-icon"><i
+                                        class="fas fa-eye"></i></a>
+                                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-icon"><i
+                                        class="fas fa-edit"></i></a>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(stats.recentUsers)}">
@@ -825,8 +925,70 @@
             </div>
         </div>
 
+
+
+
+
+
+        <!-- Stats Cards - 4 in one row -->
+        <!-- MAIN CONTAINER -->
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+
+            <!-- LEFT SIDE: 2x2 Grid for 4 Cards -->
+            <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+
+                <!-- Card 1 -->
+                <div class="stat-card" style="margin: 0;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-ticket-alt"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-title">Total Tickets</div>
+                        <div class="stat-value" th:text="${stats.totalTickets}">0</div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="stat-card" style="margin: 0;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-title">Open</div>
+                        <div class="stat-value" th:text="${stats.openTickets}">0</div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="stat-card" style="margin: 0;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-spinner"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-title">In Progress</div>
+                        <div class="stat-value" th:text="${stats.inProgressTickets}">0</div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="stat-card" style="margin: 0;">
+                    <div class="stat-icon-wrapper"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-title">Resolved</div>
+                        <div class="stat-value" th:text="${stats.resolvedTickets}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Chart Area -->
+            <div style="flex: 1;">
+                <div class="chart-card" style="margin:0; height: 100%; min-height: 180px;">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-bar"></i> Ticket Trends</h3>
+                        <span class="chart-badge" th:text="${stats.period}">Last 7 days</span>
+                    </div>
+                    <canvas id="ticketChart" style="height: 140px; width: 100%;"></canvas>
+                </div>
+            </div>
+
+        </div>
+        <br>
         <!-- Footer -->
-        <div class="footer">
+        <div class="footer" style="margin-top: auto; padding: 12px 16px;">
             <div class="footer-left">
                 <i class="fas fa-store"></i>
                 <span>© 2026 HisaabLite</span>
@@ -845,14 +1007,19 @@
     </div>
 
     <!-- Chart Initialization with Real Data -->
+
+
+
     <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Get data from server
-            const revenueLabels = /*[[${stats.revenueLabels}]]*/ [];
-            const revenueData = /*[[${stats.revenueData}]]*/ [];
-            const planLabels = /*[[${stats.planLabels}]]*/ ['FREE', 'BASIC', 'PREMIUM', 'ENTERPRISE'];
-            const planData = /*[[${stats.planData}]]*/ [0, 0, 0, 0];
-            const usersData = /*[[${stats.usersData}]]*/ [];
+            const revenueLabels = /*[[${stats.revenueLabels}]]*/[];
+            const revenueData = /*[[${stats.revenueData}]]*/[];
+            const planLabels = /*[[${stats.planLabels}]]*/['FREE', 'BASIC', 'PREMIUM', 'ENTERPRISE'];
+            const planData = /*[[${stats.planData}]]*/[0, 0, 0, 0];
+            const usersData = /*[[${stats.usersData}]]*/[];
+          
+            const ticketData = /*[[${stats.ticketData}]]*/[0, 0, 0, 0, 0, 0, 0];
 
             // Colors
             const planColors = {
@@ -861,7 +1028,7 @@
                 'PREMIUM': '#7c3aed',
                 'ENTERPRISE': '#dc2626'
             };
-            
+
             const backgroundColors = planLabels.map(label => planColors[label] || '#94a3b8');
 
             // Revenue Chart
@@ -888,7 +1055,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return '₹' + context.raw.toFixed(2);
                                 }
                             }
@@ -898,16 +1065,16 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: '#f1f5f9', lineWidth: 0.5 },
-                            ticks: { 
+                            ticks: {
                                 font: { size: 8 },
-                                callback: function(value) {
+                                callback: function (value) {
                                     return '₹' + value;
                                 }
                             }
                         },
-                        x: { 
+                        x: {
                             grid: { display: false },
-                            ticks: { 
+                            ticks: {
                                 font: { size: 8 },
                                 maxRotation: 45,
                                 minRotation: 45
@@ -943,7 +1110,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const label = context.label || '';
                                     const value = context.raw || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -976,7 +1143,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return context.raw + ' new users';
                                 }
                             }
@@ -986,14 +1153,14 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: '#f1f5f9', lineWidth: 0.5 },
-                            ticks: { 
+                            ticks: {
                                 font: { size: 8 },
                                 stepSize: 1
                             }
                         },
-                        x: { 
+                        x: {
                             grid: { display: false },
-                            ticks: { 
+                            ticks: {
                                 font: { size: 8 },
                                 maxRotation: 45,
                                 minRotation: 45
@@ -1002,7 +1169,61 @@
                     }
                 }
             });
+
+            if (document.getElementById('ticketChart')) {
+                new Chart(document.getElementById('ticketChart'), {
+                    type: 'line',
+                    data: {
+                        labels: revenueLabels,
+                        datasets: [{
+                            label: 'New Tickets',
+                            data: ticketData,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                            borderWidth: 1.5,
+                            tension: 0.2,
+                            fill: true,
+                            pointRadius: 1,
+                            pointHoverRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.raw + ' tickets';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f1f5f9', lineWidth: 0.5 },
+                                ticks: {
+                                    font: { size: 8 },
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    font: { size: 8 },
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         });
     </script>
+
 </body>
+
 </html>

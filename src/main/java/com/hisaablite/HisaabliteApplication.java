@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.hisaablite.admin.repository"
 })
 public class HisaabliteApplication {
+
 	public static void main(String[] args) {
 		SpringApplication.run(HisaabliteApplication.class, args);
 	}

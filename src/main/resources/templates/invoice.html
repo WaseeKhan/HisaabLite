@@ -6,13 +6,20 @@
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Your existing styles - unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -132,7 +139,10 @@
             padding-bottom: 6px;
         }
 
-        .info-title i { color: #2563eb; font-size: 11px; }
+        .info-title i {
+            color: #2563eb;
+            font-size: 11px;
+        }
 
         .info-content {
             display: flex;
@@ -154,7 +164,9 @@
             text-align: center;
         }
 
-        .info-row .value { color: #1e293b; }
+        .info-row .value {
+            color: #1e293b;
+        }
 
         /* ===== ITEMS SECTION ===== */
         .items-section {
@@ -178,7 +190,9 @@
             gap: 4px;
         }
 
-        .section-header h3 i { color: #2563eb; }
+        .section-header h3 i {
+            color: #2563eb;
+        }
 
         .badge {
             font-size: 9px;
@@ -220,16 +234,43 @@
         }
 
         /* Column-specific widths */
-        .col-sno { width: 8%; text-align: center; }
-        .col-product { width: 42%; text-align: left; }
-        .col-price { width: 15%; text-align: right; }
-        .col-qty { width: 10%; text-align: center; }
-        .col-subtotal { width: 25%; text-align: right; }
+        .col-sno {
+            width: 8%;
+            text-align: center;
+        }
+
+        .col-product {
+            width: 42%;
+            text-align: left;
+        }
+
+        .col-price {
+            width: 15%;
+            text-align: right;
+        }
+
+        .col-qty {
+            width: 10%;
+            text-align: center;
+        }
+
+        .col-subtotal {
+            width: 25%;
+            text-align: right;
+        }
 
         /* Text alignment classes */
-        .text-left { text-align: left; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
 
         /* Product cell with GST */
         .product-name-cell {
@@ -374,9 +415,20 @@
             border-bottom: none;
         }
 
-        .summary-label { color: #5b6778; font-weight: 500; }
-        .summary-value { font-weight: 600; color: #1e293b; }
-        .summary-value.highlight { font-size: 14px; color: #059669; }
+        .summary-label {
+            color: #5b6778;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .summary-value.highlight {
+            font-size: 14px;
+            color: #059669;
+        }
 
         .gst-row {
             display: flex;
@@ -428,7 +480,9 @@
             gap: 4px;
         }
 
-        .footer-note .heart { color: #ef4444; }
+        .footer-note .heart {
+            color: #ef4444;
+        }
 
         .btn {
             padding: 6px 12px;
@@ -445,19 +499,60 @@
             gap: 4px;
         }
 
-        .btn:hover { background: #e2e8f0; color: #2563eb; }
-
-        @media print {
-            body { background: white; padding: 0; }
-            .invoice-wrapper { box-shadow: none; border: none; }
-            .print-actions, .btn { display: none; }
-            .info-grid { background: white; }
-            .summary-card { background: white; }
+        .btn:hover {
+            background: #e2e8f0;
+            color: #2563eb;
         }
 
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        /* PDF Download Button Style */
+        .btn-pdf {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: #b91c1c !important;
+            color: white !important;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice-wrapper {
+                box-shadow: none;
+                border: none;
+            }
+
+            .print-actions,
+            .btn {
+                display: none;
+            }
+
+            .info-grid {
+                background: white;
+            }
+
+            .summary-card {
+                background: white;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -482,7 +577,7 @@
 
         <!-- ===== SELLER & CUSTOMER INFO ===== -->
         <div class="info-grid">
-            
+
             <!-- SELLER DETAILS -->
             <div class="info-card">
                 <div class="info-title">
@@ -512,7 +607,8 @@
                 <div class="info-content">
                     <div class="info-row">
                         <span class="icon"><i class="fas fa-user"></i></span>
-                        <span class="value" th:text="${sale.customerName != null ? sale.customerName : 'Walk-in'}">Walk-in</span>
+                        <span class="value"
+                            th:text="${sale.customerName != null ? sale.customerName : 'Walk-in'}">Walk-in</span>
                     </div>
                     <div class="info-row">
                         <span class="icon"><i class="fas fa-phone"></i></span>
@@ -568,7 +664,7 @@
 
         <!-- ===== BOTTOM SECTION ===== -->
         <div class="bottom-section">
-            
+
             <!-- LEFT: SIGNATURE & TERMS -->
             <div class="signature-area">
                 <div class="terms-line">
@@ -597,11 +693,12 @@
 
             <!-- RIGHT: SUMMARY CARD -->
             <div class="summary-card">
-                
+
                 <!-- Taxable Amount -->
                 <div class="summary-row" th:if="${sale.totalGstAmount != null and sale.totalGstAmount > 0}">
                     <span class="summary-label">Taxable</span>
-                    <span class="summary-value">₹<span th:text="${sale.totalAmount - sale.totalGstAmount}"></span></span>
+                    <span class="summary-value">₹<span
+                            th:text="${sale.totalAmount - sale.totalGstAmount}"></span></span>
                 </div>
 
                 <!-- CGST + SGST -->
@@ -615,7 +712,7 @@
                         <span>₹<span th:text="${sale.totalGstAmount / 2}"></span></span>
                     </div>
                 </div>
-                
+
                 <!-- Total GST -->
                 <div class="summary-row" th:if="${sale.totalGstAmount != null and sale.totalGstAmount > 0}">
                     <span class="summary-label">Total GST</span>
@@ -625,14 +722,15 @@
                 <!-- Subtotal -->
                 <div class="summary-row">
                     <span class="summary-label">Subtotal</span>
-                    <span class="summary-value">₹<span th:text="${sale.totalAmount - (sale.totalGstAmount ?: 0)}"></span></span>
+                    <span class="summary-value">₹<span
+                            th:text="${sale.totalAmount - (sale.totalGstAmount ?: 0)}"></span></span>
                 </div>
 
                 <!-- Discount -->
                 <div class="summary-row" th:if="${sale.discountAmount != null and sale.discountAmount > 0}">
                     <span class="summary-label">Discount</span>
-                    <span class="summary-value">- ₹<span th:text="${sale.discountAmount}"></span> 
-                    (<span th:text="${sale.discountPercent}"></span>%)</span>
+                    <span class="summary-value">- ₹<span th:text="${sale.discountAmount}"></span>
+                        (<span th:text="${sale.discountPercent}"></span>%)</span>
                 </div>
 
                 <!-- Grand Total -->
@@ -662,20 +760,160 @@
                 </div>
             </div>
         </div>
-
-        <!-- ===== FOOTER ===== -->
+        <!-- ===== FOOTER WITH 3 BUTTONS ===== -->
         <div class="invoice-footer">
             <div class="footer-note">
                 <span class="heart">❤️</span>
                 <span>Thank you for your business</span>
             </div>
-            <div class="print-actions">
+            <div class="print-actions" style="display: flex; gap: 8px;">
+                <!-- Print Button -->
                 <button class="btn" onclick="window.print()">
                     <i class="fas fa-print"></i> Print
                 </button>
+
+                <!-- Download PDF Button -->
+                <button class="btn btn-pdf" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+
+                <!-- Send Invoice on WhatsApp Button -->
+                <button class="btn" onclick="showWhatsAppModal()" style="background: #25D366; color: white;">
+                    <i class="fab fa-whatsapp"></i> Send
+                </button>
             </div>
         </div>
-    </div>
 
+        <!-- WhatsApp Modal -->
+        <div id="whatsappModal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="background: white; max-width: 400px; margin: 100px auto; padding: 24px; border-radius: 12px;">
+                <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                    Send Invoice via WhatsApp
+                </h3>
+
+                <!-- Phone input - Auto-filled with customer phone -->
+                <input type="text" id="whatsappPhone" placeholder="Enter phone number (e.g., 9876543210)"
+                    th:value="${sale.customerPhone}"
+                    style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px;">
+
+                <!-- Info text -->
+                <p style="font-size: 12px; color: #666; margin-bottom: 16px;">
+                    <i class="fas fa-info-circle"></i>
+                    PDF invoice will be sent as attachment
+                </p>
+
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button onclick="closeWhatsAppModal()"
+                        style="padding: 8px 16px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="sendWhatsAppInvoice()"
+                        style="padding: 8px 16px; background: #25D366; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        <i class="fab fa-whatsapp"></i> Send PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification for Success/Error messages -->
+        <div id="toast"
+            style="display: none; position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 8px; z-index: 1001;">
+        </div>
+
+        <!-- JavaScript for WhatsApp functionality -->
+        <script>
+            function showWhatsAppModal() {
+                document.getElementById('whatsappModal').style.display = 'block';
+            }
+
+            function closeWhatsAppModal() {
+                document.getElementById('whatsappModal').style.display = 'none';
+            }
+
+            function downloadPDF() {
+                const saleId = window.location.pathname.split('/').pop();
+                showToast('Generating PDF...', 'info');
+                window.location.href = `/sales/invoice/${saleId}/pdf`;
+            }
+
+            function sendWhatsAppInvoice() {
+                const phone = document.getElementById('whatsappPhone').value;
+                if (!phone) {
+                    showToast('Please enter phone number', 'error');
+                    return;
+                }
+
+                // Validate phone number (simple validation)
+                const phoneRegex = /^[0-9]{10}$/;
+                if (!phoneRegex.test(phone.replace(/[^0-9]/g, ''))) {
+                    showToast('Please enter valid 10-digit phone number', 'error');
+                    return;
+                }
+
+                const token = document.querySelector('meta[name="_csrf"]').content;
+                const header = document.querySelector('meta[name="_csrf_header"]').content;
+                const saleId = window.location.pathname.split('/').pop();
+
+                showToast('Sending invoice with PDF link...', 'info');
+
+                fetch(`/sales/invoice/${saleId}/send-whatsapp-pdf?phoneNumber=${encodeURIComponent(phone)}`, {
+                    method: 'POST',
+                    headers: {
+                        [header]: token,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('✅ Invoice with PDF link sent!', 'success');
+                        closeWhatsAppModal();
+                    } else {
+                        showToast('❌ Failed: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    showToast('❌ Error: ' + error.message, 'error');
+                });
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                toast.style.background = type === 'success' ? '#10b981' :
+                    type === 'error' ? '#ef4444' : '#3b82f6';
+                toast.textContent = message;
+
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            }
+        </script>
+
+        <!-- Additional Styles -->
+        <style>
+            .btn[style*="background: #25D366"]:hover {
+                background: #128C7E !important;
+            }
+
+            .btn-pdf {
+                background: #dc2626;
+                color: white;
+            }
+
+            .btn-pdf:hover {
+                background: #b91c1c !important;
+                color: white !important;
+            }
+
+            #whatsappModal input:focus {
+                outline: none;
+                border-color: #25D366;
+                box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+            }
+        </style>
 </body>
+
 </html>

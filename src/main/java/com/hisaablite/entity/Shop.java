@@ -5,7 +5,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Entity
 @Getter
 @Setter
@@ -23,7 +22,7 @@ public class Shop {
     private String name;
 
     @Column(nullable = false, unique = true)
-    private String panNumber;  
+    private String panNumber;
 
     private String gstNumber;
 
@@ -40,7 +39,7 @@ public class Shop {
     @Enumerated(EnumType.STRING)
     @Column(name = "plan_type")
     private PlanType planType = PlanType.FREE;
-    
+
     private String upiId;
 
     private boolean active = true;
@@ -49,5 +48,21 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop")
     private List<User> users;
+
+    // WhatsApp Integration Fields
+    @Column(name = "whatsapp_number")
+    private String whatsappNumber; // Shop ka WhatsApp business number
+
+    @Column(name = "whatsapp_instance_name")
+    private String whatsappInstanceName; // Evolution API instance name (shop_123)
+
+    @Column(name = "whatsapp_qr_code", length = 100000)
+    private String whatsappQrCode; // Base64 QR code
+
+    @Column(name = "whatsapp_connected")
+    private boolean whatsappConnected = false; // Connection status
+
+    @Column(name = "whatsapp_connected_at")
+    private LocalDateTime whatsappConnectedAt;
 
 }

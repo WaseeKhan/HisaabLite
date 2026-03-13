@@ -5,10 +5,15 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -20,25 +25,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.hisaablite.dto.CartItem;
+import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
 import com.hisaablite.entity.User;
-import com.hisaablite.entity.PlanType;  
 import com.hisaablite.repository.SaleItemRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.service.PdfService;
 import com.hisaablite.service.ProductService;
 import com.hisaablite.service.SaleService;
+import com.hisaablite.service.WhatsAppService;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;  
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/sales")
-@Slf4j 
+@Slf4j
 public class SaleController {
 
     private final ProductService productService;
@@ -46,6 +55,8 @@ public class SaleController {
     private final UserRepository userRepository;
     private final SaleRepository saleRepository;
     private final SaleItemRepository saleItemRepository;
+    private final WhatsAppService whatsAppService; 
+    private final PdfService pdfService;
 
     @GetMapping("/new")
     public String newSale(Model model, HttpSession session, Authentication authentication) {
@@ -70,13 +81,12 @@ public class SaleController {
         model.addAttribute("totalAmount", totalAmount);
         model.addAttribute("shop", user.getShop());
         model.addAttribute("role", user.getRole().name());
-        
-     
+
         PlanType planType = user.getShop().getPlanType();
         String planTypeDisplay = planType != null ? planType.name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
-        
-        log.info("Billing page loaded - Shop: {}, Plan: {}", 
+
+        log.info("Billing page loaded - Shop: {}, Plan: {}",
                 user.getShop().getName(), planTypeDisplay);
 
         return "sale-form";
@@ -120,7 +130,6 @@ public class SaleController {
 
                 int newQty = item.getQuantity() + quantity;
 
-           
                 if (newQty > product.getStockQuantity()) {
                     throw new RuntimeException("Not enough stock available");
                 }
@@ -200,6 +209,7 @@ public class SaleController {
             @RequestParam(required = false) Double changeReturned,
             @RequestParam(required = false) BigDecimal discountAmount,
             @RequestParam(required = false) BigDecimal discountPercent,
+            @RequestParam(required = false) boolean sendWhatsApp, 
             HttpSession session,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
@@ -220,8 +230,7 @@ public class SaleController {
 
             savedSale = saleService.completeSale(cart, user.getShop(), user);
 
-            // DISCOUNT LOGIC START
-
+            // DISCOUNT LOGIC START - EXACTLY AS BEFORE
             if (discountAmount == null)
                 discountAmount = BigDecimal.ZERO;
             if (discountPercent == null)
@@ -248,17 +257,13 @@ public class SaleController {
             savedSale.setDiscountAmount(discountAmount);
             savedSale.setDiscountPercent(discountPercent);
             savedSale.setTotalAmount(finalTotal);
-
             // DISCOUNT LOGIC END
 
             savedSale.setCustomerName(customerName);
             savedSale.setCustomerPhone(customerPhone);
             savedSale.setPaymentMode(paymentMode);
-            savedSale.setAmountReceived(
-                    amountReceived != null ? amountReceived : 0.0);
-
-            savedSale.setChangeReturned(
-                    changeReturned != null ? changeReturned : 0.0);
+            savedSale.setAmountReceived(amountReceived != null ? amountReceived : 0.0);
+            savedSale.setChangeReturned(changeReturned != null ? changeReturned : 0.0);
 
             saleRepository.save(savedSale);
 
@@ -269,20 +274,32 @@ public class SaleController {
             return "redirect:/sales/new";
         }
 
-        // SUCCESS REDIRECT WITH INVOICE ID
+        if (sendWhatsApp && savedSale != null && savedSale.getCustomerPhone() != null
+                && !savedSale.getCustomerPhone().isEmpty()) {
+            try {
+                boolean sent = whatsAppService.sendInvoice(savedSale, savedSale.getCustomerPhone());
+                if (sent) {
+                    redirectAttributes.addFlashAttribute("whatsappSuccess", "✅ Invoice sent on WhatsApp!");
+                } else {
+                    redirectAttributes.addFlashAttribute("whatsappWarning", "⚠️ Sale saved but WhatsApp failed");
+                }
+            } catch (Exception e) {
+                log.error("WhatsApp error during sale completion: {}", e.getMessage());
+                redirectAttributes.addFlashAttribute("whatsappError", "WhatsApp sending failed");
+            }
+        }
+
+      
         return "redirect:/sales/new?saved=true&invoiceId=" + savedSale.getId();
     }
 
     // generate invoice
-
     @GetMapping("/invoice/{saleId}")
     public String viewInvoice(@PathVariable Long saleId, Model model) {
 
-        // Fetch sale with shop to avoid lazy fetch errors
         Sale sale = saleRepository.findByIdWithShop(saleId)
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
 
-        // Fetch items for the sale
         List<SaleItem> items = saleItemRepository.findBySale(sale);
 
         model.addAttribute("sale", sale);
@@ -307,7 +324,7 @@ public class SaleController {
         model.addAttribute("salesPage", salesPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("role", user.getRole().name());
-       
+
         PlanType planType = user.getShop().getPlanType();
         model.addAttribute("planType", planType != null ? planType.name() : "FREE");
 
@@ -315,7 +332,6 @@ public class SaleController {
     }
 
     // cancel sale
-
     @GetMapping("/cancel/{id}")
     public String cancelSale(@PathVariable Long id,
             RedirectAttributes redirectAttributes) {
@@ -343,7 +359,6 @@ public class SaleController {
     }
 
     // cart live update
-
     @RequestMapping("/cart")
     @ResponseBody
     public List<CartItem> getCart(HttpSession session) {
@@ -372,7 +387,6 @@ public class SaleController {
 
             int newQty = item.getQuantity() + change;
 
-            // Agar quantity 0 ya negative ho gayi to remove
             if (newQty <= 0) {
                 cart.remove(index);
             } else {
@@ -389,14 +403,78 @@ public class SaleController {
     @ResponseBody
     public ResponseEntity<?> cancelSale(HttpSession session) {
         try {
-            // Clear cart from session
             session.removeAttribute("cart");
             session.removeAttribute("totalAmount");
-
-            // Return empty cart as JSON
             return ResponseEntity.ok(Collections.emptyList());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error cancelling sale");
         }
     }
+
+ 
+
+   @PostMapping("/invoice/{saleId}/send-whatsapp-pdf")
+@ResponseBody
+public ResponseEntity<?> sendWhatsAppWithPdf(
+        @PathVariable Long saleId,
+        @RequestParam String phoneNumber) {
+    
+    log.info("Received request to send PDF invoice {} to {}", saleId, phoneNumber);
+    
+    try {
+        Sale sale = saleRepository.findByIdWithShop(saleId)
+                .orElseThrow(() -> new RuntimeException("Sale not found"));
+        
+        boolean sent = whatsAppService.sendInvoiceWithPdf(sale, phoneNumber);
+        
+        if (sent) {
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Invoice sent successfully"
+            ));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Failed to send invoice"
+            ));
+        }
+        
+    } catch (Exception e) {
+        log.error("Error in sendWhatsAppWithPdf", e);
+        return ResponseEntity.badRequest().body(Map.of(
+            "error", e.getMessage()
+        ));
+    }
+}
+
+    // @GetMapping("/whatsapp/test")
+    // @ResponseBody
+    // public ResponseEntity<?> testWhatsApp() {
+    //     boolean connected = whatsAppService.isConnected();
+    //     return ResponseEntity.ok(Map.of(
+    //             "connected", connected,
+    //             "message", connected ? "WhatsApp connected!" : "WhatsApp not connected",
+    //             "timestamp", LocalDateTime.now().toString()));
+    // }
+
+
+
+/**
+ * Download invoice as PDF
+ */
+@GetMapping("/invoice/{saleId}/pdf")
+public ResponseEntity<byte[]> downloadInvoicePdf(@PathVariable Long saleId) {
+    Sale sale = saleRepository.findByIdWithShop(saleId)
+            .orElseThrow(() -> new RuntimeException("Sale not found"));
+    
+    byte[] pdfBytes = pdfService.generateInvoicePdf(sale);
+    
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDisposition(ContentDisposition.builder("attachment")
+            .filename("invoice-" + saleId + ".pdf").build());
+    
+    return ResponseEntity.ok()
+            .headers(headers)
+            .body(pdfBytes);
+}
 }

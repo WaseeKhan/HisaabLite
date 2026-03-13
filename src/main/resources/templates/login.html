@@ -25,26 +25,25 @@
             flex-direction: column;
         }
 
-        /* ===== NAVBAR (EXACT SAME AS LANDING PAGE) ===== */
+        /* ===== NAVBAR (COMPACT - SAME AS LANDING) ===== */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 60px;
+            padding: 16px 48px;
             background: white;
             border-bottom: 1px solid #e9eef2;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .logo-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             background: #0f172a;
             color: white;
             border-radius: 8px;
@@ -52,33 +51,31 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .logo-text {
             font-weight: 600;
-            font-size: 18px;
-            letter-spacing: -0.2px;
+            font-size: 16px;
             color: #0f172a;
         }
 
         .nav-links {
             display: flex;
-            gap: 16px;
+            gap: 12px;
         }
 
         .nav-links a {
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             transition: all 0.15s;
         }
 
         .nav-links a.login {
             color: #5b6778;
-            background: transparent;
         }
 
         .nav-links a.login:hover {
@@ -88,60 +85,55 @@
         .nav-links a.register {
             background: #0f172a;
             color: white;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
         }
 
-        .nav-links a.register:hover {
-            background: #1e293b;
-        }
-
-        /* ===== MAIN CONTENT ===== */
+        /* ===== MAIN CONTENT (COMPACT) ===== */
         .main-content {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 40px 20px;
+            padding: 30px 20px;
         }
 
         .login-wrapper {
             width: 100%;
-            max-width: 440px;
+            max-width: 380px;
         }
 
-        /* ===== LOGIN CARD ===== */
+        /* ===== LOGIN CARD (COMPACT) ===== */
         .login-card {
             background: white;
-            border-radius: 24px;
-            padding: 40px 32px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            padding: 30px 28px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.03);
             border: 1px solid #edf2f7;
         }
 
         .login-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .login-header h2 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .login-header p {
-            font-size: 14px;
+            font-size: 13px;
             color: #5b6778;
         }
 
-        /* ===== MESSAGES ===== */
+        /* ===== MESSAGES (COMPACT) ===== */
         .message {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 500;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -165,19 +157,19 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* ===== FORM ===== */
+        /* ===== FORM (COMPACT) ===== */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
-            display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: #5b6778;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            display: block;
         }
 
         .input-wrapper {
@@ -186,22 +178,20 @@
 
         .input-icon {
             position: absolute;
-            left: 14px;
-            top: 14px;
+            left: 12px;
+            top: 12px;
             color: #94a3b8;
             font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 14px 16px 14px 44px;
+            padding: 12px 14px 12px 42px;
             border: 1.5px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 400;
+            border-radius: 12px;
+            font-size: 13px;
             background: #fafbfc;
             transition: all 0.15s;
-            font-family: 'Inter', sans-serif;
         }
 
         .form-group input:focus {
@@ -211,46 +201,39 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
         }
 
-        .form-group input::placeholder {
-            color: #a0aec0;
-            font-size: 13px;
-        }
-
-        /* ===== BUTTON ===== */
+        /* ===== BUTTON (COMPACT) ===== */
         .btn-login {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background: #0f172a;
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             transition: all 0.15s;
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
             margin-top: 8px;
         }
 
         .btn-login:hover {
             background: #1e293b;
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
         }
 
-        /* ===== LINKS ===== */
+        /* ===== LINKS (COMPACT) ===== */
         .links {
-            margin-top: 24px;
+            margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 16px;
-            font-size: 13px;
+            gap: 12px;
+            font-size: 12px;
         }
 
         .links a {
@@ -258,7 +241,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 12px;
+            padding: 6px 12px;
             border-radius: 30px;
             transition: all 0.15s;
             font-weight: 500;
@@ -284,14 +267,14 @@
 
         .separator {
             color: #cbd5e1;
-            font-size: 12px;
+            font-size: 11px;
         }
 
-        /* ===== FOOTER (EXACT SAME AS LANDING PAGE) ===== */
+        /* ===== FOOTER (COMPACT - SAME AS LANDING) ===== */
         .footer {
             background: white;
             border-top: 1px solid #e9eef2;
-            padding: 40px 60px 24px;
+            padding: 30px 48px 20px;
             margin-top: auto;
         }
 
@@ -299,7 +282,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
             flex-wrap: wrap;
             gap: 20px;
         }
@@ -307,7 +290,7 @@
         .footer-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .footer-logo .logo-icon {
@@ -319,18 +302,18 @@
         .footer-logo span {
             font-weight: 500;
             color: #1e293b;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .footer-links {
             display: flex;
-            gap: 32px;
+            gap: 24px;
         }
 
         .footer-links a {
             color: #5b6778;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             transition: color 0.15s;
         }
@@ -341,9 +324,9 @@
 
         .footer-bottom {
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
-            padding-top: 24px;
+            padding-top: 16px;
             border-top: 1px solid #f1f5f9;
         }
 
@@ -355,9 +338,9 @@
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .navbar {
-                padding: 20px 24px;
+                padding: 16px 20px;
                 flex-direction: column;
-                gap: 16px;
+                gap: 12px;
             }
             
             .footer-content {
@@ -368,7 +351,7 @@
             .footer-links {
                 flex-wrap: wrap;
                 justify-content: center;
-                gap: 20px;
+                gap: 16px;
             }
             
             .login-wrapper {
@@ -378,7 +361,7 @@
 
         @media (max-width: 480px) {
             .login-card {
-                padding: 30px 20px;
+                padding: 24px 20px;
             }
             
             .links {
@@ -395,7 +378,7 @@
 
 <body>
 
-    <!-- ===== NAVBAR (EXACT SAME AS LANDING PAGE) ===== -->
+    <!-- ===== NAVBAR (COMPACT - SAME AS LANDING) ===== -->
     <div class="navbar">
         <div class="logo">
             <div class="logo-icon">HL</div>
@@ -407,7 +390,7 @@
         </div>
     </div>
 
-    <!-- ===== MAIN CONTENT ===== -->
+    <!-- ===== MAIN CONTENT (COMPACT) ===== -->
     <div class="main-content">
         <div class="login-wrapper">
             <div class="login-card">
@@ -420,13 +403,12 @@
                 <!-- VERIFIED MESSAGE -->
                 <div th:if="${param.verified}" class="message success">
                     <i class="fas fa-check-circle"></i>
-                    <span>Account verified successfully. Please login.</span>
+                    <span>Account verified. Please login.</span>
                 </div>
 
                 <!-- LOGOUT MESSAGE -->
                 <div th:if="${param.logout}" class="message info">
-                    
-                    <span>✅ You have been logged out successfully.</span>
+                    <span>✅ Logged out successfully.</span>
                 </div>
 
                 <!-- ERROR MESSAGE -->
@@ -445,7 +427,7 @@
                         <label>Username</label>
                         <div class="input-wrapper">
                             <i class="fas fa-user input-icon"></i>
-                            <input type="text" name="username" placeholder="Enter your username" required />
+                            <input type="text" name="username" placeholder="Enter username" required />
                         </div>
                     </div>
 
@@ -477,7 +459,7 @@
         </div>
     </div>
 
-    <!-- ===== FOOTER (EXACT SAME AS LANDING PAGE) ===== -->
+    <!-- ===== FOOTER (COMPACT - SAME AS LANDING) ===== -->
     <div class="footer">
         <div class="footer-content">
             <div class="footer-logo">
@@ -494,7 +476,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <i class="far fa-copyright"></i> 2026 HisaabLite • Built with <span class="heart">❤️</span> in India by Waseem Khan
+            <i class="far fa-copyright"></i> 2026 HisaabLite • Built with <span class="heart">❤️</span> in India
         </div>
     </div>
 

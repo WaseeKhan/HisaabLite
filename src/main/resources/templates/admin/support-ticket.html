@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Ticket #${ticket.ticketNumber} • Admin</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <style>
+        /* Same admin styles as dashboard */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .admin-nav {
+            background: #0f172a;
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-logo .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #2563eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-container {
+            max-width: 1000px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        .back-link {
+            margin-bottom: 24px;
+        }
+
+        .back-link a {
+            color: #64748b;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticket-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .ticket-status {
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-OPEN {
+            background: #fef9e7;
+            color: #b45309;
+        }
+
+        .status-IN_PROGRESS {
+            background: #e6f0ff;
+            color: #2563eb;
+        }
+
+        .status-WAITING_CUSTOMER {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .status-RESOLVED {
+            background: #f0fdf4;
+            color: #059669;
+        }
+
+        .status-CLOSED {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .ticket-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .meta-value {
+            font-weight: 600;
+        }
+
+        .shop-info {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .message-box {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            line-height: 1.8;
+        }
+
+        .reply {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .reply.admin {
+            background: #f0f9ff;
+            border-left: 4px solid #2563eb;
+        }
+
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .reply-author {
+            font-weight: 600;
+        }
+
+        .reply-time {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .reply-form {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .reply-form textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            min-height: 120px;
+            margin-bottom: 16px;
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-nav">
+        <div class="admin-logo">
+            <div class="logo-icon">HL</div>
+            <span style="font-weight: 600;">HisaabLite Admin</span>
+        </div>
+        <div class="admin-user">
+            <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+            <a th:href="@{/admin/support}" style="color: white; margin-right: 16px;">Dashboard</a>
+            <a th:href="@{/logout}" style="color: white;">Logout</a>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="back-link">
+            <a th:href="@{/admin/support}"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+
+        <!-- Ticket Header -->
+        <div class="ticket-card">
+            <div class="ticket-header">
+                <h2 th:text="${ticket.subject}">Payment Issue</h2>
+                <span class="ticket-status" th:classappend="'status-' + ${ticket.status.name()}"
+                    th:text="${ticket.status.displayName}">OPEN</span>
+            </div>
+
+            <!-- Meta Information -->
+            <div class="ticket-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Ticket Number</span>
+                    <span class="meta-value" th:text="${ticket.ticketNumber}">HL202403130001</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Priority</span>
+                    <span class="meta-value" th:text="${ticket.priority.displayName}">MEDIUM</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Created</span>
+                    <span class="meta-value" th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy, HH:mm')}">13
+                        Mar 2026, 10:30</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Last Updated</span>
+                    <span class="meta-value"
+                        th:text="${ticket.updatedAt != null ? #temporals.format(ticket.updatedAt, 'dd MMM yyyy, HH:mm') : '-'}">13
+                        Mar 2026, 11:30</span>
+                </div>
+            </div>
+
+            <!-- Shop Information -->
+            <div class="shop-info">
+                <h4 style="margin-bottom: 12px;">Shop Details</h4>
+                <p><strong>Shop:</strong> <span th:text="${ticket.shop.name}">Shop Name</span></p>
+                <p><strong>Owner:</strong> <span th:text="${ticket.user.name}">Owner Name</span></p>
+                <p><strong>Email:</strong> <span th:text="${ticket.user.username}">owner@email.com</span></p>
+                <p><strong>Phone:</strong> <span th:text="${ticket.user.phone}">9876543210</span></p>
+            </div>
+
+            <!-- Original Message -->
+            <h4 style="margin-bottom: 12px;">Original Message</h4>
+            <div class="message-box" th:text="${ticket.message}">
+                I'm having trouble with payment...
+            </div>
+
+            <!-- Replies -->
+            <h4 style="margin: 24px 0 16px;">Conversation</h4>
+            <div th:each="reply : ${replies}" class="reply" th:classappend="${reply.adminReply} ? 'admin' : ''">
+                <div class="reply-header">
+                    <span class="reply-author">
+                        <i th:if="${reply.adminReply}" class="fas fa-headset" style="color: #2563eb;"></i>
+                        <i th:unless="${reply.adminReply}" class="fas fa-user"></i>
+                        <span th:text="${reply.adminReply} ? 'Support Team' : ${reply.user.name}">Support Team</span>
+                    </span>
+                    <span class="reply-time" th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy, HH:mm')}">13
+                        Mar 2026, 11:30</span>
+                </div>
+                <div th:text="${reply.message}">Reply content...</div>
+            </div>
+
+            <!-- Reply Form -->
+            <div class="reply-form"
+                th:unless="${ticket.status.name() == 'RESOLVED' or ticket.status.name() == 'CLOSED'}">
+                <h4 style="margin-bottom: 16px;">Add Reply</h4>
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/reply(ticketNumber=${ticket.ticketNumber})}"
+                    method="post">
+                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <textarea name="message" placeholder="Type your reply..." required></textarea>
+                    <button type="submit" class="btn-primary">Send Reply</button>
+                </form>
+            </div>
+
+            <!-- Status Actions -->
+            <div class="status-actions">
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
+                    method="post" style="display: inline;">
+                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="status" value="IN_PROGRESS" />
+                    <button type="submit" class="btn-warning" th:if="${ticket.status.name() == 'OPEN'}">
+                        <i class="fas fa-play"></i> Start Progress
+                    </button>
+                </form>
+
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
+                    method="post" style="display: inline;">
+                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="status" value="RESOLVED" />
+                    <button type="submit" class="btn-success"
+                        th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}">
+                        <i class="fas fa-check"></i> Mark Resolved
+                    </button>
+                </form>
+
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
+                    method="post" style="display: inline;">
+                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="status" value="CLOSED" />
+                    <button type="submit" class="btn-secondary" th:if="${ticket.status.name() != 'CLOSED'}">
+                        <i class="fas fa-lock"></i> Close Ticket
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

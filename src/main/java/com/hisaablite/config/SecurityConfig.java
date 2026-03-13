@@ -14,54 +14,56 @@ import com.hisaablite.security.CustomUserDetailsService;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
-    private final CustomAuthFailureHandler failureHandler;
+        private final CustomUserDetailsService userDetailsService;
+        private final CustomAuthFailureHandler failureHandler;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http)
+                        throws Exception {
 
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/forgot-password", "/reset-password", "/verify",
-                                "/favicon.png", "/favicon.ico", "/css/**", "/js/**")
-                        .permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/owner/**").hasRole("OWNER")
-                        .requestMatchers("/manager/**").hasAnyRole("OWNER", "MANAGER")
-                        .requestMatchers("/cashier/**").hasAnyRole("OWNER", "CASHIER")
-                        .requestMatchers("/products/**").hasAnyRole("OWNER", "MANAGER")
-                        .requestMatchers("/profile/**").hasRole("OWNER")
-                        .requestMatchers("/staff/**").hasRole("OWNER")
-                        .requestMatchers("/app/**").authenticated()
-                        .anyRequest().authenticated())
+                http
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/", "/login", "/register", "/forgot-password",
+                                                                "/reset-password", "/verify",
+                                                                "/favicon.png", "/favicon.ico", "/css/**", "/js/**",
+                                                                "/sales/whatsapp/test", "/support/**")
+                                                .permitAll()
+                                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/owner/**").hasRole("OWNER")
+                                                .requestMatchers("/manager/**").hasAnyRole("OWNER", "MANAGER")
+                                                .requestMatchers("/cashier/**").hasAnyRole("OWNER", "CASHIER")
+                                                .requestMatchers("/products/**").hasAnyRole("OWNER", "MANAGER")
+                                                .requestMatchers("/profile/**").hasRole("OWNER")
+                                                .requestMatchers("/staff/**").hasRole("OWNER")
+                                                .requestMatchers("/app/**").authenticated()
+                                                .anyRequest().authenticated())
 
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .failureHandler(failureHandler)
-                        .defaultSuccessUrl("/dashboard")
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll());
+                                .formLogin(form -> form
+                                                .loginPage("/login")
+                                                .failureHandler(failureHandler)
+                                                .defaultSuccessUrl("/dashboard")
+                                                .permitAll())
+                                .logout(logout -> logout
+                                                .logoutUrl("/logout")
+                                                .logoutSuccessUrl("/login?logout")
+                                                .invalidateHttpSession(true)
+                                                .clearAuthentication(true)
+                                                .deleteCookies("JSESSIONID")
+                                                .permitAll());
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userDetailsService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
-    }
+        @Bean
+        public DaoAuthenticationProvider authenticationProvider() {
+                DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+                auth.setUserDetailsService(userDetailsService);
+                auth.setPasswordEncoder(passwordEncoder());
+                return auth;
+        }
 }

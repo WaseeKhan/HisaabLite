@@ -31,4 +31,17 @@ public class AdminDashboardDTO {
     
     // Period
     private String period;
+
+
+      //  NEW: Ticket stats fields
+    private Long totalTickets;
+    private Long openTickets;
+    private Long inProgressTickets;
+    private Long resolvedTickets;
+    private Long closedTickets;
+    private Long urgentTickets;
+    
+    // Ticket trend data (optional)
+    private List<String> ticketLabels;
+    private List<Long> ticketData;
 }

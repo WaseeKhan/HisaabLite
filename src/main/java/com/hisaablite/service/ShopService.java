@@ -29,4 +29,8 @@ public class ShopService {
 
         shopRepository.save(shop);
     }
+
+    public Shop saveShop(Shop shop) {
+    return shopRepository.save(shop);
+}
 }

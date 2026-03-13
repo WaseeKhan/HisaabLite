@@ -7,7 +7,11 @@ import com.hisaablite.admin.repository.AdminUserRepository;
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.TicketPriority;
+import com.hisaablite.entity.TicketStatus;
 import com.hisaablite.entity.User;
+import com.hisaablite.repository.SupportTicketRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,7 @@ public class AdminService {
 
     private final AdminUserRepository adminUserRepo;
     private final AdminShopRepository adminShopRepo;
+    private final SupportTicketRepository supportTicketRepository;
 
     public AdminDashboardDTO getDashboardStats() {
         AdminDashboardDTO dto = new AdminDashboardDTO();
@@ -86,6 +91,10 @@ public class AdminService {
             dto.setRevenueLabels(getLast7DaysLabels());
             dto.setRevenueData(getDummyRevenueData());
             dto.setUsersData(getUserGrowthData());
+            
+            
+            dto.setTicketData(getTicketTrendData());
+            
             dto.setPeriod("Last 7 days");
 
             log.info("Dashboard stats loaded successfully - Shops: {}, Users: {}",
@@ -218,6 +227,33 @@ public class AdminService {
         return userData;
     }
 
+   
+    private List<Long> getTicketTrendData() {
+        List<Long> ticketData = new ArrayList<>();
+        try {
+            LocalDateTime endDate = LocalDateTime.now();
+            LocalDateTime startDate = endDate.minusDays(7);
+
+            // Get daily ticket counts
+            LocalDate today = LocalDate.now();
+            for (int i = 6; i >= 0; i--) {
+                LocalDate date = today.minusDays(i);
+                LocalDateTime dayStart = date.atStartOfDay();
+                LocalDateTime dayEnd = dayStart.plusDays(1).minusNanos(1);
+                
+                Long count = supportTicketRepository.countByCreatedAtBetween(dayStart, dayEnd);
+                ticketData.add(count != null ? count : 0L);
+            }
+
+        } catch (Exception e) {
+            log.error("Error getting ticket trend data: {}", e.getMessage());
+            for (int i = 0; i < 7; i++) {
+                ticketData.add(0L);
+            }
+        }
+        return ticketData;
+    }
+
     private void setDefaultValues(AdminDashboardDTO dto) {
         dto.setTotalUsers(0L);
         dto.setActiveUsers(0L);
@@ -242,15 +278,43 @@ public class AdminService {
 
         List<Double> defaultRevenue = new ArrayList<>();
         List<Long> defaultUsers = new ArrayList<>();
+        List<Long> defaultTicketData = new ArrayList<>();
+        
         for (int i = 0; i < 7; i++) {
             defaultRevenue.add(0.0);
             defaultUsers.add(0L);
+            defaultTicketData.add(0L);
         }
         dto.setRevenueData(defaultRevenue);
         dto.setUsersData(defaultUsers);
+        dto.setTicketData(defaultTicketData);  
 
         dto.setRecentShops(new ArrayList<>());
         dto.setRecentUsers(new ArrayList<>());
         dto.setPeriod("Last 7 days");
+    }
+
+    public Map<String, Long> getTicketStats() {
+        Map<String, Long> stats = new HashMap<>();
+        
+        try {
+            stats.put("totalTickets", supportTicketRepository.count());
+            stats.put("openTickets", supportTicketRepository.countByStatus(TicketStatus.OPEN));
+            stats.put("inProgressTickets", supportTicketRepository.countByStatus(TicketStatus.IN_PROGRESS));
+            stats.put("resolvedTickets", supportTicketRepository.countByStatus(TicketStatus.RESOLVED));
+            stats.put("closedTickets", supportTicketRepository.countByStatus(TicketStatus.CLOSED));
+            stats.put("urgentTickets", supportTicketRepository.countByPriority(TicketPriority.URGENT));
+        } catch (Exception e) {
+            log.error("Error getting ticket stats: {}", e.getMessage());
+            // Default values
+            stats.put("totalTickets", 0L);
+            stats.put("openTickets", 0L);
+            stats.put("inProgressTickets", 0L);
+            stats.put("resolvedTickets", 0L);
+            stats.put("closedTickets", 0L);
+            stats.put("urgentTickets", 0L);
+        }
+        
+        return stats;
     }
 }

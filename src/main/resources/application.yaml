@@ -14,3 +14,9 @@ spring:
   mvc:
     favicon:
       enabled: true
+
+# Evolution API
+evolution:
+  api:
+    url: http://localhost:8081
+    key: ${evolution.api.key}

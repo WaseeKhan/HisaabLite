@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Support Dashboard • HisaabLite Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Chart.js for stats (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== ULTRA COMPACT SIDEBAR (SAME AS ADMIN DASHBOARD) ===== */
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .nav-links a:hover i {
+            color: #2563eb;
+        }
+
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .nav-links a.active i {
+            color: #2563eb;
+        }
+
+        .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+
+        .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .quick-action-item:hover i {
+            color: white;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+
+        /* ===== COMPACT TOPBAR ===== */
+        .topbar {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .topbar h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .topbar h1 i {
+            color: #2563eb;
+            font-size: 13px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #475569;
+        }
+
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        /* ===== COMPACT STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon-wrapper {
+            width: 32px;
+            height: 32px;
+            background: #eef2ff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-title {
+            font-size: 9px;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 7px;
+            color: #94a3b8;
+        }
+
+        /* ===== FILTERS SECTION ===== */
+        .filters-section {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filters-section select {
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #1e293b;
+            background: white;
+        }
+
+        .filters-section button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .filters-section button:hover {
+            background: #1d4ed8;
+        }
+
+        .clear-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 11px;
+            margin-left: auto;
+        }
+
+        .clear-link:hover {
+            color: #2563eb;
+        }
+
+        /* ===== TICKETS TABLE ===== */
+        .table-card {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .table-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .table-header h3 i {
+            color: #2563eb;
+            font-size: 11px;
+        }
+
+        .table-badge {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 8px 4px;
+            color: #64748b;
+            font-weight: 500;
+            font-size: 9px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .admin-table td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        .ticket-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 600;
+        }
+
+        .status-OPEN {
+            background: #fef9e7;
+            color: #b45309;
+        }
+
+        .status-IN_PROGRESS {
+            background: #e6f0ff;
+            color: #2563eb;
+        }
+
+        .status-WAITING_CUSTOMER {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .status-RESOLVED {
+            background: #f0fdf4;
+            color: #059669;
+        }
+
+        .status-CLOSED {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 600;
+        }
+
+        .priority-URGENT {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-HIGH {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .priority-MEDIUM {
+            background: #fef9e7;
+            color: #b45309;
+        }
+
+        .priority-LOW {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .shop-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .shop-name {
+            font-weight: 600;
+            font-size: 10px;
+        }
+
+        .shop-owner {
+            font-size: 8px;
+            color: #64748b;
+        }
+
+        .btn-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            background: #f1f5f9;
+            text-decoration: none;
+            font-size: 10px;
+            margin-right: 4px;
+        }
+
+        .btn-icon:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            margin-top: 16px;
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .pagination a {
+            padding: 4px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 10px;
+        }
+
+        .pagination a.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .pagination a:hover:not(.active) {
+            background: #f1f5f9;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 6px 16px;
+            margin: 0 -16px 0 -16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #94a3b8;
+            margin-top: auto;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-left i {
+            color: #2563eb;
+            font-size: 9px;
+        }
+
+        .heart {
+            color: #ef4444;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-right a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .version {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 7px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== SIDEBAR WITH PROPER URLS ===== -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">HisaabLite</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/support}" class="active">
+                <i class="fas fa-headset"></i>
+                <span>Support</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/support?status=OPEN}" class="quick-action-item">
+                <i class="fas fa-clock"></i>
+                <span>View Open Tickets</span>
+            </a>
+            <a th:href="@{/admin/support?priority=URGENT}" class="quick-action-item">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Urgent Tickets</span>
+            </a>
+            <a th:href="@{/admin/support?status=RESOLVED}" class="quick-action-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Resolved Today</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+            <h1>
+                <i class="fas fa-headset"></i>
+                Support Dashboard
+            </h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@hisaablite.com</span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-ticket-alt"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Tickets</div>
+                    <div class="stat-value" th:text="${totalTickets}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Open</div>
+                    <div class="stat-value" th:text="${openTickets}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-spinner"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">In Progress</div>
+                    <div class="stat-value" th:text="${inProgressTickets}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Resolved</div>
+                    <div class="stat-value" th:text="${resolvedTickets}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <form th:action="@{/admin/support}" method="get"
+                style="display: flex; gap: 12px; width: 100%; align-items: center;">
+                <select name="status">
+                    <option value="">All Status</option>
+                    <option value="OPEN" th:selected="${status == 'OPEN'}">Open</option>
+                    <option value="IN_PROGRESS" th:selected="${status == 'IN_PROGRESS'}">In Progress</option>
+                    <option value="WAITING_CUSTOMER" th:selected="${status == 'WAITING_CUSTOMER'}">Waiting Customer
+                    </option>
+                    <option value="RESOLVED" th:selected="${status == 'RESOLVED'}">Resolved</option>
+                    <option value="CLOSED" th:selected="${status == 'CLOSED'}">Closed</option>
+                </select>
+
+                <select name="priority">
+                    <option value="">All Priority</option>
+                    <option value="URGENT" th:selected="${priority == 'URGENT'}">Urgent</option>
+                    <option value="HIGH" th:selected="${priority == 'HIGH'}">High</option>
+                    <option value="MEDIUM" th:selected="${priority == 'MEDIUM'}">Medium</option>
+                    <option value="LOW" th:selected="${priority == 'LOW'}">Low</option>
+                </select>
+
+                <button type="submit">Apply Filters</button>
+                <a th:href="@{/admin/support}" class="clear-link">Clear</a>
+            </form>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3>
+                    <i class="fas fa-ticket-alt"></i>
+                    Support Tickets
+                    <span class="table-badge" th:text="${tickets.totalElements} + ' total'">0 total</span>
+                </h3>
+                <span class="table-badge">Last 7 days</span>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Ticket #</th>
+                        <th>Shop/Owner</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ticket : ${tickets.content}">
+                        <td>
+                            <a th:href="@{/admin/support/ticket/{id}(id=${ticket.ticketNumber})}">
+                                <span style="font-weight: 600; font-size: 9px;"
+                                    th:text="${ticket.ticketNumber}">HL202403130001</span>
+                            </a>
+                        </td>
+                        <td>
+                            <div class="shop-info">
+                                <span class="shop-name" th:text="${ticket.shop.name}">Shop Name</span>
+                                <span class="shop-owner" th:text="${ticket.user.name}">Owner Name</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:text="${ticket.subject}" style="font-size: 10px;">Payment Issue</span>
+                        </td>
+                        <td>
+                            <span class="ticket-status" th:classappend="'status-' + ${ticket.status.name()}"
+                                th:text="${ticket.status.displayName}">OPEN</span>
+                        </td>
+                        <td>
+                            <span class="priority-badge" th:classappend="'priority-' + ${ticket.priority.name()}"
+                                th:text="${ticket.priority.displayName}">MEDIUM</span>
+                        </td>
+                        <td th:text="${#temporals.format(ticket.createdAt, 'dd MMM')}" style="font-size: 9px;">13 Mar
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/support/ticket/{id}(id=${ticket.ticketNumber})}" class="btn-icon"
+                                title="View Ticket">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{/admin/support/ticket/{id}/reply(id=${ticket.ticketNumber})}" class="btn-icon"
+                                title="Reply">
+                                <i class="fas fa-reply"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- No tickets message -->
+                    <tr th:if="${tickets.content.isEmpty()}">
+                        <td colspan="7" style="text-align: center; padding: 24px; color: #64748b;">
+                            <i class="fas fa-ticket-alt"
+                                style="font-size: 24px; margin-bottom: 8px; color: #cbd5e1; display: block;"></i>
+                            <p>No tickets found</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div th:if="${tickets.totalPages > 1}" class="pagination">
+                <a th:href="@{/admin/support(page=${currentPage - 1}, status=${status}, priority=${priority})}"
+                    th:if="${currentPage > 0}">‹ Prev</a>
+
+                <span th:each="i : ${#numbers.sequence(0, tickets.totalPages - 1)}">
+                    <a th:href="@{/admin/support(page=${i}, status=${status}, priority=${priority})}"
+                        th:classappend="${i == currentPage ? 'active' : ''}" th:text="${i + 1}">1</a>
+                </span>
+
+                <a th:href="@{/admin/support(page=${currentPage + 1}, status=${status}, priority=${priority})}"
+                    th:if="${currentPage < tickets.totalPages - 1}">Next ›</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <i class="fas fa-store"></i>
+                <span>© 2026 HisaabLite</span>
+                <span>·</span>
+                <span>v2.0.0</span>
+                <span>·</span>
+                <span>Made with <span class="heart">❤️</span> in India</span>
+            </div>
+            <div class="footer-right">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Support</a>
+                <span class="version"><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

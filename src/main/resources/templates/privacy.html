@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Privacy Policy • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 16px 40px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+            color: #0f172a;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .nav-links a {
+            color: #5b6778;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.15s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #2563eb;
+        }
+        
+        /* Main Content */
+        .main-content {
+            max-width: 800px;
+            margin: 48px auto;
+            padding: 0 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 40px;
+        }
+        
+        .page-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+        
+        .page-header .last-updated {
+            color: #64748b;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .policy-section {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        
+        .policy-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .policy-section h2 i {
+            color: #2563eb;
+        }
+        
+        .policy-section p {
+            color: #475569;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+        
+        .policy-section ul {
+            margin-left: 24px;
+            margin-bottom: 16px;
+            color: #475569;
+        }
+        
+        .policy-section li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight-box {
+            background: #f0f9ff;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        /* Footer */
+        .footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 48px 40px 24px;
+            margin-top: 48px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 48px;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        
+        .footer-column h4 {
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .footer-column a {
+            display: block;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 10px;
+            transition: color 0.15s;
+        }
+        
+        .footer-column a:hover {
+            color: #2563eb;
+        }
+        
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 32px auto 0;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .navbar {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <div class="logo-icon">HL</div>
+        <div class="logo-text">HisaabLite</div>
+    </div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/features">Features</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/support" class="active">Support</a>
+        <a href="/login">Login</a>
+        <a href="/register" style="color: #2563eb;">Register</a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="page-header">
+        <h1>Privacy Policy</h1>
+        <div class="last-updated">
+            <i class="far fa-calendar-alt"></i>
+            Last Updated: March 13, 2026
+        </div>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-shield-alt"></i> Our Commitment</h2>
+        <p>At HisaabLite, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information when you use our billing and inventory management platform.</p>
+        
+        <div class="highlight-box">
+            <i class="fas fa-lock" style="color: #2563eb; margin-right: 10px;"></i>
+            <strong>Data Protection:</strong> All your business data is encrypted and stored securely. We never share your information with third parties without your explicit consent.
+        </div>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-database"></i> Information We Collect</h2>
+        <ul>
+            <li><strong>Account Information:</strong> Name, email, phone number, PAN, GST (for business verification)</li>
+            <li><strong>Business Data:</strong> Product catalogs, customer details, sales transactions, invoices</li>
+            <li><strong>Usage Data:</strong> How you interact with our platform, features used, session duration</li>
+            <li><strong>Payment Information:</strong> Billing details (processed securely through Razorpay/Stripe)</li>
+        </ul>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-cookie"></i> Cookies & Tracking</h2>
+        <p>We use essential cookies to maintain your session and preferences. Optional analytics cookies help us improve the platform. You can control cookie preferences in your browser settings.</p>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-share"></i> Data Sharing</h2>
+        <p>We do not sell your data. Limited sharing occurs only for:</p>
+        <ul>
+            <li>Payment processing (Razorpay/Stripe)</li>
+            <li>Email delivery (Brevo/Sendinblue)</li>
+            <li>Legal compliance when required by law</li>
+        </ul>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-clock"></i> Data Retention</h2>
+        <p>We retain your data as long as your account is active. After account deletion, data is permanently removed within 30 days, except where legal obligations require longer retention.</p>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-user-shield"></i> Your Rights</h2>
+        <ul>
+            <li>Access your personal data</li>
+            <li>Correct inaccurate information</li>
+            <li>Request data deletion</li>
+            <li>Export your data</li>
+            <li>Withdraw consent at any time</li>
+        </ul>
+    </div>
+    
+    <div class="policy-section">
+        <h2><i class="fas fa-envelope"></i> Contact Us</h2>
+        <p>For privacy-related concerns, contact our Data Protection Officer:</p>
+        <p style="margin-top: 10px;">
+            <i class="fas fa-envelope" style="color: #2563eb;"></i> privacy@hisaablite.com<br>
+            <i class="fas fa-phone" style="color: #2563eb;"></i> +91 98765 43210<br>
+            <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> Mumbai, India
+        </p>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <div class="footer-content">
+        <div>
+            <div class="footer-logo">
+                <div class="logo-icon">HL</div>
+                <span style="font-weight: 600;">HisaabLite</span>
+            </div>
+            <p style="color: #64748b; font-size: 13px; margin-top: 16px;">
+                Simple billing & inventory<br>for Indian businesses
+            </p>
+        </div>
+        <div class="footer-links">
+            <div class="footer-column">
+                <h4>Product</h4>
+                <a href="/features">Features</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/demo">Demo</a>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <a href="/about">About</a>
+                <a href="/blog">Blog</a>
+                <a href="/careers">Careers</a>
+            </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <a href="/support" class="active">Help Center</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 HisaabLite. All rights reserved.</span>
+        <span>Made with <span style="color: #ef4444;">❤️</span> in India</span>
+    </div>
+</div>
+
+</body>
+</html>

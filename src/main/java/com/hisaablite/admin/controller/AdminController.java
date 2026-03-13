@@ -94,6 +94,19 @@ public class AdminController {
             model.addAttribute("stats", stats);
             log.info("Dashboard loaded successfully: {} shops, {} users",
                     stats.getTotalShops(), stats.getTotalUsers());
+
+            Map<String, Long> ticketStats = adminService.getTicketStats();
+            stats.setTotalTickets(ticketStats.get("totalTickets"));
+            stats.setOpenTickets(ticketStats.get("openTickets"));
+            stats.setInProgressTickets(ticketStats.get("inProgressTickets"));
+            stats.setResolvedTickets(ticketStats.get("resolvedTickets"));
+            stats.setClosedTickets(ticketStats.get("closedTickets"));
+            stats.setUrgentTickets(ticketStats.get("urgentTickets"));
+
+            model.addAttribute("stats", stats);
+            log.info("Dashboard loaded successfully: {} shops, {} users, {} tickets",
+                    stats.getTotalShops(), stats.getTotalUsers(), stats.getTotalTickets());
+
         } catch (Exception e) {
             log.error("Error loading dashboard: {}", e.getMessage(), e);
 
@@ -124,6 +137,13 @@ public class AdminController {
             defaultStats.setPlanLabels(Arrays.asList("FREE", "BASIC", "PREMIUM", "ENTERPRISE"));
             defaultStats.setPlanData(Arrays.asList(0L, 0L, 0L, 0L));
             defaultStats.setPeriod("Last 7 days");
+
+            defaultStats.setTotalTickets(0L);
+            defaultStats.setOpenTickets(0L);
+            defaultStats.setInProgressTickets(0L);
+            defaultStats.setResolvedTickets(0L);
+            defaultStats.setClosedTickets(0L);
+            defaultStats.setUrgentTickets(0L);
 
             // Empty lists for recent items
             defaultStats.setRecentShops(new ArrayList<>());
@@ -162,7 +182,7 @@ public class AdminController {
     }
 
     // ===== USER MANAGEMENT =====
-    
+
     @GetMapping("/users")
     public String users(Model model,
             @RequestParam(defaultValue = "0") int page,
@@ -233,7 +253,7 @@ public class AdminController {
     // users/save
     @PostMapping("/users/save")
     public String saveUser(@ModelAttribute User user,
-            @RequestParam("shop.id") Long shopId, 
+            @RequestParam("shop.id") Long shopId,
             RedirectAttributes redirectAttributes) {
         log.info("Saving user: {}", user.getUsername());
         try {
@@ -320,7 +340,6 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    
     @GetMapping("/users/approve/{id}")
     public String approveUserGet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Approving user id: {} via GET", id);
@@ -340,7 +359,6 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    
     @GetMapping("/users/suspend/{id}")
     public String suspendUserGet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Suspending user id: {} via GET", id);
@@ -391,7 +409,7 @@ public class AdminController {
             // Get paginated shops with search if provided
             Page<Shop> shopPage;
             if (search != null && !search.trim().isEmpty()) {
-                // You'll need to add this search method to your repository
+              
                 shopPage = adminShopRepo.searchShops(search.trim(), pageable);
                 log.info("Searching shops with term: {}", search);
             } else {
@@ -523,7 +541,6 @@ public class AdminController {
             Shop savedShop = adminShopRepo.save(shop);
             log.info("Shop saved successfully with ID: {}", savedShop.getId());
 
-            
             if (ownerName != null && !ownerName.trim().isEmpty() &&
                     ownerEmail != null && !ownerEmail.trim().isEmpty() &&
                     ownerPhone != null && !ownerPhone.trim().isEmpty()) {
@@ -537,7 +554,7 @@ public class AdminController {
                             .username(ownerEmail)
                             .phone(ownerPhone)
                             .password(passwordEncoder.encode("hisaablite@123")) // Default password
-                            .role(Role.OWNER) 
+                            .role(Role.OWNER)
                             .shop(savedShop)
                             .active(true)
                             .approved(true)
@@ -609,7 +626,7 @@ public class AdminController {
         return "redirect:/admin/shops";
     }
 
-    @GetMapping("/shops/activate/{id}") 
+    @GetMapping("/shops/activate/{id}")
     public String activateShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Activating shop id: {}", id);
         try {
@@ -628,7 +645,7 @@ public class AdminController {
         return "redirect:/admin/shops";
     }
 
-    @GetMapping("/shops/suspend/{id}") 
+    @GetMapping("/shops/suspend/{id}")
     public String suspendShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Suspending shop id: {}", id);
         try {
@@ -750,7 +767,7 @@ public class AdminController {
             SubscriptionPlan plan = new SubscriptionPlan();
 
             if (planDTO.getId() != null) {
-            
+
                 Optional<SubscriptionPlan> existingPlan = adminSubscriptionRepo.findById(planDTO.getId());
                 if (existingPlan.isPresent()) {
                     plan = existingPlan.get();
@@ -791,14 +808,14 @@ public class AdminController {
         log.info("Editing subscription plan: {}", planName);
 
         try {
-          
+
             Optional<SubscriptionPlan> planOpt = adminSubscriptionRepo.findByPlanName(planName.toUpperCase());
 
             SubscriptionPlanDTO planDTO;
             if (planOpt.isPresent()) {
                 planDTO = convertToDTO(planOpt.get());
             } else {
-                
+
                 planDTO = createDefaultPlanDTO(planName, 0L, 0.0);
             }
 
@@ -915,7 +932,7 @@ public class AdminController {
                 }
             }
         }
-        
+
         for (SubscriptionPlanDTO plan : plans) {
             if (!sortedPlans.contains(plan)) {
                 sortedPlans.add(plan);

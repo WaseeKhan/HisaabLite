@@ -476,6 +476,7 @@
             <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
+             <a th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
         </div>
 
         <form th:action="@{/logout}" method="post">
@@ -577,7 +578,7 @@
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>
                 <a href="#">Support</a>
-                <span class="version">v1.3.0</span>
+                <span class="version">v2.0.0</span>
                 <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
             </div>
         </div>

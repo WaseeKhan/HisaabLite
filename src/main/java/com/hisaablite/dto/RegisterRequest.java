@@ -38,10 +38,9 @@ public class RegisterRequest {
     private String upiId;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    
     @NotNull(message = "Please select a subscription plan")
-    private PlanType planType = PlanType.FREE;  // Default to FREE
+    private PlanType planType = PlanType.FREE; // Default to FREE
 
-   
-    
+  
+
 }
