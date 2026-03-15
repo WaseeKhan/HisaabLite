@@ -22,11 +22,18 @@ public class SecurityConfig {
                         throws Exception {
 
                 http
-                                .authorizeHttpRequests(auth -> auth
+                        .csrf(csrf -> csrf
+                                .ignoringRequestMatchers(
+                                "/sales/invoice/*/pdf"  // PDF download URLs ke liye CSRF off and open for all
+                                        )
+                                )    
+                                        .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/login", "/register", "/forgot-password",
                                                                 "/reset-password", "/verify",
                                                                 "/favicon.png", "/favicon.ico", "/css/**", "/js/**",
-                                                                "/sales/whatsapp/test", "/support/**")
+                                                                "/sales/whatsapp/test", "/support/**",
+                                                                "/sales/invoice/*/pdf")
+
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/owner/**").hasRole("OWNER")

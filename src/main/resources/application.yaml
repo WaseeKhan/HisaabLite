@@ -19,4 +19,4 @@ spring:
 evolution:
   api:
     url: http://localhost:8081
-    key: ${evolution.api.key}
+    key: ${EVOLUTION_API_KEY:hisaablite-local-key}
