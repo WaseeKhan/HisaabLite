@@ -79,6 +79,11 @@ public class DashboardController {
 
         Shop shop = user.getShop();
 
+        // SUBSCRIPTION CHECK
+        if (!user.isApproved()) {
+            return "redirect:/subscription-required";
+        }
+
         log.info("Loading dashboard for user: {}, shop: {}", user.getUsername(), shop.getName());
         log.info("Shop plan type: {}", shop.getPlanType());
 
@@ -134,6 +139,11 @@ public class DashboardController {
 
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
         Shop shop = user.getShop();
+        if (!user.isApproved()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", "subscription_required");
+            return response;
+        }
 
         LocalDate today = LocalDate.now();
         LocalDateTime startToday = today.atStartOfDay();
@@ -165,5 +175,17 @@ public class DashboardController {
         data.put("planType", shop.getPlanType() != null ? shop.getPlanType().name() : "FREE");
 
         return data;
+    }
+
+    @GetMapping("/subscription-required")
+    public String subscriptionRequired(Model model, Authentication authentication) {
+
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
+
+        model.addAttribute("plan", user.getShop().getPlanType());
+
+        return "subscription-required";
     }
 }

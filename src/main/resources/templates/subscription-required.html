@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Subscription Required • HisaabLite</title>
+    <meta charset="UTF-8">
+
+
+<link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+<style>
+    body{
+        font-family: "Inter", sans-serif;
+        background:#f5f7fb;
+        margin:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+    }
+
+    .card{
+        background:white;
+        padding:40px;
+        border-radius:12px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.08);
+        text-align:center;
+        max-width:450px;
+    }
+
+    h2{
+        margin-bottom:10px;
+    }
+
+    p{
+        color:#555;
+        margin-bottom:25px;
+    }
+
+    .btn{
+        padding:12px 22px;
+        border:none;
+        border-radius:8px;
+        background:#4f46e5;
+        color:white;
+        font-size:14px;
+        cursor:pointer;
+        text-decoration:none;
+    }
+
+    .btn:hover{
+        background:#4338ca;
+    }
+
+    .logout{
+        margin-top:15px;
+        display:block;
+        font-size:13px;
+        color:#888;
+        text-decoration:none;
+    }
+</style>
+
+
+</head>
+
+<body>
+
+<div class="card">
+
+
+<h2>Subscription Required</h2>
+
+<p>
+    Your <span th:text="${plan}"></span> plan is not active yet.
+    Please complete your subscription to continue using <b>HisaabLite</b>.
+</p>
+
+<a href="/pricing" class="btn">Choose a Plan</a>
+
+<a href="/logout" class="logout">Logout</a>
+
+
+</div>
+
+</body>
+</html>

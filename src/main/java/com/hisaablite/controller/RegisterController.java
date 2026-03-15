@@ -82,7 +82,6 @@ public class RegisterController {
 
         model.addAttribute("success", "Shop registered successfully! Please check your email to verify your account.");
         model.addAttribute("registerRequest", new RegisterRequest());
-
         model.addAttribute("plans", planService.getPlansForRegistration());
         return "register";
 
