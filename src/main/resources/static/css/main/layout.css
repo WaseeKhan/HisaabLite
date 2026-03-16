@@ -1,0 +1,220 @@
+/* ===== Layout Components ===== */
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg) var(--space-xxl);
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-300);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--dark);
+    color: var(--white);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+}
+
+.logo-text {
+    font-weight: 600;
+    font-size: var(--font-size-xl);
+    color: var(--dark);
+}
+
+.nav-links {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 380px;
+}
+
+/* Footer */
+.footer {
+    background: var(--white);
+    border-top: 1px solid var(--gray-300);
+    padding: var(--space-xl) var(--space-xxl) var(--space-lg);
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xxl);
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.footer-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: var(--font-size-sm);
+}
+
+.footer-logo span {
+    font-weight: 500;
+    color: var(--dark-secondary);
+    font-size: var(--font-size-md);
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--space-xxl);
+}
+
+.footer-bottom {
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--gray-200);
+}
+
+.heart {
+    color: var(--danger);
+    margin: 0 var(--space-xs);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        padding: var(--space-lg) var(--space-xl);
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--space-lg);
+    }
+    
+    .login-wrapper {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-wrapper {
+        max-width: 100%;
+    }
+    
+    .links {
+        flex-direction: column;
+        gap: var(--space-xs);
+    }
+    
+    .separator {
+        display: none;
+    }
+}
+/* src/main/resources/static/css/main/layout.css */
+
+/* Navbar Links - Updated */
+.nav-links {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.nav-links a {
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+/* Home link - subtle style */
+.nav-links a.login {
+    color: var(--gray-600);
+    background: transparent;
+}
+
+.nav-links a.login:hover {
+    background: var(--gray-200);
+    color: var(--dark);
+    transform: translateY(-1px);
+}
+
+.nav-links a.login i {
+    color: var(--gray-500);
+    transition: color 0.2s;
+}
+
+.nav-links a.login:hover i {
+    color: var(--primary);
+}
+
+/* Register/Start Free link - primary CTA */
+.nav-links a.register {
+    background: var(--dark);
+    color: var(--white);
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-links a.register:hover {
+    background: var(--dark-secondary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.nav-links a.register i {
+    color: var(--white);
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .nav-links a {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+
+

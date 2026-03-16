@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Public Header - Compact with Emojis -->
+<header th:fragment="public-header" class="public-header">
+    <div class="header-container">
+        <!-- Logo -->
+        <a href="/" class="header-logo">
+            <div class="header-logo-icon">HL</div>
+            <span class="header-logo-text">HisaabLite</span>
+        </a>
+        
+        <!-- Desktop Navigation - with emojis -->
+        <nav class="header-nav">
+            <a href="/" class="home-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="/login" class="login-link">
+                <i class="fas fa-sign-in-alt"></i> Log in
+            </a>
+            <a href="/register" class="register-link">
+                <i class="fas fa-rocket"></i> Start Free
+            </a>
+        </nav>
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="menuToggle" aria-label="Toggle menu">
+            <i class="fas fa-bars" id="menuIcon"></i>
+        </button>
+    </div>
+    
+    <!-- Mobile Menu - with emojis -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="/">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/login">
+            <i class="fas fa-sign-in-alt"></i> Log in
+        </a>
+        <a href="/register" class="register-link">
+            <i class="fas fa-rocket"></i> Start Free
+        </a>
+    </div>
+</header>
+
+<!-- Keep your existing JavaScript -->
+<script>
+(function() {
+    'use strict';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuIcon = document.getElementById('menuIcon');
+        
+        if (!menuToggle || !mobileMenu || !menuIcon) {
+            console.error('Menu elements not found!');
+            return;
+        }
+        
+        function toggleMenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const isActive = mobileMenu.classList.contains('active');
+            
+            if (isActive) {
+                mobileMenu.classList.remove('active');
+                menuIcon.className = 'fas fa-bars';
+                menuToggle.setAttribute('aria-expanded', 'false');
+            } else {
+                mobileMenu.classList.add('active');
+                menuIcon.className = 'fas fa-times';
+                menuToggle.setAttribute('aria-expanded', 'true');
+            }
+        }
+        
+        menuToggle.addEventListener('click', toggleMenu);
+        menuToggle.addEventListener('touchstart', toggleMenu, { passive: false });
+        
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.classList.contains('active')) return;
+            
+            const isClickInside = menuToggle.contains(event.target) || mobileMenu.contains(event.target);
+            
+            if (!isClickInside) {
+                mobileMenu.classList.remove('active');
+                menuIcon.className = 'fas fa-bars';
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.remove('active');
+                menuIcon.className = 'fas fa-bars';
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+        
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth > 768) {
+                    mobileMenu.classList.remove('active');
+                    menuIcon.className = 'fas fa-bars';
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            }, 250);
+        });
+    });
+})();
+</script>

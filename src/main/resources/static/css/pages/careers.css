@@ -1,0 +1,432 @@
+/* src/main/resources/static/css/pages/careers.css */
+
+/* ===== CAREERS PAGE - SAME THEME ===== */
+
+/* Hero Section */
+.careers-hero {
+    text-align: center;
+    padding: 70px 20px 60px;
+    background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
+    border-bottom: 1px solid #e9eef2;
+    position: relative;
+    overflow: hidden;
+}
+
+.careers-hero::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #667eea10 0%, transparent 70%);
+    border-radius: 50%;
+    top: -200px;
+    right: -200px;
+    animation: floatSlow 25s infinite ease-in-out;
+}
+
+.careers-hero::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #764ba210 0%, transparent 70%);
+    border-radius: 50%;
+    bottom: -150px;
+    left: -150px;
+    animation: floatSlow 20s infinite ease-in-out reverse;
+}
+
+@keyframes floatSlow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, 40px) scale(1.1); }
+    66% { transform: translate(-30px, 30px) scale(0.9); }
+}
+
+.careers-hero h1 {
+    font-size: 44px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #0f172a;
+    position: relative;
+    z-index: 2;
+}
+
+.careers-hero h1 span {
+    color: #2563eb;
+    position: relative;
+}
+
+.careers-hero p {
+    font-size: 18px;
+    color: #5b6778;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* Why Join Us Section */
+.why-join {
+    padding: 60px 24px;
+    background: white;
+    text-align: center;
+}
+
+.why-join h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.why-join > p {
+    font-size: 16px;
+    color: #5b6778;
+    margin-bottom: 48px;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.benefit-card {
+    padding: 32px 20px;
+    background: #f8fafc;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(37,99,235,0.1);
+    border-color: #2563eb;
+}
+
+.benefit-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea20, #764ba220);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #2563eb;
+    font-size: 28px;
+}
+
+.benefit-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.benefit-card p {
+    font-size: 13px;
+    color: #5b6778;
+    line-height: 1.6;
+}
+
+/* Open Positions Section */
+.positions-section {
+    padding: 60px 24px;
+    background: #f8fafc;
+    text-align: center;
+}
+
+.positions-section h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.positions-section > p {
+    font-size: 16px;
+    color: #5b6778;
+    margin-bottom: 48px;
+}
+
+.positions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.position-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.position-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(37,99,235,0.1);
+    border-color: #2563eb;
+}
+
+.position-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.position-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.position-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #5b6778;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.position-location i {
+    color: #2563eb;
+    font-size: 12px;
+}
+
+.position-type {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.position-desc {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.position-requirements {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 24px;
+}
+
+.position-requirements li {
+    font-size: 12px;
+    color: #5b6778;
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.position-requirements i {
+    color: #10b981;
+    font-size: 12px;
+}
+
+.btn-apply {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    background: #0f172a;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-apply:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15,23,42,0.2);
+}
+
+.btn-apply i {
+    margin-left: 6px;
+    transition: transform 0.2s;
+}
+
+.btn-apply:hover i {
+    transform: translateX(4px);
+}
+
+/* Life at HisaabLite Section */
+.life-section {
+    padding: 60px 24px;
+    background: white;
+    text-align: center;
+}
+
+.life-section h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.life-section > p {
+    font-size: 16px;
+    color: #5b6778;
+    margin-bottom: 48px;
+}
+
+.life-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.life-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+}
+
+.life-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.life-card:hover img {
+    transform: scale(1.1);
+}
+
+.life-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    text-align: left;
+}
+
+.life-overlay h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.life-overlay p {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* CTA Section */
+.careers-cta {
+    padding: 60px 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    text-align: center;
+    color: white;
+}
+
+.careers-cta h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.careers-cta p {
+    font-size: 16px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 32px;
+}
+
+.btn-big {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    color: #0f172a;
+    padding: 16px 48px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-big:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.btn-big i {
+    transition: transform 0.2s;
+}
+
+.btn-big:hover i {
+    transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .benefits-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .life-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .careers-hero h1 {
+        font-size: 32px;
+    }
+    
+    .careers-hero p {
+        font-size: 15px;
+        padding: 0 16px;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .positions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .life-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-big {
+        padding: 14px 32px;
+        font-size: 15px;
+    }
+}

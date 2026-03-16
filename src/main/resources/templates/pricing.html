@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Pricing • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/pricing.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+    <!-- Hero Section -->
+    <div class="pricing-hero">
+        <h1>💰 <span>Simple, Transparent Pricing</span></h1>
+        <p>Start free, upgrade as you grow. No hidden fees.</p>
+    </div>
+
+    <!-- Billing Toggle -->
+    <div class="billing-toggle">
+        <span class="toggle-label active" id="monthlyLabel">Monthly</span>
+        <label class="switch">
+            <input type="checkbox" id="billingToggle" onclick="toggleBilling()">
+            <span class="slider"></span>
+        </label>
+        <span class="toggle-label" id="yearlyLabel">
+            Yearly <span class="save-badge">Save 17%</span>
+        </span>
+    </div>
+
+    <!-- Pricing Grid -->
+    <div class="pricing-grid-section">
+        <div class="pricing-grid">
+            <!-- FREE Plan -->
+            <div class="pricing-card">
+                <div class="pricing-name">FREE</div>
+                <div class="pricing-price">
+                    <div class="monthly-price price-free">₹0</div>
+                    <div class="yearly-price price-free" style="display: none;">₹0</div>
+                    <span class="price-period">forever free</span>
+                </div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> 2 Users</li>
+                    <li><i class="fas fa-check"></i> 50 Products</li>
+                    <li><i class="fas fa-check"></i> Basic Invoices</li>
+                    <li><i class="fas fa-check"></i> Email Support</li>
+                    <li class="not-included"><i class="fas fa-times"></i> WhatsApp Integration</li>
+                    <li class="not-included"><i class="fas fa-times"></i> API Access</li>
+                </ul>
+                <div class="pricing-footer">
+                    <a href="/register" class="btn-pricing primary">Get Started</a>
+                </div>
+            </div>
+
+            <!-- BASIC Plan -->
+            <div class="pricing-card">
+                <div class="pricing-name">BASIC</div>
+                <div class="pricing-price">
+                    <div class="monthly-price">₹499 <span class="price-period">/mo</span></div>
+                    <div class="yearly-price" style="display: none;">
+                        ₹4,990 <span class="price-period">/yr</span>
+                        <div class="original-price">₹5,988</div>
+                        <span class="savings-tag">Save ₹998</span>
+                    </div>
+                </div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> 5 Users</li>
+                    <li><i class="fas fa-check"></i> 200 Products</li>
+                    <li><i class="fas fa-check"></i> GST Invoices</li>
+                    <li><i class="fas fa-check"></i> Basic Reports</li>
+                    <li><i class="fas fa-check"></i> Priority Email Support</li>
+                    <li class="not-included"><i class="fas fa-times"></i> WhatsApp Integration</li>
+                </ul>
+                <div class="pricing-footer">
+                    <a href="/register" class="btn-pricing primary">Choose Basic</a>
+                </div>
+            </div>
+
+            <!-- PREMIUM Plan (Popular) -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">🔥 MOST POPULAR</div>
+                <div class="pricing-name">PREMIUM</div>
+                <div class="pricing-price">
+                    <div class="monthly-price">₹999 <span class="price-period">/mo</span></div>
+                    <div class="yearly-price" style="display: none;">
+                        ₹9,990 <span class="price-period">/yr</span>
+                        <div class="original-price">₹11,988</div>
+                        <span class="savings-tag">Save ₹1,998</span>
+                    </div>
+                </div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> 15 Users</li>
+                    <li><i class="fas fa-check"></i> 1000 Products</li>
+                    <li><i class="fas fa-check"></i> GST Invoices</li>
+                    <li><i class="fas fa-check"></i> Advanced Reports</li>
+                    <li><i class="fas fa-check"></i> WhatsApp Integration</li>
+                    <li><i class="fas fa-check"></i> API Access</li>
+                </ul>
+                <div class="pricing-footer">
+                    <a href="/register" class="btn-pricing primary">Go Premium</a>
+                </div>
+            </div>
+
+            <!-- ENTERPRISE Plan -->
+            <div class="pricing-card enterprise">
+                <div class="pricing-name">ENTERPRISE</div>
+                <div class="pricing-price">
+                    <div class="monthly-price">₹1,999 <span class="price-period">/mo</span></div>
+                    <div class="yearly-price" style="display: none;">
+                        ₹19,990 <span class="price-period">/yr</span>
+                        <div class="original-price">₹23,988</div>
+                        <span class="savings-tag">Save ₹3,998</span>
+                    </div>
+                </div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Unlimited Users</li>
+                    <li><i class="fas fa-check"></i> Unlimited Products</li>
+                    <li><i class="fas fa-check"></i> All Premium Features</li>
+                    <li><i class="fas fa-check"></i> Priority Support</li>
+                    <li><i class="fas fa-check"></i> Custom Integration</li>
+                    <li><i class="fas fa-check"></i> Dedicated Account Manager</li>
+                </ul>
+                <div class="pricing-footer">
+                    <a href="/contact" class="btn-pricing">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Money Back Guarantee -->
+        <div class="guarantee-box">
+            <div class="guarantee-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="guarantee-text">
+                <h3>7-Day Money Back Guarantee</h3>
+                <p>Try any paid plan risk-free. If you're not satisfied, get a full refund within 7 days.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Comparison Table -->
+    <div class="comparison-section">
+        <h2>Compare Plans</h2>
+        <p>Find the perfect plan for your business</p>
+
+        <div class="comparison-table">
+            <div class="comparison-row header">
+                <div class="comparison-cell">Features</div>
+                <div class="comparison-cell">FREE</div>
+                <div class="comparison-cell">BASIC</div>
+                <div class="comparison-cell">PREMIUM</div>
+                <div class="comparison-cell">ENTERPRISE</div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-cell">Users</div>
+                <div class="comparison-cell">2</div>
+                <div class="comparison-cell">5</div>
+                <div class="comparison-cell">15</div>
+                <div class="comparison-cell">∞</div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-cell">Products</div>
+                <div class="comparison-cell">50</div>
+                <div class="comparison-cell">200</div>
+                <div class="comparison-cell">1000</div>
+                <div class="comparison-cell">∞</div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-cell">GST Invoices</div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-cell">WhatsApp Integration</div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-cell">API Access</div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+
+            <div class="comparison-row">
+                <div class="comparison-cell">Priority Support</div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Can I switch plans later?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately and we'll prorate the difference.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Is there a free trial for paid plans?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    You can start with our FREE plan forever, or try any paid plan with our 7-day money-back guarantee.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    What payment methods do you accept?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    We accept all major credit/debit cards, UPI, and bank transfers for annual plans.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Can I cancel anytime?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Do you offer GST invoices?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes, all paid plans include GST-compliant invoices with your business details.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Is there a setup fee?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    No setup fees ever! Just pay for your subscription and you're ready to go.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="pricing-cta">
+        <h2>Ready to get started?</h2>
+        <p>Join 10,000+ businesses that trust HisaabLite for their billing needs</p>
+        <a href="/register" class="btn-cta">
+            <i class="fas fa-rocket"></i> Start Your Free Plan
+        </a>
+    </div>
+
+    <!-- FAQ Toggle Script -->
+    <script>
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            faqItem.classList.toggle('active');
+        }
+
+        function toggleBilling() {
+            const toggle = document.getElementById('billingToggle');
+            const monthlyPrices = document.querySelectorAll('.monthly-price');
+            const yearlyPrices = document.querySelectorAll('.yearly-price');
+            const monthlyLabel = document.getElementById('monthlyLabel');
+            const yearlyLabel = document.getElementById('yearlyLabel');
+
+            if (toggle.checked) {
+                // Yearly selected
+                monthlyPrices.forEach(el => el.style.display = 'none');
+                yearlyPrices.forEach(el => el.style.display = 'block');
+                monthlyLabel.classList.remove('active');
+                yearlyLabel.classList.add('active');
+            } else {
+                // Monthly selected
+                monthlyPrices.forEach(el => el.style.display = 'block');
+                yearlyPrices.forEach(el => el.style.display = 'none');
+                monthlyLabel.classList.add('active');
+                yearlyLabel.classList.remove('active');
+            }
+        }
+    </script>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+</body>
+</html>

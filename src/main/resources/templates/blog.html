@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Blog • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/blog.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+    <!-- Hero Section -->
+    <div class="blog-hero">
+        <h1>📚 <span>HisaabLite</span> Blog</h1>
+        <p>Tips, tricks & insights for your retail business</p>
+    </div>
+
+    <!-- Featured Post -->
+    <div class="featured-section">
+        <div class="featured-card">
+            <div class="featured-image">
+                <img src="/images/learning.jpg" alt="Featured Post">
+            </div>
+            <div class="featured-content">
+                <span class="featured-badge">✨ FEATURED</span>
+                <h2>How WhatsApp Integration Doubled Sales for Small Retailers</h2>
+                <div class="featured-meta">
+                    <span><i class="far fa-calendar"></i> Mar 15, 2026</span>
+                    <span><i class="far fa-clock"></i> 5 min read</span>
+                    <span><i class="far fa-user"></i> Waseem Khan</span>
+                </div>
+                <p class="featured-excerpt">
+                    Discover how local businesses are using WhatsApp to send invoices, connect with customers, and increase repeat sales by up to 40%. Includes real case studies from Bangalore retailers.
+                </p>
+                <a href="#" class="btn-read-more">
+                    Read Full Article <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="categories-bar">
+        <a href="#" class="category-btn active">All Posts</a>
+        <a href="#" class="category-btn">Product Updates</a>
+        <a href="#" class="category-btn">Business Tips</a>
+        <a href="#" class="category-btn">Case Studies</a>
+        <a href="#" class="category-btn">WhatsApp</a>
+        <a href="#" class="category-btn">Announcements</a>
+    </div>
+
+    <!-- Blog Grid -->
+    <div class="blog-grid-section">
+        <div class="blog-grid">
+            <!-- Post 1 -->
+            <div class="blog-card">
+                <div class="blog-card-image">
+                   <img src="/images/image1.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Product Updates</span>
+                    <h3 class="blog-card-title">New: Low Stock Alerts via WhatsApp</h3>
+                    <p class="blog-card-excerpt">Never run out of bestsellers again. Get instant alerts when your stock is running low.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Mar 10, 2026</span>
+                        <span><i class="far fa-clock"></i> 3 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 2 -->
+            <div class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/image2.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Business Tips</span>
+                    <h3 class="blog-card-title">5 Ways to Manage Udhar (Credit) Better</h3>
+                    <p class="blog-card-excerpt">Simple strategies to track credit sales and improve cash flow for your retail store.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Mar 5, 2026</span>
+                        <span><i class="far fa-clock"></i> 4 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 3 -->
+            <div class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/image1.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Case Study</span>
+                    <h3 class="blog-card-title">How Kirana Store Saved 10 Hours/Week</h3>
+                    <p class="blog-card-excerpt">See how Sharma General Store digitized their billing and cut manual work by 70%.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Feb 28, 2026</span>
+                        <span><i class="far fa-clock"></i> 6 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 4 -->
+            <div class="blog-card">
+                <div class="blog-card-image">
+                   <img src="/images/learning.jpg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">WhatsApp</span>
+                    <h3 class="blog-card-title">WhatsApp Business API vs. Regular App</h3>
+                    <p class="blog-card-excerpt">What's the difference and why it matters for your business.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Feb 20, 2026</span>
+                        <span><i class="far fa-clock"></i> 5 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 5 -->
+            <div class="blog-card">
+                <div class="blog-card-image">
+                     <img src="/images/image3.jpeg" alt="Blog Post">
+                    
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Business Tips</span>
+                    <h3 class="blog-card-title">GST Invoice Guide for Small Retailers</h3>
+                    <p class="blog-card-excerpt">Everything you need to know about creating GST-compliant invoices.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Feb 15, 2026</span>
+                        <span><i class="far fa-clock"></i> 7 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post 6 -->
+            <div class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/learning.jpg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Announcements</span>
+                    <h3 class="blog-card-title">HisaabLite Raises Seed Funding</h3>
+                    <p class="blog-card-excerpt">We're excited to announce our first round of funding to accelerate growth.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Feb 10, 2026</span>
+                        <span><i class="far fa-clock"></i> 2 min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div class="blog-newsletter">
+            <h3>📬 Get Weekly Business Tips</h3>
+            <p>Join 2,000+ retailers getting insights in their inbox</p>
+            <div class="newsletter-form-compact">
+                <input type="email" placeholder="Enter your email">
+                <button>
+                    <i class="fas fa-paper-plane"></i> Subscribe
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <a href="#" class="disabled">← Prev</a>
+            <a href="#" class="active">1</a>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">4</a>
+            <a href="#">Next →</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+</body>
+</html>

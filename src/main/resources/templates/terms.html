@@ -1,431 +1,300 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Terms of Service • HisaabLite</title>
+    <title>Terms & Conditions • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-        }
-        
-        /* Navbar - same as privacy page */
-        .navbar {
-            background: white;
-            padding: 16px 40px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        
-        .logo-text {
-            font-weight: 600;
-            font-size: 18px;
-            color: #0f172a;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 24px;
-        }
-        
-        .nav-links a {
-            color: #5b6778;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.15s;
-        }
-        
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: #2563eb;
-        }
-        
-        /* Main Content */
-        .main-content {
-            max-width: 800px;
-            margin: 48px auto;
-            padding: 0 24px;
-        }
-        
-        .page-header {
-            margin-bottom: 40px;
-        }
-        
-        .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 12px;
-        }
-        
-        .page-header .last-updated {
-            color: #64748b;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .terms-section {
-            background: white;
-            border-radius: 24px;
-            border: 1px solid #e2e8f0;
-            padding: 32px;
-            margin-bottom: 24px;
-        }
-        
-        .terms-section h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .terms-section h2 i {
-            color: #2563eb;
-        }
-        
-        .terms-section p {
-            color: #475569;
-            margin-bottom: 16px;
-            font-size: 15px;
-        }
-        
-        .terms-section ul, .terms-section ol {
-            margin-left: 24px;
-            margin-bottom: 16px;
-            color: #475569;
-        }
-        
-        .terms-section li {
-            margin-bottom: 8px;
-        }
-        
-        .terms-section table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .terms-section th {
-            background: #f1f5f9;
-            padding: 12px;
-            text-align: left;
-            font-size: 14px;
-        }
-        
-        .terms-section td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .notice-box {
-            background: #fef9e7;
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-        
-        .footer {
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            padding: 48px 40px 24px;
-            margin-top: 48px;
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 48px;
-        }
-        
-        .footer-links {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-        
-        .footer-column h4 {
-            color: #0f172a;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .footer-column a {
-            display: block;
-            color: #64748b;
-            text-decoration: none;
-            font-size: 13px;
-            margin-bottom: 10px;
-            transition: color 0.15s;
-        }
-        
-        .footer-column a:hover {
-            color: #2563eb;
-        }
-        
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 32px auto 0;
-            padding-top: 24px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 12px;
-        }
-    </style>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/terms.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
+
 <body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
 
-<!-- Navbar -->
-<div class="navbar">
-    <div class="logo">
-        <div class="logo-icon">HL</div>
-        <div class="logo-text">HisaabLite</div>
-    </div>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/features">Features</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/support">Support</a>
-        <a href="/login">Login</a>
-        <a href="/register" style="color: #2563eb;">Register</a>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="main-content">
-    <div class="page-header">
-        <h1>Terms of Service</h1>
+    <!-- Hero Section -->
+    <div class="terms-hero">
+        <h1>📋 <span>Terms & Conditions</span></h1>
+        <p>Please read these terms carefully before using HisaabLite</p>
         <div class="last-updated">
-            <i class="far fa-calendar-alt"></i>
-            Last Updated: March 13, 2026
+            <i class="far fa-calendar-alt"></i> Last Updated: March 15, 2026
         </div>
     </div>
-    
-    <div class="notice-box">
-        <i class="fas fa-gavel" style="color: #f59e0b; margin-right: 10px;"></i>
-        <strong>Please read these terms carefully before using HisaabLite.</strong> By registering, you agree to be bound by these terms.
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-file-contract"></i> 1. Agreement to Terms</h2>
-        <p>By accessing or using HisaabLite, you agree to be bound by these Terms of Service and our Privacy Policy. If you disagree with any part, you may not access the service.</p>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-id-card"></i> 2. Account Registration</h2>
-        <p>To use HisaabLite, you must register for an account. You agree to provide accurate, current, and complete information. You are responsible for:</p>
-        <ul>
-            <li>Maintaining account security</li>
-            <li>All activities under your account</li>
-            <li>Notifying us of unauthorized use</li>
-            <li>One account per business (multiple users allowed per plan)</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-credit-card"></i> 3. Subscription Plans & Payments</h2>
-        
-        <h3 style="margin: 20px 0 10px; font-size: 16px;">Available Plans:</h3>
-        <table>
-            <tr>
-                <th>Plan</th>
-                <th>Price (Monthly)</th>
-                <th>Features</th>
-            </tr>
-            <tr>
-                <td>Free</td>
-                <td>₹0</td>
-                <td>2 users, 50 products</td>
-            </tr>
-            <tr>
-                <td>Basic</td>
-                <td>₹499</td>
-                <td>5 users, 200 products, GST</td>
-            </tr>
-            <tr>
-                <td>Premium</td>
-                <td>₹999</td>
-                <td>15 users, 1000 products, API</td>
-            </tr>
-            <tr>
-                <td>Enterprise</td>
-                <td>₹1999</td>
-                <td>Unlimited, priority support</td>
-            </tr>
-        </table>
-        
-        <p><strong>Payment Terms:</strong></p>
-        <ul>
-            <li>Billed monthly in advance</li>
-            <li>No refunds for partial months</li>
-            <li>Downgrades effective next billing cycle</li>
-            <li>Taxes (GST) as applicable</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-undo-alt"></i> 4. Cancellation & Refunds</h2>
-        <p>You may cancel your subscription anytime from account settings. Upon cancellation:</p>
-        <ul>
-            <li>Access continues until end of billing period</li>
-            <li>No prorated refunds for unused time</li>
-            <li>Data retained for 30 days (reactivation possible)</li>
-            <li>After 30 days, data may be permanently deleted</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-chart-line"></i> 5. Usage Limits & Fair Use</h2>
-        <p>Each plan has defined limits. Exceeding limits may result in:</p>
-        <ul>
-            <li>Notification to upgrade plan</li>
-            <li>Temporary restrictions on adding new data</li>
-            <li>Additional charges for overage (Enterprise plans)</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-ban"></i> 6. Prohibited Activities</h2>
-        <p>You may not use HisaabLite to:</p>
-        <ul>
-            <li>Violate any laws or regulations</li>
-            <li>Infringe intellectual property rights</li>
-            <li>Distribute malware or harmful code</li>
-            <li>Attempt to access other users' data</li>
-            <li>Use for illegal transactions</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-shield-alt"></i> 7. Data Ownership</h2>
-        <p>You retain all rights to your business data. We claim no ownership over your:</p>
-        <ul>
-            <li>Product catalogs</li>
-            <li>Customer information</li>
-            <li>Sales records</li>
-            <li>Invoices generated</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-wifi"></i> 8. Service Availability</h2>
-        <p>We strive for 99.9% uptime but do not guarantee uninterrupted service. We reserve the right to:</p>
-        <ul>
-            <li>Perform maintenance with notice</li>
-            <li>Modify features with advance notice</li>
-            <li>Suspend service for violations</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-gavel"></i> 9. Limitation of Liability</h2>
-        <p>HisaabLite shall not be liable for:</p>
-        <ul>
-            <li>Indirect or consequential damages</li>
-            <li>Loss of profits or data</li>
-            <li>Service interruptions</li>
-            <li>Amount exceeding fees paid in last 12 months</li>
-        </ul>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-balance-scale"></i> 10. Governing Law</h2>
-        <p>These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Mumbai.</p>
-    </div>
-    
-    <div class="terms-section">
-        <h2><i class="fas fa-envelope"></i> 11. Contact Information</h2>
-        <p>For questions about these terms:</p>
-        <p style="margin-top: 10px;">
-            <i class="fas fa-envelope" style="color: #2563eb;"></i> legal@hisaablite.com<br>
-            <i class="fas fa-phone" style="color: #2563eb;"></i> +91 98765 43210<br>
-            <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> Registered Office: Mumbai, India
-        </p>
-    </div>
-</div>
 
-<!-- Footer (same as privacy page) -->
-<div class="footer">
-    <!-- ... same footer as privacy page ... -->
-    <div class="footer-content">
-        <div>
-            <div class="footer-logo">
-                <div class="logo-icon">HL</div>
-                <span style="font-weight: 600;">HisaabLite</span>
-            </div>
-            <p style="color: #64748b; font-size: 13px; margin-top: 16px;">
-                Simple billing & inventory<br>for Indian businesses
-            </p>
-        </div>
-        <div class="footer-links">
-            <div class="footer-column">
-                <h4>Product</h4>
-                <a href="/features">Features</a>
-                <a href="/pricing">Pricing</a>
-                <a href="/demo">Demo</a>
-            </div>
-            <div class="footer-column">
-                <h4>Company</h4>
-                <a href="/about">About</a>
-                <a href="/blog">Blog</a>
-                <a href="/careers">Careers</a>
-            </div>
-            <div class="footer-column">
-                <h4>Support</h4>
-                <a href="/support">Help Center</a>
-                <a href="/privacy">Privacy Policy</a>
-                <a href="/terms" class="active">Terms of Service</a>
+    <!-- Terms Content -->
+    <div class="terms-content">
+        <!-- Quick Links -->
+        <div class="quick-links-box">
+            <h3><i class="fas fa-link"></i> Jump to Section</h3>
+            <div class="quick-links-grid">
+                <a href="#section1"><i class="fas fa-chevron-right"></i> Acceptance</a>
+                <a href="#section2"><i class="fas fa-chevron-right"></i> Definitions</a>
+                <a href="#section3"><i class="fas fa-chevron-right"></i> Account Terms</a>
+                <a href="#section4"><i class="fas fa-chevron-right"></i> Payment Terms</a>
+                <a href="#section5"><i class="fas fa-chevron-right"></i> Cancellation</a>
+                <a href="#section6"><i class="fas fa-chevron-right"></i> Prohibited Uses</a>
+                <a href="#section7"><i class="fas fa-chevron-right"></i> Intellectual Property</a>
+                <a href="#section8"><i class="fas fa-chevron-right"></i> Limitation of Liability</a>
+                <a href="#section9"><i class="fas fa-chevron-right"></i> Governing Law</a>
+                <a href="#section10"><i class="fas fa-chevron-right"></i> Changes to Terms</a>
             </div>
         </div>
-    </div>
-    <div class="footer-bottom">
-        <span>© 2026 HisaabLite. All rights reserved.</span>
-        <span>Made with <span style="color: #ef4444;">❤️</span> in India</span>
-    </div>
-</div>
 
+        <!-- Section 1 - Acceptance -->
+        <div id="section1" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-check-circle"></i> 1. Acceptance of Terms</h2>
+            </div>
+            <div class="section-content">
+                <p>By accessing or using HisaabLite ("the Software"), you agree to be bound by these Terms & Conditions. If you do not agree to all these terms, you may not access or use the Software.</p>
+                
+                <div class="important-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>By creating an account or using HisaabLite, you acknowledge that you have read, understood, and agree to be bound by these Terms.</p>
+                </div>
+                
+                <p>We reserve the right to modify these terms at any time. Continued use of the Software after any such changes constitutes your acceptance of the new Terms.</p>
+            </div>
+        </div>
+
+        <!-- Section 2 - Definitions -->
+        <div id="section2" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-book"></i> 2. Definitions</h2>
+            </div>
+            <div class="section-content">
+                <table class="terms-table">
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Definition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>"Software", "Service", "Platform"</td>
+                            <td>Refers to HisaabLite billing and inventory management application</td>
+                        </tr>
+                        <tr>
+                            <td>"User", "You", "Your"</td>
+                            <td>Refers to the individual or entity using the Software</td>
+                        </tr>
+                        <tr>
+                            <td>"Account"</td>
+                            <td>Your registered account with HisaabLite</td>
+                        </tr>
+                        <tr>
+                            <td>"Content"</td>
+                            <td>Any data, text, files, information, or materials you submit to the Software</td>
+                        </tr>
+                        <tr>
+                            <td>"Subscription"</td>
+                            <td>The paid plan you have selected for using the Software</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 3 - Account Terms -->
+        <div id="section3" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-user-lock"></i> 3. Account Terms</h2>
+            </div>
+            <div class="section-content">
+                <h3>3.1 Account Creation</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> You must be at least 18 years old to use this Service</li>
+                    <li><i class="fas fa-check-circle"></i> You must provide accurate and complete information</li>
+                    <li><i class="fas fa-check-circle"></i> You are responsible for maintaining account security</li>
+                    <li><i class="fas fa-check-circle"></i> One person may not maintain multiple free accounts</li>
+                </ul>
+
+                <h3>3.2 Account Responsibility</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> You are responsible for all activities under your account</li>
+                    <li><i class="fas fa-check-circle"></i> Notify us immediately of any unauthorized use</li>
+                    <li><i class="fas fa-check-circle"></i> We are not liable for any loss from unauthorized use</li>
+                </ul>
+
+                <div class="notice-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>You must immediately notify us of any unauthorized use of your account or any other security breach.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4 - Payment Terms -->
+        <div id="section4" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-credit-card"></i> 4. Payment Terms</h2>
+            </div>
+            <div class="section-content">
+                <h3>4.1 Subscription Fees</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Free Plan: No payment required</li>
+                    <li><i class="fas fa-check-circle"></i> Paid Plans: Fees as specified on our pricing page</li>
+                    <li><i class="fas fa-check-circle"></i> All fees are non-refundable except as required by law</li>
+                </ul>
+
+                <h3>4.2 Billing</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Paid plans are billed in advance on a monthly basis</li>
+                    <li><i class="fas fa-check-circle"></i> We accept major credit cards and UPI</li>
+                    <li><i class="fas fa-check-circle"></i> Taxes may be added to fees where applicable</li>
+                </ul>
+
+                <h3>4.3 Price Changes</h3>
+                <p>We may change our fees at any time. We will provide at least 30 days notice of any price changes.</p>
+            </div>
+        </div>
+
+        <!-- Section 5 - Cancellation and Termination -->
+        <div id="section5" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-ban"></i> 5. Cancellation and Termination</h2>
+            </div>
+            <div class="section-content">
+                <h3>5.1 By You</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> You may cancel your account at any time</li>
+                    <li><i class="fas fa-check-circle"></i> Cancellation takes effect at the end of your billing cycle</li>
+                    <li><i class="fas fa-check-circle"></i> No refunds for partial months</li>
+                </ul>
+
+                <h3>5.2 By Us</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> We may suspend or terminate your account for violation of these Terms</li>
+                    <li><i class="fas fa-check-circle"></i> We may terminate free accounts for prolonged inactivity</li>
+                </ul>
+
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Upon termination, your right to use the Service will immediately cease. We may delete your data after 30 days.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6 - Prohibited Uses -->
+        <div id="section6" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-prohibited"></i> 6. Prohibited Uses</h2>
+            </div>
+            <div class="section-content">
+                <p>You may not use the Service for:</p>
+                <ul>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Any illegal purpose or in violation of laws</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Harassing, abusing, or harming others</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Impersonating any person or entity</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Interfering with the Service's operation</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Attempting to gain unauthorized access</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Reverse engineering the Software</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Using the Service for competitive analysis</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7 - Intellectual Property -->
+        <div id="section7" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-copyright"></i> 7. Intellectual Property Rights</h2>
+            </div>
+            <div class="section-content">
+                <h3>7.1 Our Rights</h3>
+                <p>The Service, including its code, design, and content, is owned by HisaabLite and protected by copyright and other intellectual property laws.</p>
+
+                <h3>7.2 Your Rights</h3>
+                <p>You retain all rights to your business data. You grant us a license to host, back up, and process your data solely to provide the Service.</p>
+
+                <h3>7.3 Feedback</h3>
+                <p>Any feedback you provide becomes our property and we may use it without compensation.</p>
+            </div>
+        </div>
+
+        <!-- Section 8 - Limitation of Liability -->
+        <div id="section8" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> 8. Limitation of Liability</h2>
+            </div>
+            <div class="section-content">
+                <p>To the maximum extent permitted by law:</p>
+                <ul>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> The Service is provided "AS IS" without warranties</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> We are not liable for indirect or consequential damages</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Our total liability shall not exceed the fees paid by you</li>
+                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> We are not liable for data loss or business interruption</li>
+                </ul>
+
+                <div class="important-box">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>We take reasonable measures to protect your data but cannot guarantee absolute security.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 9 - Governing Law -->
+        <div id="section9" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-gavel"></i> 9. Governing Law</h2>
+            </div>
+            <div class="section-content">
+                <p>These Terms shall be governed by the laws of India, without regard to its conflict of law provisions.</p>
+                <p>Any disputes arising from these Terms shall be resolved in the courts of Bangalore, Karnataka.</p>
+            </div>
+        </div>
+
+        <!-- Section 10 - Changes to Terms -->
+        <div id="section10" class="terms-section">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> 10. Changes to Terms</h2>
+            </div>
+            <div class="section-content">
+                <p>We may modify these Terms at any time. We will notify you of material changes via email or through the Service.</p>
+                <p>Your continued use after changes constitutes acceptance of the modified Terms.</p>
+            </div>
+        </div>
+
+        <!-- Acceptance Box -->
+        <div class="acceptance-box">
+            <div class="acceptance-text">
+                <i class="fas fa-check-circle"></i>
+                <p>By using HisaabLite, you acknowledge that you have read and agree to these Terms & Conditions.</p>
+            </div>
+            <button class="acceptance-btn" onclick="window.location.href='/register'">
+                <i class="fas fa-arrow-right"></i> I Agree & Continue
+            </button>
+        </div>
+
+        <!-- Contact Box -->
+        <div class="contact-box">
+            <i class="fas fa-file-signature"></i>
+            <h3>Questions About Terms?</h3>
+            <p>If you have any questions about these Terms, please contact our legal team</p>
+            <div class="contact-buttons">
+                <a href="/contact" class="contact-btn primary">
+                    <i class="fas fa-paper-plane"></i> Contact Us
+                </a>
+                <a href="mailto:legal@hisaablite.com" class="contact-btn secondary">
+                    <i class="fas fa-envelope"></i> Email Legal Team
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
 </body>
 </html>

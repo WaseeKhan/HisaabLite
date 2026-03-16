@@ -2,699 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>HisaabLite • Smart Retail Management</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+    
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/landing.css}">
+    
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            line-height: 1.5;
-        }
-
-        /* ===== NAVBAR (COMPACT) ===== */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 48px;
-            background: white;
-            border-bottom: 1px solid #e9eef2;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .nav-links a {
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.15s;
-        }
-
-        .nav-links a.login {
-            color: #5b6778;
-        }
-
-        .nav-links a.login:hover {
-            background: #f1f5f9;
-        }
-
-        .nav-links a.register {
-            background: #0f172a;
-            color: white;
-        }
-
-        /* ===== HERO SECTION (COMPACT) ===== */
-        .hero {
-            text-align: center;
-            padding: 60px 20px 50px;
-            background: white;
-            border-bottom: 1px solid #e9eef2;
-        }
-
-        .hero h1 {
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero h1 span {
-            color: #2563eb;
-        }
-
-        .hero p {
-            font-size: 16px;
-            color: #5b6778;
-            margin-bottom: 30px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .btn-primary, .btn-outline {
-            padding: 12px 28px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: #0f172a;
-            color: white;
-        }
-
-        .btn-outline {
-            border: 1.5px solid #e2e8f0;
-            background: white;
-            color: #1e293b;
-        }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2563eb;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #5b6778;
-        }
-
-        /* ===== FEATURES SECTION (COMPACT) ===== */
-        .features {
-            background: #f8fafc;
-            padding: 50px 30px;
-            text-align: center;
-        }
-
-        .features h2 {
-            font-size: 30px;
-            margin-bottom: 12px;
-        }
-
-        .features-subtitle {
-            font-size: 15px;
-            color: #5b6778;
-            margin-bottom: 40px;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 24px 20px;
-            border-radius: 16px;
-            border: 1px solid #edf2f7;
-            text-align: left;
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #2563eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .feature-card h3 {
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-
-        .feature-card p {
-            font-size: 13px;
-            color: #5b6778;
-        }
-
-        /* ===== WHATSAPP SECTION (FULL CONTENT) ===== */
-        .whatsapp-section {
-            background: #0f172a;
-            color: white;
-            padding: 50px 30px;
-            text-align: center;
-        }
-
-        .whatsapp-section h2 {
-            font-size: 30px;
-            margin-bottom: 12px;
-        }
-
-        .whatsapp-section p {
-            font-size: 15px;
-            color: #94a3b8;
-            margin-bottom: 30px;
-        }
-
-        .whatsapp-features {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
-
-        .whatsapp-feature {
-            width: 200px;
-        }
-
-        .whatsapp-feature i {
-            font-size: 48px;
-            color: #25D366;
-            margin-bottom: 15px;
-        }
-
-        .whatsapp-feature h4 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .whatsapp-feature p {
-            font-size: 13px;
-            color: #94a3b8;
-        }
-
-        .btn-whatsapp {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #25D366;
-            color: white;
-            padding: 14px 36px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        /* ===== PRICING SECTION (FULL CONTENT) ===== */
-        .pricing-section {
-            background: white;
-            padding: 50px 30px;
-            text-align: center;
-        }
-
-        .pricing-section h2 {
-            font-size: 30px;
-            margin-bottom: 12px;
-        }
-
-        .pricing-subtitle {
-            font-size: 15px;
-            color: #5b6778;
-            margin-bottom: 40px;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .pricing-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 28px 20px;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .pricing-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .pricing-card.popular {
-            border: 2px solid #2563eb;
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2563eb;
-            color: white;
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .pricing-name {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .pricing-price {
-            font-size: 32px;
-            font-weight: 700;
-            color: #2563eb;
-            margin-bottom: 20px;
-        }
-
-        .pricing-price.free {
-            color: #10b981;
-        }
-
-        .pricing-price small {
-            font-size: 13px;
-            font-weight: 400;
-            color: #5b6778;
-        }
-
-        .pricing-features {
-            list-style: none;
-            margin-bottom: 24px;
-        }
-
-        .pricing-features li {
-            font-size: 13px;
-            padding: 5px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pricing-features i {
-            color: #10b981;
-            font-size: 12px;
-        }
-
-        .btn-pricing {
-            display: inline-block;
-            width: 100%;
-            padding: 12px;
-            background: #0f172a;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        /* ===== SUPPORT SECTION (FULL CONTENT) ===== */
-        .support-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 50px 30px;
-            text-align: center;
-        }
-
-        .support-section h2 {
-            font-size: 30px;
-            margin-bottom: 12px;
-        }
-
-        .support-section p {
-            font-size: 15px;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 30px;
-        }
-
-        .support-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto 30px;
-        }
-
-        .support-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 24px 16px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .support-card i {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        .support-card h4 {
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-
-        .support-card p {
-            font-size: 12px;
-            margin: 0;
-        }
-
-        .support-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 30px 0;
-        }
-
-        .support-stat .number {
-            font-size: 36px;
-            font-weight: 700;
-            display: block;
-        }
-
-        .support-stat .label {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .btn-support {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: white;
-            color: #0f172a;
-            padding: 14px 36px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        /* ===== TESTIMONIALS SECTION (FULL CONTENT) ===== */
-        .testimonials-section {
-            background: #f8fafc;
-            padding: 50px 30px;
-            text-align: center;
-        }
-
-        .testimonials-section h2 {
-            font-size: 30px;
-            margin-bottom: 40px;
-        }
-
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .testimonial-card {
-            background: white;
-            border-radius: 16px;
-            padding: 28px;
-            text-align: left;
-            border: 1px solid #e2e8f0;
-        }
-
-        .testimonial-rating {
-            color: #fbbf24;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-
-        .testimonial-text {
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .author-avatar {
-            width: 40px;
-            height: 40px;
-            background: #f1f5f9;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2563eb;
-        }
-
-        .author-info h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .author-info p {
-            font-size: 11px;
-            color: #94a3b8;
-        }
-
-        /* ===== NEWSLETTER SECTION (IMPROVED CTA) ===== */
-        .newsletter-section {
-            background: white;
-            padding: 50px 30px;
-            text-align: center;
-            border-top: 1px solid #e9eef2;
-        }
-
-        .newsletter-card {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #f8fafc;
-            padding: 40px;
-            border-radius: 24px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .newsletter-card h2 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 12px;
-        }
-
-        .newsletter-card p {
-            font-size: 14px;
-            color: #5b6778;
-            margin-bottom: 24px;
-        }
-
-        .newsletter-form {
-            display: flex;
-            gap: 12px;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-
-        .newsletter-form input {
-            flex: 1;
-            padding: 14px 18px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .newsletter-form input:focus {
-            border-color: #2563eb;
-        }
-
-        .newsletter-form button {
-            padding: 14px 28px;
-            background: #0f172a;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .trust-badges {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-            color: #94a3b8;
-            font-size: 12px;
-        }
-
-        /* ===== FOOTER (COMPACT) ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 30px 48px 20px;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-links a {
-            color: #5b6778;
-            text-decoration: none;
-            font-size: 12px;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            font-size: 11px;
-            color: #94a3b8;
-            padding-top: 16px;
-            border-top: 1px solid #f1f5f9;
-        }
-
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 16px 20px;
-                flex-direction: column;
-            }
-            
-            .hero h1 {
-                font-size: 32px;
-            }
-            
-            .hero-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .newsletter-form {
-                flex-direction: column;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-    </style>
 </head>
 
 <body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- ===== NAVBAR ===== -->
-    <div class="navbar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
-        <div class="nav-links">
-             <a href="/login" class="login"><i class="fas fa-sign-in-alt"></i> Login</a>
-            <a href="/register" class="register">Start Free</a>
-        </div>
-    </div>
-
-    <!-- ===== HERO SECTION ===== -->
-    <div class="hero">
+    <!-- HERO SECTION - Moving Background -->
+    <div class="landing-hero">
         <h1>Run Your Retail Business <span>Smartly</span> 🚀</h1>
         <p>Inventory • Sales • WhatsApp Integration • 24x7 Support</p>
         <div class="hero-buttons">
@@ -702,14 +34,24 @@
             <a href="/login" class="btn-outline">Login</a>
         </div>
         
-        <div class="hero-stats">
-            <div><span class="stat-number">10+</span> <span class="stat-label">Businesses</span></div>
-            <div><span class="stat-number">2000+</span> <span class="stat-label">Invoices</span></div>
-            <div><span class="stat-number">24x7</span> <span class="stat-label">Support</span></div>
+        <!-- Glassy Stats -->
+        <div class="landing-stats">
+            <div>
+                <span class="landing-stat-number">10+</span>
+                <span class="landing-stat-label">Businesses</span>
+            </div>
+            <div>
+                <span class="landing-stat-number">2000+</span>
+                <span class="landing-stat-label">Invoices</span>
+            </div>
+            <div>
+                <span class="landing-stat-number">24x7</span>
+                <span class="landing-stat-label">Support</span>
+            </div>
         </div>
     </div>
 
-    <!-- ===== FEATURES SECTION ===== -->
+    <!-- FEATURES SECTION - Glassy Cards -->
     <div class="features">
         <h2>Why HisaabLite?</h2>
         <div class="features-subtitle">Everything you need to manage your retail business</div>
@@ -747,7 +89,7 @@
         </div>
     </div>
 
-    <!-- ===== WHATSAPP SECTION (FULL CONTENT) ===== -->
+    <!-- WHATSAPP SECTION - Glassy -->
     <div class="whatsapp-section">
         <h2>🚀 WhatsApp Business Integration</h2>
         <p>Send professional invoices directly to customers on WhatsApp</p>
@@ -780,15 +122,34 @@
         </a>
     </div>
 
-    <!-- ===== PRICING SECTION (FULL CONTENT) ===== -->
+    <!-- PRICING SECTION - With Yearly Toggle -->
     <div class="pricing-section">
         <h2>Simple, Transparent Pricing</h2>
         <div class="pricing-subtitle">Start free, upgrade as you grow. No hidden fees.</div>
 
+     
+       <!-- Billing Toggle - FIXED -->
+  <!-- Billing Toggle - FIXED -->
+    <div class="billing-toggle">
+        <span class="toggle-label active" id="monthlyLabel">Monthly</span>
+        <label class="switch">
+            <input type="checkbox" id="billingToggle" th:attr="onclick='toggleBilling()'">
+            <span class="slider"></span>
+        </label>
+        <span class="toggle-label" id="yearlyLabel">
+            Yearly <span class="save-badge">Save 17%</span>
+        </span>
+    </div>
+
+
         <div class="pricing-grid">
+            <!-- FREE Plan -->
             <div class="pricing-card">
                 <div class="pricing-name">FREE</div>
-                <div class="pricing-price free">₹0</div>
+                <div class="pricing-price">
+                    <span class="monthly-price price-free">₹0</span>
+                    <span class="yearly-price price-free" style="display: none;">₹0</span>
+                </div>
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> 2 Users</li>
                     <li><i class="fas fa-check"></i> 50 Products</li>
@@ -798,9 +159,17 @@
                 <a href="/register" class="btn-pricing">Get Started</a>
             </div>
 
+            <!-- BASIC Plan -->
             <div class="pricing-card">
                 <div class="pricing-name">BASIC</div>
-                <div class="pricing-price">₹499 <small>/mo</small></div>
+                <div class="pricing-price">
+                    <span class="monthly-price">₹499 <span class="price-period">/mo</span></span>
+                    <span class="yearly-price" style="display: none;">
+                        ₹4,990 <span class="price-period">/yr</span>
+                        <span class="original-price">₹5,988</span>
+                        <span class="savings-tag">Save ₹998</span>
+                    </span>
+                </div>
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> 5 Users</li>
                     <li><i class="fas fa-check"></i> 200 Products</li>
@@ -810,10 +179,18 @@
                 <a href="/register" class="btn-pricing">Choose Basic</a>
             </div>
 
+            <!-- PREMIUM Plan -->
             <div class="pricing-card popular">
                 <div class="popular-badge">🔥 MOST POPULAR</div>
                 <div class="pricing-name">PREMIUM</div>
-                <div class="pricing-price">₹999 <small>/mo</small></div>
+                <div class="pricing-price">
+                    <span class="monthly-price">₹999 <span class="price-period">/mo</span></span>
+                    <span class="yearly-price" style="display: none;">
+                        ₹9,990 <span class="price-period">/yr</span>
+                        <span class="original-price">₹11,988</span>
+                        <span class="savings-tag">Save ₹1,998</span>
+                    </span>
+                </div>
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> 15 Users</li>
                     <li><i class="fas fa-check"></i> 1000 Products</li>
@@ -824,21 +201,29 @@
                 <a href="/register" class="btn-pricing">Go Premium</a>
             </div>
 
+            <!-- ENTERPRISE Plan -->
             <div class="pricing-card">
                 <div class="pricing-name">ENTERPRISE</div>
-                <div class="pricing-price">₹1999 <small>/mo</small></div>
+                <div class="pricing-price">
+                    <span class="monthly-price">₹1,999 <span class="price-period">/mo</span></span>
+                    <span class="yearly-price" style="display: none;">
+                        ₹19,990 <span class="price-period">/yr</span>
+                        <span class="original-price">₹23,988</span>
+                        <span class="savings-tag">Save ₹3,998</span>
+                    </span>
+                </div>
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> Unlimited Users</li>
                     <li><i class="fas fa-check"></i> Unlimited Products</li>
                     <li><i class="fas fa-check"></i> Priority Support</li>
                     <li><i class="fas fa-check"></i> Custom Features</li>
                 </ul>
-                <a href="/register" class="btn-pricing">Contact Sales</a>
+                <a href="/contact" class="btn-pricing">Contact Sales</a>
             </div>
         </div>
     </div>
 
-    <!-- ===== 24x7 SUPPORT SECTION (FULL CONTENT) ===== -->
+    <!-- SUPPORT SECTION - Glassy -->
     <div class="support-section">
         <h2>🌟 24x7 Customer Support</h2>
         <p>We're always here to help you, day or night</p>
@@ -886,7 +271,7 @@
         </a>
     </div>
 
-    <!-- ===== TESTIMONIALS SECTION (FULL CONTENT) ===== -->
+    <!-- TESTIMONIALS SECTION -->
     <div class="testimonials-section">
         <h2>❤️ Trusted by 10,000+ Businesses</h2>
         
@@ -929,7 +314,7 @@
         </div>
     </div>
 
-    <!-- ===== NEWSLETTER SECTION (IMPROVED CTA) ===== -->
+    <!-- NEWSLETTER SECTION -->
     <div class="newsletter-section">
         <div class="newsletter-card">
             <h2>🚀 Get Latest Updates & Offers</h2>
@@ -949,26 +334,31 @@
         </div>
     </div>
 
-    <!-- ===== FOOTER ===== -->
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-logo">
-                <div class="logo-icon">HL</div>
-                <span>HisaabLite</span>
-            </div>
-            <div class="footer-links">
-                <a href="#">About</a>
-                <a href="#">Features</a>
-                <a href="#">Pricing</a>
-                <a href="/privacy">Privacy</a>
-                <a href="/terms">Terms</a>
-                <a href="/support">Support</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            © 2026 HisaabLite • Built with ❤️ in India by Waseem Khan
-        </div>
-    </div>
+    <!-- Toggle Script -->
+  <script th:inline="javascript">
+    function toggleBilling() {
+        const toggle = document.getElementById('billingToggle');
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const yearlyPrices = document.querySelectorAll('.yearly-price');
+        const monthlyLabel = document.getElementById('monthlyLabel');
+        const yearlyLabel = document.getElementById('yearlyLabel');
 
+        if (toggle.checked) {
+            // Yearly selected
+            monthlyPrices.forEach(el => el.style.display = 'none');
+            yearlyPrices.forEach(el => el.style.display = 'block');
+            monthlyLabel.classList.remove('active');
+            yearlyLabel.classList.add('active');
+        } else {
+            // Monthly selected
+            monthlyPrices.forEach(el => el.style.display = 'block');
+            yearlyPrices.forEach(el => el.style.display = 'none');
+            monthlyLabel.classList.add('active');
+            yearlyLabel.classList.remove('active');
+        }
+    }
+</script>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
 </body>
 </html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Careers • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/careers.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+    <!-- Hero Section -->
+    <div class="careers-hero">
+        <h1>Join Us in Building <span>India's Future</span></h1>
+        <p>Be part of a team that's transforming how small businesses operate</p>
+    </div>
+
+    <!-- Why Join Us Section -->
+    <div class="why-join">
+        <h2>Why Join HisaabLite?</h2>
+        <p>We're not just building software, we're building careers</p>
+
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon"><i class="fas fa-rocket"></i></div>
+                <h3>Fast Growth</h3>
+                <p>Work in a high-growth startup with endless learning opportunities</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon"><i class="fas fa-laptop-house"></i></div>
+                <h3>Remote First</h3>
+                <p>Work from anywhere in India with flexible hours</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Stock Options</h3>
+                <p>Every employee gets ESOPs to share in our success</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon"><i class="fas fa-heart"></i></div>
+                <h3>Great Culture</h3>
+                <p>Work with passionate people who love what they do</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Positions -->
+    <div class="positions-section">
+        <h2>Open Positions</h2>
+        <p>Join our team and make an impact</p>
+
+        <div class="positions-grid">
+            <!-- Position 1 -->
+            <div class="position-card">
+                <span class="position-badge">🔥 URGENT HIRING</span>
+                <h3 class="position-title">Senior Full Stack Developer</h3>
+                <div class="position-location">
+                    <i class="fas fa-map-marker-alt"></i> Bangalore / Remote
+                </div>
+                <span class="position-type">Full Time</span>
+                <p class="position-desc">
+                    Looking for an experienced full-stack developer to lead our core product development.
+                </p>
+                <ul class="position-requirements">
+                    <li><i class="fas fa-check"></i> 4+ years of Java/Spring Boot experience</li>
+                    <li><i class="fas fa-check"></i> Strong frontend skills (React/Angular)</li>
+                    <li><i class="fas fa-check"></i> Experience with MySQL, REST APIs</li>
+                </ul>
+                <a href="#" class="btn-apply">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Position 2 -->
+            <div class="position-card">
+                <span class="position-badge">⚡ NEW</span>
+                <h3 class="position-title">Frontend Developer</h3>
+                <div class="position-location">
+                    <i class="fas fa-map-marker-alt"></i> Remote
+                </div>
+                <span class="position-type">Full Time</span>
+                <p class="position-desc">
+                    Join our UI/UX team to create beautiful, responsive interfaces for our users.
+                </p>
+                <ul class="position-requirements">
+                    <li><i class="fas fa-check"></i> 2+ years of React/Vue experience</li>
+                    <li><i class="fas fa-check"></i> Strong CSS/HTML skills</li>
+                    <li><i class="fas fa-check"></i> Eye for design and user experience</li>
+                </ul>
+                <a href="#" class="btn-apply">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Position 3 -->
+            <div class="position-card">
+                <h3 class="position-title">DevOps Engineer</h3>
+                <div class="position-location">
+                    <i class="fas fa-map-marker-alt"></i> Bangalore
+                </div>
+                <span class="position-type">Full Time</span>
+                <p class="position-desc">
+                    Help us scale our infrastructure to handle millions of transactions.
+                </p>
+                <ul class="position-requirements">
+                    <li><i class="fas fa-check"></i> 3+ years of AWS/Azure experience</li>
+                    <li><i class="fas fa-check"></i> Docker, Kubernetes, CI/CD pipelines</li>
+                    <li><i class="fas fa-check"></i> Monitoring and performance tuning</li>
+                </ul>
+                <a href="#" class="btn-apply">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Position 4 -->
+            <div class="position-card">
+                <h3 class="position-title">Customer Success Manager</h3>
+                <div class="position-location">
+                    <i class="fas fa-map-marker-alt"></i> Remote
+                </div>
+                <span class="position-type">Full Time</span>
+                <p class="position-desc">
+                    Be the voice of our customers and help them succeed with HisaabLite.
+                </p>
+                <ul class="position-requirements">
+                    <li><i class="fas fa-check"></i> 2+ years in customer support</li>
+                    <li><i class="fas fa-check"></i> Excellent communication skills</li>
+                    <li><i class="fas fa-check"></i> Hindi & English required</li>
+                </ul>
+                <a href="#" class="btn-apply">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Position 5 -->
+            <div class="position-card">
+                <h3 class="position-title">Product Manager</h3>
+                <div class="position-location">
+                    <i class="fas fa-map-marker-alt"></i> Bangalore
+                </div>
+                <span class="position-type">Full Time</span>
+                <p class="position-desc">
+                    Drive product strategy and work with engineering to build features customers love.
+                </p>
+                <ul class="position-requirements">
+                    <li><i class="fas fa-check"></i> 3+ years of PM experience in SaaS</li>
+                    <li><i class="fas fa-check"></i> Technical background preferred</li>
+                    <li><i class="fas fa-check"></i> Data-driven decision making</li>
+                </ul>
+                <a href="#" class="btn-apply">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Position 6 -->
+            <div class="position-card">
+                <h3 class="position-title">QA Engineer</h3>
+                <div class="position-location">
+                    <i class="fas fa-map-marker-alt"></i> Remote
+                </div>
+                <span class="position-type">Full Time</span>
+                <p class="position-desc">
+                    Ensure our product is bug-free and delivers the best experience.
+                </p>
+                <ul class="position-requirements">
+                    <li><i class="fas fa-check"></i> 2+ years of manual & automation testing</li>
+                    <li><i class="fas fa-check"></i> Experience with Selenium, JUnit</li>
+                    <li><i class="fas fa-check"></i> Attention to detail</li>
+                </ul>
+                <a href="#" class="btn-apply">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Life at HisaabLite -->
+<!-- Life at HisaabLite - Local Images -->
+<div class="life-section">
+    <h2>Life at HisaabLite</h2>
+    <p>More than just work — we're a family</p>
+
+    <div class="life-grid">
+        <div class="life-card">
+            <img src="/images/teamouting.jpeg" alt="Team Outing">
+            <div class="life-overlay">
+                <h4>Team Outings</h4>
+                <p>Quarterly team building activities</p>
+            </div>
+        </div>
+        <div class="life-card">
+            <img src="/images/remotework.jpeg" alt="Remote Work">
+            <div class="life-overlay">
+                <h4>Work From Anywhere</h4>
+                <p>Remote-first culture</p>
+            </div>
+        </div>
+        <div class="life-card">
+            <img src="/images/learning.jpg" alt="Learning">
+            <div class="life-overlay">
+                <h4>Continuous Learning</h4>
+                <p>Monthly tech talks & workshops</p>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- CTA Section -->
+    <div class="careers-cta">
+        <h2>Don't see the right role?</h2>
+        <p>We're always looking for talented people. Send us your resume anyway!</p>
+        <a href="#" class="btn-big">
+            <i class="fas fa-paper-plane"></i> Send Open Application
+        </a>
+    </div>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+</body>
+</html>

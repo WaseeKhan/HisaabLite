@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+      <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/about.css}">
+    
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<body>
+
+     <div th:replace="~{fragments/public-header :: header}"></div>
+    
+
+<!-- Hero Section -->
+    <section class="about-hero">
+        <div class="about-hero-content">
+            <h1>Empowering Indian Small Businesses</h1>
+            <p>HisaabLite is on a mission to make billing and inventory management simple, accessible, and affordable for every small business in India.</p>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <h2>Our Mission</h2>
+        <p>To digitize India's 63 million small businesses with a simple, powerful, and affordable billing solution that works in Hindi and English, with or without internet.</p>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Businesses Trust Us</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">2000+</div>
+                <div class="stat-label">Invoices Generated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24x7</div>
+                <div class="stat-label">Support Available</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Made in India</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <h2>Our Values</h2>
+        <p>What drives us every day to serve you better</p>
+        
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon">❤️</div>
+                <h3>Customer First</h3>
+                <p>Every feature we build starts with "Will this help our customers?"</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">🚀</div>
+                <h3>Keep It Simple</h3>
+                <p>Powerful features should be simple enough for anyone to use</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">🇮🇳</div>
+                <h3>Made in India</h3>
+                <p>Built for Indian businesses, by Indian developers</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <h2>Meet Our Team</h2>
+        <p>The passionate people behind HisaabLite</p>
+        
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-avatar">W</div>
+                <h3>Waseem Khan</h3>
+                <div class="team-role">Founder & CEO</div>
+                <p class="team-bio">10+ years in retail tech. On a mission to digitize India's small businesses.</p>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">A</div>
+                <h3>Ajay Sharma</h3>
+                <div class="team-role">Lead Developer</div>
+                <p class="team-bio">Full-stack developer with passion for clean code and great UX.</p>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">P</div>
+                <h3>Priya Patel</h3>
+                <div class="team-role">Customer Success</div>
+                <p class="team-bio">Ensuring every business gets the help they need, 24x7.</p>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">R</div>
+                <h3>Rahul Singh</h3>
+                <div class="team-role">Product Designer</div>
+                <p class="team-bio">Making complex things simple through thoughtful design.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="timeline-section">
+        <h2>Our Journey</h2>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-year">2024</div>
+                <div class="timeline-content">
+                    <h3>The Idea</h3>
+                    <p>Waseem saw his uncle struggle with paper bills and Excel sheets. The idea for HisaabLite was born.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-year">2025</div>
+                <div class="timeline-content">
+                    <h3>First Prototype</h3>
+                    <p>Built the first version and tested with 10 local shops in Bangalore.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-year">2026</div>
+                <div class="timeline-content">
+                    <h3>Official Launch</h3>
+                    <p>Launched HisaabLite to help small businesses across India go digital.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+   
+
+ 
+     
+ 
+   <div th:replace="~{fragments/public-footer :: footer}"></div>
+
+</body>
+</html>

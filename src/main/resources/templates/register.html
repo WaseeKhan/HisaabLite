@@ -2,869 +2,33 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Onboarding • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+    <!-- Fonts & Icons -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/register.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #ffffff;
-            color: #18181b;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.5;
-        }
-
-        /* ===== NAVBAR (COMPACT) ===== */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 48px;
-            background: white;
-            border-bottom: 1px solid #e9eef2;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .nav-links a {
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.15s;
-        }
-
-        .nav-links a.login {
-            color: #5b6778;
-            background: transparent;
-        }
-
-        .nav-links a.login:hover {
-            background: #f1f5f9;
-        }
-
-        .nav-links a.register {
-            background: #0f172a;
-            color: white;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
-        }
-
-        .nav-links a.register:hover {
-            background: #1e293b;
-        }
-
-        /* ===== MAIN (COMPACT) ===== */
-        .main-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            padding: 32px 24px;
-            background: #ffffff;
-        }
-
-        .onboarding-wrapper {
-            width: 100%;
-            max-width: 900px;
-        }
-
-        /* ===== CARD (COMPACT) ===== */
-        .onboarding-card {
-            background: #ffffff;
-            border-radius: 32px;
-            padding: 32px;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.02);
-        }
-
-        .card-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .card-header h2 {
-            font-size: 28px;
-            font-weight: 600;
-            color: #18181b;
-            margin-bottom: 6px;
-            letter-spacing: -0.02em;
-        }
-
-        .card-header p {
-            font-size: 14px;
-            color: #71717a;
-        }
-
-        .highlight {
-            color: #18181b;
-            font-weight: 600;
-            background: #f4f4f5;
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-
-        /* ===== PROGRESS (COMPACT) ===== */
-        .progress-steps {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 36px;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-        }
-
-        .step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 32px;
-            top: 12px;
-            width: 50px;
-            height: 2px;
-            background: #e4e4e7;
-        }
-
-        .step-number {
-            width: 26px;
-            height: 26px;
-            border-radius: 26px;
-            background: #f4f4f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            font-size: 12px;
-            color: #71717a;
-            z-index: 2;
-        }
-
-        .step.active .step-number {
-            background: #18181b;
-            color: white;
-        }
-
-        .step-text {
-            font-size: 12px;
-            font-weight: 500;
-            color: #a1a1aa;
-        }
-
-        .step.active .step-text {
-            color: #18181b;
-        }
-
-        /* ===== MESSAGES ===== */
-        .message {
-            padding: 14px 18px;
-            border-radius: 16px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .message.success {
-            background: #f6f6f7;
-            color: #18181b;
-            border: 1px solid #e4e4e7;
-        }
-
-        .message.error {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fee2e2;
-        }
-
-        /* ===== 2-COLUMN GRID (COMPACT) ===== */
-        .registration-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-        }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #71717a;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        /* ===== FORM (COMPACT) ===== */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: #52525b;
-            margin-bottom: 4px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a1a1aa;
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 10px 14px 10px 42px;
-            border: 1.5px solid #e4e4e7;
-            border-radius: 14px;
-            font-size: 13px;
-            background: #ffffff;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            color: #18181b;
-        }
-
-        .form-group input:focus {
-            border-color: #18181b;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.02);
-        }
-
-        .error-message {
-            color: #ef4444;
-            font-size: 11px;
-            margin-top: 2px;
-            display: block;
-        }
-
-        /* ===== PLAN SELECTOR ===== */
-        .plan-selector {
-            background: #f8fafc;
-            border: 1.5px solid #e4e4e7;
-            border-radius: 16px;
-            padding: 14px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-            margin-bottom: 16px;
-        }
-
-        .plan-selector:hover {
-            border-color: #18181b;
-            background: #f1f5f9;
-        }
-
-        .plan-selector-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .plan-selector-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
-
-        .plan-selector-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .plan-selector-title {
-            font-weight: 600;
-            font-size: 15px;
-            color: #18181b;
-        }
-
-        .plan-selector-subtitle {
-            font-size: 11px;
-            color: #71717a;
-        }
-
-        .plan-selector-price {
-            font-weight: 700;
-            font-size: 16px;
-            color: #2563eb;
-        }
-
-        .selected-plan-badge {
-            background: #10b981;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        /* ===== PLAN MODAL ===== */
-        .plan-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .plan-modal.active {
-            display: flex;
-        }
-
-        .plan-modal-content {
-            background: white;
-            max-width: 550px;
-            width: 90%;
-            border-radius: 32px;
-            padding: 30px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-            animation: modalSlideUp 0.3s ease;
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .plan-modal-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .plan-modal-header h3 {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
-        }
-
-        .plan-modal-header p {
-            color: #71717a;
-            font-size: 13px;
-        }
-
-        .plan-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .plan-card {
-            border: 2px solid #e4e4e7;
-            border-radius: 20px;
-            padding: 20px 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .plan-card:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
-        }
-
-        .plan-card.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .plan-card.popular::before {
-            content: '🔥 POPULAR';
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .plan-card.best-value::before {
-            content: '⭐ BEST VALUE';
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .plan-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .plan-name {
-            font-weight: 700;
-            font-size: 18px;
-            margin-bottom: 6px;
-            color: #18181b;
-            text-align: center;
-        }
-
-        .plan-price {
-            font-size: 20px;
-            font-weight: 800;
-            color: #2563eb;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .plan-price.free {
-            color: #10b981;
-        }
-
-        .plan-price small {
-            font-size: 11px;
-            font-weight: 400;
-            color: #71717a;
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-top: 12px;
-        }
-
-        .plan-features li {
-            font-size: 11px;
-            color: #71717a;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .plan-features i {
-            color: #10b981;
-            font-size: 10px;
-        }
-
-        .plan-modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .modal-btn.primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .modal-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .modal-btn.secondary {
-            background: #f1f5f9;
-            color: #475569;
-        }
-
-        .modal-btn.secondary:hover {
-            background: #e2e8f0;
-        }
-
-        /* ===== BUTTON ===== */
-        .btn-register {
-            width: 50%;
-            padding: 12px 20px;
-            background: #18181b;
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-            margin: 24px auto 0;
-        }
-
-        .btn-register:hover:not(:disabled) {
-            background: #27272a;
-            transform: translateY(-1px);
-        }
-
-        .btn-register:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ===== BACK LINK ===== */
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .back-link a {
-            text-decoration: none;
-            color: #71717a;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 40px;
-            transition: all 0.2s;
-        }
-
-        .back-link a:hover {
-            background: #f4f4f5;
-            color: #18181b;
-        }
-
-        /* ===== FOOTER (COMPACT) ===== */
-        .footer {
-            background: #ffffff;
-            border-top: 1px solid #f0f0f0;
-            padding: 30px 48px 20px;
-            margin-top: auto;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .footer-logo .logo-icon {
-            width: 28px;
-            height: 28px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .footer-logo span {
-            font-weight: 500;
-            color: #1e293b;
-            font-size: 13px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-links a {
-            color: #71717a;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: #18181b;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            font-size: 11px;
-            color: #a1a1aa;
-            padding-top: 16px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .heart {
-            color: #ef4444;
-        }
-
-        #countdown {
-            font-weight: 600;
-            color: #18181b;
-        }
-
-        /* ===== SUCCESS MODAL STYLES ===== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        
-        .success-modal-content {
-            background: white;
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-            animation: modalSlideUp 0.3s ease;
-            width: 90%;
-            max-width: 380px;
-        }
-        
-        .success-icon {
-            width: 70px;
-            height: 70px;
-            background: #10b981;
-            border-radius: 50%;
-            margin: 0 auto 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .success-icon i {
-            color: white;
-            font-size: 36px;
-        }
-        
-        .progress-bar-container {
-            width: 100%;
-            height: 6px;
-            background: #f1f5f9;
-            border-radius: 3px;
-            margin-bottom: 20px;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #10b981;
-            border-radius: 3px;
-            transition: width 1s linear;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .action-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            min-width: 110px;
-        }
-        
-        .action-btn.primary {
-            background: #0f172a;
-            color: white;
-        }
-        
-        .action-btn.primary:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-        }
-        
-        .action-btn.secondary {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        
-        .action-btn.secondary:hover {
-            background: #e2e8f0;
-        }
-        
-        .action-btn.secondary i {
-            color: #64748b;
-        }
-        
-        .info-text {
-            color: #94a3b8;
-            font-size: 11px;
-            margin-top: 16px;
-            text-align: center;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 16px 20px;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .registration-grid {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-
-            .onboarding-card {
-                padding: 24px 20px;
-            }
-
-            .plan-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-register {
-                width: 100%;
-            }
-
-            .footer {
-                padding: 24px 20px 16px;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .footer-links {
-                justify-content: center;
-                gap: 16px;
-            }
-        }
-    </style>
 </head>
 
 <body>
-    <!-- NAVBAR (COMPACT) -->
-    <div class="navbar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
-        <div class="nav-links">
-            <a href="/login" class="login"><i class="fas fa-sign-in-alt"></i> Login</a>
-            <a href="/register" class="register"><i class="fas fa-rocket"></i> Start Free</a>
-        </div>
-    </div>
+
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+
 
     <!-- MAIN CONTENT (COMPACT) -->
     <div class="main-content">
@@ -882,27 +46,28 @@
                             <div class="success-icon">
                                 <i class="fas fa-check"></i>
                             </div>
-                            
-                            <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 8px; text-align: center;">Account Created!</h3>
-                            
+
+                            <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 8px; text-align: center;">
+                                Account Created!</h3>
+
                             <p style="color: #52525b; font-size: 13px; margin-bottom: 16px; text-align: center;">
                                 Check your email to verify your account.
                             </p>
-                            
+
                             <div class="progress-bar-container">
                                 <div id="progressBar" class="progress-bar"></div>
                             </div>
-                            
+
                             <div class="action-buttons">
                                 <button onclick="goToLoginNow()" class="action-btn primary">
                                     <i class="fas fa-sign-in-alt"></i> Login
                                 </button>
-                                
+
                                 <button onclick="stayHere()" class="action-btn secondary">
                                     <i class="fas fa-clock"></i> Wait <span id="countdownDisplay">5</span>s
                                 </button>
                             </div>
-                            
+
                             <p class="info-text">
                                 Auto-redirect in <span id="countdown">5</span>s
                             </p>
@@ -992,12 +157,13 @@
                                     <div class="plan-selector-icon" id="selectedPlanIcon">
                                         <i class="fas fa-gem"></i>
                                     </div>
-                                    <div class="plan-selector-text" >
+                                    <div class="plan-selector-text">
                                         <span class="plan-selector-title" id="selectedPlanName">FREE</span>
-                                        <span class="plan-selector-subtitle" id="selectedPlanDetails">1 users · 10 products</span>
+                                        <span class="plan-selector-subtitle" id="selectedPlanDetails">1 users · 10
+                                            products</span>
                                     </div>
                                 </div>
-                                <div class="plan-selector-price" id="selectedPlanPrice" >₹0</div>
+                                <div class="plan-selector-price" id="selectedPlanPrice">₹0</div>
                             </div>
 
                             <div style="margin-bottom: 40px;">
@@ -1005,7 +171,7 @@
                             </div>
 
                             <!-- City -->
-                            <div class="form-group" >
+                            <div class="form-group">
                                 <label>City</label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-city input-icon"></i>
@@ -1034,13 +200,15 @@
                                     <input type="password" id="confirmPassword" name="confirmPassword"
                                         placeholder="Re-enter password" />
                                 </div>
-                                <small id="confirmError" class="error-message" style="display: none;">Passwords don't match</small>
+                                <small id="confirmError" class="error-message" style="display: none;">Passwords don't
+                                    match</small>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Button - Yeh section replace karo -->
                     <button type="submit" class="btn-register" id="submitBtn">
-                        <span id="buttonText"> 🚀 Register Business</span>
+                        <span id="buttonText">🚀 Register Business</span>
                         <span id="buttonSpinner" style="display: none;" class="btn-spinner"></span>
                     </button>
                 </form>
@@ -1063,24 +231,24 @@
             </div>
 
             <div class="plan-grid" id="planGrid">
-                <div th:each="plan : ${plans}" class="plan-card" th:classappend="${plan.planName == 'FREE' ? 'selected' : ''}"
-                     th:attr="data-plan-name=${plan.planName}, 
+                <div th:each="plan : ${plans}" class="plan-card"
+                    th:classappend="${plan.planName == 'FREE' ? 'selected' : ''}" th:attr="data-plan-name=${plan.planName}, 
                            data-plan-price=${plan.price},
                            data-plan-users=${plan.maxUsers == -1 ? 'Unlimited' : plan.maxUsers + ' users'},
                            data-plan-products=${plan.maxProducts == -1 ? 'Unlimited' : plan.maxProducts + ' products'}"
-                     onclick="selectPlan(this)">
-                    
+                    onclick="selectPlan(this)">
+
                     <div th:if="${plan.planName == 'PREMIUM'}" class="popular"></div>
                     <div th:if="${plan.planName == 'BASIC'}" class="best-value"></div>
-                    
+
                     <div class="plan-icon">
                         <i th:classappend="${plan.planName == 'FREE'} ? 'fas fa-gem' : 
                                         (${plan.planName == 'BASIC'} ? 'fas fa-rocket' : 
                                          (${plan.planName == 'PREMIUM'} ? 'fas fa-crown' : 'fas fa-building'))"></i>
                     </div>
-                    
+
                     <div class="plan-name" th:text="${plan.planName}">FREE</div>
-                    
+
                     <div class="plan-price" th:classappend="${plan.price == 0 ? 'free' : ''}">
                         <span th:if="${plan.price == 0}">FREE</span>
                         <span th:if="${plan.price > 0}">
@@ -1088,15 +256,18 @@
                             <small>/month</small>
                         </span>
                     </div>
-                    
+
                     <ul class="plan-features">
                         <li>
                             <i class="fas fa-check-circle"></i>
-                            <span th:text="${plan.maxUsers == -1 ? 'Unlimited users' : plan.maxUsers + ' users'}">2 users</span>
+                            <span th:text="${plan.maxUsers == -1 ? 'Unlimited users' : plan.maxUsers + ' users'}">2
+                                users</span>
                         </li>
                         <li>
                             <i class="fas fa-check-circle"></i>
-                            <span th:text="${plan.maxProducts == -1 ? 'Unlimited products' : plan.maxProducts + ' products'}">50 products</span>
+                            <span
+                                th:text="${plan.maxProducts == -1 ? 'Unlimited products' : plan.maxProducts + ' products'}">50
+                                products</span>
                         </li>
                         <li th:if="${plan.planName != 'FREE'}">
                             <i class="fas fa-check-circle"></i>
@@ -1121,9 +292,11 @@
         </div>
     </div>
 
-   
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+
     <script th:inline="javascript">
-        const plansData = /*[[${plans}]]*/ [];
+        const plansData = /*[[${plans}]]*/[];
         let countdownInterval;
         let countdownValue = 5;
         let redirectCancelled = false;
@@ -1155,7 +328,7 @@
             document.getElementById('selectedPlanInput').value = planName;
             document.getElementById('selectedPlanName').innerText = planName;
             document.getElementById('selectedPlanDetails').innerHTML = `${planUsers} · ${planProducts}`;
-            
+
             if (parseFloat(planPrice) === 0) {
                 document.getElementById('selectedPlanPrice').innerHTML = 'FREE';
                 document.getElementById('selectedPlanPrice').classList.add('free');
@@ -1230,19 +403,19 @@
             countdownValue = 5;
             redirectCancelled = false;
             updateCountdownDisplay();
-            
+
             const progressBar = document.getElementById('progressBar');
             progressBar.style.width = '100%';
-            
+
             countdownInterval = setInterval(() => {
                 if (redirectCancelled) return;
-                
+
                 countdownValue--;
                 updateCountdownDisplay();
-                
+
                 // Update progress bar
                 progressBar.style.width = (countdownValue * 20) + '%';
-                
+
                 if (countdownValue <= 0) {
                     clearInterval(countdownInterval);
                     if (!redirectCancelled) {
@@ -1268,12 +441,12 @@
         function stayHere() {
             redirectCancelled = true;
             clearInterval(countdownInterval);
-            
+
             // Hide success modal and show form again
             document.getElementById('successContainer').style.display = 'none';
             document.getElementById('registrationForm').style.display = 'block';
             document.body.style.overflow = 'auto';
-            
+
             // Reset form submit button
             document.getElementById('submitBtn').disabled = false;
             document.getElementById('buttonText').style.display = 'inline';
@@ -1281,7 +454,7 @@
         }
 
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const planModal = document.getElementById('planModal');
             if (event.target == planModal) {
                 planModal.classList.remove('active');
@@ -1289,4 +462,5 @@
         }
     </script>
 </body>
+
 </html>

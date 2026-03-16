@@ -35,7 +35,8 @@ public class SecurityConfig {
                                                 "/reset-password", "/verify",
                                                 "/favicon.png", "/favicon.ico", "/css/**", "/js/**",
                                                 "/sales/whatsapp/test", "/support/**",
-                                                "/sales/invoice/*/pdf")
+                                                "/sales/invoice/*/pdf", "/about", "/careers", "/blog",
+                                        "/pricing", "/features", "/images/**", "/blog", "/contact", "/privacy", "/terms")
                                 .permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/owner/**").hasRole("OWNER")

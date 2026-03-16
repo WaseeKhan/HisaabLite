@@ -48,7 +48,66 @@ public class StaticResourceController {
         }
     }
 
-    // Generic handler for any static file (optional)
+    // ===== IMAGE HANDLERS - ADD THESE =====
+    
+    // Career page images
+    @GetMapping("/images/{imageName}")
+    @ResponseBody
+    public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
+        try {
+            String path = "static/images/" + imageName;
+            ClassPathResource resource = new ClassPathResource(path);
+            
+            if (resource.exists()) {
+                MediaType mediaType = getImageMediaType(imageName);
+                return ResponseEntity.ok()
+                        .contentType(mediaType)
+                        .body(resource);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Specific handlers for career images (optional but clean)
+    @GetMapping("/images/teamouting.jpg")
+    @ResponseBody
+    public ResponseEntity<Resource> getTeamOuting() {
+        return getImage("teamouting.jpg");
+    }
+
+    @GetMapping("/images/remotework.jpg")
+    @ResponseBody
+    public ResponseEntity<Resource> getRemoteWork() {
+        return getImage("remotework.jpg");
+    }
+
+    @GetMapping("/images/learning.jpg")
+    @ResponseBody
+    public ResponseEntity<Resource> getLearning() {
+        return getImage("learning.jpg");
+    }
+
+    @GetMapping("/images/image1.jpeg")
+    @ResponseBody
+    public ResponseEntity<Resource> getImage1() {
+        return getImage("image1.jpeg");
+    }
+
+    @GetMapping("/images/image2.jpeg")
+    @ResponseBody
+    public ResponseEntity<Resource> getImage2() {
+        return getImage("image2.jpeg");
+    }
+
+    @GetMapping("/images/image3.jpeg")
+    @ResponseBody
+    public ResponseEntity<Resource> getImage3() {
+        return getImage("image3.jpeg");
+    }
+
+    // Generic handler for any static file
     @GetMapping("/static/{folder}/{file}")
     @ResponseBody
     public ResponseEntity<Resource> getStaticFile(
@@ -59,7 +118,6 @@ public class StaticResourceController {
             ClassPathResource resource = new ClassPathResource(path);
             
             if (resource.exists()) {
-                // Detect content type based on file extension
                 MediaType mediaType = getMediaType(file);
                 return ResponseEntity.ok()
                         .contentType(mediaType)
@@ -71,13 +129,9 @@ public class StaticResourceController {
         }
     }
 
-    // Helper to determine media type
-    private MediaType getMediaType(String filename) {
-        if (filename.endsWith(".js")) {
-            return MediaType.valueOf("application/javascript");
-        } else if (filename.endsWith(".css")) {
-            return MediaType.valueOf("text/css");
-        } else if (filename.endsWith(".png")) {
+    // Helper to determine image media type
+    private MediaType getImageMediaType(String filename) {
+        if (filename.endsWith(".png")) {
             return MediaType.IMAGE_PNG;
         } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
             return MediaType.IMAGE_JPEG;
@@ -85,10 +139,23 @@ public class StaticResourceController {
             return MediaType.IMAGE_GIF;
         } else if (filename.endsWith(".svg")) {
             return MediaType.valueOf("image/svg+xml");
+        } else if (filename.endsWith(".webp")) {
+            return MediaType.valueOf("image/webp");
+        } else {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+    }
+
+    // Original helper for other file types
+    private MediaType getMediaType(String filename) {
+        if (filename.endsWith(".js")) {
+            return MediaType.valueOf("application/javascript");
+        } else if (filename.endsWith(".css")) {
+            return MediaType.valueOf("text/css");
         } else if (filename.endsWith(".json")) {
             return MediaType.APPLICATION_JSON;
         } else {
-            return MediaType.APPLICATION_OCTET_STREAM;
+            return getImageMediaType(filename); // Reuse image helper
         }
     }
 }

@@ -1,355 +1,254 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Privacy Policy • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-        }
-        
-        /* Navbar */
-        .navbar {
-            background: white;
-            padding: 16px 40px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        
-        .logo-text {
-            font-weight: 600;
-            font-size: 18px;
-            color: #0f172a;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 24px;
-        }
-        
-        .nav-links a {
-            color: #5b6778;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.15s;
-        }
-        
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: #2563eb;
-        }
-        
-        /* Main Content */
-        .main-content {
-            max-width: 800px;
-            margin: 48px auto;
-            padding: 0 24px;
-        }
-        
-        .page-header {
-            margin-bottom: 40px;
-        }
-        
-        .page-header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 12px;
-        }
-        
-        .page-header .last-updated {
-            color: #64748b;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .policy-section {
-            background: white;
-            border-radius: 24px;
-            border: 1px solid #e2e8f0;
-            padding: 32px;
-            margin-bottom: 24px;
-        }
-        
-        .policy-section h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .policy-section h2 i {
-            color: #2563eb;
-        }
-        
-        .policy-section p {
-            color: #475569;
-            margin-bottom: 16px;
-            font-size: 15px;
-        }
-        
-        .policy-section ul {
-            margin-left: 24px;
-            margin-bottom: 16px;
-            color: #475569;
-        }
-        
-        .policy-section li {
-            margin-bottom: 8px;
-        }
-        
-        .highlight-box {
-            background: #f0f9ff;
-            border-left: 4px solid #2563eb;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-        
-        /* Footer */
-        .footer {
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            padding: 48px 40px 24px;
-            margin-top: 48px;
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 48px;
-        }
-        
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .footer-links {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-        
-        .footer-column h4 {
-            color: #0f172a;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .footer-column a {
-            display: block;
-            color: #64748b;
-            text-decoration: none;
-            font-size: 13px;
-            margin-bottom: 10px;
-            transition: color 0.15s;
-        }
-        
-        .footer-column a:hover {
-            color: #2563eb;
-        }
-        
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 32px auto 0;
-            padding-top: 24px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 12px;
-        }
-        
-        @media (max-width: 768px) {
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-links {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .navbar {
-                padding: 16px 20px;
-                flex-direction: column;
-                gap: 12px;
-            }
-        }
-    </style>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" th:href="@{/css/pages/privacy.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
+
 <body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
 
-<!-- Navbar -->
-<div class="navbar">
-    <div class="logo">
-        <div class="logo-icon">HL</div>
-        <div class="logo-text">HisaabLite</div>
-    </div>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/features">Features</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/support" class="active">Support</a>
-        <a href="/login">Login</a>
-        <a href="/register" style="color: #2563eb;">Register</a>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="main-content">
-    <div class="page-header">
-        <h1>Privacy Policy</h1>
+    <!-- Hero Section -->
+    <div class="privacy-hero">
+        <h1>🔒 <span>Privacy Policy</span></h1>
+        <p>Your privacy is important to us. Learn how we protect your data.</p>
         <div class="last-updated">
-            <i class="far fa-calendar-alt"></i>
-            Last Updated: March 13, 2026
+            <i class="far fa-calendar-alt"></i> Last Updated: March 15, 2026
         </div>
     </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-shield-alt"></i> Our Commitment</h2>
-        <p>At HisaabLite, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information when you use our billing and inventory management platform.</p>
-        
-        <div class="highlight-box">
-            <i class="fas fa-lock" style="color: #2563eb; margin-right: 10px;"></i>
-            <strong>Data Protection:</strong> All your business data is encrypted and stored securely. We never share your information with third parties without your explicit consent.
-        </div>
-    </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-database"></i> Information We Collect</h2>
-        <ul>
-            <li><strong>Account Information:</strong> Name, email, phone number, PAN, GST (for business verification)</li>
-            <li><strong>Business Data:</strong> Product catalogs, customer details, sales transactions, invoices</li>
-            <li><strong>Usage Data:</strong> How you interact with our platform, features used, session duration</li>
-            <li><strong>Payment Information:</strong> Billing details (processed securely through Razorpay/Stripe)</li>
-        </ul>
-    </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-cookie"></i> Cookies & Tracking</h2>
-        <p>We use essential cookies to maintain your session and preferences. Optional analytics cookies help us improve the platform. You can control cookie preferences in your browser settings.</p>
-    </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-share"></i> Data Sharing</h2>
-        <p>We do not sell your data. Limited sharing occurs only for:</p>
-        <ul>
-            <li>Payment processing (Razorpay/Stripe)</li>
-            <li>Email delivery (Brevo/Sendinblue)</li>
-            <li>Legal compliance when required by law</li>
-        </ul>
-    </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-clock"></i> Data Retention</h2>
-        <p>We retain your data as long as your account is active. After account deletion, data is permanently removed within 30 days, except where legal obligations require longer retention.</p>
-    </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-user-shield"></i> Your Rights</h2>
-        <ul>
-            <li>Access your personal data</li>
-            <li>Correct inaccurate information</li>
-            <li>Request data deletion</li>
-            <li>Export your data</li>
-            <li>Withdraw consent at any time</li>
-        </ul>
-    </div>
-    
-    <div class="policy-section">
-        <h2><i class="fas fa-envelope"></i> Contact Us</h2>
-        <p>For privacy-related concerns, contact our Data Protection Officer:</p>
-        <p style="margin-top: 10px;">
-            <i class="fas fa-envelope" style="color: #2563eb;"></i> privacy@hisaablite.com<br>
-            <i class="fas fa-phone" style="color: #2563eb;"></i> +91 98765 43210<br>
-            <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> Mumbai, India
-        </p>
-    </div>
-</div>
 
-<!-- Footer -->
-<div class="footer">
-    <div class="footer-content">
-        <div>
-            <div class="footer-logo">
-                <div class="logo-icon">HL</div>
-                <span style="font-weight: 600;">HisaabLite</span>
-            </div>
-            <p style="color: #64748b; font-size: 13px; margin-top: 16px;">
-                Simple billing & inventory<br>for Indian businesses
-            </p>
-        </div>
-        <div class="footer-links">
-            <div class="footer-column">
-                <h4>Product</h4>
-                <a href="/features">Features</a>
-                <a href="/pricing">Pricing</a>
-                <a href="/demo">Demo</a>
-            </div>
-            <div class="footer-column">
-                <h4>Company</h4>
-                <a href="/about">About</a>
-                <a href="/blog">Blog</a>
-                <a href="/careers">Careers</a>
-            </div>
-            <div class="footer-column">
-                <h4>Support</h4>
-                <a href="/support" class="active">Help Center</a>
-                <a href="/privacy">Privacy Policy</a>
-                <a href="/terms">Terms of Service</a>
+    <!-- Privacy Content -->
+    <div class="privacy-content">
+        <!-- Quick Links -->
+        <div class="quick-links-box">
+            <h3><i class="fas fa-link"></i> Jump to Section</h3>
+            <div class="quick-links-grid">
+                <a href="#section1"><i class="fas fa-chevron-right"></i> Introduction</a>
+                <a href="#section2"><i class="fas fa-chevron-right"></i> Data Collection</a>
+                <a href="#section3"><i class="fas fa-chevron-right"></i> How We Use Data</a>
+                <a href="#section4"><i class="fas fa-chevron-right"></i> Data Sharing</a>
+                <a href="#section5"><i class="fas fa-chevron-right"></i> Your Rights</a>
+                <a href="#section6"><i class="fas fa-chevron-right"></i> Security</a>
+                <a href="#section7"><i class="fas fa-chevron-right"></i> Cookies</a>
+                <a href="#section8"><i class="fas fa-chevron-right"></i> Changes</a>
             </div>
         </div>
-    </div>
-    <div class="footer-bottom">
-        <span>© 2026 HisaabLite. All rights reserved.</span>
-        <span>Made with <span style="color: #ef4444;">❤️</span> in India</span>
-    </div>
-</div>
 
+        <!-- Section 1 - Introduction -->
+        <div id="section1" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-info-circle"></i> 1. Introduction</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content active">
+                <p>Welcome to HisaabLite ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our billing and inventory management software.</p>
+                <p>Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application.</p>
+                <p>We reserve the right to make changes to this Privacy Policy at any time and for any reason. We will alert you about any changes by updating the "Last Updated" date of this Privacy Policy.</p>
+            </div>
+        </div>
+
+        <!-- Section 2 - Data Collection -->
+        <div id="section2" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-database"></i> 2. Information We Collect</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>We collect personal information that you voluntarily provide to us when you register on the application, express an interest in obtaining information about us or our products, or otherwise contact us.</p>
+                
+                <h3>Personal Data</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Name and contact information (email, phone number)</li>
+                    <li><i class="fas fa-check-circle"></i> Business details (shop name, PAN, GST number)</li>
+                    <li><i class="fas fa-check-circle"></i> Login credentials (username and password)</li>
+                    <li><i class="fas fa-check-circle"></i> Billing and transaction data</li>
+                    <li><i class="fas fa-check-circle"></i> Customer information you enter into the system</li>
+                </ul>
+
+                <h3>Automatically Collected Data</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Log and usage data (IP address, browser type)</li>
+                    <li><i class="fas fa-check-circle"></i> Device information</li>
+                    <li><i class="fas fa-check-circle"></i> Cookies and similar technologies</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 3 - How We Use Data -->
+        <div id="section3" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-cogs"></i> 3. How We Use Your Information</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>We use personal information collected via our application for a variety of business purposes:</p>
+                
+                <table class="privacy-table">
+                    <thead>
+                        <tr>
+                            <th>Purpose</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>To provide and maintain service</td>
+                            <td>Create accounts, process transactions, provide customer support</td>
+                        </tr>
+                        <tr>
+                            <td>To improve our service</td>
+                            <td>Analyze usage patterns, develop new features</td>
+                        </tr>
+                        <tr>
+                            <td>To communicate with you</td>
+                            <td>Send updates, security alerts, support messages</td>
+                        </tr>
+                        <tr>
+                            <td>To comply with laws</td>
+                            <td>Meet legal obligations, prevent fraud</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 4 - Data Sharing -->
+        <div id="section4" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-share-alt"></i> 4. Sharing Your Information</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>We do not sell, trade, or rent your personal information to third parties. We may share information in the following situations:</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> <strong>Service Providers:</strong> With third-party vendors who perform services on our behalf (hosting, email delivery)</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Business Transfers:</strong> In connection with a merger, sale of company assets, or acquisition</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Legal Requirements:</strong> If required to do so by law or in response to valid requests by public authorities</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5 - Your Rights -->
+        <div id="section5" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-gavel"></i> 5. Your Data Rights</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>Depending on your location, you may have the following rights regarding your personal information:</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> <strong>Access:</strong> Request a copy of your data</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Correction:</strong> Update inaccurate information</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Deletion:</strong> Request deletion of your data</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Objection:</strong> Object to certain processing</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Data Portability:</strong> Receive your data in a portable format</li>
+                </ul>
+                <p>To exercise these rights, please contact us at <strong>privacy@hisaablite.com</strong></p>
+            </div>
+        </div>
+
+        <!-- Section 6 - Security -->
+        <div id="section6" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-shield-alt"></i> 6. Data Security</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>We implement appropriate technical and organizational security measures to protect your data:</p>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Encryption of data in transit (SSL/TLS)</li>
+                    <li><i class="fas fa-check-circle"></i> Secure password hashing</li>
+                    <li><i class="fas fa-check-circle"></i> Regular security audits</li>
+                    <li><i class="fas fa-check-circle"></i> Access controls and authentication</li>
+                </ul>
+                <p>While we strive to protect your information, no method of transmission over the Internet is 100% secure.</p>
+            </div>
+        </div>
+
+        <!-- Section 7 - Cookies -->
+        <div id="section7" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-cookie-bite"></i> 7. Cookies Policy</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>We use cookies and similar tracking technologies to track activity on our service and hold certain information.</p>
+                
+                <h3>Types of Cookies We Use</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> <strong>Essential Cookies:</strong> Required for login and security</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Preference Cookies:</strong> Remember your settings</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Analytics Cookies:</strong> Understand how you use our service</li>
+                </ul>
+                
+                <p>You can control cookies through your browser settings. Disabling cookies may affect functionality.</p>
+            </div>
+        </div>
+
+        <!-- Section 8 - Changes -->
+        <div id="section8" class="privacy-section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2><i class="fas fa-history"></i> 8. Changes to This Policy</h2>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-content">
+                <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.</p>
+                <p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
+            </div>
+        </div>
+
+        <!-- Contact Box -->
+        <div class="contact-box">
+            <i class="fas fa-envelope-open-text"></i>
+            <h3>Have Questions?</h3>
+            <p>If you have any questions about this Privacy Policy, please contact us</p>
+            <div class="contact-buttons">
+                <a href="/contact" class="contact-btn primary">
+                    <i class="fas fa-paper-plane"></i> Contact Us
+                </a>
+                <a href="mailto:privacy@hisaablite.com" class="contact-btn secondary">
+                    <i class="fas fa-envelope"></i> Email Privacy Team
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Toggle Sections -->
+    <script>
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            // Toggle active class
+            content.classList.toggle('active');
+            
+            // Rotate icon
+            if (content.classList.contains('active')) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
 </body>
 </html>

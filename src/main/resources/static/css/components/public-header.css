@@ -1,0 +1,193 @@
+/* src/main/resources/static/css/components/public-header.css */
+
+/* ===== PUBLIC HEADER - COMPACT WITH EMOJIS ===== */
+.public-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e9eef2;
+    padding: 16px 32px;  /* Reduced padding */
+    position: relative;
+    width: 100%;
+    z-index: 1000;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Logo - compact */
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.header-logo-icon {
+    width: 28px;  /* Smaller */
+    height: 28px; /* Smaller */
+    background: #0f172a;
+    color: white;
+    border-radius: 6px; /* Smaller radius */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px; /* Smaller */
+}
+
+.header-logo-text {
+    font-weight: 600;
+    font-size: 14px; /* Smaller */
+    color: #0f172a;
+}
+
+/* Desktop Navigation - compact */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Reduced gap */
+}
+
+/* Nav links with emojis */
+.header-nav a {
+    padding: 6px 12px; /* Smaller padding */
+    border-radius: 6px; /* Smaller radius */
+    text-decoration: none;
+    font-size: 12px; /* Smaller */
+    font-weight: 500;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px; /* Smaller gap */
+}
+
+/* Home link with emoji */
+.header-nav a.home-link {
+    color: #5b6778;
+}
+
+.header-nav a.home-link:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Login link with emoji */
+.header-nav a.login-link {
+    color: #5b6778;
+}
+
+.header-nav a.login-link:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Register link with rocket */
+.header-nav a.register-link {
+    background: #0f172a;
+    color: white;
+}
+
+.header-nav a.register-link:hover {
+    background: #1e293b;
+}
+
+/* Mobile menu button - smaller */
+.mobile-menu-btn {
+    display: none;
+    width: 36px;  /* Smaller */
+    height: 36px; /* Smaller */
+    background: #f1f5f9;
+    border: none;
+    border-radius: 6px; /* Smaller */
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.mobile-menu-btn i {
+    color: #0f172a;
+    font-size: 16px; /* Smaller */
+}
+
+/* Mobile menu */
+.mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 12px 16px; /* Smaller */
+    border-bottom: 1px solid #e9eef2;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    z-index: 1000;
+}
+
+.mobile-menu.active {
+    display: block;
+}
+
+.mobile-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px; /* Smaller */
+    text-decoration: none;
+    color: #0f172a;
+    font-size: 13px; /* Smaller */
+    font-weight: 500;
+    border-radius: 6px; /* Smaller */
+    margin-bottom: 4px;
+    background: #fafbfc;
+}
+
+.mobile-menu a i {
+    width: 18px;
+    color: #5b6778;
+    font-size: 13px;
+}
+
+.mobile-menu .register-link {
+    background: #0f172a;
+    color: white;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.mobile-menu .register-link i {
+    color: white;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .public-header {
+        padding: 10px 16px;
+    }
+    
+    .header-nav {
+        display: none !important;
+    }
+    
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .header-nav {
+        display: flex !important;
+    }
+    
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    
+    .mobile-menu {
+        display: none !important;
+    }
+}

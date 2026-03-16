@@ -1,0 +1,198 @@
+/* src/main/resources/static/css/pages/login.css */
+
+/* ===== LOGIN PAGE - SIMPLE PREMIUM ===== */
+
+/* Main content - simple background */
+.main-content {
+    background: #f8fafc;
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Login wrapper */
+.login-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Login Card - clean design */
+.login-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    border: 1px solid #e9eef2;
+}
+
+/* Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.login-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.login-header p {
+    color: #5b6778;
+    font-size: 13px;
+}
+
+/* Messages */
+.message {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.message.success {
+    background: #e6f7e6;
+    color: #059669;
+    border: 1px solid #bbf7d0;
+}
+
+.message.error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+}
+
+.message.info {
+    background: #f1f5f9;
+    color: #2563eb;
+    border: 1px solid #e2e8f0;
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #5b6778;
+    margin-bottom: 4px;
+    display: block;
+    text-transform: uppercase;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 13px;
+    background: #fafbfc;
+    transition: all 0.15s;
+}
+
+.form-group input:focus {
+    border-color: #2563eb;
+    outline: none;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+}
+
+/* Login Button */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.btn-login:hover {
+    background: #1e293b;
+}
+
+/* LINKS SECTION - EK LINE MEIN */
+.links {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.links a {
+    text-decoration: none;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Onboard Business link */
+.links a:first-child {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.links a:first-child:hover {
+    background: #e2e8f0;
+}
+
+/* Forgot Password link */
+.links a:last-child {
+    color: #5b6778;
+}
+
+.links a:last-child:hover {
+    color: #2563eb;
+    background: #f1f5f9;
+}
+
+/* Separator dot */
+.separator {
+    color: #cbd5e1;
+    font-size: 12px;
+    margin: 0 2px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 24px;
+    }
+    
+    .links {
+        flex-wrap: wrap;
+    }
+}
