@@ -1,6 +1,7 @@
 package com.hisaablite.admin.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.SupportTicket;
 import com.hisaablite.entity.TicketPriority;
+import com.hisaablite.entity.TicketReply;
 import com.hisaablite.entity.TicketStatus;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.SupportTicketRepository;
@@ -88,17 +90,29 @@ public class AdminSupportController {
             Authentication authentication) {
 
         User admin = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        SupportTicket ticket = ticketRepository.findByTicketNumber(ticketNumber);
-        if (ticket == null) {
-            return "redirect:/admin/support?error=Ticket not found";
+        try {
+            // 🔴 Admin is always true
+            boolean isAdmin = true;
+
+            // 🔴 Use service method with permission check
+            SupportTicket ticket = supportService.getTicket(ticketNumber, admin, isAdmin);
+
+            // 🔴 Get replies with admin permissions
+            List<TicketReply> replies = supportService.getTicketReplies(ticket.getId(), admin, isAdmin);
+
+            model.addAttribute("ticket", ticket);
+            model.addAttribute("replies", replies);
+            model.addAttribute("isAdmin", isAdmin);
+
+            return "admin/support-ticket";
+
+        } catch (RuntimeException e) {
+            log.error("Error viewing ticket: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/admin/support/tickets";
         }
-
-        model.addAttribute("ticket", ticket);
-        model.addAttribute("replies", supportService.getTicketReplies(ticket.getId()));
-
-        return "admin/support-ticket";
     }
 
     // Admin Reply to Ticket
@@ -176,4 +190,55 @@ public class AdminSupportController {
         redirectAttributes.addFlashAttribute("success", "Ticket assigned to you");
         return "redirect:/admin/support/ticket/" + ticketNumber;
     }
+
+    @PostMapping("/ticket/{ticketNumber}/close")
+    public String closeTicket(@PathVariable String ticketNumber,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+
+        User admin = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        try {
+            boolean isAdmin = true;
+            SupportTicket ticket = supportService.getTicket(ticketNumber, admin, isAdmin);
+
+            supportService.closeTicket(ticket.getId(), admin, isAdmin);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Ticket closed successfully and email sent to owner");
+            return "redirect:/admin/support/ticket/" + ticketNumber;
+
+        } catch (RuntimeException e) {
+            log.error("Failed to close ticket: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/admin/support/ticket/" + ticketNumber;
+        }
+    }
+
+
+    @PostMapping("/ticket/{ticketNumber}/resolve")
+public String resolveTicket(@PathVariable String ticketNumber,
+                           Authentication authentication,
+                           RedirectAttributes redirectAttributes) {
+
+    User admin = userRepository.findByUsername(authentication.getName())
+            .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+    try {
+        boolean isAdmin = true;
+        SupportTicket ticket = supportService.getTicket(ticketNumber, admin, isAdmin);
+
+        supportService.resolveTicket(ticket.getId(), admin, isAdmin);
+
+        redirectAttributes.addFlashAttribute("success",
+                "Ticket resolved successfully and email sent to owner");
+        return "redirect:/admin/support/ticket/" + ticketNumber;
+
+    } catch (RuntimeException e) {
+        log.error("Failed to resolve ticket: {}", e.getMessage());
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
+        return "redirect:/admin/support/ticket/" + ticketNumber;
+    }
+}
 }

@@ -15,6 +15,7 @@ import com.hisaablite.repository.ShopRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.CustomerPlanService;
 import com.hisaablite.service.RegistrationService;
+import com.hisaablite.service.UrlService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class RegisterController {
     private final UserRepository userRepository;
     private final RegistrationService registrationService;
     private final CustomerPlanService planService;
+      private final UrlService urlService;
 
     @GetMapping("/register")
     public String registerPage(Model model) {

@@ -42,6 +42,7 @@ public class Shop {
 
     private String upiId;
 
+    @Column(nullable = false)
     private boolean active = true;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -64,5 +65,23 @@ public class Shop {
 
     @Column(name = "whatsapp_connected_at")
     private LocalDateTime whatsappConnectedAt;
+
+    private LocalDateTime subscriptionStartDate;
+
+    private LocalDateTime subscriptionEndDate;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isSubscriptionValid() {
+        if (subscriptionEndDate == null)
+            return true; // Lifetime/FREE plan
+        return LocalDateTime.now().isBefore(subscriptionEndDate);
+    }
 
 }

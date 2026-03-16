@@ -2,6 +2,7 @@ package com.hisaablite.admin.repository;
 
 import com.hisaablite.entity.User;
 import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Role;
 
 import org.springframework.data.domain.Page;
@@ -47,6 +48,26 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     
     // ===== FIND BY ROLE =====
     List<User> findByRole(Role role);
+
+     // ===== PENDING APPROVALS =====
+    Page<User> findByActiveTrueAndApprovedFalse(Pageable pageable);
+    
+    List<User> findByActiveTrueAndApprovedFalseOrderByCreatedAtAsc();
+    
+     // ===== FIND BY PLAN TYPE =====
+    List<User> findByCurrentPlanAndApprovedTrue(PlanType planType);
+    
+
+
+    // ===== EXPIRY RELATED =====
+    @Query("SELECT u FROM User u WHERE u.subscriptionEndDate BETWEEN :start AND :end AND u.approved = true")
+    List<User> findUsersWithExpiringSubscription(@Param("start") LocalDateTime start, 
+                                                 @Param("end") LocalDateTime end);
+    
+    List<User> findBySubscriptionEndDateBeforeAndApprovedTrue(LocalDateTime now);
+    
+
+
     
     // ===== STATISTICS BY DATE =====
     @Query("SELECT DATE(u.createdAt) as date, COUNT(u) as count " +
@@ -80,4 +101,18 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     
     // ===== COUNT BY SHOP AND ROLE =====
     long countByShopAndRole(Shop shop, Role role);
+
+     // ===== PLAN STATISTICS =====
+    @Query("SELECT u.currentPlan, COUNT(u) FROM User u WHERE u.approved = true GROUP BY u.currentPlan")
+    List<Object[]> countUsersByPlanType();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.active = true AND u.approved = false")
+    long countByActiveTrueAndApprovedFalse();
+
+    @Query("SELECT u FROM User u WHERE u.active = true AND u.approved = false AND " +
+       "(LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+       "LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+       "LOWER(u.phone) LIKE LOWER(CONCAT('%', :search, '%')))")
+Page<User> searchPendingUsers(@Param("search") String search, Pageable pageable);
+    
 }

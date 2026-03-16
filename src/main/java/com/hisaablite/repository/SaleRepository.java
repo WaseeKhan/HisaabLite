@@ -2,10 +2,14 @@ package com.hisaablite.repository;
 
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.User;
+
+import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -49,7 +53,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                      "ORDER BY DATE(s.saleDate)")
        List<Object[]> getLast7DaysRevenue(Shop shop, LocalDateTime start);
 
-       //cacellation realated custms
+       // cacellation realated custms
 
        // Today's COMPLETED sales revenue (actual income)
        @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s " +
@@ -77,5 +81,14 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                      "AND DATE(si.sale.saleDate) = CURRENT_DATE " +
                      "AND si.sale.status = 'CANCELLED'")
        Long getTodayReturnedItems(@Param("shop") Shop shop);
+
+       long countByShop(Shop shop);
+
+       @Modifying
+       @Transactional
+       @Query("UPDATE Sale s SET s.createdBy = :newUser WHERE s.createdBy = :oldUser")
+       int reassignSales(@Param("oldUser") User oldUser, @Param("newUser") User newUser);
+
+       Long countByCreatedBy(User user);
 
 }

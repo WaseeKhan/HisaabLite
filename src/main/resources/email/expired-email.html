@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Expired - HisaabLite</title>
+</head>
+<body style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">❌ Subscription Expired</h1>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 40px 30px;">
+            <p style="font-size: 16px; color: #1e293b; margin-bottom: 20px;">Dear <strong th:text="${name}">User</strong>,</p>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 25px;">
+                Your HisaabLite <strong th:text="${oldPlan}">PREMIUM</strong> subscription has expired. You've been automatically downgraded to the FREE plan with limited features.
+            </p>
+            
+            <!-- What's Changed -->
+            <div style="background-color: #fef2f2; border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+                <h3 style="color: #991b1b; margin: 0 0 20px 0;">📋 What's Changed</h3>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #fecaca;">
+                    <i class="fas fa-times-circle" style="color: #ef4444; margin-right: 12px; font-size: 18px;"></i>
+                    <span style="color: #7f1d1d;">Lost access to premium features</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #fecaca;">
+                    <i class="fas fa-users" style="color: #059669; margin-right: 12px; font-size: 18px;"></i>
+                    <span style="color: #7f1d1d;">Now limited to 2 users (was <span th:text="${oldMaxUsers}">15</span>)</span>
+                </div>
+                
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-box" style="color: #059669; margin-right: 12px; font-size: 18px;"></i>
+                    <span style="color: #7f1d1d;">Now limited to 50 products (was <span th:text="${oldMaxProducts}">1000</span>)</span>
+                </div>
+            </div>
+            
+            <!-- What's Kept -->
+            <div style="background-color: #f0fdf4; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                <h3 style="color: #166534; margin: 0 0 15px 0;">✅ You Still Have</h3>
+                <ul style="color: #166534; margin: 0; padding-left: 20px;">
+                    <li style="margin-bottom: 8px;">Access to basic invoicing</li>
+                    <li style="margin-bottom: 8px;">View past sales data</li>
+                    <li style="margin-bottom: 8px;">Your customer database</li>
+                </ul>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div style="text-align: center; margin: 35px 0;">
+                <a href="https://hisaablite.com/renew" 
+                   style="display: inline-block; background: #ef4444; color: white; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px; margin-right: 10px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">
+                    🔄 Renew Subscription
+                </a>
+                <a href="https://hisaablite.com/dashboard" 
+                   style="display: inline-block; background: #f1f5f9; color: #475569; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px;">
+                    📊 Continue with FREE
+                </a>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+            
+            <p style="color: #94a3b8; font-size: 12px; text-align: center;">
+                To regain premium features, renew your subscription today.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

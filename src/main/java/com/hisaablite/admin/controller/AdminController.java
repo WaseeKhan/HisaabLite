@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -37,6 +38,7 @@ import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.SubscriptionPlan;
 import com.hisaablite.entity.User;
+import com.hisaablite.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +54,7 @@ public class AdminController {
     private final AdminShopRepository adminShopRepo;
     private final AdminSubscriptionRepository adminSubscriptionRepo;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;  // Added EmailService
 
     // ===== LOGIN PAGES =====
 
@@ -242,6 +245,48 @@ public class AdminController {
         return "admin/users";
     }
 
+   // ===== PENDING APPROVALS PAGE =====
+@GetMapping("/users/pending-approvals")
+public String pendingApprovals(Model model,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        @RequestParam(required = false) String search) {
+    
+    log.info("Loading pending approvals page - page: {}, size: {}, search: {}", page, size, search);
+    
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+    Page<User> pendingUsers;
+    
+    // Handle search if provided
+    if (search != null && !search.trim().isEmpty()) {
+        // You'll need to add this method to your repository
+        pendingUsers = adminUserRepo.searchPendingUsers(search.trim(), pageable);
+    } else {
+        pendingUsers = adminUserRepo.findByActiveTrueAndApprovedFalse(pageable);
+    }
+    
+    long totalPending = adminUserRepo.countByActiveTrueAndApprovedFalse();
+    
+    // Calculate additional stats
+    long verifiedCount = pendingUsers.getTotalElements(); // All in this list are verified (active=true)
+    long notVerifiedCount = 0; // You might want to calculate this separately
+    long paidPlansCount = pendingUsers.getContent().stream()
+            .filter(u -> u.getCurrentPlan() != null && u.getCurrentPlan() != PlanType.FREE)
+            .count();
+    
+    model.addAttribute("users", pendingUsers.getContent());
+    model.addAttribute("currentPage", pendingUsers.getNumber());
+    model.addAttribute("totalPages", pendingUsers.getTotalPages());
+    model.addAttribute("totalItems", pendingUsers.getTotalElements());
+    model.addAttribute("pageSize", size);
+    model.addAttribute("search", search);
+    model.addAttribute("totalPending", totalPending);
+    model.addAttribute("verifiedCount", verifiedCount);
+    model.addAttribute("notVerifiedCount", notVerifiedCount);
+    model.addAttribute("paidPlansCount", paidPlansCount);
+    
+    return "admin/pending-approvals";
+}
     @GetMapping("/users/new")
     public String newUserForm(Model model) {
         log.info("Loading new user form");
@@ -340,23 +385,229 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    @GetMapping("/users/approve/{id}")
-    public String approveUserGet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        log.info("Approving user id: {} via GET", id);
+    // ===== ENHANCED APPROVE USER WITH EMAIL =====
+    @PostMapping("/users/approve/{id}")
+    @ResponseBody
+    public Map<String, Object> approveUser(@PathVariable Long id) {
+        log.info("API: Approving user ID: {}", id);
+        
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            User user = adminUserRepo.findById(id).orElse(null);
-            if (user != null) {
-                user.setApproved(true);
-                adminUserRepo.save(user);
-                redirectAttributes.addFlashAttribute("success", "User approved successfully");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "User not found");
+            User user = adminUserRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            // Check if user is active (email verified)
+            if (!user.isActive()) {
+                response.put("success", false);
+                response.put("message", "User has not verified email yet. Cannot approve.");
+                return response;
             }
+            
+            // Check if already approved
+            if (user.isApproved()) {
+                response.put("success", false);
+                response.put("message", "User already approved");
+                return response;
+            }
+            
+            // Check if FREE plan (should be auto-approved)
+            if (user.getCurrentPlan() == PlanType.FREE) {
+                response.put("success", false);
+                response.put("message", "FREE plan users are auto-approved during registration");
+                return response;
+            }
+            
+            // Fetch plan details from database
+            SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(user.getCurrentPlan().name())
+                    .orElseThrow(() -> new RuntimeException("Plan not found in database"));
+            
+            log.info("Approving user: {} with plan: {}", user.getUsername(), plan.getPlanName());
+            log.info("Plan duration: {} days, Price: ₹{}", plan.getDurationInDays(), plan.getPrice());
+            
+            // Set approval
+            user.setApproved(true);
+            user.setApprovalDate(LocalDateTime.now());
+            
+            // Calculate expiry from approval date using plan duration
+            if (plan.getDurationInDays() != null && plan.getDurationInDays() > 0) {
+                LocalDateTime expiryDate = LocalDateTime.now().plusDays(plan.getDurationInDays());
+                user.setSubscriptionEndDate(expiryDate);
+                log.info("Subscription expiry set to: {}", expiryDate);
+            }
+            
+            // Save user
+            adminUserRepo.save(user);
+            log.info("User approved and saved to database");
+            
+            // Update shop if owner
+            if (user.getRole() == Role.OWNER && user.getShop() != null) {
+                Shop shop = user.getShop();
+                shop.setPlanType(user.getCurrentPlan());
+                shop.setSubscriptionStartDate(user.getApprovalDate());
+                shop.setSubscriptionEndDate(user.getSubscriptionEndDate());
+                adminShopRepo.save(shop);
+                log.info("Shop subscription updated for shop: {}", shop.getName());
+            }
+            
+            // SEND APPROVAL EMAIL - This is the key part!
+            try {
+                emailService.sendApprovalEmail(user, plan);
+                log.info("Approval email sent successfully to: {}", user.getUsername());
+            } catch (Exception e) {
+                log.error("Failed to send approval email but user was approved: {}", e.getMessage());
+                // Don't fail the approval if email fails
+            }
+            
+            response.put("success", true);
+            response.put("message", "User approved successfully and email sent");
+            response.put("userId", user.getId());
+            response.put("userName", user.getName());
+            response.put("userEmail", user.getUsername());
+            response.put("planName", plan.getPlanName());
+            response.put("expiryDate", user.getSubscriptionEndDate() != null ? 
+                    user.getSubscriptionEndDate().toString() : "No expiry");
+            
         } catch (Exception e) {
-            log.error("Error approving user: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Error approving user");
+            log.error("Error approving user: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
         }
-        return "redirect:/admin/users";
+        
+        return response;
+    }
+
+    // ===== GET APPROVAL EMAIL PREVIEW =====
+    @GetMapping("/users/preview-approval-email/{id}")
+    @ResponseBody
+    public Map<String, Object> previewApprovalEmail(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User user = adminUserRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(user.getCurrentPlan().name())
+                    .orElseThrow(() -> new RuntimeException("Plan not found"));
+            
+            response.put("success", true);
+            response.put("userName", user.getName());
+            response.put("userEmail", user.getUsername());
+            response.put("planName", plan.getPlanName());
+            response.put("planPrice", plan.getPrice());
+            response.put("planDuration", plan.getDurationInDays());
+            response.put("maxUsers", plan.getMaxUsers());
+            response.put("maxProducts", plan.getMaxProducts());
+            response.put("description", plan.getDescription());
+            response.put("expiryDate", user.getSubscriptionEndDate() != null ? 
+                    user.getSubscriptionEndDate().toString() : "Not set yet");
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+        
+        return response;
+    }
+
+    // ===== KEEP YOUR EXISTING GET APPROVE METHOD FOR REDIRECTS =====
+ 
+@GetMapping("/users/approve/{id}")
+@ResponseBody
+public Map<String, Object> approveUserGet(@PathVariable Long id) {
+    Map<String, Object> response = new HashMap<>();
+    try {
+        User user = adminUserRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (user.getCurrentPlan() == PlanType.FREE) {
+            response.put("success", false);
+            response.put("message", "FREE plan users are auto-approved");
+            return response;
+        }
+        
+        SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(user.getCurrentPlan().name())
+                .orElseThrow(() -> new RuntimeException("Plan not found"));
+        
+        user.setApproved(true);
+        user.setApprovalDate(LocalDateTime.now());
+        
+        if (plan.getDurationInDays() != null && plan.getDurationInDays() > 0) {
+            user.setSubscriptionEndDate(LocalDateTime.now().plusDays(plan.getDurationInDays()));
+        }
+        
+        adminUserRepo.save(user);
+        
+        if (user.getRole() == Role.OWNER && user.getShop() != null) {
+            Shop shop = user.getShop();
+            shop.setPlanType(user.getCurrentPlan());
+            shop.setSubscriptionStartDate(user.getApprovalDate());
+            shop.setSubscriptionEndDate(user.getSubscriptionEndDate());
+            adminShopRepo.save(shop);
+        }
+        
+        emailService.sendApprovalEmail(user, plan);
+        
+        response.put("success", true);
+        response.put("message", "User approved successfully");
+        
+    } catch (Exception e) {
+        log.error("Error approving user: {}", e.getMessage());
+        response.put("success", false);
+        response.put("message", "Error: " + e.getMessage());
+    }
+    return response;
+}
+
+    // ===== BULK APPROVE USERS =====
+    @PostMapping("/users/bulk-approve")
+    @ResponseBody
+    public Map<String, Object> bulkApprove(@RequestBody List<Long> userIds) {
+        log.info("Bulk approving {} users", userIds.size());
+        
+        Map<String, Object> response = new HashMap<>();
+        List<Long> approved = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        
+        for (Long userId : userIds) {
+            try {
+                User user = adminUserRepo.findById(userId).orElse(null);
+                if (user != null && user.isActive() && !user.isApproved() && user.getCurrentPlan() != PlanType.FREE) {
+                    
+                    user.setApproved(true);
+                    user.setApprovalDate(LocalDateTime.now());
+                    
+                    SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(user.getCurrentPlan().name())
+                            .orElse(null);
+                    
+                    if (plan != null && plan.getDurationInDays() != null) {
+                        user.setSubscriptionEndDate(LocalDateTime.now().plusDays(plan.getDurationInDays()));
+                    }
+                    
+                    adminUserRepo.save(user);
+                    
+                    // Send email
+                    if (plan != null) {
+                        emailService.sendApprovalEmail(user, plan);
+                    }
+                    
+                    approved.add(userId);
+                } else if (user != null && user.getCurrentPlan() == PlanType.FREE) {
+                    errors.add("User " + userId + " is FREE plan (auto-approved)");
+                } else if (user != null && !user.isActive()) {
+                    errors.add("User " + userId + " has not verified email");
+                }
+            } catch (Exception e) {
+                errors.add("User " + userId + ": " + e.getMessage());
+            }
+        }
+        
+        response.put("success", true);
+        response.put("approved", approved.size());
+        response.put("approvedIds", approved);
+        response.put("errors", errors);
+        
+        return response;
     }
 
     @GetMapping("/users/suspend/{id}")

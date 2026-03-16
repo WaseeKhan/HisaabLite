@@ -492,7 +492,7 @@
                 <i class="fas fa-store"></i> Profile
             </a>
 
-             <a th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
+             <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
         </div>
 
         <form th:action="@{/logout}" method="post">

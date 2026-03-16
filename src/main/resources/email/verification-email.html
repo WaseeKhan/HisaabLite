@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - HisaabLite</title>
+</head>
+<body style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🎉 Welcome to HisaabLite!</h1>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 40px 30px;">
+            <p style="font-size: 16px; color: #1e293b; margin-bottom: 20px;">Hello <strong th:text="${name}">User</strong>,</p>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 25px;">
+                Thank you for registering with HisaabLite! Your business account has been created successfully.
+                Please verify your email address to activate your account.
+            </p>
+            
+            <!-- Plan Details -->
+            <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+                <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 16px;">📋 Registration Summary</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #64748b;">Plan:</td>
+                        <td style="padding: 8px 0; font-weight: 600;">
+                            <span style="background-color: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px;" 
+                                  th:text="${planName}">FREE</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #64748b;">Shop Name:</td>
+                        <td style="padding: 8px 0; font-weight: 600;" th:text="${shopName}">Urban Store</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Verify Button -->
+            <div style="text-align: center; margin: 35px 0;">
+                <a th:href="${verificationLink}" 
+                   style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);">
+                    ✅ Verify Email Address
+                </a>
+            </div>
+            
+            <!-- Note -->
+            <div style="background-color: #fef9c3; border-radius: 8px; padding: 15px; margin: 25px 0;">
+                <p style="color: #854d0e; margin: 0; font-size: 14px;">
+                    <strong>⏰ Note:</strong> This verification link will expire in 24 hours.
+                </p>
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px; margin-top: 25px;">
+                If you didn't create an account with HisaabLite, please ignore this email.
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+            
+            <p style="color: #94a3b8; font-size: 12px; text-align: center;">
+                © 2026 HisaabLite. All rights reserved.<br>
+                Need help? Contact us at <a href="mailto:support@hisaablite.com" style="color: #667eea;">support@hisaablite.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

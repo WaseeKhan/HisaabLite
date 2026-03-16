@@ -7,6 +7,7 @@ import com.hisaablite.repository.ProductRepository;
 import com.hisaablite.repository.SaleItemRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.service.PlanLimitService;
 import com.hisaablite.service.SaleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class DashboardController {
     private final SaleItemRepository saleItemRepository;
     private final ProductRepository productRepository;
     private final SaleService saleService;
+    private final PlanLimitService planLimitService;
 
     // ROLE BASED REDIRECT
     @GetMapping("/dashboard")
@@ -129,6 +131,18 @@ public class DashboardController {
 
         Long totalStaff = userRepository.countByShop(shop);
         model.addAttribute("totalStaff", totalStaff);
+
+        // Map<String, Object> usageStats = planLimitService.getUsageStats(shop);
+        // model.addAttribute("usageStats", usageStats);
+
+        // // Check if near limits
+        // model.addAttribute("nearUserLimit",
+        //         usageStats.get("usersRemaining") != null &&
+        //                 (Integer) usageStats.get("usersRemaining") <= 2);
+
+        // model.addAttribute("nearProductLimit",
+        //         usageStats.get("productsRemaining") != null &&
+        //                 (Integer) usageStats.get("productsRemaining") <= 10);
 
         return "ultra-dashboard";
     }

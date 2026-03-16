@@ -199,6 +199,129 @@
             box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
         }
 
+        /* ===== USAGE CARD - NEW ===== */
+        .usage-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .usage-info {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .plan-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-badge i {
+            font-size: 16px;
+        }
+
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-max {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .progress-container {
+            min-width: 200px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-warning {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+        }
+
+        .upgrade-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #eef2ff;
+            border-radius: 30px;
+            transition: all 0.15s;
+        }
+
+        .upgrade-link:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .upgrade-link:hover i {
+            color: white;
+        }
+
         /* ===== STAFF CARD ===== */
         .staff-card {
             background: white;
@@ -419,6 +542,26 @@
                 align-items: flex-start;
             }
 
+            .usage-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .usage-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .progress-container {
+                width: 100%;
+            }
+
             .footer {
                 flex-direction: column;
                 gap: 12px;
@@ -465,7 +608,7 @@
             <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
             <a class="active" th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
             <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
+            <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
         </div>
 
         <form th:action="@{/logout}" method="post">
@@ -479,6 +622,65 @@
         <div class="topbar">
             <h2><i class="fas fa-users"></i> Staff Management</h2>
             <a th:href="@{/staff/new}" class="add-btn"><i class="fas fa-plus"></i> Add Staff</a>
+        </div>
+
+        <!-- ===== USAGE STATS CARD - NEW ===== -->
+        <div class="usage-card" th:if="${usageStats != null}">
+            <div class="usage-info">
+                <div class="plan-badge">
+                    <i class="fas fa-crown"></i>
+                    <span th:text="${usageStats.planName}">FREE</span>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Staff Used</span>
+                        <div>
+                            <span class="stat-value" th:text="${usageStats.currentUsers}">2</span>
+                            <span class="stat-max" th:text="'/ ' + ${usageStats.maxUsers}">/ 5</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-item" th:if="${usageStats.daysRemaining != null}">
+                        <span class="stat-label">Days Left</span>
+                        <span class="stat-value" th:text="${usageStats.daysRemaining}">15</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span>Usage</span>
+                    <span th:text="${usageStats.usersPercentage} + '%'">40%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill"
+                        th:classappend="${usageStats.usersPercentage > 90} ? 'progress-warning' : ''"
+                        th:style="'width: ' + ${usageStats.usersPercentage} + '%'"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                    <span style="font-size: 11px; color: #64748b;">
+                        <i class="fas fa-user-plus"></i>
+                        <span
+                            th:text="${usageStats.usersRemaining == -1 ? 'Unlimited' : usageStats.usersRemaining + ' slots remaining'}">3
+                            slots remaining</span>
+                    </span>
+                    <a href="#" class="upgrade-link" th:if="${usageStats.planName != 'ENTERPRISE'}">
+                        <i class="fas fa-rocket"></i> Upgrade
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ERROR MESSAGE IF LIMIT REACHED ===== -->
+        <div th:if="${error}" class="staff-card" style="background: #fef2f2; border-color: #fee2e2;">
+            <div style="color: #dc2626; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+                <div>
+                    <strong style="font-size: 14px;">Cannot Add Staff</strong>
+                    <p style="font-size: 13px; margin-top: 4px;" th:text="${error}">Error message here</p>
+                </div>
+            </div>
         </div>
 
         <div class="staff-card">
@@ -538,13 +740,13 @@
                                         </button>
                                     </form>
 
-                                    <!-- Delete -->
-                                    <form th:action="@{/staff/{id}/delete(id=${user.id})}" method="post"
-                                        style="display:inline;">
-                                        <button type="submit" class="btn-sm btn-danger" title="Delete"
-                                            onclick="return confirm('Are you sure you want to delete this staff member?')"><i
-                                                class="fas fa-trash"></i></button>
-                                    </form>
+
+                                    <!-- Delete Button - Opens assignment modal -->
+                                    <button type="button" class="btn-sm btn-danger" title="Delete"
+                                        th:attr="data-user-id=${user.id}, data-user-name=${user.name}"
+                                        onclick="showDeleteModal(this.getAttribute('data-user-id'), this.getAttribute('data-user-name'))">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -582,6 +784,166 @@
         </div>
     </div>
 
+    <!-- Delete Assignment Modal -->
+    <div id="deleteModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+        <div
+            style="background-color: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <div
+                    style="width: 40px; height: 40px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i>
+                </div>
+                <h3 style="color: #0f172a;">Delete Staff Member</h3>
+            </div>
+
+            <p style="margin-bottom: 20px; color: #475569;">
+                User <strong id="deleteUserName"></strong> has sales records.
+                Please select a staff member to reassign these sales to:
+            </p>
+
+            <form id="deleteForm" method="post">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">
+                        <i class="fas fa-user-check"></i> Reassign sales to:
+                    </label>
+                    <select name="reassignToId" id="reassignSelect" required
+                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif;">
+                        <option value="">-- Select Staff Member --</option>
+                        <option th:each="staff : ${activeStaff}" th:value="${staff.id}"
+                            th:text="${staff.name} + ' (' + ${staff.role} + ')'"></option>
+                    </select>
+                </div>
+
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="color: #64748b; font-size: 13px;">
+                        <i class="fas fa-info-circle"></i>
+                        All sales and tickets will be transferred to the selected staff member.
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn-sm btn-danger" style="flex: 1; padding: 12px;">
+                        <i class="fas fa-trash"></i> Delete & Reassign
+                    </button>
+                    <button type="button" class="btn-sm btn-secondary" style="flex: 1; padding: 12px;"
+                        onclick="closeDeleteModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner"
+        style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); align-items: center; justify-content: center;">
+        <div style="background: white; padding: 20px; border-radius: 10px;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #2563eb;"></i>
+            <p style="margin-top: 10px;">Processing...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+
+        function showDeleteModal(userId, userName) {
+            console.log('Delete clicked for user:', userId, userName);
+            // Make sure userId is valid
+            if (!userId || userId === 'undefined' || userId === 'null') {
+                alert('Invalid user ID');
+                return;
+            }
+            currentUserId = userId;
+            document.getElementById('deleteUserName').innerText = userName;
+
+            // Show loading
+            showLoading();
+
+            // Fetch active staff members
+            const url = '/staff/' + userId + '/active-staff';
+            console.log('Fetching from:', url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    hideLoading();
+
+                    if (data.success) {
+                        const select = document.getElementById('reassignSelect');
+                        select.innerHTML = '<option value="">-- Select Staff Member --</option>';
+
+                        if (data.activeStaff && data.activeStaff.length > 0) {
+                            data.activeStaff.forEach(staff => {
+                                const option = document.createElement('option');
+                                option.value = staff.id;
+                                option.textContent = staff.name + ' (' + staff.role + ')';
+                                select.appendChild(option);
+                            });
+
+                            // Set form action
+                            document.getElementById('deleteForm').action = '/staff/' + userId + '/delete';
+
+                            // Show modal
+                            document.getElementById('deleteModal').style.display = 'flex';
+                        } else {
+                            // No active staff, show message
+                            if (confirm('No other active staff found. This user will be deactivated instead of deleted. Continue?')) {
+                                window.location.href = '/staff/' + userId + '/deactivate';
+                            }
+                        }
+                    } else {
+                        alert('Error: ' + (data.message || 'Unknown error'));
+                        console.error('Server error:', data);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Fetch error:', error);
+                    alert('Error loading staff members: ' + error.message);
+                });
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteForm = document.getElementById('deleteForm');
+            if (deleteForm) {
+                deleteForm.addEventListener('submit', function (e) {
+                    const select = document.getElementById('reassignSelect');
+                    if (!select.value) {
+                        e.preventDefault();
+                        alert('Please select a staff member to reassign sales to');
+                        return;
+                    }
+
+                    if (!confirm('Are you sure you want to delete this user? All sales and tickets will be reassigned.')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

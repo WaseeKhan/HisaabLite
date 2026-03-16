@@ -202,6 +202,7 @@
             display: flex;
             gap: 12px;
             margin-top: 16px;
+            flex-wrap: wrap;
         }
 
         .btn-primary {
@@ -211,6 +212,10 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-success {
@@ -220,6 +225,10 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-warning {
@@ -229,6 +238,10 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-secondary {
@@ -238,6 +251,40 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled, .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-message {
+            background: #f1f5f9;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #475569;
+        }
+
+        .info-message i {
+            font-size: 20px;
+        }
+
+        .info-message.resolved {
+            background: #f0fdf4;
+            color: #059669;
+        }
+
+        .info-message.closed {
+            background: #f1f5f9;
+            color: #64748b;
         }
     </style>
 </head>
@@ -309,6 +356,9 @@
 
             <!-- Replies -->
             <h4 style="margin: 24px 0 16px;">Conversation</h4>
+            <div th:if="${#lists.isEmpty(replies)}" style="text-align: center; color: #94a3b8; padding: 20px;">
+                No replies yet
+            </div>
             <div th:each="reply : ${replies}" class="reply" th:classappend="${reply.adminReply} ? 'admin' : ''">
                 <div class="reply-header">
                     <span class="reply-author">
@@ -322,9 +372,18 @@
                 <div th:text="${reply.message}">Reply content...</div>
             </div>
 
-            <!-- Reply Form -->
-            <div class="reply-form"
-                th:unless="${ticket.status.name() == 'RESOLVED' or ticket.status.name() == 'CLOSED'}">
+            <!-- Show message for resolved/closed tickets -->
+            <div th:if="${ticket.status.name() == 'RESOLVED'}" class="info-message resolved">
+                <i class="fas fa-check-circle"></i>
+                <span>This ticket has been resolved. No further replies can be added.</span>
+            </div>
+            <div th:if="${ticket.status.name() == 'CLOSED'}" class="info-message closed">
+                <i class="fas fa-lock"></i>
+                <span>This ticket has been closed.</span>
+            </div>
+
+            <!-- Reply Form - Only show if ticket is not RESOLVED or CLOSED -->
+            <div class="reply-form" th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}">
                 <h4 style="margin-bottom: 16px;">Add Reply</h4>
                 <form th:action="@{/admin/support/ticket/{ticketNumber}/reply(ticketNumber=${ticket.ticketNumber})}"
                     method="post">
@@ -334,8 +393,9 @@
                 </form>
             </div>
 
-            <!-- Status Actions -->
+            <!-- Status Actions - FIXED: Using dedicated endpoints -->
             <div class="status-actions">
+                <!-- Start Progress - Only show for OPEN tickets -->
                 <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
                     method="post" style="display: inline;">
                     <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -345,20 +405,20 @@
                     </button>
                 </form>
 
-                <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
+                <!-- 🔴 FIXED: Mark Resolved - Using dedicated resolve endpoint -->
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/resolve(ticketNumber=${ticket.ticketNumber})}"
                     method="post" style="display: inline;">
                     <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <input type="hidden" name="status" value="RESOLVED" />
                     <button type="submit" class="btn-success"
                         th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}">
                         <i class="fas fa-check"></i> Mark Resolved
                     </button>
                 </form>
 
-                <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
+                <!-- 🔴 FIXED: Close Ticket - Using dedicated close endpoint -->
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/close(ticketNumber=${ticket.ticketNumber})}"
                     method="post" style="display: inline;">
                     <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <input type="hidden" name="status" value="CLOSED" />
                     <button type="submit" class="btn-secondary" th:if="${ticket.status.name() != 'CLOSED'}">
                         <i class="fas fa-lock"></i> Close Ticket
                     </button>

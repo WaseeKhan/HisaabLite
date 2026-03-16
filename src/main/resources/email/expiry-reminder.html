@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Expiring Soon - HisaabLite</title>
+</head>
+<body style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">⚠️ Subscription Expiring Soon</h1>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 40px 30px;">
+            <p style="font-size: 16px; color: #1e293b; margin-bottom: 20px;">Dear <strong th:text="${name}">User</strong>,</p>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 25px;">
+                Your HisaabLite subscription is expiring in <strong style="color: #f59e0b; font-size: 18px;" th:text="${daysLeft}">7</strong> days.
+            </p>
+            
+            <!-- Countdown Card -->
+            <div style="background-color: #fef3c7; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 25px;">
+                <div style="font-size: 48px; font-weight: 800; color: #f59e0b; margin-bottom: 10px;" th:text="${daysLeft}">7</div>
+                <div style="color: #92400e; font-size: 16px;">Days Remaining</div>
+                <div style="margin-top: 15px; color: #92400e; font-size: 14px;">
+                    Expires on: <strong th:text="${expiryDate}">15 Apr 2026</strong>
+                </div>
+            </div>
+            
+            <!-- Plan Details -->
+            <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                <h3 style="color: #1e293b; margin: 0 0 15px 0;">📋 Current Plan</h3>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="color: #64748b; padding: 8px 0;">Plan:</td>
+                        <td style="font-weight: 600;" th:text="${planName}">PREMIUM</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #64748b; padding: 8px 0;">Price:</td>
+                        <td style="font-weight: 600;">₹<span th:text="${price}">999</span>/month</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div style="text-align: center; margin: 35px 0;">
+                <a href="https://hisaablite.com/renew" 
+                   style="display: inline-block; background: #f59e0b; color: white; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px; margin-right: 10px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
+                    🔄 Renew Now
+                </a>
+                <a href="https://hisaablite.com/upgrade" 
+                   style="display: inline-block; background: #f1f5f9; color: #475569; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px;">
+                    📈 Upgrade Plan
+                </a>
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px; text-align: center;">
+                Don't lose access to premium features. Renew today!
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+            
+            <p style="color: #94a3b8; font-size: 12px; text-align: center;">
+                Questions about renewal? <a href="mailto:billing@hisaablite.com" style="color: #f59e0b;">Contact Billing</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

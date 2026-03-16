@@ -37,13 +37,48 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private boolean approved;
+     @Column(nullable = false)
+    private boolean approved = false;
+
+    @Column(nullable = false)
+    private boolean active = false;
+
+     @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+    
+     @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    // Subscription fields
+    @Enumerated(EnumType.STRING)
+    private PlanType currentPlan;
+    
+    private LocalDateTime subscriptionStartDate;
+    
+    private LocalDateTime subscriptionEndDate;
+    
+    private LocalDateTime approvalDate; // When admin approved
 
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)
     private Shop shop;
 
-    private boolean active = false;
+    
+     // Helper methods
+    public boolean canAccessDashboard() {
+        return active && approved;
+    }
+    public boolean isSubscriptionActive() {
+        if (subscriptionEndDate == null) return true; // Lifetime/FREE plan
+        return LocalDateTime.now().isBefore(subscriptionEndDate);
+    }
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    public boolean isTrialPlan() {
+        return currentPlan == PlanType.FREE;
+    }
+
+    public Long getRemainingDays() {
+        if (subscriptionEndDate == null) return null;
+        return java.time.Duration.between(LocalDateTime.now(), subscriptionEndDate).toDays();
+    }
 }
