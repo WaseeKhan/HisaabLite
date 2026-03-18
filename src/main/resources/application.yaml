@@ -20,3 +20,18 @@ evolution:
   api:
     url: http://localhost:8081
     key: ${EVOLUTION_API_KEY:hisaablite-local-key}
+
+ # ===== STATIC RESOURCES CONFIGURATION =====
+  web:
+    resources:
+      static-locations: classpath:/static/
+      add-mappings: true
+      cache:
+        period: 3600 
+  # ===== MVC CONFIGURATION =====
+  mvc:
+    static-path-pattern: /**
+    favicon:
+      enabled: true
+    throw-exception-if-no-handler-found: false
+
