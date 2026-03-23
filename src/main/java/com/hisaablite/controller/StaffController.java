@@ -48,14 +48,20 @@ public class StaffController {
         User owner = userRepository
                 .findByUsername(auth.getName())
                 .orElseThrow();
-
+            User user = userRepository
+                .findByUsername(auth.getName())
+                .orElseThrow();
+        
         Shop shop = owner.getShop();
         List<User> staff = userRepository.findByShop(shop);
-
+        model.addAttribute("shop", shop);
+         String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
         model.addAttribute("staffList", staff);
         model.addAttribute("role", owner.getRole().name());
+        model.addAttribute("user", user);
         model.addAttribute("usageStats", planLimitService.getUsageStats(shop));
-
+        model.addAttribute("currentPage", "staff");
         return "staff-list";
     }
 
@@ -191,14 +197,14 @@ public Map<String, Object> getActiveStaff(@PathVariable Long id) {
         List<User> allShopUsers = userRepository.findByShop(userToDelete.getShop());
         log.info("Total users in shop: {}", allShopUsers.size());
         
-        // 🔴 FIXED: Filter out owners and the user being deleted
+       
         List<Map<String, Object>> activeStaff = allShopUsers
                 .stream()
                 .filter(u -> {
                     // Not the same user, is active, and NOT an owner
                     boolean condition = !u.getId().equals(id) && 
                                        u.isActive() && 
-                                       u.getRole() != Role.OWNER;  // 🔴 EXCLUDE OWNERS
+                                       u.getRole() != Role.OWNER;  
                     
                     log.debug("User {}: Role={}, id match={}, active={}, condition={}", 
                         u.getUsername(), u.getRole(), !u.getId().equals(id), u.isActive(), condition);
@@ -252,39 +258,39 @@ public Map<String, Object> getActiveStaff(@PathVariable Long id) {
 
 @PostMapping("/{id}/delete")
 public String deleteStaff(@PathVariable Long id,
-                         @RequestParam(required = false) Long reassignToId,  // 🔴 Make optional
+                         @RequestParam(required = false) Long reassignToId,  
                          RedirectAttributes redirectAttributes,
-                         Authentication authentication) {  // 🔴 Add Authentication
+                         Authentication authentication) {  
 
-    // 🔴 Get current logged in user
+    // Get current logged in user
     User currentUser = userRepository.findByUsername(authentication.getName())
             .orElseThrow(() -> new RuntimeException("User not found"));
     
     User userToDelete = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-    // 🔴 CHECK 1: Owner cannot delete himself
+    // CHECK 1: Owner cannot delete himself
     if (currentUser.getId().equals(userToDelete.getId())) {
         redirectAttributes.addFlashAttribute("error", 
             "You cannot delete your own account! 🤦");
         return "redirect:/staff";
     }
 
-    // 🔴 CHECK 2: Only owners can delete
+    // CHECK 2: Only owners can delete
     if (currentUser.getRole() != Role.OWNER) {
         redirectAttributes.addFlashAttribute("error", 
             "Access Denied: Only owners can delete staff");
         return "redirect:/staff";
     }
 
-    // 🔴 CHECK 3: Cannot delete another owner
+    // CHECK 3: Cannot delete another owner
     if (userToDelete.getRole() == Role.OWNER) {
         redirectAttributes.addFlashAttribute("error", 
             "Cannot delete another owner account");
         return "redirect:/staff";
     }
 
-    // 🔴 If no reassignToId, just deactivate (for users with no records)
+    // If no reassignToId, just deactivate (for users with no records)
     if (reassignToId == null) {
         userToDelete.setActive(false);
         userRepository.save(userToDelete);
@@ -296,7 +302,7 @@ public String deleteStaff(@PathVariable Long id,
     User reassignTo = userRepository.findById(reassignToId)
             .orElseThrow(() -> new RuntimeException("Target user not found with ID: " + reassignToId));
 
-    // 🔴 CHECK 4: Cannot reassign to owner
+    // CHECK 4: Cannot reassign to owner
     if (reassignTo.getRole() == Role.OWNER) {
         redirectAttributes.addFlashAttribute("error", 
             "Cannot reassign records to owner. Please select a staff member.");

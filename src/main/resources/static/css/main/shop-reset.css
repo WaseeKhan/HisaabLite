@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.shop-body {
+    font-family: 'Inter', sans-serif;
+    background: #f3f4f6;
+    color: #1e293b;
+    height: 100vh;
+    overflow: hidden;
+}
+
+a {
+    text-decoration: none;
+}
+
+.shop-button {
+    cursor: pointer;
+    border: none;
+    background: none;
+}

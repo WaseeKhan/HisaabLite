@@ -4,7 +4,11 @@ import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +28,22 @@ public class ProductService {
     }
 
     public List<Product> searchProducts(String keyword, Shop shop) {
-        return productRepository
-                .findByShopAndNameIgnoreCaseContaining(shop, keyword);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return productRepository.findByShopAndActiveTrue(shop);
+        }
+        return productRepository.searchProducts(shop, keyword.trim());
     }
-
+    
+    // ADD THIS NEW METHOD FOR PAGINATED SEARCH
+    public Page<Product> searchProductsWithPagination(String keyword, Shop shop, Pageable pageable) {
+        if (!StringUtils.hasText(keyword)) {
+            return productRepository.findByShopAndActiveTrue(shop, pageable);
+        }
+        return productRepository.findByShopAndNameContainingIgnoreCaseAndActiveTrue(
+            shop, keyword.trim(), pageable
+        );
+    }
+    
     public Optional<Product> getProductByIdAndShop(Long id, Shop shop) {
         return productRepository.findByIdAndShop(id, shop);
     }

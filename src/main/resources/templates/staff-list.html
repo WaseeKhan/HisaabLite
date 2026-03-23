@@ -4,832 +4,209 @@
 <head>
     <title>Staff Management • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-staff.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== TOPBAR ===== */
-        .topbar {
-            background: white;
-            padding: 14px 24px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            margin-bottom: 24px;
-            flex-shrink: 0;
-        }
-
-        .topbar h2 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .topbar h2 i {
-            color: #2563eb;
-        }
-
-        .add-btn {
-            background: #0f172a;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
-        }
-
-        .add-btn:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
-        }
-
-        /* ===== USAGE CARD - NEW ===== */
-        .usage-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 20px 24px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .usage-info {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-
-        .plan-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .plan-badge i {
-            font-size: 16px;
-        }
-
-        .stats {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0f172a;
-            line-height: 1.2;
-        }
-
-        .stat-max {
-            font-size: 14px;
-            color: #94a3b8;
-            font-weight: 400;
-        }
-
-        .progress-container {
-            min-width: 200px;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #475569;
-            margin-bottom: 6px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-warning {
-            background: linear-gradient(90deg, #f59e0b, #ef4444);
-        }
-
-        .upgrade-link {
-            color: #2563eb;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: #eef2ff;
-            border-radius: 30px;
-            transition: all 0.15s;
-        }
-
-        .upgrade-link:hover {
-            background: #2563eb;
-            color: white;
-        }
-
-        .upgrade-link:hover i {
-            color: white;
-        }
-
-        /* ===== STAFF CARD ===== */
-        .staff-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 24px;
-            margin-bottom: 24px;
-            flex: 1;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            text-align: left;
-            padding: 16px 12px;
-            color: #5b6778;
-            font-weight: 500;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-bottom: 1px solid #f1f5f9;
-            background: transparent;
-        }
-
-        td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #1e293b;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: #f8fafc;
-        }
-
-        /* ===== STATUS BADGES ===== */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-active {
-            background: #e6f7e6;
-            color: #059669;
-        }
-
-        .status-inactive {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-
-        /* ===== ACTION BUTTONS ===== */
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.15s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d97706;
-        }
-
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #b91c1c;
-        }
-
-        select {
-            padding: 6px 10px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            font-size: 12px;
-            color: #1e293b;
-            outline: none;
-            transition: all 0.15s;
-            width: 90px;
-        }
-
-        select:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: #94a3b8;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: #cbd5e1;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-            margin-top: auto;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left span {
-            color: #475569;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-            margin: 0 4px;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .topbar {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-            }
-
-            .usage-card {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .usage-info {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .stats {
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-
-            .progress-container {
-                width: 100%;
-            }
-
-            .footer {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="shop-body">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
+    <div class="shop-layout">
 
-        <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
-                    class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
-                Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a class="active" th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
 
-        <div class="topbar">
-            <h2><i class="fas fa-users"></i> Staff Management</h2>
-            <a th:href="@{/staff/new}" class="add-btn"><i class="fas fa-plus"></i> Add Staff</a>
-        </div>
-
-        <!-- ===== USAGE STATS CARD - NEW ===== -->
-        <div class="usage-card" th:if="${usageStats != null}">
-            <div class="usage-info">
-                <div class="plan-badge">
-                    <i class="fas fa-crown"></i>
-                    <span th:text="${usageStats.planName}">FREE</span>
-                </div>
-
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Staff Used</span>
-                        <div>
-                            <span class="stat-value" th:text="${usageStats.currentUsers}">2</span>
-                            <span class="stat-max" th:text="'/ ' + ${usageStats.maxUsers}">/ 5</span>
+                <!-- 4 Stats Cards in One Line -->
+                <div class="staff-stats-row">
+                    <div class="staff-stat-card">
+                        <div class="staff-stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="staff-stat-info">
+                            <span class="staff-stat-label">Total Staff</span>
+                            <span class="staff-stat-number" th:text="${#lists.size(staffList)}">0</span>
                         </div>
                     </div>
-
-                    <div class="stat-item" th:if="${usageStats.daysRemaining != null}">
-                        <span class="stat-label">Days Left</span>
-                        <span class="stat-value" th:text="${usageStats.daysRemaining}">15</span>
+                    <div class="staff-stat-card">
+                        <div class="staff-stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="staff-stat-info">
+                            <span class="staff-stat-label">Active</span>
+                            <span class="staff-stat-number" id="activeCount">0</span>
+                        </div>
+                    </div>
+                    <div class="staff-stat-card" th:if="${usageStats != null}">
+                        <div class="staff-stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="staff-stat-info">
+                            <span class="staff-stat-label">Usage</span>
+                            <span class="staff-stat-number" th:text="${usageStats.currentUsers} + '/' + ${usageStats.maxUsers}">0/5</span>
+                        </div>
+                    </div>
+                    <div class="staff-stat-card" th:if="${usageStats != null and usageStats.daysRemaining != null}">
+                        <div class="staff-stat-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="staff-stat-info">
+                            <span class="staff-stat-label">Days Left</span>
+                            <span class="staff-stat-number" th:text="${usageStats.daysRemaining}">0</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="progress-container">
-                <div class="progress-header">
-                    <span>Usage</span>
-                    <span th:text="${usageStats.usersPercentage} + '%'">40%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill"
-                        th:classappend="${usageStats.usersPercentage > 90} ? 'progress-warning' : ''"
-                        th:style="'width: ' + ${usageStats.usersPercentage} + '%'"></div>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-                    <span style="font-size: 11px; color: #64748b;">
-                        <i class="fas fa-user-plus"></i>
-                        <span
-                            th:text="${usageStats.usersRemaining == -1 ? 'Unlimited' : usageStats.usersRemaining + ' slots remaining'}">3
-                            slots remaining</span>
-                    </span>
-                    <a href="#" class="upgrade-link" th:if="${usageStats.planName != 'ENTERPRISE'}">
-                        <i class="fas fa-rocket"></i> Upgrade
+                <!-- Search & Add Bar -->
+                <div class="staff-action-bar">
+                    
+                    <div class="staff-search-wrapper">
+                        <i class="fas fa-search staff-search-icon"></i>
+                        <input type="text" id="searchStaff" class="staff-search-input" placeholder="Search by name, email, or role..." autocomplete="off">
+                    </div>
+
+                    <a th:href="@{/staff/new}" class="staff-add-button">
+                        <i class="fas fa-plus"></i> Add Staff
                     </a>
+                    
                 </div>
-            </div>
-        </div>
 
-        <!-- ===== ERROR MESSAGE IF LIMIT REACHED ===== -->
-        <div th:if="${error}" class="staff-card" style="background: #fef2f2; border-color: #fee2e2;">
-            <div style="color: #dc2626; display: flex; align-items: center; gap: 12px;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
-                <div>
-                    <strong style="font-size: 14px;">Cannot Add Staff</strong>
-                    <p style="font-size: 13px; margin-top: 4px;" th:text="${error}">Error message here</p>
+                <!-- Usage Progress Bar (Optional - Compact) -->
+                
+
+                <!-- Error Message -->
+                <div th:if="${error}" class="staff-error-toast">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error message</span>
+                    <button onclick="this.parentElement.remove()">×</button>
                 </div>
-            </div>
-        </div>
 
-        <div class="staff-card">
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="user : ${staffList}" th:unless="${#lists.isEmpty(staffList)}">
-                            <td th:text="${user.name}"></td>
-                            <td><i class="far fa-envelope" style="color: #94a3b8; margin-right: 6px;"></i><span
-                                    th:text="${user.username}"></span></td>
-                            <td><span th:text="${user.role}"
-                                    style="background: #f1f5f9; padding: 4px 10px; border-radius: 30px; font-size: 12px;"></span>
-                            </td>
-                            <td>
-                                <span th:text="${user.active ? 'Active' : 'Inactive'}"
-                                    th:classappend="${user.active ? 'status-badge status-active' : 'status-badge status-inactive'}"></span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <!-- Role Change Form with DEFAULT SELECTION -->
-                                    <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post"
-                                        style="display:inline;">
-                                        <select name="role">
-                                            <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager
-                                            </option>
-                                            <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier
-                                            </option>
-                                        </select>
-                                        <button type="submit" class="btn-sm btn-primary" title="Change Role"><i
-                                                class="fas fa-save"></i></button>
-                                    </form>
-
-                                    <!-- Reset Password -->
-                                    <form th:action="@{/staff/{id}/reset(id=${user.id})}" method="post"
-                                        style="display:inline;">
-                                        <button type="submit" class="btn-sm btn-secondary" title="Reset Password"
-                                            onclick="return confirm('Reset password for this user?')"><i
-                                                class="fas fa-key"></i></button>
-                                    </form>
-
-                                    <!-- Toggle Status -->
-                                    <form th:action="@{/staff/{id}/toggle(id=${user.id})}" method="post"
-                                        style="display:inline;">
-                                        <button type="submit" class="btn-sm btn-warning"
-                                            th:title="${user.active ? 'Deactivate' : 'Activate'}">
-                                            <i class="fas" th:class="${user.active ? 'fa-ban' : 'fa-check-circle'}"></i>
+                <!-- Staff Table -->
+                <div class="staff-table-container">
+                    <table class="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Staff</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </thead>
+                        <tbody id="staffTableBody">
+                            <tr th:each="user : ${staffList}" th:data-name="${user.name}" th:data-email="${user.username}" th:data-role="${user.role}">
+                                <td class="staff-name-cell">
+                                    <div class="staff-avatar-small" th:text="${#strings.substring(user.name, 0, 1)}">J</div>
+                                    <span class="staff-name-text" th:text="${user.name}">John Doe</span>
+                                 </td>
+                                <td class="staff-email-cell">
+                                    <i class="far fa-envelope"></i>
+                                    <span th:text="${user.username}">john@example.com</span>
+                                 </td>
+                                <td class="staff-role-cell">
+                                    <span class="role-badge" th:classappend="${user.role == 'MANAGER' ? 'role-manager' : 'role-cashier'}">
+                                        <i th:if="${user.role == 'MANAGER'}" class="fas fa-chart-line"></i>
+                                        <i th:if="${user.role == 'CASHIER'}" class="fas fa-cash-register"></i>
+                                        <span th:text="${user.role}">CASHIER</span>
+                                    </span>
+                                 </td>
+                                <td class="staff-status-cell">
+                                    <span class="status-badge" th:classappend="${user.active ? 'status-active' : 'status-inactive'}">
+                                        <i class="fas fa-circle"></i>
+                                        <span th:text="${user.active ? 'Active' : 'Inactive'}">Active</span>
+                                    </span>
+                                 </td>
+                                <td class="staff-actions-cell">
+                                    <div class="staff-actions-group">
+                                        <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" class="staff-inline-form">
+                                            <select name="role" class="staff-role-select">
+                                                <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                                                <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                                            </select>
+                                            <button type="submit" class="staff-action-icon" title="Update Role">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                        </form>
+                                        <button class="staff-action-icon" onclick="resetPassword(${user.id})" title="Reset Password">
+                                            <i class="fas fa-key"></i>
                                         </button>
-                                    </form>
+                                        <button class="staff-action-icon" onclick="toggleStatus(${user.id})" 
+                                                th:title="${user.active ? 'Deactivate' : 'Activate'}">
+                                            <i class="fas" th:class="${user.active ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                                        </button>
+                                        <button class="staff-action-icon staff-action-delete" onclick="showDeleteModal(${user.id}, '${user.name}')" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                 </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(staffList)}">
+                                <td colspan="5" class="staff-empty-cell">
+                                    <div class="staff-empty-state">
+                                        <i class="fas fa-users-slash"></i>
+                                        <p>No staff members found</p>
+                                        <a th:href="@{/staff/new}" class="staff-empty-btn">
+                                            <i class="fas fa-plus"></i> Add Staff
+                                        </a>
+                                    </div>
+                                 </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-
-                                    <!-- Delete Button - Opens assignment modal -->
-                                    <button type="button" class="btn-sm btn-danger" title="Delete"
-                                        th:attr="data-user-id=${user.id}, data-user-name=${user.name}"
-                                        onclick="showDeleteModal(this.getAttribute('data-user-id'), this.getAttribute('data-user-name'))">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Empty State -->
-                        <tr th:if="${#lists.isEmpty(staffList)}">
-                            <td colspan="5" class="empty-state">
-                                <i class="fas fa-users-slash"></i>
-                                <p>No staff members found</p>
-                                <div style="font-size: 12px; color: #cbd5e1;">Add your first staff member to get started
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
-        </div>
 
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version">v2.0.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
-                    operational</span>
-            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
-    <!-- Delete Assignment Modal -->
-    <div id="deleteModal"
-        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
-        <div
-            style="background-color: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                <div
-                    style="width: 40px; height: 40px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i>
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="staff-modal" style="display: none;">
+        <div class="staff-modal-content">
+            <div class="staff-modal-header">
+                <div class="staff-modal-icon">
+                    <i class="fas fa-user-minus"></i>
                 </div>
-                <h3 style="color: #0f172a;">Delete Staff Member</h3>
+                <h3>Remove Staff Member</h3>
+                <button class="staff-modal-close" onclick="closeDeleteModal()">×</button>
             </div>
-
-            <p style="margin-bottom: 20px; color: #475569;">
-                User <strong id="deleteUserName"></strong> has sales records.
-                Please select a staff member to reassign these sales to:
+            <p class="staff-modal-text">
+                Remove <strong id="deleteUserName"></strong> from your team?
+                <span class="staff-modal-warning">This user has sales records.</span>
             </p>
-
             <form id="deleteForm" method="post">
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">
-                        <i class="fas fa-user-check"></i> Reassign sales to:
-                    </label>
-                    <select name="reassignToId" id="reassignSelect" required
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif;">
-                        <option value="">-- Select Staff Member --</option>
+                <div class="staff-modal-field">
+                    <label>Reassign sales to:</label>
+                    <select name="reassignToId" id="reassignSelect" required>
+                        <option value="">-- Select staff member --</option>
                         <option th:each="staff : ${activeStaff}" th:value="${staff.id}"
                             th:text="${staff.name} + ' (' + ${staff.role} + ')'"></option>
                     </select>
                 </div>
-
-                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                    <p style="color: #64748b; font-size: 13px;">
-                        <i class="fas fa-info-circle"></i>
-                        All sales and tickets will be transferred to the selected staff member.
-                    </p>
-                </div>
-
-                <div style="display: flex; gap: 12px;">
-                    <button type="submit" class="btn-sm btn-danger" style="flex: 1; padding: 12px;">
-                        <i class="fas fa-trash"></i> Delete & Reassign
+                <div class="staff-modal-actions">
+                    <button type="submit" class="staff-btn staff-btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete & Reassign
                     </button>
-                    <button type="button" class="btn-sm btn-secondary" style="flex: 1; padding: 12px;"
-                        onclick="closeDeleteModal()">
+                    <button type="button" class="staff-btn staff-btn-secondary" onclick="closeDeleteModal()">
                         Cancel
                     </button>
                 </div>
@@ -838,50 +215,78 @@
     </div>
 
     <!-- Loading Spinner -->
-    <div id="loadingSpinner"
-        style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); align-items: center; justify-content: center;">
-        <div style="background: white; padding: 20px; border-radius: 10px;">
-            <i class="fas fa-spinner fa-spin fa-2x" style="color: #2563eb;"></i>
-            <p style="margin-top: 10px;">Processing...</p>
+    <div id="loadingSpinner" class="staff-loading" style="display: none;">
+        <div class="staff-loading-content">
+            <div class="staff-loading-spinner"></div>
+            <p>Processing...</p>
         </div>
     </div>
 
-    <script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
         let currentUserId = null;
+        let activeCount = 0;
+
+        $(document).ready(function() {
+            // Count active staff
+            activeCount = $('.staff-status-cell .status-active').length;
+            $('#activeCount').text(activeCount);
+            
+            // Search functionality
+            $('#searchStaff').on('keyup', function() {
+                const searchTerm = $(this).val().toLowerCase();
+                $('#staffTableBody tr').each(function() {
+                    const name = $(this).data('name')?.toLowerCase() || '';
+                    const email = $(this).data('email')?.toLowerCase() || '';
+                    const role = $(this).data('role')?.toLowerCase() || '';
+                    if (name.includes(searchTerm) || email.includes(searchTerm) || role.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+
+        function resetPassword(userId) {
+            if (confirm('Reset password for this user? A temporary password will be sent.')) {
+                showLoading();
+                const csrfToken = document.querySelector("meta[name='_csrf']").content;
+                fetch('/staff/' + userId + '/reset', { 
+                    method: 'POST', 
+                    headers: { 'X-CSRF-TOKEN': csrfToken } 
+                })
+                .then(() => { hideLoading(); alert('Password reset successfully'); })
+                .catch(() => { hideLoading(); alert('Failed to reset password'); });
+            }
+        }
+
+        function toggleStatus(userId) {
+            if (confirm('Change status for this user?')) {
+                showLoading();
+                const csrfToken = document.querySelector("meta[name='_csrf']").content;
+                fetch('/staff/' + userId + '/toggle', { 
+                    method: 'POST', 
+                    headers: { 'X-CSRF-TOKEN': csrfToken } 
+                })
+                .then(() => { hideLoading(); location.reload(); })
+                .catch(() => { hideLoading(); alert('Failed to change status'); });
+            }
+        }
 
         function showDeleteModal(userId, userName) {
-            console.log('Delete clicked for user:', userId, userName);
-            // Make sure userId is valid
-            if (!userId || userId === 'undefined' || userId === 'null') {
-                alert('Invalid user ID');
-                return;
-            }
+            if (!userId) { alert('Invalid user ID'); return; }
             currentUserId = userId;
             document.getElementById('deleteUserName').innerText = userName;
-
-            // Show loading
             showLoading();
 
-            // Fetch active staff members
-            const url = '/staff/' + userId + '/active-staff';
-            console.log('Fetching from:', url);
-
-            fetch(url)
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error('HTTP error ' + response.status);
-                    }
-                    return response.json();
-                })
+            fetch('/staff/' + userId + '/active-staff')
+                .then(res => res.json())
                 .then(data => {
-                    console.log('Response data:', data);
                     hideLoading();
-
                     if (data.success) {
                         const select = document.getElementById('reassignSelect');
-                        select.innerHTML = '<option value="">-- Select Staff Member --</option>';
-
+                        select.innerHTML = '<option value="">-- Select staff member --</option>';
                         if (data.activeStaff && data.activeStaff.length > 0) {
                             data.activeStaff.forEach(staff => {
                                 const option = document.createElement('option');
@@ -889,57 +294,30 @@
                                 option.textContent = staff.name + ' (' + staff.role + ')';
                                 select.appendChild(option);
                             });
-
-                            // Set form action
                             document.getElementById('deleteForm').action = '/staff/' + userId + '/delete';
-
-                            // Show modal
                             document.getElementById('deleteModal').style.display = 'flex';
                         } else {
-                            // No active staff, show message
-                            if (confirm('No other active staff found. This user will be deactivated instead of deleted. Continue?')) {
+                            if (confirm('No other active staff found. Deactivate this user instead?')) {
                                 window.location.href = '/staff/' + userId + '/deactivate';
                             }
                         }
-                    } else {
-                        alert('Error: ' + (data.message || 'Unknown error'));
-                        console.error('Server error:', data);
-                    }
+                    } else { alert('Error: ' + (data.message || 'Unknown error')); }
                 })
-                .catch(error => {
-                    hideLoading();
-                    console.error('Fetch error:', error);
-                    alert('Error loading staff members: ' + error.message);
-                });
+                .catch(error => { hideLoading(); alert('Error loading staff members'); });
         }
 
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-        }
+        function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+        function showLoading() { document.getElementById('loadingSpinner').style.display = 'flex'; }
+        function hideLoading() { document.getElementById('loadingSpinner').style.display = 'none'; }
+        function getCsrfToken() { return document.querySelector("meta[name='_csrf']").content; }
 
-        function showLoading() {
-            document.getElementById('loadingSpinner').style.display = 'flex';
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingSpinner').style.display = 'none';
-        }
-
-        // Handle form submission
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const deleteForm = document.getElementById('deleteForm');
             if (deleteForm) {
-                deleteForm.addEventListener('submit', function (e) {
+                deleteForm.addEventListener('submit', function(e) {
                     const select = document.getElementById('reassignSelect');
-                    if (!select.value) {
-                        e.preventDefault();
-                        alert('Please select a staff member to reassign sales to');
-                        return;
-                    }
-
-                    if (!confirm('Are you sure you want to delete this user? All sales and tickets will be reassigned.')) {
-                        e.preventDefault();
-                    }
+                    if (!select.value) { e.preventDefault(); alert('Please select a staff member'); return; }
+                    if (!confirm('Delete this user? All sales will be reassigned.')) e.preventDefault();
                 });
             }
         });

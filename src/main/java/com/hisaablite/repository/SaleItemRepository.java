@@ -20,4 +20,18 @@ public interface SaleItemRepository extends JpaRepository<SaleItem, Long> {
     Long getTodayItemsSold(@Param("shop") Shop shop,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
+    
+    // Get top selling products by quantity
+    @Query("""
+        SELECT p.id, p.name, SUM(si.quantity) as total_quantity, SUM(si.totalWithGst) as total_revenue
+        FROM SaleItem si
+        JOIN si.product p
+        JOIN si.sale s
+        WHERE s.shop = :shop 
+        AND s.status = 'COMPLETED'
+        GROUP BY p.id, p.name
+        ORDER BY total_quantity DESC
+        LIMIT :limit
+    """)
+    List<Object[]> findTopSellingProductsByShop(@Param("shop") Shop shop, @Param("limit") int limit);
 }

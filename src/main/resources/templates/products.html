@@ -3,587 +3,451 @@
 
 <head>
     <title>Products • HisaabLite</title>
-   <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-products.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR (SAME AS OTHER PAGES) ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== TOPBAR (OPTIONAL - IF NEEDED) ===== */
-        .topbar {
-            background: white;
-            padding: 14px 24px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            margin-bottom: 24px;
-        }
-
-        .shop-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .shop-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: #0f172a;
-        }
-
-        .info-tag {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #475569;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .page-header h2 i {
-            color: #2563eb;
-        }
-
-        .add-btn {
-            background: #0f172a;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
-        }
-
-        .add-btn:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
-        }
-
-        /* ===== PRODUCTS CARD ===== */
-        .products-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        /* ===== TABLE STYLES ===== */
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            text-align: left;
-            padding: 16px 12px;
-            color: #5b6778;
-            font-weight: 500;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #1e293b;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: #f8fafc;
-        }
-
-        .low-stock {
-            color: #dc2626;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .low-stock-badge {
-            background: #fee2e2;
-            color: #b91c1c;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 30px;
-            font-weight: 500;
-        }
-
-        /* ===== ACTION BUTTONS ===== */
-        .action-buttons {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-edit {
-            color: #5b6778;
-            background: #f1f5f9;
-            padding: 6px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s;
-        }
-
-        .btn-edit:hover {
-            background: #e2e8f0;
-            color: #2563eb;
-        }
-
-        .btn-delete {
-            background: #fef2f2;
-            color: #b91c1c;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s;
-        }
-
-        .btn-delete:hover {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: #94a3b8;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: #cbd5e1;
-        }
-
-        .empty-state p {
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .empty-state .add-first-btn {
-            background: #0f172a;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* ===== FOOTER (SAME AS OTHER PAGES) ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left span {
-            color: #475569;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-            margin: 0 4px;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .page-header {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
-            
-            .footer {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-            
-            .footer-left, .footer-right {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-
-        /* scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="shop-body">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
+    <div class="shop-layout">
+
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+
+                <!-- Header -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
+
+                
+
+                <!-- Stats Cards -->
+                <div class="shop-stats-grid">
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
+                            <h4>Total Products</h4>
+                            <div class="shop-stat-number" id="totalProducts">0</div>
+                        </div>
+                        <div class="shop-stat-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    </div>
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
+                            <h4>Low Stock</h4>
+                            <div class="shop-stat-number" id="lowStockCount">0</div>
+                        </div>
+                        <div class="shop-stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
+                            <h4>Total Value</h4>
+                            <div class="shop-stat-number" id="totalValue">₹0</div>
+                        </div>
+                        <div class="shop-stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
+                            <h4>Categories</h4>
+                            <div class="shop-stat-number" id="categoryCount">0</div>
+                        </div>
+                        <div class="shop-stat-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Bar with Action Buttons -->
+                <div class="shop-filter-actions">
+                    <div class="shop-filter-bar">
+                        <span class="shop-filter-chip active" data-filter="all">All Products</span>
+                        <span class="shop-filter-chip" data-filter="low-stock">Low Stock</span>
+                        <span class="shop-filter-chip" data-filter="in-stock">In Stock</span>
+                    </div>
+                    <div class="shop-actions-right">
+                        <div class="shop-search">
+                        <i class="fas fa-search shop-search-icon"></i>
+                        <input type="text" id="searchInput" class="shop-search-input"
+                            placeholder="Search products..." autocomplete="off">
+                        <i class="fas fa-spinner fa-pulse shop-search-loading" id="searchLoading"></i>
+                    </div>
+                        <button onclick="exportProducts()" class="shop-btn-icon">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button onclick="window.print()" class="shop-btn-icon">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <a th:href="@{/products/new}" class="shop-btn-primary">
+                            <i class="fas fa-plus"></i> Add Product
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="shop-products-card">
+                    <div class="shop-table-responsive">
+                        <table class="shop-table" id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;">
+                                        <input type="checkbox" id="selectAllCheckbox">
+                                    </th>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>GST</th>
+                                    <th>Stock</th>
+                                    <th>Actions</th>
+                                 </thead>
+                            <tbody id="productsTableBody">
+                                <tr>
+                                    <td colspan="6" class="shop-empty-state">
+                                        <i class="fas fa-spinner fa-pulse"></i>
+                                        <p>Loading products...</p>
+                                     </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div id="bulkActions" class="shop-bulk-actions">
+                        <span id="selectedCount">0</span> products selected
+                        <button class="shop-btn-delete" onclick="bulkDelete()">
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
+                        <button onclick="clearSelection()" class="shop-cancel-btn">Cancel</button>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="paginationContainer"></div>
+                    <div id="paginationInfo" class="shop-pagination-info"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
-
-         <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
-                    class="fas fa-cash-register"></i> Billing</a>
-            <a class="active" th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i
-                    class="fas fa-box"></i> Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-             <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
-
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </form>
     </div>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
-        
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2>
-                <i class="fas fa-box"></i>
-                Products
-            </h2>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Your existing JavaScript (keep the same working code)
+        let currentPage = 0;
+        let currentKeyword = '';
+        let currentFilter = 'all';
+        let selectedProducts = new Set();
+        let allProductsData = [];
 
-            <a th:href="@{/products/new}" class="add-btn">
-                <i class="fas fa-plus"></i> Add Product
-            </a>
-        </div>
+        $(document).ready(function () {
+            loadProducts();
 
-        <!-- PRODUCTS CARD -->
-        <div class="products-card">
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Price (₹)</th>
-                            <th>Stock</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+            let searchTimeout;
+            $('#searchInput').on('input', function () {
+                clearTimeout(searchTimeout);
+                currentKeyword = $(this).val();
+                currentPage = 0;
+                selectedProducts.clear();
+                updateBulkActions();
+                $('#searchLoading').show();
+                searchTimeout = setTimeout(function () { loadProducts(); }, 400);
+            });
 
-                    <tbody>
-                        <tr th:each="product : ${products}" th:unless="${#lists.isEmpty(products)}">
-                            <td>
-                                <div style="font-weight: 500;" th:text="${product.name}"></div>
-                            </td>
+            $('.shop-filter-chip').click(function () {
+                $('.shop-filter-chip').removeClass('active');
+                $(this).addClass('active');
+                currentFilter = $(this).data('filter');
+                currentPage = 0;
+                selectedProducts.clear();
+                updateBulkActions();
+                loadProducts();
+            });
 
-                            <td>
-                                <span style="font-weight: 600;">₹</span>
-                                <span th:text="${product.price}"></span>
-                            </td>
+            $('#selectAllCheckbox').change(function () {
+                if ($(this).is(':checked')) {
+                    allProductsData.forEach(product => { selectedProducts.add(product.id); });
+                } else {
+                    selectedProducts.clear();
+                }
+                renderProducts({ products: allProductsData, totalItems: allProductsData.length });
+                updateBulkActions();
+            });
+        });
 
-                            <td>
-                                <div th:classappend="${product.stockQuantity <= product.minStock} ? 'low-stock'">
-                                    <span th:text="${product.stockQuantity}"></span>
-                                    <span th:if="${product.stockQuantity <= product.minStock}" class="low-stock-badge">
-                                        Low Stock ⚠
-                                    </span>
-                                </div>
-                            </td>
+        function loadProducts() {
+            $.ajax({
+                url: '/products/search-live',
+                method: 'GET',
+                data: { keyword: currentKeyword, page: currentPage },
+                success: function (response) {
+                    allProductsData = response.products;
+                    let filteredProducts = filterProducts(allProductsData);
+                    let filteredResponse = { ...response, products: filteredProducts, totalItems: filteredProducts.length };
+                    renderProducts(filteredResponse);
+                    renderPagination(filteredResponse);
+                    updateStats(filteredProducts);
+                    $('#searchLoading').hide();
+                },
+                error: function () {
+                    $('#searchLoading').hide();
+                    showError('Failed to load products');
+                }
+            });
+        }
 
-                            <td>
-                                <div class="action-buttons">
-                                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn-edit">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
+        function filterProducts(products) {
+            if (currentFilter === 'low-stock') return products.filter(p => p.stockQuantity <= p.minStock);
+            if (currentFilter === 'in-stock') return products.filter(p => p.stockQuantity > p.minStock);
+            return products;
+        }
 
-                                    <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post"
-                                        style="display:inline;">
-                                        <button type="submit" class="btn-delete"
-                                            onclick="return confirm('Are you sure you want to delete this product?')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+        function updateStats(products) {
+            const totalProducts = products.length;
+            const lowStockCount = products.filter(p => p.stockQuantity <= p.minStock).length;
+            const totalValue = products.reduce((sum, p) => sum + (p.price * p.stockQuantity), 0);
+            const categories = new Set(products.map(p => p.category || 'Uncategorized')).size;
+            $('#totalProducts').text(totalProducts);
+            $('#lowStockCount').text(lowStockCount);
+            $('#totalValue').text('₹' + totalValue.toLocaleString('en-IN'));
+            $('#categoryCount').text(categories);
+        }
 
-                        <!-- Empty State -->
-                        <tr th:if="${#lists.isEmpty(products)}">
-                            <td colspan="4" class="empty-state">
-                                <i class="fas fa-box-open"></i>
-                                <p>No products yet. Start adding your first product!</p>
-                                <a th:href="@{/products/new}" class="add-first-btn">
-                                    <i class="fas fa-plus"></i> Add First Product
+        function renderProducts(data) {
+            const tbody = $('#productsTableBody');
+            tbody.empty();
+
+            if (!data.products || data.products.length === 0) {
+                tbody.html(`
+                    <tr>
+                        <td colspan="6" class="shop-empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <p>${currentKeyword ? 'No products found matching "' + escapeHtml(currentKeyword) + '"' : 'No products yet'}</p>
+                            ${!currentKeyword ? '<a href="/products/new" class="shop-add-link">Add Product</a>' : ''}
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+
+            data.products.forEach(function (product) {
+                const isLowStock = product.stockQuantity <= product.minStock;
+                const stockBadge = isLowStock ?
+                    '<span class="shop-low-stock-badge"><i class="fas fa-exclamation-circle"></i> Low Stock</span>' :
+                    '<span class="shop-in-stock-badge"><i class="fas fa-check-circle"></i> In Stock</span>';
+                const isChecked = selectedProducts.has(product.id);
+                const gstPercent = product.gstPercent || 0;
+
+                let gstBadgeClass = 'shop-gst-badge';
+                if (gstPercent === 0) {
+                    gstBadgeClass = 'shop-gst-badge shop-gst-badge-zero';
+                }
+
+                const row = `
+                    <tr>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="product-checkbox" data-id="${product.id}" ${isChecked ? 'checked' : ''}>
+                        </td>
+                        <td>
+                            <div class="shop-product-name">${escapeHtml(product.name)}</div>
+                            ${product.description ? '<div class="shop-product-description">' + escapeHtml(product.description.substring(0, 60)) + '</div>' : ''}
+                        </td>
+                        <td><span class="shop-price">₹${formatPrice(product.price)}</span></td>
+                        <td><span class="${gstBadgeClass}">${gstPercent}%</span></td>
+                        <td>
+                            <div class="shop-stock-cell">
+                                <span class="shop-stock-quantity">${product.stockQuantity}</span>
+                                ${stockBadge}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shop-action-buttons-group">
+                                <a href="/products/edit/${product.id}" class="shop-btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
                                 </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                                <button onclick="duplicateProduct(${product.id})" class="shop-btn-duplicate">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <form action="/products/delete/${product.id}" method="post" style="display:inline;">
+                                    <input type="hidden" name="_csrf" value="${getCsrfToken()}">
+                                    <button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(product.name)}?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
 
-        <!-- FOOTER (SAME AS OTHER PAGES) -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version">v2.0.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
-            </div>
-        </div>
-    </div>
+            $('.product-checkbox').change(function () {
+                const productId = parseInt($(this).data('id'));
+                if ($(this).is(':checked')) {
+                    selectedProducts.add(productId);
+                } else {
+                    selectedProducts.delete(productId);
+                }
+                updateBulkActions();
+                $('#selectAllCheckbox').prop('checked', selectedProducts.size === data.products.length && data.products.length > 0);
+            });
+        }
 
+        function updateBulkActions() {
+            const count = selectedProducts.size;
+            if (count > 0) {
+                $('#bulkActions').addClass('show');
+                $('#selectedCount').text(count);
+            } else {
+                $('#bulkActions').removeClass('show');
+            }
+        }
+
+        function clearSelection() {
+            selectedProducts.clear();
+            updateBulkActions();
+            $('#selectAllCheckbox').prop('checked', false);
+            loadProducts();
+        }
+
+        function bulkDelete() {
+            if (selectedProducts.size === 0) return;
+            if (confirm(`Delete ${selectedProducts.size} selected product(s)?`)) {
+                const csrfToken = getCsrfToken();
+                const ids = Array.from(selectedProducts);
+                $.ajax({
+                    url: '/products/bulk-delete',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    data: JSON.stringify(ids),
+                    success: function (response) {
+                        showSuccess(response.message);
+                        selectedProducts.clear();
+                        updateBulkActions();
+                        loadProducts();
+                    },
+                    error: function () { showError('Failed to delete products'); }
+                });
+            }
+        }
+
+        function duplicateProduct(id) {
+            $.ajax({
+                url: '/products/duplicate',
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': getCsrfToken() },
+                data: { id: id, _csrf: getCsrfToken() },
+                success: function () {
+                    showSuccess('Product duplicated successfully');
+                    loadProducts();
+                },
+                error: function () { showError('Failed to duplicate product'); }
+            });
+        }
+
+        function exportProducts() {
+            window.location.href = '/products/export';
+            showSuccess('Exporting products...');
+        }
+
+        function renderPagination(data) {
+            const container = $('#paginationContainer');
+            container.empty();
+
+            if (data.totalPages <= 1) return;
+
+            let paginationHtml = '<div class="shop-pagination">';
+            paginationHtml += `<button onclick="changePage(${data.currentPage - 1})" ${!data.hasPrevious ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+
+            const startPage = Math.max(0, data.currentPage - 2);
+            const endPage = Math.min(data.totalPages - 1, data.currentPage + 2);
+
+            if (startPage > 0) {
+                paginationHtml += `<button onclick="changePage(0)">1</button>`;
+                if (startPage > 1) paginationHtml += `<button disabled>...</button>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === data.currentPage ? 'active' : '';
+                paginationHtml += `<button class="${activeClass}" onclick="changePage(${i})">${i + 1}</button>`;
+            }
+
+            if (endPage < data.totalPages - 1) {
+                if (endPage < data.totalPages - 2) paginationHtml += `<button disabled>...</button>`;
+                paginationHtml += `<button onclick="changePage(${data.totalPages - 1})">${data.totalPages}</button>`;
+            }
+
+            paginationHtml += `<button onclick="changePage(${data.currentPage + 1})" ${!data.hasNext ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+            paginationHtml += '</div>';
+            container.html(paginationHtml);
+
+            const startItem = data.currentPage * data.pageSize + 1;
+            const endItem = Math.min((data.currentPage + 1) * data.pageSize, data.totalItems);
+            $('#paginationInfo').html(`
+                Showing ${startItem} to ${endItem} of ${data.totalItems} products
+                ${currentKeyword ? ' · Searching: "' + escapeHtml(currentKeyword) + '"' : ''}
+                ${currentFilter !== 'all' ? ' · Filter: ' + currentFilter.replace('-', ' ') : ''}
+            `);
+        }
+
+        function changePage(page) {
+            if (page === currentPage) return;
+            currentPage = page;
+            selectedProducts.clear();
+            updateBulkActions();
+            loadProducts();
+            document.querySelector('.shop-main').scrollTop = 0;
+        }
+
+        function formatPrice(price) {
+            return parseFloat(price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+        }
+
+        function getCsrfToken() {
+            return $('meta[name="_csrf"]').attr('content');
+        }
+
+        function showError(message) {
+            const errorDiv = $('<div>', { class: 'shop-toast-error', text: message }).appendTo('body');
+            setTimeout(() => errorDiv.fadeOut(300, function () { $(this).remove(); }), 3000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = $('<div>', { class: 'shop-toast-success', text: '✓ ' + message }).appendTo('body');
+            setTimeout(() => successDiv.fadeOut(300, function () { $(this).remove(); }), 3000);
+        }
+    </script>
 </body>
 
 </html>

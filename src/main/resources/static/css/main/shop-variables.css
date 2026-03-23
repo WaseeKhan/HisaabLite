@@ -1,0 +1,15 @@
+:root {
+    --shop-primary: #0f172a;
+    --shop-primary-dark: #1e293b;
+    --shop-secondary: #2563eb;
+    --shop-success: #10b981;
+    --shop-danger: #ef4444;
+    --shop-danger-light: #fee2e2;
+    --shop-text-primary: #1e293b;
+    --shop-text-secondary: #5b6778;
+    --shop-text-muted: #94a3b8;
+    --shop-bg: #f3f4f6;
+    --shop-white: #ffffff;
+    --shop-border: #e9eef2;
+    --shop-border-light: #f1f5f9;
+}

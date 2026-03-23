@@ -2,920 +2,404 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Dashboard •   HisaabLite</title>
+    <title>Dashboard • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
     <script src="/js/chart.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-dashboard.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-     
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== TOPBAR ===== */
-        .topbar {
-            background: white;
-            padding: 14px 24px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            margin-bottom: 24px;
-            flex-shrink: 0;
-        }
-
-        .shop-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .shop-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: #0f172a;
-        }
-
-        .info-tag {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #475569;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 13px;
-            color: #5b6778;
-        }
-
-        .user-role {
-            background: #f1f5f9;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: #0f172a;
-            font-size: 12px;
-        }
-
-        .divider {
-            width: 1px;
-            height: 20px;
-            background: #e2e8f0;
-        }
-
-        /* ===== ULTRA-COMPACT KPI CARDS ===== */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        .kpi-card {
-            background: white;
-            padding: 10px 6px;
-            border-radius: 12px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-            transition: all 0.15s;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
-            border-color: #cbd5e1;
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-        }
-
-        .kpi-card.revenue::before { background: #059669; }
-        .kpi-card.cancelled::before { background: #dc2626; }
-        .kpi-card.net::before { background: #2563eb; }
-        .kpi-card.returned::before { background: #f59e0b; }
-        .kpi-card.invoices::before { background: #8b5cf6; }
-        .kpi-card.items::before { background: #ec4899; }
-        .kpi-card.staff::before { background: #14b8a6; }
-
-        .kpi-header {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 4px;
-        }
-
-        .kpi-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-        }
-
-        .revenue .kpi-icon { background: #d1fae5; color: #059669; }
-        .cancelled .kpi-icon { background: #fee2e2; color: #dc2626; }
-        .net .kpi-icon { background: #dbeafe; color: #2563eb; }
-        .returned .kpi-icon { background: #fed7aa; color: #f59e0b; }
-        .invoices .kpi-icon { background: #ede9fe; color: #8b5cf6; }
-        .items .kpi-icon { background: #fce7f3; color: #ec4899; }
-        .staff .kpi-icon { background: #ccfbf1; color: #14b8a6; }
-
-        .kpi-title {
-            font-size: 9px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .kpi-value {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0f172a;
-            line-height: 1.2;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .kpi-subtitle {
-            font-size: 7px;
-            color: #94a3b8;
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            white-space: nowrap;
-        }
-
-        .kpi-subtitle i {
-            font-size: 7px;
-        }
-
-        /* ===== CHARTS ===== */
-        .charts {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .chart-card {
-            background: white;
-            padding: 16px;
-            border-radius: 18px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .chart-header h4 {
-            font-size: 13px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .chart-header h4 i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .chart-badge {
-            background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 30px;
-            font-size: 10px;
-            font-weight: 500;
-            color: #475569;
-        }
-
-        canvas {
-            height: 200px !important;
-            width: 100% !important;
-        }
-
-        .chart-legend {
-            display: flex;
-            gap: 16px;
-            margin-top: 12px;
-            font-size: 11px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 30px;
-            transition: all 0.15s;
-        }
-
-        .legend-item:hover {
-            background: #f1f5f9;
-        }
-
-        .legend-item.inactive {
-            opacity: 0.4;
-        }
-
-        .legend-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 4px;
-        }
-
-        /* ===== BOTTOM GRID ===== */
-        .bottom-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .info-card {
-            background: white;
-            padding: 18px;
-            border-radius: 18px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            display: flex;
-            flex-direction: column;
-            height: 260px;
-            max-height: 260px;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .info-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f1f5f9;
-            flex-shrink: 0;
-        }
-
-        .info-title i {
-            color: #2563eb;
-            font-size: 16px;
-        }
-
-        .low-stock-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-            height: 190px;
-            padding-right: 4px;
-        }
-
-        .low-stock-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        .low-stock-container::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-        .low-stock-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .stock-bar-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 12px;
-            height: 32px;
-            min-height: 32px;
-        }
-
-        .stock-bar-label {
-            width: 90px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #334155;
-            font-weight: 500;
-            line-height: 32px;
-        }
-
-        .stock-bar-wrapper {
-            flex: 1;
-            height: 18px;
-            background: #f1f5f9;
-            border-radius: 30px;
-            overflow: hidden;
-            position: relative;
-            margin: 7px 0;
-        }
-
-        .stock-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f59e0b, #f97316);
-            border-radius: 30px;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .stock-bar-value {
-            min-width: 40px;
-            text-align: right;
-            font-weight: 700;
-            color: #dc2626;
-            font-size: 13px;
-            line-height: 32px;
-        }
-
-        .stock-empty-state {
-            text-align: center;
-            color: #94a3b8;
-            padding: 30px 0;
-            font-size: 13px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .stock-empty-state i {
-            font-size: 32px;
-            color: #cbd5e1;
-        }
-
-   
-        .business-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-            height: 190px;
-            padding-right: 4px;
-        }
-
-        .business-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        .business-container::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-        .business-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .business-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 12px;
-            height: 32px;
-            min-height: 32px;
-            padding: 0 4px;
-        }
-
-        .business-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2563eb;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .business-label {
-            width: 70px;
-            color: #64748b;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.3px;
-            line-height: 32px;
-        }
-
-        .business-value-wrapper {
-            flex: 1;
-            height: 28px;
-            background: #f8fafc;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            border: 1px solid #f1f5f9;
-        }
-
-        .business-value {
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .business-value-highlight {
-            color: #2563eb;
-            font-weight: 700;
-        }
-
-        .business-address-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 12px;
-            min-height: 50px;
-            padding: 4px;
-            margin-top: 4px;
-            background: #f8fafc;
-            border-radius: 16px;
-            border: 1px solid #edf2f7;
-        }
-
-        .business-address-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2563eb;
-            font-size: 14px;
-            margin-top: 2px;
-        }
-
-        .business-address-content {
-            flex: 1;
-        }
-
-        .business-address-label {
-            font-size: 9px;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .business-address-text {
-            font-weight: 500;
-            color: #0f172a;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .business-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 4px;
-            padding: 8px 4px 0;
-            border-top: 1px dashed #e2e8f0;
-            font-size: 11px;
-            color: #94a3b8;
-        }
-
-        .business-meta i {
-            color: #f59e0b;
-            margin-right: 4px;
-        }
-
-        .business-meta span {
-            display: flex;
-            align-items: center;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 14px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            color: #94a3b8;
-            flex-shrink: 0;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 13px;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            font-size: 11px;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 3px 8px;
-            border-radius: 30px;
-            font-size: 10px;
-        }
-
-        @media (max-width: 1400px) {
-            .kpi-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-            .charts { grid-template-columns: 1fr; }
-            .bottom-grid { grid-template-columns: 1fr; }
-        }
-    </style>
 </head>
 
-<body>
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
-        <div class="nav-links">
-            <a class="active" th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i> Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
+<body class="shop-body">
 
-    <div class="main">
-        <div class="topbar">
-            <div class="shop-info">
-                <span class="shop-name" th:text="${shop.name}">Shop Name</span>
-                <span class="info-tag">PAN <span th:text="${shop.panNumber}"></span></span>
-                <span class="info-tag">GST <span th:text="${shop.gstNumber} ?: 'N/A'"></span></span>
-            </div>
-            <div class="user-info">
-                <span class="user-role"><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> <span th:text="${role}"></span></span>
-                <span class="divider"></span>
-                <span><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
-                <span class="divider"></span>
-                <span><i class="far fa-gem"></i> <span th:text="${planType}">PREMIUM</span></span>
-              <!-- <span th:text="${shop.planType != null ? shop.planType : 'FREE'}">PREMIUM</span> -->
-             
-                
-            </div>
-        </div>
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
-        <!-- KPI CARDS - Server Rendered -->
-        <div class="kpi-grid">
-            <div class="kpi-card revenue">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-check-circle"></i></div><span class="kpi-title">Completed</span></div>
-                <div class="kpi-value">₹<span id="completedRevenue" th:text="${#numbers.formatDecimal(completedRevenue, 1, 2)}">0.00</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-arrow-up"></i> Revenue</div>
-            </div>
-            <div class="kpi-card cancelled">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-ban"></i></div><span class="kpi-title">Cancelled</span></div>
-                <div class="kpi-value">₹<span id="cancelledAmount" th:text="${#numbers.formatDecimal(cancelledAmount, 1, 2)}">0.00</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-arrow-down"></i> Refunds</div>
-            </div>
-            <div class="kpi-card net">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-chart-line"></i></div><span class="kpi-title">Net</span></div>
-                <div class="kpi-value">₹<span id="netRevenue" th:text="${#numbers.formatDecimal(netRevenue, 1, 2)}">0.00</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-equals"></i> Revenue</div>
-            </div>
-            <div class="kpi-card returned">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-undo-alt"></i></div><span class="kpi-title">Returns</span></div>
-                <div class="kpi-value"><span id="returnedItems" th:text="${returnedItems}">0</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-box-open"></i> Items</div>
-            </div>
-            <div class="kpi-card invoices">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-file-invoice"></i></div><span class="kpi-title">Invoices</span></div>
-                <div class="kpi-value"><span id="inv" th:text="${todayInvoices}">0</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-receipt"></i> Today</div>
-            </div>
-            <div class="kpi-card items">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-boxes"></i></div><span class="kpi-title">Sold</span></div>
-                <div class="kpi-value"><span id="items" th:text="${todayItems}">0</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-cube"></i> Items</div>
-            </div>
-            <div class="kpi-card staff">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-users"></i></div><span class="kpi-title">Staff</span></div>
-                <div class="kpi-value"><span id="staff" th:text="${totalStaff}">0</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-user-check"></i> Team</div>
-            </div>
-            <div class="kpi-card revenue">
-                <div class="kpi-header"><div class="kpi-icon"><i class="fas fa-percent"></i></div><span class="kpi-title">Growth</span></div>
-                <div class="kpi-value"><span id="growth">+12%</span></div>
-                <div class="kpi-subtitle"><i class="fas fa-trend-up"></i> vs yesterday</div>
-            </div>
-        </div>
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
 
-        <!-- CHARTS -->
-        <div class="charts">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h4><i class="fas fa-chart-line"></i> Revenue Trend</h4>
-                    <span class="chart-badge">Last 7 days</span>
-                </div>
-                <canvas id="revenueChart"></canvas>
-                <div class="chart-legend" id="lineLegend"></div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h4><i class="fas fa-chart-pie"></i> Revenue Split</h4>
-                    <span class="chart-badge">Today</span>
-                </div>
-                <canvas id="pieChart"></canvas>
-                <div class="chart-legend" id="pieLegend"></div>
-            </div>
-        </div>
+                <!-- Header -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
 
-        <!-- BOTTOM GRID -->
-        <div class="bottom-grid">
-            <!-- LOW STOCK -->
-            <div class="info-card">
-                <div class="info-title">
-                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
-                    Low Stock Alert
-                </div>
-                <div class="low-stock-container">
-                    <div th:if="${not #lists.isEmpty(lowStockProducts)}" th:each="product : ${lowStockProducts}" class="stock-bar-item">
-                        <span class="stock-bar-label" th:text="${product.name}">Product Name</span>
-                        <div class="stock-bar-wrapper">
-                            <div class="stock-bar-fill" th:style="'width: ' + (${product.stockQuantity} / 20 * 100) + '%'"></div>
+                <!-- KPI CARDS -->
+                <div class="shop-kpi-grid">
+                    <div class="shop-kpi-card shop-revenue">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-check-circle"></i></div>
+                            <span class="shop-kpi-title">Completed</span>
                         </div>
-                        <span class="stock-bar-value" th:text="${product.stockQuantity}">5</span>
+                        <div class="shop-kpi-value">₹<span id="completedRevenue"
+                                th:text="${#numbers.formatDecimal(completedRevenue, 1, 2)}">0.00</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-arrow-up"></i> Revenue</div>
                     </div>
-                    <div th:if="${#lists.isEmpty(lowStockProducts)}" class="stock-empty-state">
-                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                        <span>All products well stocked</span>
+                    <div class="shop-kpi-card shop-cancelled">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-ban"></i></div>
+                            <span class="shop-kpi-title">Cancelled</span>
+                        </div>
+                        <div class="shop-kpi-value">₹<span id="cancelledAmount"
+                                th:text="${#numbers.formatDecimal(cancelledAmount, 1, 2)}">0.00</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-arrow-down"></i> Refunds</div>
+                    </div>
+                    <div class="shop-kpi-card shop-net">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-chart-line"></i></div>
+                            <span class="shop-kpi-title">Net</span>
+                        </div>
+                        <div class="shop-kpi-value">₹<span id="netRevenue"
+                                th:text="${#numbers.formatDecimal(netRevenue, 1, 2)}">0.00</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-equals"></i> Revenue</div>
+                    </div>
+                    <div class="shop-kpi-card shop-returned">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-undo-alt"></i></div>
+                            <span class="shop-kpi-title">Returns</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="returnedItems" th:text="${returnedItems}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-box-open"></i> Items</div>
+                    </div>
+                    <div class="shop-kpi-card shop-invoices">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-file-invoice"></i></div>
+                            <span class="shop-kpi-title">Invoices</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="inv" th:text="${todayInvoices}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-receipt"></i> Today</div>
+                    </div>
+                    <div class="shop-kpi-card shop-items">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-boxes"></i></div>
+                            <span class="shop-kpi-title">Sold</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="items" th:text="${todayItems}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-cube"></i> Items</div>
+                    </div>
+                    <div class="shop-kpi-card shop-staff">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-users"></i></div>
+                            <span class="shop-kpi-title">Staff</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="staff" th:text="${totalStaff}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-user-check"></i> Team</div>
+                    </div>
+                    <div class="shop-kpi-card shop-revenue">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-percent"></i></div>
+                            <span class="shop-kpi-title">Growth</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="growth">+12%</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-trend-up"></i> vs yesterday</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- BUSINESS OVERVIEW -->
-            <div class="info-card">
-                <div class="info-title">
-                    <i class="fas fa-store" style="color: #2563eb;"></i>
-                    Business Overview
-                </div>
-                <div class="business-container">
-                    <div class="business-address-item">
-                        <span class="business-address-icon"><i class="fas fa-location-dot"></i></span>
-                        <div class="business-address-content">
-                            <div class="business-address-label">Address</div>
-                            <span class="business-address-text" th:text="${shop.address ?: 'No address set'}"></span>
-                            <span th:if="${shop.address != null and shop.city != null}">, </span>
-                            <span class="business-value" th:text="${shop.city ?: ''}"></span>
-                            <span class="business-value" th:text="${shop.pincode ?: '—'}">400001</span>
+                <!-- Extended Stats Cards -->
+                <div class="shop-stats-extended">
+                    <div class="stats-ext-card">
+                        <div class="stats-ext-info">
+                            <h4>Avg Order Value</h4>
+                            <div class="stats-ext-number" id="avgOrderValue">₹0</div>
+                            <div class="stats-ext-change"><i class="fas fa-arrow-up"></i> +12%</div>
                         </div>
+                        <div class="stats-ext-icon"><i class="fas fa-shopping-cart"></i></div>
                     </div>
-                    
-                    <div class="business-item">
-                        <span class="business-icon"><i class="fas fa-map"></i></span>
-                        <span class="business-label">State</span>
-                        <div class="business-value-wrapper">
-                            <span class="business-value" th:text="${shop.state ?: '—'}">Maharashtra</span>
+                    <div class="stats-ext-card">
+                        <div class="stats-ext-info">
+                            <h4>Conversion Rate</h4>
+                            <div class="stats-ext-number" id="conversionRate">0%</div>
+                            <div class="stats-ext-change"><i class="fas fa-arrow-up"></i> +5%</div>
                         </div>
+                        <div class="stats-ext-icon"><i class="fas fa-chart-line"></i></div>
                     </div>
-                    
-                    <div class="business-item">
-                        <span class="business-icon"><i class="fas fa-credit-card"></i></span>
-                        <span class="business-label">UPI</span>
-                        <div class="business-value-wrapper">
-                            <span class="business-value business-value-highlight" th:text="${shop.upiId ?: '—'}">shop@okhdfcbank</span>
+                    <div class="stats-ext-card">
+                        <div class="stats-ext-info">
+                            <h4>Customer Retention</h4>
+                            <div class="stats-ext-number" id="retentionRate">0%</div>
+                            <div class="stats-ext-change negative"><i class="fas fa-arrow-down"></i> -2%</div>
                         </div>
+                        <div class="stats-ext-icon"><i class="fas fa-users"></i></div>
                     </div>
-                    
-                    <div class="business-meta">
-                        <span><i class="far fa-calendar"></i> <span th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')} ?: '—'"></span></span>
-                        <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> Active</span>
+                    <div class="stats-ext-card">
+                        <div class="stats-ext-info">
+                            <h4>Inventory Turnover</h4>
+                            <div class="stats-ext-number" id="inventoryTurnover">0x</div>
+                            <div class="stats-ext-change"><i class="fas fa-arrow-up"></i> +8%</div>
+                        </div>
+                        <div class="stats-ext-icon"><i class="fas fa-boxes"></i></div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ===== FOOTER - Exactly Profile Page Jaisa ===== -->
-        <div class="footer">
-            <div class="footer-left">
+                <!-- CHARTS -->
+                <div class="shop-charts">
+                    <div class="shop-chart-card">
+                        <div class="shop-chart-header">
+                            <h4><i class="fas fa-chart-line"></i> Revenue Trend</h4>
+                            <span class="shop-chart-badge">Last 7 days</span>
+                        </div>
+                        <canvas id="revenueChart"></canvas>
+                        <div class="shop-chart-legend" id="lineLegend"></div>
+                    </div>
+                    <div class="shop-chart-card">
+                        <div class="shop-chart-header">
+                            <h4><i class="fas fa-chart-pie"></i> Revenue Split</h4>
+                            <span class="shop-chart-badge">Today</span>
+                        </div>
+                        <canvas id="pieChart"></canvas>
+                        <div class="shop-chart-legend" id="pieLegend"></div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div class="dashboard-two-col">
+                    <div class="top-products-section">
+                        <div class="top-products-header">
+                            <h3><i class="fas fa-trophy"></i> Top Selling Products</h3>
+                            <a href="/products" class="view-all">View all →</a>
+                        </div>
+                        <div class="top-products-list">
+                            <div th:if="${not #lists.isEmpty(topProducts)}" th:each="product : ${topProducts}"
+                                th:with="index=${productStat.index}" class="top-product-item">
+                                <div class="product-rank" th:text="${index + 1}">1</div>
+                                <div class="product-info">
+                                    <div class="product-name"
+                                        th:text="${product.name != null ? product.name : 'Unknown Product'}">Product
+                                        Name</div>
+                                    <div class="product-sales" th:text="${product.quantity} + ' sold'">0 sold</div>
+                                </div>
+                                <div class="product-revenue"
+                                    th:text="'₹' + ${#numbers.formatDecimal(product.revenue, 0, 'COMMA', 2, 'POINT')}">
+                                    ₹0</div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(topProducts)}" class="empty-state">
+                                <p>No sales yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="top-customers-section">
+                        <div class="top-customers-header">
+                            <h3><i class="fas fa-star"></i> Top Customers</h3>
+                            <a href="/customers" class="view-all">View all →</a>
+                        </div>
+                        <div class="top-customers-list">
+                            <div th:if="${not #lists.isEmpty(topCustomers)}" th:each="customer : ${topCustomers}"
+                                class="top-customer-item">
+                                <div class="customer-avatar"
+                                    th:text="${customer.name != null and customer.name != '' ? #strings.substring(customer.name, 0, 1) : '?'}">
+                                    R</div>
+                                <div class="customer-info">
+                                    <div class="customer-name"
+                                        th:text="${customer.name != null ? customer.name : 'Walk-in Customer'}">Customer
+                                        Name</div>
+                                    <div class="customer-orders" th:text="${customer.orders} + ' orders'">0 orders</div>
+                                </div>
+                                <div class="customer-spent"
+                                    th:text="'₹' + ${#numbers.formatDecimal(customer.total, 0, 'COMMA', 2, 'POINT')}">₹0
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(topCustomers)}" class="empty-state">
+                                <p>No customers yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity - FIXED SCROLL -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+                        <a href="/sales/history" class="view-all">View all →</a>
+                    </div>
+                    <div class="activity-list">
+                        <div th:if="${not #lists.isEmpty(recentActivities)}" th:each="activity : ${recentActivities}" 
+                             class="activity-item">
+                            <div class="activity-icon"><i th:class="${activity.icon != null ? activity.icon : 'fas fa-bell'}"></i></div>
+                            <div class="activity-details">
+                                <div class="activity-text" th:text="${activity.text != null ? activity.text : 'Activity'}">Activity text</div>
+                                <div class="activity-time" th:text="${activity.time != null ? activity.time : 'Just now'}">Just now</div>
+                            </div>
+                            <div class="activity-amount" th:classappend="${activity.urgent != null and activity.urgent ? 'urgent' : ''}" th:text="${activity.amount != null ? activity.amount : ''}">₹0</div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(recentActivities)}" class="empty-state">
+                            <p>No recent activity</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTTOM GRID - LOW STOCK & BUSINESS OVERVIEW -->
+                <div class="shop-bottom-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="header-icon warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h3>Low Stock Alert</h3>
+                                    <p>Items needing attention</p>
+                                </div>
+                            </div>
+                            <div class="badge-count" id="lowStockTotal">0</div>
+                        </div>
+                        <div class="stock-list">
+                            <div th:if="${not #lists.isEmpty(lowStockProducts)}" th:each="product : ${lowStockProducts}"
+                                class="stock-item">
+                                <div class="stock-info">
+                                    <div class="stock-icon" th:classappend="${product.stockQuantity <= 2} ? 'critical' : 'warning'">
+                                        <i th:if="${product.stockQuantity == 0}" class="fas fa-times-circle"></i>
+                                        <i th:if="${product.stockQuantity > 0 and product.stockQuantity <= 2}"
+                                            class="fas fa-exclamation-circle"></i>
+                                        <i th:if="${product.stockQuantity > 2}" class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="stock-details">
+                                        <div class="stock-name" th:text="${product.name}">Product Name</div>
+                                        <div class="stock-meta">
+                                            <span class="stock-badge"
+                                                th:classappend="${product.stockQuantity <= 2} ? 'critical' : 'warning'">
+                                                <span th:if="${product.stockQuantity == 0}">Out of Stock</span>
+                                                <span
+                                                    th:if="${product.stockQuantity > 0 and product.stockQuantity <= 2}">Critical</span>
+                                                <span th:if="${product.stockQuantity > 2}">Low Stock</span>
+                                            </span>
+                                            <span class="stock-qty"><span th:text="${product.stockQuantity}">0</span>
+                                                units left</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stock-action">
+                                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="restock-btn">
+                                        <i class="fas fa-truck-fast"></i> Restock
+                                    </a>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(lowStockProducts)}" class="empty-stock">
+                                <i class="fas fa-check-circle"></i>
+                                <p>All products well stocked!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                   <div class="dashboard-card business-card">
+    <div class="card-header">
+        <div class="header-left">
+            <div class="header-icon success">
                 <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
             </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version">v2.0.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems operational</span>
+            <div class="header-text">
+                <h3>Business Overview</h3>
+                <p>Key business information</p>
+            </div>
+        </div>
+        <div class="badge-active">
+            <i class="fas fa-circle"></i> Active
+        </div>
+    </div>
+    
+    <div class="business-content-wrapper">
+        <!-- Shop Info Row -->
+        <div class="business-info-row">
+            <div class="info-chip">
+                <i class="fas fa-store"></i>
+                <span th:text="${shop.name}">Business Name</span>
+            </div>
+            <div class="info-chip">
+                <i class="fas fa-calendar-alt"></i>
+                <span th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">15 Jan 2024</span>
+            </div>
+            <div class="info-chip">
+                <i class="fas fa-tag"></i>
+                <span th:text="'ID: ' + ${shop.id}">ID: 12345</span>
+            </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="business-detail-item">
+            <div class="detail-icon">
+                <i class="fas fa-location-dot"></i>
+            </div>
+            <div class="detail-content">
+                <div class="detail-label">Address</div>
+                <div class="detail-value" th:text="${shop.address ?: 'Not set'}">123 Business Street</div>
+                <div class="detail-sub" th:if="${shop.city != null or shop.state != null or shop.pincode != null}">
+                    <span th:text="${shop.city ?: ''}">Mumbai</span>
+                    <span th:if="${shop.city != null and shop.state != null}">, </span>
+                    <span th:text="${shop.state ?: ''}">Maharashtra</span>
+                    <span th:if="${shop.pincode != null}"> - </span>
+                    <span th:text="${shop.pincode ?: ''}">400001</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax Info Row -->
+        <div class="business-detail-row">
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">PAN Number</div>
+                    <div class="detail-value" th:text="${shop.panNumber}">ABCDE1234F</div>
+                </div>
+            </div>
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">GST Number</div>
+                    <div class="detail-value" th:text="${shop.gstNumber} ?: 'Not Added'">27ABCDE1234F1Z5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment & Stats Row -->
+        <div class="business-detail-row">
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">UPI ID</div>
+                    <div class="detail-value upi" th:text="${shop.upiId ?: 'Not Configured'}">shop@okhdfcbank</div>
+                </div>
+            </div>
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">Staff Count</div>
+                    <div class="detail-value" th:text="${totalStaff}">5</div>
+                </div>
             </div>
         </div>
     </div>
+</div>
+                </div>
 
-    <!-- OPTIMIZED JS - Fast Loading with Background Updates -->
+            </div>
+
+            <!-- FOOTER -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+
     <script th:inline="javascript">
-        // Server data directly available
         const serverData = {
-            labels: /*[[${labels}]]*/ ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            revenues: /*[[${revenues}]]*/ [0,0,0,0,0,0,0],
+            labels: /*[[${labels}]]*/['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            revenues: /*[[${revenues}]]*/[0, 0, 0, 0, 0, 0, 0],
             completedRevenue: /*[[${completedRevenue}]]*/ 0,
             cancelledAmount: /*[[${cancelledAmount}]]*/ 0,
             netRevenue: /*[[${netRevenue}]]*/ 0,
@@ -925,26 +409,11 @@
             totalStaff: /*[[${totalStaff}]]*/ 0
         };
 
-        // Initialize immediately
-        document.addEventListener('DOMContentLoaded', function() {
-            // Charts turant banao
-            initCharts(serverData);
-            
-            // Background me real data fetch karo
-            fetchRealData();
-            
-            // Auto-refresh har 30 sec
-            setInterval(fetchRealData, 30000);
-        });
-
         function initCharts(data) {
             if (!document.getElementById('revenueChart') || !document.getElementById('pieChart')) return;
-            
-            // LINE CHART
             const completedRev = data.revenues.map(r => r * 0.9);
             const cancelledRev = data.revenues.map(r => r * 0.1);
             const netRev = data.revenues.map(r => r * 0.8);
-
             const ctx = document.getElementById('revenueChart').getContext('2d');
             window.revenueChart = new Chart(ctx, {
                 type: 'line',
@@ -958,65 +427,53 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-
-            // Line Legend
             const lineLegend = document.getElementById('lineLegend');
             if (lineLegend) {
                 lineLegend.innerHTML = '';
                 window.revenueChart.data.datasets.forEach((dataset, i) => {
                     const item = document.createElement('div');
-                    item.className = 'legend-item';
-                    item.innerHTML = `<span class="legend-color" style="background: ${dataset.borderColor}"></span><span>${dataset.label}</span>`;
+                    item.className = 'shop-legend-item';
+                    item.innerHTML = `<span class="shop-legend-color" style="background: ${dataset.borderColor}"></span><span>${dataset.label}</span>`;
                     item.onclick = () => {
                         const meta = window.revenueChart.getDatasetMeta(i);
                         meta.hidden = !meta.hidden;
-                        item.classList.toggle('inactive', meta.hidden);
+                        item.classList.toggle('shop-inactive', meta.hidden);
                         window.revenueChart.update();
                     };
                     lineLegend.appendChild(item);
                 });
             }
-
-            // PIE CHART
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             window.pieChart = new Chart(pieCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Completed', 'Cancelled', 'Net'],
                     datasets: [{
-                        data: [
-                            data.completedRevenue || 10,
-                            data.cancelledAmount || 10,
-                            data.netRevenue || 10
-                        ],
+                        data: [data.completedRevenue || 10, data.cancelledAmount || 10, data.netRevenue || 10],
                         backgroundColor: ['#059669', '#dc2626', '#2563eb'],
                         borderWidth: 0
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { display: false } } }
             });
-
-            // Pie Legend
             const pieLegend = document.getElementById('pieLegend');
             if (pieLegend) {
                 pieLegend.innerHTML = '';
                 ['Completed', 'Cancelled', 'Net'].forEach((label, i) => {
                     const colors = ['#059669', '#dc2626', '#2563eb'];
                     const item = document.createElement('div');
-                    item.className = 'legend-item';
-                    item.innerHTML = `<span class="legend-color" style="background: ${colors[i]}"></span><span>${label}</span>`;
+                    item.className = 'shop-legend-item';
+                    item.innerHTML = `<span class="shop-legend-color" style="background: ${colors[i]}"></span><span>${label}</span>`;
                     item.onclick = () => togglePieSlice(i, item);
                     pieLegend.appendChild(item);
                 });
             }
         }
 
-        // REAL DATA FETCH
         function fetchRealData() {
             fetch('/app/metrics')
                 .then(res => res.json())
                 .then(data => {
-                    // Update KPI cards
                     document.getElementById("completedRevenue").innerText = formatMoney(data.completedRevenue);
                     document.getElementById("cancelledAmount").innerText = formatMoney(data.cancelledAmount);
                     document.getElementById("netRevenue").innerText = formatMoney(data.netRevenue);
@@ -1024,33 +481,40 @@
                     document.getElementById("inv").innerText = data.todayInvoices || 0;
                     document.getElementById("items").innerText = data.todayItems || 0;
                     document.getElementById("staff").innerText = data.totalStaff || 0;
-                    
-                    // Update pie chart
                     if (window.pieChart) {
-                        window.pieChart.data.datasets[0].data = [
-                            data.completedRevenue || 0,
-                            data.cancelledAmount || 0,
-                            data.netRevenue || 0
-                        ];
+                        window.pieChart.data.datasets[0].data = [data.completedRevenue || 0, data.cancelledAmount || 0, data.netRevenue || 0];
                         window.pieChart.update();
                     }
                 })
                 .catch(err => console.error("Metrics error:", err));
         }
 
-        // Helper functions
-        function formatMoney(val) {
-            return parseFloat(val || 0).toFixed(2);
-        }
-
+        function formatMoney(val) { return parseFloat(val || 0).toFixed(2); }
         function togglePieSlice(index, element) {
             if (window.pieChart) {
                 const meta = window.pieChart.getDatasetMeta(0);
                 meta.data[index].hidden = !meta.data[index].hidden;
-                element.classList.toggle('inactive', meta.data[index].hidden);
+                element.classList.toggle('shop-inactive', meta.data[index].hidden);
                 window.pieChart.update();
             }
         }
+        function updateExtendedStats() {
+            const avgOrderValue = document.getElementById('avgOrderValue');
+            const conversionRate = document.getElementById('conversionRate');
+            const retentionRate = document.getElementById('retentionRate');
+            const inventoryTurnover = document.getElementById('inventoryTurnover');
+            if (avgOrderValue) avgOrderValue.innerText = '₹2,450';
+            if (conversionRate) conversionRate.innerText = '68%';
+            if (retentionRate) retentionRate.innerText = '42%';
+            if (inventoryTurnover) inventoryTurnover.innerText = '3.2x';
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            initCharts(serverData);
+            fetchRealData();
+            updateExtendedStats();
+            setInterval(fetchRealData, 30000);
+        });
     </script>
 </body>
+
 </html>

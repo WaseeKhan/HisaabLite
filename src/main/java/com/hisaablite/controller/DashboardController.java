@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.hisaablite.service.DashboardService;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,6 +36,7 @@ public class DashboardController {
     private final ProductRepository productRepository;
     private final SaleService saleService;
     private final PlanLimitService planLimitService;
+    private final DashboardService dashboardService;
 
     // ROLE BASED REDIRECT
     @GetMapping("/dashboard")
@@ -94,6 +96,7 @@ public class DashboardController {
 
         String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("user", user);
         log.info("Plan type display: {}", planTypeDisplay);
 
         // TODAY DATA
@@ -131,18 +134,23 @@ public class DashboardController {
 
         Long totalStaff = userRepository.countByShop(shop);
         model.addAttribute("totalStaff", totalStaff);
+        model.addAttribute("currentPage", "dashboard");
 
-        // Map<String, Object> usageStats = planLimitService.getUsageStats(shop);
-        // model.addAttribute("usageStats", usageStats);
+        // Get Top Selling Products
+        List<Map<String, Object>> topProducts = dashboardService.getTopSellingProducts(shop, 5);
+        model.addAttribute("topProducts", topProducts);
 
-        // // Check if near limits
-        // model.addAttribute("nearUserLimit",
-        //         usageStats.get("usersRemaining") != null &&
-        //                 (Integer) usageStats.get("usersRemaining") <= 2);
+        // Get Top Customers
+        List<Map<String, Object>> topCustomers = dashboardService.getTopCustomers(shop, 5);
+        model.addAttribute("topCustomers", topCustomers);
 
-        // model.addAttribute("nearProductLimit",
-        //         usageStats.get("productsRemaining") != null &&
-        //                 (Integer) usageStats.get("productsRemaining") <= 10);
+        // Get Recent Activities
+        List<Map<String, Object>> recentActivities = dashboardService.getRecentActivities(shop, 10);
+        log.info("Recent activities count: {}", recentActivities.size());
+        if (!recentActivities.isEmpty()) {
+            log.info("First activity: {}", recentActivities.get(0));
+        }
+        model.addAttribute("recentActivities", recentActivities);
 
         return "ultra-dashboard";
     }

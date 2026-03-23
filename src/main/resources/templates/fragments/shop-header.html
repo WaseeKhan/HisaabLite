@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="header" class="topbar">
+    <div class="shop-info">
+        <div class="shop-brand">
+            <div class="brand-icon">HL</div>
+            <div class="shop-name" th:text="${shop.name}">Shop Name</div>
+        </div>
+        <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop.panNumber}">PAN123</span></div>
+        <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop.gstNumber} ?: 'N/A'">GST123</span></div>
+        <div class="info-tag"><i class="fas fa-calendar-alt"></i> <span th:text="${#temporals.format(shop.createdAt, 'MMM yyyy')}">Jan 2024</span></div>
+    </div>
+    <div class="user-info">
+        <div class="role-badge" th:classappend="${role == 'OWNER' ? 'role-owner' : (role == 'MANAGER' ? 'role-manager' : 'role-cashier')}">
+            <i class="fas fa-circle"></i>
+            <span th:text="${role}">OWNER</span>
+        </div>
+        <span class="divider"></span>
+        <span class="shop-id"><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
+        <span class="divider"></span>
+        <div class="plan-wrapper">
+            <div class="plan-badge" th:classappend="${planType == 'FREE' ? 'plan-free' : (planType == 'BASIC' ? 'plan-basic' : (planType == 'PREMIUM' ? 'plan-premium' : 'plan-enterprise'))}">
+                <i th:if="${planType == 'FREE'}" class="fas fa-star"></i>
+                <i th:if="${planType == 'BASIC'}" class="fas fa-gem"></i>
+                <i th:if="${planType == 'PREMIUM'}" class="fas fa-crown"></i>
+                <i th:if="${planType == 'ENTERPRISE'}" class="fas fa-building"></i>
+                <span th:text="${planType}">FREE</span>
+            </div>
+            <a th:if="${planType != 'PREMIUM' and planType != 'ENTERPRISE'}" 
+               th:href="@{/upgrade}" 
+               class="upgrade-badge">
+                <i class="fas fa-arrow-up"></i> Upgrade
+            </a>
+        </div>
+        <span class="divider"></span>
+        <div class="user-dropdown" onclick="document.getElementById('userMenu').classList.toggle('show'); this.classList.toggle('open');">
+            <div class="user-avatar" th:text="${user != null ? #strings.substring(user.name, 0, 1) : 'U'}">W</div>
+            <span class="user-name" th:text="${user != null ? user.name : 'User'}">User</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="userMenu" class="dropdown-menu">
+            <a th:href="@{/profile}"><i class="fas fa-user"></i> My Profile</a>
+            <a th:href="@{/settings}"><i class="fas fa-cog"></i> Settings</a>
+            <div class="dropdown-divider"></div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        var dropdown = document.querySelector('.user-dropdown');
+        var menu = document.getElementById('userMenu');
+        if (dropdown && menu) {
+            if (!dropdown.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.remove('show');
+                dropdown.classList.remove('open');
+            }
+        }
+    });
+</script>
+</html>

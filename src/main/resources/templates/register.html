@@ -295,7 +295,7 @@
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>
 
-    <script th:inline="javascript">
+   <script th:inline="javascript">
         const plansData = /*[[${plans}]]*/[];
         let countdownInterval;
         let countdownValue = 5;
@@ -392,34 +392,50 @@
                 const successContainer = document.getElementById('successContainer');
 
                 if (form) form.style.display = 'none';
-                if (successContainer) successContainer.style.display = 'block';
-
-                // Start countdown
-                startCountdown();
+                if (successContainer) {
+                    successContainer.style.display = 'block';
+                    // Start countdown after modal is shown
+                    setTimeout(function() {
+                        startCountdown();
+                    }, 100);
+                }
             }
         });
 
         function startCountdown() {
+            // Clear any existing interval
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
             countdownValue = 5;
             redirectCancelled = false;
             updateCountdownDisplay();
 
             const progressBar = document.getElementById('progressBar');
-            progressBar.style.width = '100%';
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.style.transition = 'width 0.3s linear';
+            }
 
             countdownInterval = setInterval(() => {
                 if (redirectCancelled) return;
 
-                countdownValue--;
-                updateCountdownDisplay();
+                if (countdownValue > 0) {
+                    countdownValue--;
+                    updateCountdownDisplay();
 
-                // Update progress bar
-                progressBar.style.width = (countdownValue * 20) + '%';
+                    // Update progress bar - calculate percentage based on remaining time
+                    if (progressBar) {
+                        const percentage = (countdownValue / 5) * 100;
+                        progressBar.style.width = percentage + '%';
+                    }
 
-                if (countdownValue <= 0) {
-                    clearInterval(countdownInterval);
-                    if (!redirectCancelled) {
-                        window.location.href = '/login';
+                    if (countdownValue <= 0) {
+                        clearInterval(countdownInterval);
+                        if (!redirectCancelled) {
+                            window.location.href = '/login';
+                        }
                     }
                 }
             }, 1000);
@@ -434,25 +450,35 @@
 
         function goToLoginNow() {
             redirectCancelled = true;
-            clearInterval(countdownInterval);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
             window.location.href = '/login';
         }
 
         function stayHere() {
             redirectCancelled = true;
-            clearInterval(countdownInterval);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
 
             // Hide success modal and show form again
-            document.getElementById('successContainer').style.display = 'none';
-            document.getElementById('registrationForm').style.display = 'block';
+            const successContainer = document.getElementById('successContainer');
+            const registrationForm = document.getElementById('registrationForm');
+            
+            if (successContainer) successContainer.style.display = 'none';
+            if (registrationForm) registrationForm.style.display = 'block';
             document.body.style.overflow = 'auto';
 
             // Reset form submit button
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('buttonText').style.display = 'inline';
-            document.getElementById('buttonSpinner').style.display = 'none';
+            const submitBtn = document.getElementById('submitBtn');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            
+            if (submitBtn) submitBtn.disabled = false;
+            if (buttonText) buttonText.style.display = 'inline';
+            if (buttonSpinner) buttonSpinner.style.display = 'none';
         }
-
 
         window.onclick = function (event) {
             const planModal = document.getElementById('planModal');

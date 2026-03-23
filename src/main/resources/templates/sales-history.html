@@ -4,649 +4,376 @@
 <head>
     <title>Sales History • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-sales-history.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        /* (Your existing CSS - same as before) */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .page-header h2 i {
-            color: #2563eb;
-        }
-
-        .filter-badge {
-            background: #f1f5f9;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 12px;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .filter-badge i {
-            color: #2563eb;
-        }
-
-        /* ===== SALES CARD ===== */
-        .sales-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 24px;
-            margin-bottom: 24px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            flex: 1;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            text-align: left;
-            padding: 16px 12px;
-            color: #5b6778;
-            font-weight: 500;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #1e293b;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: #f8fafc;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-completed {
-            background: #e6f7e6;
-            color: #059669;
-        }
-
-        .status-cancelled {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-
-        .action-buttons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-view {
-            color: #5b6778;
-            background: #f1f5f9;
-            padding: 6px 10px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.15s;
-        }
-
-        .btn-view:hover {
-            background: #e2e8f0;
-            color: #2563eb;
-        }
-
-        .btn-cancel {
-            background: #fef2f2;
-            color: #b91c1c;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.15s;
-            text-decoration: none;
-        }
-
-        .btn-cancel:hover {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .btn-cancel.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-            background: #f1f5f9;
-            color: #94a3b8;
-        }
-
-        .pagination {
-            margin-top: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            flex-shrink: 0;
-        }
-
-        .pagination a {
-            text-decoration: none;
-            color: #0f172a;
-            background: #f1f5f9;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-
-        .pagination a:hover {
-            background: #e2e8f0;
-            color: #2563eb;
-        }
-
-        .pagination a.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .pagination span {
-            font-size: 13px;
-            color: #5b6778;
-            background: white;
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: #94a3b8;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: #cbd5e1;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-            margin-top: auto;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left span {
-            color: #475569;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-            margin: 0 4px;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .page-header {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
-
-            .footer {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-
-            .pagination {
-                flex-wrap: wrap;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="shop-body">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
+    <div class="shop-layout">
+
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
+
+               
+
+                <!-- Stats Cards -->
+                <div class="sales-stats-grid">
+                    <div class="sales-stat-card">
+                        <div class="sales-stat-info">
+                            <h4>Total Sales</h4>
+                            <div class="sales-stat-number" id="totalSales">0</div>
+                        </div>
+                        <div class="sales-stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="sales-stat-card">
+                        <div class="sales-stat-info">
+                            <h4>Revenue</h4>
+                            <div class="sales-stat-number" id="totalRevenue">₹0</div>
+                        </div>
+                        <div class="sales-stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="sales-stat-card">
+                        <div class="sales-stat-info">
+                            <h4>Completed</h4>
+                            <div class="sales-stat-number" id="completedCount">0</div>
+                        </div>
+                        <div class="sales-stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="sales-stat-card">
+                        <div class="sales-stat-info">
+                            <h4>Cancelled</h4>
+                            <div class="sales-stat-number" id="cancelledCount">0</div>
+                        </div>
+                        <div class="sales-stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search & Filter Bar -->
+                <div class="sales-search-filter">
+                    <div class="sales-search-wrapper">
+                        <i class="fas fa-search sales-search-icon"></i>
+                        <input type="text" id="searchInput" class="sales-search-input" 
+                               placeholder="Search by invoice, customer..." autocomplete="off">
+                        <i class="fas fa-spinner fa-pulse sales-search-loading" id="searchLoading"></i>
+                    </div>
+                    
+                    <div class="sales-filters">
+                        <select id="statusFilter" class="sales-filter-select">
+                            <option value="">All Status</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                        
+                        <select id="dateRangeFilter" class="sales-filter-select">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">Last 7 Days</option>
+                            <option value="month">Last 30 Days</option>
+                        </select>
+                        
+                        <select id="sortFilter" class="sales-filter-select">
+                            <option value="saleDate_desc">Latest</option>
+                            <option value="totalAmount_desc">Highest</option>
+                            <option value="totalAmount_asc">Lowest</option>
+                        </select>
+                        
+                        <button id="clearFilters" class="sales-clear-filters">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sales Card -->
+                <div class="sales-card">
+                    <div class="sales-table-responsive">
+                        <table class="sales-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Invoice</th>
+                                    <th style="width: 220px;">Date & Time</th>
+                                    <th style="width: 200px;">Customer</th>
+                                    <th style="width: 100px;">Cashier</th>
+                                    <th style="width: 100px;">Amount</th>
+                                    <th style="width: 100px;">Status</th>
+                                    <th style="width: 100px;">Actions</th>
+                                 </thead>
+                            <tbody id="salesTableBody">
+                                 <tr>
+                                    <td colspan="6" class="sales-empty-state">
+                                        <i class="fas fa-spinner fa-pulse"></i>
+                                        <p>Loading sales...</p>
+                                     </tr>
+                            </tbody>
+                          </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="paginationContainer" class="sales-pagination"></div>
+                    <div id="paginationInfo" class="sales-pagination-info"></div>
+                </div>
+
+            </div>
+
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
-
-        <div class="nav-links">
-            <a th:href="@{/dashboard}">
-                <i class="fas fa-chart-pie"></i> Dashboard
-            </a>
-
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}">
-                <i class="fas fa-cash-register"></i> Billing
-            </a>
-
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}">
-                <i class="fas fa-box"></i> Products
-            </a>
-
-            <a class="active" th:href="@{/sales/history}">
-                <i class="fas fa-clock"></i> Sales History
-            </a>
-
-            <!-- Owner-only links - ye sab ab dikhenge -->
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}">
-                <i class="fas fa-users"></i> Staff
-            </a>
-
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}">
-                <i class="fas fa-store"></i> Profile
-            </a>
-
-             <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
-
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </form>
     </div>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        let currentPage = 0;
+        let currentKeyword = '';
+        let currentStatus = '';
+        let currentDateRange = '';
+        let currentSort = 'saleDate_desc';
+        let searchTimeout;
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2>
-                <i class="fas fa-clock"></i>
-                Sales History
-            </h2>
+        // Get initial server data
+        const totalSales = /*[[${totalSales}]]*/ 0;
+        const totalRevenue = /*[[${totalRevenue}]]*/ 0;
+        const completedCount = /*[[${completedCount}]]*/ 0;
+        const cancelledCount = /*[[${cancelledCount}]]*/ 0;
 
-            <div class="filter-badge">
-                <i class="fas fa-filter"></i>
-                Showing page <span th:text="${currentPage + 1}"></span> of <span
-                    th:text="${salesPage.totalPages}"></span>
-            </div>
-        </div>
-
-        <!-- SALES CARD -->
-        <div class="sales-card">
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Invoice #</th>
-                            <th>Date & Time</th>
-                            <th>Total (₹)</th>
-                            <th>Cashier</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="sale : ${salesPage.content}" th:unless="${#lists.isEmpty(salesPage.content)}">
-                            <td>
-                                <span style="font-weight: 500;">#<span th:text="${sale.id}"></span></span>
-                            </td>
-
-                            <td>
-                                <i class="far fa-calendar" style="color: #94a3b8; margin-right: 6px;"></i>
-                                <span th:text="${sale.saleDate != null ? 
-                                          #temporals.format(sale.saleDate,'dd MMM yyyy, hh:mm a') 
-                                          : 'N/A'}"></span>
-                            </td>
-
-                            <td>
-                                <span style="font-weight: 600;">₹</span>
-                                <span th:text="${sale.totalAmount}"></span>
-                            </td>
-
-                            <td>
-                                <i class="far fa-user" style="color: #94a3b8; margin-right: 6px;"></i>
-                                <span th:text="${sale.createdBy != null ? 
-                                          sale.createdBy.name : 'N/A'}"></span>
-                            </td>
-
-                            <td>
-                                <span th:if="${sale.status != null and sale.status.name() == 'COMPLETED'}"
-                                    class="status-badge status-completed">
-                                    <i class="fas fa-check-circle"></i> COMPLETED
-                                </span>
-
-                                <span th:if="${sale.status != null and sale.status.name() == 'CANCELLED'}"
-                                    class="status-badge status-cancelled">
-                                    <i class="fas fa-times-circle"></i> CANCELLED
-                                </span>
-
-                                <span th:if="${sale.status == null}" class="status-badge"
-                                    style="background: #f1f5f9; color: #64748b;">
-                                    <i class="fas fa-minus"></i> N/A
-                                </span>
-                            </td>
-
-                            <td>
-                                <div class="action-buttons">
-                                    <a th:href="@{/sales/invoice/{id}(id=${sale.id})}" target="_blank" class="btn-view"
-                                        title="View Invoice">
-                                        <i class="fas fa-file-invoice"></i> View
+        $(document).ready(function() {
+            // Update stats cards
+            $('#totalSales').text(totalSales);
+            $('#totalRevenue').text('₹' + formatNumber(totalRevenue));
+            $('#completedCount').text(completedCount);
+            $('#cancelledCount').text(cancelledCount);
+            
+            // Load initial sales
+            loadSales();
+            
+            // Live search with debounce
+            $('#searchInput').on('input', function() {
+                clearTimeout(searchTimeout);
+                currentKeyword = $(this).val();
+                currentPage = 0;
+                $('#searchLoading').show();
+                searchTimeout = setTimeout(function() { 
+                    loadSales(); 
+                }, 400);
+            });
+            
+            // Filter changes
+            $('#statusFilter').change(function() {
+                currentStatus = $(this).val();
+                currentPage = 0;
+                loadSales();
+            });
+            
+            $('#dateRangeFilter').change(function() {
+                currentDateRange = $(this).val();
+                currentPage = 0;
+                loadSales();
+            });
+            
+            $('#sortFilter').change(function() {
+                currentSort = $(this).val();
+                currentPage = 0;
+                loadSales();
+            });
+            
+            $('#clearFilters').click(function() {
+                $('#searchInput').val('');
+                $('#statusFilter').val('');
+                $('#dateRangeFilter').val('');
+                $('#sortFilter').val('saleDate_desc');
+                currentKeyword = '';
+                currentStatus = '';
+                currentDateRange = '';
+                currentSort = 'saleDate_desc';
+                currentPage = 0;
+                loadSales();
+            });
+        });
+        
+        function loadSales() {
+            const [sortBy, sortDir] = currentSort.split('_');
+            
+            $.ajax({
+                url: '/sales/history/search',
+                method: 'GET',
+                data: {
+                    keyword: currentKeyword,
+                    status: currentStatus,
+                    dateRange: currentDateRange,
+                    page: currentPage,
+                    sortBy: sortBy,
+                    sortDir: sortDir || 'desc'
+                },
+                success: function(response) {
+                    renderSales(response.sales);
+                    renderPagination(response);
+                    $('#searchLoading').hide();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    $('#searchLoading').hide();
+                    showError('Failed to load sales');
+                }
+            });
+        }
+        
+        function renderSales(sales) {
+            const tbody = $('#salesTableBody');
+            tbody.empty();
+            
+            if (!sales || sales.length === 0) {
+                tbody.html(`
+                     <tr>
+                        <td colspan="6" class="sales-empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>No sales found</p>
+                            <span>${currentKeyword ? 'No results for "' + escapeHtml(currentKeyword) + '"' : 'Start billing to see sales'}</span>
+                         </tr>
+                `);
+                return;
+            }
+            
+            sales.forEach(function(sale) {
+                const statusClass = sale.status === 'COMPLETED' ? 'status-completed' : 'status-cancelled';
+                const statusIcon = sale.status === 'COMPLETED' ? 'fa-check-circle' : 'fa-times-circle';
+                
+                const row = `
+                    <tr>
+                        <td><span class="invoice-number">#${sale.id}</span></td>
+                        <td><i class="far fa-calendar"></i> ${formatDate(sale.saleDate)}</td>
+                        <td><i class="fas fa-user"></i> ${escapeHtml(sale.customerName || 'Walk-in')}</td>
+                         <td><i class="far fa-user-circle"></i> ${escapeHtml(sale.cashierName || 'N/A')}</td>
+                        <td><span class="sale-amount">₹${formatNumber(sale.totalAmount)}</span></td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                <i class="fas ${statusIcon}"></i> ${sale.status}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="sales-action-buttons">
+                                <a href="/sales/invoice/${sale.id}" target="_blank" class="sales-btn-view" title="View Invoice">
+                                    <i class="fas fa-file-invoice"></i>
+                                </a>
+                                ${sale.status === 'COMPLETED' ? `
+                                    <a href="/sales/cancel/${sale.id}" class="sales-btn-cancel" 
+                                       onclick="return confirm('Cancel this sale?')" title="Cancel Sale">
+                                        <i class="fas fa-ban"></i>
                                     </a>
-
-                                    <a th:if="${sale.status != null and sale.status.name() == 'COMPLETED'}"
-                                        th:href="@{/sales/cancel/{id}(id=${sale.id})}" class="btn-cancel"
-                                        onclick="return confirm('Are you sure you want to cancel this sale? This action cannot be undone.')"
-                                        title="Cancel Sale">
-                                        <i class="fas fa-ban"></i> Cancel
-                                    </a>
-
-                                    <span th:if="${sale.status != null and sale.status.name() == 'CANCELLED'}"
-                                        class="btn-cancel disabled" title="Already cancelled">
-                                        <i class="fas fa-ban"></i> Cancelled
+                                ` : `
+                                    <span class="sales-btn-cancelled disabled" title="Already cancelled">
+                                        <i class="fas fa-ban"></i>
                                     </span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr th:if="${#lists.isEmpty(salesPage.content)}">
-                            <td colspan="6" class="empty-state">
-                                <i class="fas fa-receipt"></i>
-                                <p>No sales found</p>
-                                <div class="hint">Start by creating your first sale in the billing section</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="pagination" th:if="${salesPage.totalPages > 1}">
-                <a th:if="${salesPage.hasPrevious()}" th:href="@{/sales/history(page=${currentPage - 1})}">
-                    <i class="fas fa-chevron-left"></i> Previous
-                </a>
-                <a th:if="${!salesPage.hasPrevious()}" class="disabled">
-                    <i class="fas fa-chevron-left"></i> Previous
-                </a>
-
-                <span>
-                    <strong th:text="${currentPage + 1}"></strong> / <strong th:text="${salesPage.totalPages}"></strong>
-                </span>
-
-                <a th:if="${salesPage.hasNext()}" th:href="@{/sales/history(page=${currentPage + 1})}">
-                    Next <i class="fas fa-chevron-right"></i>
-                </a>
-                <a th:if="${!salesPage.hasNext()}" class="disabled">
-                    Next <i class="fas fa-chevron-right"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version">v2.0.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
-                    operational</span>
-            </div>
-        </div>
-    </div>
-
+                                `}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }
+        
+        function renderPagination(data) {
+            const container = $('#paginationContainer');
+            container.empty();
+            
+            if (data.totalPages <= 1) return;
+            
+            let paginationHtml = '<div class="sales-pagination">';
+            
+            paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(${data.currentPage - 1})" ${!data.hasPrevious ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+            
+            const startPage = Math.max(0, data.currentPage - 2);
+            const endPage = Math.min(data.totalPages - 1, data.currentPage + 2);
+            
+            if (startPage > 0) {
+                paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(0)">1</button>`;
+                if (startPage > 1) paginationHtml += `<span class="pagination-dots">...</span>`;
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === data.currentPage ? 'active' : '';
+                paginationHtml += `<button class="sales-pagination-btn ${activeClass}" onclick="changePage(${i})">${i + 1}</button>`;
+            }
+            
+            if (endPage < data.totalPages - 1) {
+                if (endPage < data.totalPages - 2) paginationHtml += `<span class="pagination-dots">...</span>`;
+                paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(${data.totalPages - 1})">${data.totalPages}</button>`;
+            }
+            
+            paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(${data.currentPage + 1})" ${!data.hasNext ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+            
+            paginationHtml += '</div>';
+            container.html(paginationHtml);
+            
+            const startItem = data.currentPage * data.pageSize + 1;
+            const endItem = Math.min((data.currentPage + 1) * data.pageSize, data.totalItems);
+            $('#paginationInfo').html(`
+                Showing ${startItem} to ${endItem} of ${data.totalItems} sales
+                ${currentKeyword ? ' · Searching: "' + escapeHtml(currentKeyword) + '"' : ''}
+                ${currentStatus ? ' · ' + currentStatus : ''}
+                ${currentDateRange ? ' · ' + currentDateRange : ''}
+            `);
+        }
+        
+        function changePage(page) {
+            if (page === currentPage) return;
+            currentPage = page;
+            loadSales();
+            $('.sales-card')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function formatNumber(value) {
+            if (!value) return '0';
+            return parseFloat(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+        
+        function showError(message) {
+            const errorDiv = $('<div>', { class: 'sales-toast-error', text: message }).appendTo('body');
+            setTimeout(() => errorDiv.fadeOut(300, function() { $(this).remove(); }), 3000);
+        }
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="sidebar" class="shop-sidebar">
+    <div class="shop-logo">
+        <div class="shop-logo-icon">HL</div>
+        <div class="shop-logo-text">HisaabLite</div>
+    </div>
+
+    <div class="shop-nav-links">
+        <a th:href="@{/dashboard}" class="shop-nav-link" th:classappend="${currentPage == 'dashboard'} ? 'active' : ''">
+            <i class="fas fa-chart-pie"></i>
+            <span>Dashboard</span>
+        </a>
+        <a th:if="${role == 'OWNER' or role == 'CASHIER'}" 
+           th:href="@{/sales/new}" 
+           class="shop-nav-link" 
+           th:classappend="${currentPage == 'billing'} ? 'active' : ''">
+            <i class="fas fa-cash-register"></i>
+            <span>Billing</span>
+        </a>
+        <a th:if="${role == 'OWNER' or role == 'MANAGER'}" 
+           th:href="@{/products}" 
+           class="shop-nav-link" 
+           th:classappend="${currentPage == 'products'} ? 'active' : ''">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+        </a>
+        <a th:href="@{/sales/history}" class="shop-nav-link" th:classappend="${currentPage == 'sales-history'} ? 'active' : ''">
+            <i class="fas fa-clock"></i>
+            <span>Sales History</span>
+        </a>
+        <a th:if="${role == 'OWNER'}" 
+           th:href="@{/staff}" 
+           class="shop-nav-link" 
+           th:classappend="${currentPage == 'staff'} ? 'active' : ''">
+            <i class="fas fa-users"></i>
+            <span>Staff</span>
+        </a>
+        <a th:if="${role == 'OWNER'}" 
+           th:href="@{/profile}" 
+           class="shop-nav-link" 
+           th:classappend="${currentPage == 'profile'} ? 'active' : ''">
+            <i class="fas fa-store"></i>
+            <span>Profile</span>
+        </a>
+        <a th:if="${role == 'OWNER'}" 
+           th:href="@{/support}" 
+           class="shop-nav-link" 
+           th:classappend="${currentPage == 'support'} ? 'active' : ''">
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+        </a>
+    </div>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="shop-logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </form>
+</div>
+</html>

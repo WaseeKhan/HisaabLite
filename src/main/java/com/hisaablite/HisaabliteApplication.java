@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		"com.hisaablite.admin.repository"
 })
 
-@EnableScheduling //Enable Scheduling  for email  for expired plans porpose 
+@EnableScheduling 
 public class HisaabliteApplication {
 
 	public static void main(String[] args) {

@@ -8,884 +8,200 @@
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-billing.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f3f4f6;
-            display: flex;
-            height: 100vh;
-            color: #1e293b;
-            overflow: hidden;
-        }
-
-
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* Main Content */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 0 32px;
-        }
-
-        .topbar {
-            background: white;
-            padding: 14px 24px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            margin-top: 24px;
-            margin-bottom: 20px;
-            flex-shrink: 0;
-        }
-
-        .shop-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .shop-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: #0f172a;
-        }
-
-        .info-tag {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #475569;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 13px;
-            color: #5b6778;
-        }
-
-        .user-role {
-            background: #f1f5f9;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: #0f172a;
-            font-size: 12px;
-        }
-
-        .divider {
-            width: 1px;
-            height: 20px;
-            background: #e2e8f0;
-        }
-
-        /* Billing Layout */
-        .billing-layout {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1.2fr 1.8fr;
-            gap: 20px;
-            min-height: 0;
-            margin-bottom: 16px;
-        }
-
-        /* Left Panel */
-        .left-panel {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            overflow-y: auto;
-            max-height: 100%;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-        }
-
-        .section {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 10px;
-        }
-
-        .section-header i {
-            color: #2563eb;
-            font-size: 15px;
-            width: 20px;
-        }
-
-        .section-header span {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e293b;
-            letter-spacing: 0.2px;
-        }
-
-        .search-wrapper {
-            position: relative;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 12px;
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 12px 16px 12px 44px;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 13px;
-            font-weight: 400;
-            background: #fafbfc;
-            transition: all 0.15s;
-        }
-
-        #searchInput:focus {
-            border-color: #2563eb;
-            outline: none;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-        }
-
-        #searchResults {
-            border: 1px solid #edf2f7;
-            border-radius: 14px;
-            max-height: 180px;
-            overflow-y: auto;
-            margin-top: 8px;
-            background: white;
-            position: relative;
-            z-index: 5;
-        }
-
-        .suggestion-item {
-            padding: 10px 16px;
-            font-size: 13px;
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .suggestion-item:hover,
-        .suggestion-item.active {
-            background: #f1f5f9;
-        }
-
-        .qty-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 6px;
-        }
-
-        .qty-input {
-            background: #fafbfc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .add-btn {
-            background: #0f172a;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            transition: all 0.15s;
-        }
-
-        .add-btn:hover {
-            background: #1e293b;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .field label {
-            font-size: 11px;
-            font-weight: 500;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .field input,
-        .field select {
-            padding: 12px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 13px;
-            background: #fafbfc;
-            transition: all 0.15s;
-        }
-
-        .field input:focus,
-        .field select:focus {
-            border-color: #2563eb;
-            outline: none;
-            background: white;
-        }
-
-        .discount-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .change-box {
-            background: #f1f5f9;
-            padding: 12px 16px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 500;
-            color: #1e293b;
-            margin: 8px 0 4px;
-        }
-
-        .change-box span:last-child {
-            color: #059669;
-            font-weight: 600;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .cancel-btn {
-            flex: 1;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 14px;
-            padding: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-
-        .cancel-btn:hover {
-            background: #dc2626;
-        }
-
-        .complete-btn {
-            flex: 1;
-            background: #059669;
-            color: white;
-            border: none;
-            border-radius: 14px;
-            padding: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-
-        .complete-btn:hover {
-            background: #047857;
-        }
-
-        /* Right Panel */
-        .right-panel {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-        }
-
-        .cart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 4px 14px 4px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .cart-header h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cart-header i {
-            color: #2563eb;
-        }
-
-        .item-count {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #475569;
-        }
-
-        .cart-scroll {
-            flex: 1;
-            overflow-y: auto;
-            margin: 12px 0;
-            min-height: 0;
-            max-height: calc(100vh - 400px);
-        }
-
-        .cart-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 8px;
-            border-bottom: 1px solid #f8fafc;
-            font-size: 13px;
-        }
-
-        .cart-item-info {
-            flex: 2;
-        }
-
-        .cart-item-name {
-            font-weight: 500;
-            color: #1e293b;
-        }
-
-        .cart-item-price {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .gst-badge {
-            font-size: 10px;
-            color: #2563eb;
-            background: #e6f0ff;
-            padding: 2px 6px;
-            border-radius: 12px;
-            margin-left: 4px;
-            display: inline-block;
-        }
-
-        .cart-item-qty {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8fafc;
-            padding: 4px 6px;
-            border-radius: 30px;
-        }
-
-        .qty-btn-sm {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: white;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #1e293b;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-        }
-
-        .qty-btn-sm:hover {
-            background: #2563eb;
-            color: white;
-        }
-
-        .cart-item-subtotal {
-            font-weight: 600;
-            color: #0f172a;
-            min-width: 70px;
-            text-align: right;
-        }
-
-        /* ===== TOTAL BOX WITH GST ROWS ===== */
-        .total-box {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 12px;
-            border: 1px solid #edf2f7;
-            flex-shrink: 0;
-            position: sticky;
-            bottom: 0;
-            z-index: 5;
-        }
-
-        .total-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            font-size: 13px;
-            color: #475569;
-            border-bottom: 1px dashed #e2e8f0;
-        }
-
-        .gst-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0 4px 12px;
-            font-size: 12px;
-            color: #2563eb;
-            border-bottom: 1px dotted #e2e8f0;
-        }
-
-        .gst-line .label {
-            color: #2563eb;
-            font-weight: 500;
-        }
-
-        .gst-line .value {
-            font-weight: 600;
-        }
-
-        .total-line.discount {
-            color: #b45309;
-        }
-
-        .total-line.final {
-            padding-top: 12px;
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 15px;
-            border-bottom: none;
-        }
-
-        .final-amount {
-            font-size: 20px;
-            font-weight: 700;
-            color: #059669;
-        }
-
-  
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left span {
-            color: #475569;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-            margin: 0 4px;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .toast {
-            visibility: hidden;
-            min-width: 320px;
-            background: white;
-            border-radius: 16px;
-            padding: 18px;
-            position: fixed;
-            z-index: 9999;
-            right: 30px;
-            bottom: 30px;
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08);
-            border: 1px solid #edf2f7;
-            opacity: 0;
-            transition: all 0.25s;
-        }
-
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 40px;
-        }
-
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 14px;
-        }
-
-        .toast-icon {
-            width: 32px;
-            height: 32px;
-            background: #059669;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .invoice-link {
-            background: #f1f5f9;
-            color: #0f172a;
-            padding: 8px 16px;
-            border-radius: 40px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-     
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.2s;
-        }
-
-        .popup-overlay.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .popup-card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .popup-icon {
-            width: 64px;
-            height: 64px;
-            background: #fee2e2;
-            color: #dc2626;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 20px;
-        }
-
-        .popup-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 12px;
-        }
-
-        .popup-text {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 24px;
-        }
-
-        .popup-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .popup-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .popup-btn.cancel {
-            background: #f1f5f9;
-            color: #475569;
-        }
-
-        .popup-btn.cancel:hover {
-            background: #e2e8f0;
-        }
-
-        .popup-btn.confirm {
-            background: #dc2626;
-            color: white;
-        }
-
-        .popup-btn.confirm:hover {
-            background: #b91c1c;
-        }
-
-        .temp-toast {
-            position: fixed;
-            bottom: 40px;
-            right: 30px;
-            background: #059669;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-    </style>
 </head>
 
-<body>
+<body class="shop-body">
+
+    <div class="shop-layout">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+
+                <!-- Header -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
+
+                <!-- Billing Layout -->
+                <div class="billing-container">
+
+                    <!-- LEFT PANEL -->
+                    <div class="billing-left">
+                        <!-- Product Search Section -->
+                        <div class="product-search-section">
+                            <div class="search-header">
+                                <i class="fas fa-barcode"></i>
+                                <span>Add Items</span>
+                            </div>
+
+                            <div class="search-container">
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="searchInput" class="search-input"
+                                        placeholder="Search by name or scan barcode..." autocomplete="off">
+                                        
+                                    <div id="searchResults" class="search-results-dropdown"></div>
+                                </div>
+
+                                
+
+                                <div class="quantity-section">
+                                    <div class="quantity-field">
+                                        <label>Qty</label>
+                                        <input type="number" id="qtyInput" value="1" min="1" class="quantity-input">
+                                    </div>
+                                    <button id="addBtn" class="add-to-cart-btn">
+                                        <i class="fas fa-cart-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="billingForm" th:action="@{/sales/complete}" method="post">
+                            <!-- Customer Section -->
+                            <div class="customer-section">
+                                <div class="section-title">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>Customer Information</span>
+                                </div>
+                                <div class="customer-fields">
+                                    <div class="field-group">
+                                        <label>Name</label>
+                                        <input type="text" name="customerName" placeholder="Walk-in customer"
+                                            class="customer-input">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Phone</label>
+                                        <input type="text" name="customerPhone" placeholder="9876543210"
+                                            class="customer-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <br>
+
+                            <!-- Payment Section -->
+                            <div class="payment-section">
+                                <div class="section-title">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Payment Details</span>
+                                </div>
+
+                                <div class="discount-row">
+                                    <div class="field-group">
+                                        <label>Discount (₹)</label>
+                                        <input type="number" id="discountAmount" name="discountAmount" value="0" min="0"
+                                            class="discount-input">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Discount (%)</label>
+                                        <input type="number" id="discountPercent" name="discountPercent" value="0"
+                                            min="0" max="100" class="discount-input">
+                                    </div>
+                                </div>
+
+                                <div class="payment-row">
+                                    <div class="field-group">
+                                        <label>Payment Mode</label>
+                                        <select name="paymentMode" class="payment-select">
+                                            <option value="CASH">💵 Cash</option>
+                                            <option value="UPI">📱 UPI</option>
+                                            <option value="CARD">💳 Card</option>
+                                        </select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Received</label>
+                                        <input type="number" id="amountReceived" name="amountReceived" placeholder="0"
+                                            class="amount-input">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="changeReturned" name="changeReturned">
+
+                                <div class="change-card">
+                                    <span><i class="fas fa-exchange-alt"></i> Change</span>
+                                    <span class="change-amount">₹ <span id="changeAmount">0.00</span></span>
+                                </div>
+<br>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn-cancel" onclick="showPopup()">
+                                        <i class="fas fa-trash-alt"></i> Cancel
+                                    </button>
+                                    <button type="submit" class="btn-complete">
+                                        <i class="fas fa-check-circle"></i> Complete
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    
+<!-- RIGHT PANEL - Cart -->
+<div class="billing-right">
+    <div class="cart-header">
+        <div class="cart-title">
+            <i class="fas fa-shopping-cart"></i>
+            <h3>Current Cart</h3>
+        </div>
+        <span class="cart-badge" id="cartCount">0 items</span>
+    </div>
+
+    <div class="cart-items-container" id="cartContainer">
+        <div class="empty-cart">
+            <i class="fas fa-shopping-basket"></i>
+            <p>Cart is empty</p>
+            <span>Add products to get started</span>
+        </div>
+    </div>
+
+    <div class="cart-summary">
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span>₹ <span id="subtotalAmount">0.00</span></span>
+        </div>
+        <div class="summary-row tax-row" id="cgstRow">
+            <span>CGST</span>
+            <span>₹ <span id="cgstAmount">0.00</span></span>
+        </div>
+        <div class="summary-row tax-row" id="sgstRow">
+            <span>SGST</span>
+            <span>₹ <span id="sgstAmount">0.00</span></span>
+        </div>
+        <div class="summary-row">
+            <span>Total Tax</span>
+            <span>₹ <span id="totalGstAmount">0.00</span></span>
+        </div>
+        <div class="summary-row discount-row" id="discountRow">
+            <span>Discount</span>
+            <span class="discount-value">- ₹ <span id="discountDisplay">0.00</span></span>
+        </div>
+        <div class="summary-row total-row">
+            <span>Total Payable Amount </span>
+            <span class="total-amount">₹ <span id="finalTotalAmount">0.00</span></span>
+        </div>
+    </div>
+</div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+
     <!-- Cancel Popup -->
     <div id="cancelPopup" class="popup-overlay">
         <div class="popup-card">
@@ -899,526 +215,519 @@
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
-        <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a class="active" th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
-                    class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
-                Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-             <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
-
-    <div class="main">
-        <div class="topbar">
-            <div class="shop-info">
-                <span class="shop-name" th:text="${shop.name}">Shop Name</span>
-                <span class="info-tag">PAN <span th:text="${shop.panNumber}"></span></span>
-                <span class="info-tag">GST <span th:text="${shop.gstNumber} ?: '—'"></span></span>
-            </div>
-            <div class="user-info">
-                <span class="user-role"><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> <span
-                        th:text="${role}"></span></span>
-                <span class="divider"></span>
-                <span><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
-                <span class="divider"></span>
-                <span><i class="far fa-gem"></i></i> <span th:text="${planType}">PREMIUM</span></span>
-            </div>
-        </div>
-
-        <div class="billing-layout">
-            <!-- LEFT PANEL -->
-            <div class="left-panel">
-                <!-- Search Section (Outside Form) -->
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-search"></i><span>Search products</span></div>
-                    <div class="search-wrapper">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="searchInput" autocomplete="off"
-                            placeholder="Type name or scan barcode..." />
-                    </div>
-                    <div id="searchResults"></div>
-                    <div class="qty-row">
-                        <input type="number" id="qtyInput" value="1" min="1" class="qty-input" />
-                        <button id="addBtn" class="add-btn"> ➕ ADD TO CART ↵ </button>
-                    </div>
-                </div>
-
-               
-                <form id="billingForm" th:action="@{/sales/complete}" method="post">
-
-                    <div class="section">
-                        <div class="section-header"><i class="fas fa-user"></i><span>Customer details</span></div>
-                        <div class="form-row">
-                            <div class="field" style="margin-bottom: 10px;">
-                                <label>Name</label>
-                                <input type="text" name="customerName" placeholder="Walk-in customer" />
-                            </div>
-                            <div class="field">
-                                <label>Phone</label>
-                                <input type="text" name="customerPhone" placeholder="—" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment & Discount Section -->
-                    <div class="section">
-                        <div class="section-header"><i class="fas fa-credit-card"></i><span>Payment & discount</span>
-                        </div>
-
-                        <div class="discount-grid">
-                            <div class="field">
-                                <label>Discount ₹</label>
-                                <input type="number" id="discountAmount" name="discountAmount" placeholder="0" value="0"
-                                    min="0" />
-                            </div>
-                            <div class="field">
-                                <label>Discount %</label>
-                                <input type="number" id="discountPercent" name="discountPercent" placeholder="0"
-                                    value="0" min="0" max="100" />
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Mode</label>
-                                <select name="paymentMode">
-                                    <option value="CASH">Cash</option>
-                                    <option value="UPI">UPI</option>
-                                    <option value="CARD">Card</option>
-                                </select>
-                            </div>
-                            <div class="field">
-                                <label>Received</label>
-                                <input type="number" id="amountReceived" name="amountReceived" placeholder="0"
-                                    min="0" />
-                            </div>
-                        </div>
-
-                        <input type="hidden" id="changeReturned" name="changeReturned" />
-
-                        <div class="change-box">
-                            <span><i class="fas fa-exchange-alt"></i> Change</span>
-                            <span>₹ <span id="changeAmount">0</span></span>
-                        </div>
-
-                        <div class="action-buttons">
-                            <button type="button" class="cancel-btn" onclick="showPopup()">
-                                <i class="fas fa-times-circle"></i> Cancel Sale
-                            </button>
-                            <button type="submit" class="complete-btn">
-                                <i class="fas fa-check-circle"></i> Complete
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- RIGHT PANEL -->
-            <div class="right-panel">
-                <div class="cart-header">
-                    <h3><i class="fas fa-shopping-bag"></i> Current cart</h3>
-                    <span class="item-count" th:text="${#lists.size(cart)} + ' items'">0 items</span>
-                </div>
-                <div class="cart-scroll" id="cartContainer"></div>
-
-                <!-- TOTAL BOX -->
-                <div class="total-box" id="totalBox">
-                    <!-- Taxable Amount -->
-                    <div class="total-line" id="taxableRow">
-                        <span>Taxable Amount</span>
-                        <span>₹ <span id="taxableAmount">0.00</span></span>
-                    </div>
-
-                    <!-- CGST -->
-                    <div class="gst-line" id="cgstRow">
-                        <span class="label">CGST @9%</span>
-                        <span class="value">₹ <span id="cgstAmount">0.00</span></span>
-                    </div>
-
-                    <!-- SGST -->
-                    <div class="gst-line" id="sgstRow">
-                        <span class="label">SGST @9%</span>
-                        <span class="value">₹ <span id="sgstAmount">0.00</span></span>
-                    </div>
-
-                    <!-- Total GST -->
-                    <div class="total-line" id="totalGstRow">
-                        <span>Total GST</span>
-                        <span>₹ <span id="totalGstAmount">0.00</span></span>
-                    </div>
-
-                    <!-- Discount -->
-                    <div class="total-line discount" id="discountRow" style="display: none;">
-                        <span>Discount</span>
-                        <span>- ₹ <span id="discountDisplay">0.00</span> (<span
-                                id="discountPercentDisplay">0</span>%)</span>
-                    </div>
-
-                    <!-- Final Total -->
-                    <div class="total-line final">
-                        <span>FINAL TOTAL</span>
-                        <span class="final-amount">₹ <span id="finalTotalAmount">0.00</span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div class="footer-left"><i class="fas fa-store"></i><span>© 2026 HisaabLite</span><span>·</span><span>Made
-                    with <span class="heart">❤️</span> in India</span></div>
-            <div class="footer-right">
-                <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Support</a>
-                <span class="version">v2.0.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
-                    operational</span>
-            </div>
-        </div>
-    </div>
-
+    <!-- Success Toast -->
     <div id="successToast" class="toast">
         <div class="toast-content">
             <div class="toast-icon">✓</div>
-            <div><strong style="color: #0f172a;">Sale completed</strong><br><span
-                    style="color: #5b6778; font-size: 12px;">Redirecting to invoice...</span></div>
+            <div>
+                <strong>Sale completed!</strong><br>
+                <span>Redirecting to invoice...</span>
+            </div>
         </div>
         <a id="invoiceBtn" href="#" target="_blank" class="invoice-link">View invoice →</a>
     </div>
 
-    <script>
-        // ========== POPUP FUNCTIONS ==========
-        function showPopup() { document.getElementById('cancelPopup').classList.add('show'); }
-        function hidePopup() { document.getElementById('cancelPopup').classList.remove('show'); }
+<script th:inline="javascript">
+    // ========== DOM Elements ==========
+    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+    
+    const searchInput = document.getElementById("searchInput");
+    const qtyInput = document.getElementById("qtyInput");
+    const resultsBox = document.getElementById("searchResults");
+    const addBtn = document.getElementById("addBtn");
+    const cartContainer = document.getElementById("cartContainer");
+    
+    const amountReceived = document.getElementById("amountReceived");
+    const discountAmount = document.getElementById("discountAmount");
+    const discountPercent = document.getElementById("discountPercent");
+    
+    let suggestions = [];
+    let selectedIndex = -1;
+    let selectedProduct = null;
+    window.currentCart = [];
 
-        function showTempToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = 'temp-toast';
-            toast.style.background = type === 'success' ? '#059669' : '#2563eb';
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i><span>${message}</span>`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
+    // ========== Helper Functions ==========
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showTempToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = 'temp-toast';
+        toast.style.background = type === 'success' ? '#059669' : '#2563eb';
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i><span>${message}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    // ========== Popup Functions ==========
+    function showPopup() { 
+        const popup = document.getElementById('cancelPopup');
+        if (popup) popup.classList.add('show'); 
+    }
+    
+    function hidePopup() { 
+        const popup = document.getElementById('cancelPopup');
+        if (popup) popup.classList.remove('show'); 
+    }
+
+    function confirmCancel() {
+        hidePopup();
+        if (!csrfToken) { 
+            alert("CSRF token missing"); 
+            return; 
         }
-
-        function confirmCancel() {
-            hidePopup();
-            const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-            if (!csrfToken) { alert("CSRF token missing"); return; }
-            const cancelBtn = document.querySelector('.cancel-btn');
-            const originalText = cancelBtn.innerHTML;
-            cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
-            cancelBtn.disabled = true;
-            const formData = new URLSearchParams();
-            formData.append("_csrf", csrfToken);
-            fetch("/sales/cancel", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: formData.toString()
-            })
-                .then(res => { if (!res.ok) throw new Error("Cancel failed"); return res.json(); })
-                .then(cartData => {
-                    if (typeof updateCartUI === 'function') updateCartUI([]);
-                    document.getElementById('amountReceived').value = '';
-                    document.getElementById('discountAmount').value = '0';
-                    document.getElementById('discountPercent').value = '0';
-                    document.getElementById('changeAmount').innerText = '0';
-                    document.getElementById('discountDisplay').innerText = '0';
-                    document.getElementById('discountPercentDisplay').innerText = '0';
-                    document.getElementById('taxableAmount').innerText = '0.00';
-                    document.getElementById('cgstAmount').innerText = '0.00';
-                    document.getElementById('sgstAmount').innerText = '0.00';
-                    document.getElementById('totalGstAmount').innerText = '0.00';
-                    document.getElementById('finalTotalAmount').innerText = '0.00';
-                    document.querySelector('.item-count').innerText = '0 items';
-                    showTempToast('Sale cancelled successfully', 'info');
-                })
-                .catch(err => { console.error("Cancel error:", err); alert("Failed to cancel sale: " + err.message); })
-                .finally(() => { cancelBtn.innerHTML = originalText; cancelBtn.disabled = false; });
+        
+        const cancelBtn = document.querySelector('.btn-cancel');
+        if (!cancelBtn) {
+            alert("Cancel button not found");
+            return;
         }
-
-        // ========== MAIN BILLING LOGIC ==========
-        document.addEventListener("DOMContentLoaded", function () {
-            console.log("Billing page loaded");
-
-            const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-            const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
-
-            const searchInput = document.getElementById("searchInput");
-            const qtyInput = document.getElementById("qtyInput");
-            const resultsBox = document.getElementById("searchResults");
-            const addBtn = document.getElementById("addBtn");
-            const cartContainer = document.getElementById("cartContainer");
-
-            const amountReceived = document.getElementById("amountReceived");
-            const discountAmount = document.getElementById("discountAmount");
-            const discountPercent = document.getElementById("discountPercent");
-            const changeAmount = document.getElementById("changeAmount");
-            const changeReturned = document.getElementById("changeReturned");
-
-            // GST elements
-            const taxableAmount = document.getElementById("taxableAmount");
-            const cgstAmount = document.getElementById("cgstAmount");
-            const sgstAmount = document.getElementById("sgstAmount");
-            const totalGstAmount = document.getElementById("totalGstAmount");
-            const finalTotalEl = document.getElementById("finalTotalAmount");
-            const discountDisplay = document.getElementById("discountDisplay");
-            const discountPercentDisplay = document.getElementById("discountPercentDisplay");
-            const discountRow = document.getElementById("discountRow");
-
-            let suggestions = [];
-            let selectedIndex = -1;
-            let selectedProduct = null;
-
-            if (searchInput) searchInput.focus();
-
-            // Calculate GST totals
-            function calculateGST() {
-                let totalTaxable = 0;
-                let totalGst = 0;
-
-                const cart = window.currentCart || [];
-
-                cart.forEach(item => {
-                    const subtotal = parseFloat(item.subtotal || 0);
-                    const gstPercent = parseFloat(item.gstPercent || 0);
-
-                    const gstMultiplier = gstPercent / 100;
-                    const gst = subtotal * gstMultiplier;
-
-                    totalTaxable += subtotal;
-                    totalGst += gst;
-                });
-
-                if (taxableAmount) taxableAmount.innerText = totalTaxable.toFixed(2);
-                if (totalGstAmount) totalGstAmount.innerText = totalGst.toFixed(2);
-                if (cgstAmount) cgstAmount.innerText = (totalGst / 2).toFixed(2);
-                if (sgstAmount) sgstAmount.innerText = (totalGst / 2).toFixed(2);
-
-                return { totalTaxable, totalGst };
+        
+        const originalText = cancelBtn.innerHTML;
+        cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+        cancelBtn.disabled = true;
+        
+        const formData = new URLSearchParams();
+        formData.append("_csrf", csrfToken);
+        
+        fetch("/sales/cancel", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        })
+        .then(res => { 
+            if (!res.ok) throw new Error("Cancel failed"); 
+            return res.json(); 
+        })
+        .then(cartData => {
+            if (typeof updateCartUI === 'function') {
+                updateCartUI(cartData);
             }
-
-          
-            function calculateChange() {
-                const { totalTaxable, totalGst } = calculateGST();
-
-                const finalBeforeDiscount = totalTaxable + totalGst;
-
-                const discAmt = parseFloat(discountAmount?.value) || 0;
-                const discPct = parseFloat(discountPercent?.value) || 0;
-
-                let finalDiscount = discAmt;
-                if (discPct > 0) {
-                    finalDiscount = (finalBeforeDiscount * discPct) / 100;
-                }
-
-                const finalAfterDiscount = finalBeforeDiscount - finalDiscount;
-                const received = parseFloat(amountReceived?.value) || 0;
-                const change = Math.max(0, received - finalAfterDiscount);
-
-                if (changeAmount) changeAmount.innerText = change.toFixed(2);
-                if (changeReturned) changeReturned.value = change.toFixed(2);
-
-                if (finalDiscount > 0) {
-                    if (discountDisplay) discountDisplay.innerText = finalDiscount.toFixed(2);
-                    if (discountPercentDisplay) discountPercentDisplay.innerText = discPct.toFixed(2);
-                    if (discountRow) discountRow.style.display = 'flex';
-                } else {
-                    if (discountRow) discountRow.style.display = 'none';
-                }
-
-                if (finalTotalEl) finalTotalEl.innerText = finalAfterDiscount.toFixed(2);
-            }
-
-            // Event listeners
-            [amountReceived, discountAmount, discountPercent].forEach(el => {
-                if (el) el.addEventListener("input", calculateChange);
-            });
-
-            // Search functionality
-            if (searchInput) {
-                searchInput.addEventListener("input", function () {
-                    const keyword = this.value.trim();
-                    if (keyword.length < 1) { if (resultsBox) resultsBox.innerHTML = ""; return; }
-                    fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
-                        headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
-                    })
-                        .then(res => res.ok ? res.json() : Promise.reject("Search failed"))
-                        .then(data => {
-                            suggestions = data;
-                            selectedIndex = -1;
-                            if (resultsBox) resultsBox.innerHTML = "";
-                            data.forEach((p, i) => {
-                                const div = document.createElement("div");
-                                div.className = "suggestion-item";
-                                div.textContent = `${p.name} - ₹${p.price} (Stock: ${p.stockQuantity || 0})`;
-                                div.onclick = () => {
-                                    selectedIndex = i;
-                                    selectedProduct = p;
-                                    searchInput.value = p.name;
-                                    if (resultsBox) resultsBox.innerHTML = "";
-                                    if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
-                                };
-                                if (resultsBox) resultsBox.appendChild(div);
-                            });
-                        })
-                        .catch(err => console.error("Search error:", err));
-                });
-
-                searchInput.addEventListener("keydown", function (e) {
-                    const items = document.querySelectorAll(".suggestion-item");
-                    if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        if (items.length) {
-                            selectedIndex = (selectedIndex + 1) % items.length;
-                            items.forEach((el, i) => el.classList.toggle("active", i === selectedIndex));
-                            items[selectedIndex]?.scrollIntoView({ block: "nearest" });
-                        }
-                    } else if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        if (items.length) {
-                            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                            items.forEach((el, i) => el.classList.toggle("active", i === selectedIndex));
-                            items[selectedIndex]?.scrollIntoView({ block: "nearest" });
-                        }
-                    } else if (e.key === "Enter" && selectedIndex >= 0 && suggestions[selectedIndex]) {
-                        e.preventDefault();
-                        selectedProduct = suggestions[selectedIndex];
-                        searchInput.value = selectedProduct.name;
-                        if (resultsBox) resultsBox.innerHTML = "";
-                        if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
-                    }
-                });
-            }
-
-            // Add product
-            function addProduct() {
-                if (!selectedProduct) { alert("Please select a product first"); return; }
-                if (!csrfToken) { alert("CSRF token missing - refresh the page"); return; }
-
-                const formData = new URLSearchParams();
-                formData.append("_csrf", csrfToken);
-                formData.append("productId", selectedProduct.id);
-                formData.append("quantity", qtyInput?.value || "1");
-
-                fetch("/sales/add", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: formData.toString()
-                })
-                    .then(async res => {
-                        if (!res.ok) { const text = await res.text(); throw new Error(text.substring(0, 100)); }
-                        return res.json();
-                    })
-                    .then(cartData => {
-                        updateCartUI(cartData);
-                        if (searchInput) searchInput.value = "";
-                        if (qtyInput) qtyInput.value = "1";
-                        selectedProduct = null;
-                        selectedIndex = -1;
-                        if (searchInput) searchInput.focus();
-                    })
-                    .catch(err => { console.error("Add error:", err); alert("Failed to add product: " + err.message); });
-            }
-
-            window.currentCart = [];
-
-            window.updateCartUI = function (cart) {
-                window.currentCart = cart || [];
-                if (!cartContainer) return;
-
-                if (!cart || cart.length === 0) {
-                    cartContainer.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Cart empty</div>';
-                    window.currentCart = [];
-                    calculateGST();
-                    calculateChange();
-                    document.querySelector('.item-count').innerText = '0 items';
-                    return;
-                }
-
-                let html = '';
-                cart.forEach((item, idx) => {
-                    const subtotal = parseFloat(item.subtotal || 0);
-                    const gstPercent = parseFloat(item.gstPercent || 0);
-
-                    const totalWithGst = subtotal * (1 + gstPercent / 100);
-
-                    html += `
-                        <div class="cart-item">
-                            <div class="cart-item-info">
-                                <div class="cart-item-name">${escapeHtml(item.productName)}</div>
-                                <div class="cart-item-price">
-                                    ₹${parseFloat(item.price || 0).toFixed(2)}
-                                    ${gstPercent > 0 ? `<span class="gst-badge">GST @${gstPercent}%</span>` : ''}
-                                </div>
-                            </div>
-                            <div class="cart-item-qty">
-                                <button class="qty-btn-sm" onclick="window.changeQty(${idx}, -1)">−</button>
-                                <span>${item.quantity || 0}</span>
-                                <button class="qty-btn-sm" onclick="window.changeQty(${idx}, 1)">+</button>
-                            </div>
-                            <div class="cart-item-subtotal">₹${totalWithGst.toFixed(2)}</div>
-                        </div>
-                    `;
-                });
-
-                cartContainer.innerHTML = html;
-                document.querySelector('.item-count').innerText = cart.length + ' items';
-                calculateGST();
-                calculateChange();
-            };
-
-            function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-
-            window.changeQty = function (index, change) {
-                if (!csrfToken) { alert("CSRF token missing"); return; }
-                const formData = new URLSearchParams();
-                formData.append("_csrf", csrfToken);
-                formData.append("index", index);
-                formData.append("change", change);
-                fetch("/sales/update-qty", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: formData.toString()
-                })
-                    .then(res => res.ok ? res.json() : Promise.reject("Update failed"))
-                    .then(cartData => window.updateCartUI(cartData))
-                    .catch(err => { console.error("Qty error:", err); alert("Failed to update quantity"); });
-            };
-
-            if (addBtn) addBtn.addEventListener("click", addProduct);
-            if (qtyInput) {
-                qtyInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addProduct(); } });
-            }
-
-            const initialCart = /*[[${cart}]]*/[];
-            if (initialCart && initialCart.length) {
-                window.updateCartUI(initialCart);
-            } else {
-                window.updateCartUI([]);
+            
+            // Reset all form fields
+            const amountReceivedEl = document.getElementById('amountReceived');
+            if (amountReceivedEl) amountReceivedEl.value = '';
+            
+            const discountAmountEl = document.getElementById('discountAmount');
+            if (discountAmountEl) discountAmountEl.value = '0';
+            
+            const discountPercentEl = document.getElementById('discountPercent');
+            if (discountPercentEl) discountPercentEl.value = '0';
+            
+            const changeAmountEl = document.getElementById('changeAmount');
+            if (changeAmountEl) changeAmountEl.innerText = '0';
+            
+            const discountDisplayEl = document.getElementById('discountDisplay');
+            if (discountDisplayEl) discountDisplayEl.innerText = '0';
+            
+            const discountPercentDisplayEl = document.getElementById('discountPercentDisplay');
+            if (discountPercentDisplayEl) discountPercentDisplayEl.innerText = '0';
+            
+            const subtotalAmountEl = document.getElementById('subtotalAmount');
+            if (subtotalAmountEl) subtotalAmountEl.innerText = '0.00';
+            
+            const cgstAmountEl = document.getElementById('cgstAmount');
+            if (cgstAmountEl) cgstAmountEl.innerText = '0.00';
+            
+            const sgstAmountEl = document.getElementById('sgstAmount');
+            if (sgstAmountEl) sgstAmountEl.innerText = '0.00';
+            
+            const totalGstAmountEl = document.getElementById('totalGstAmount');
+            if (totalGstAmountEl) totalGstAmountEl.innerText = '0.00';
+            
+            const finalTotalAmountEl = document.getElementById('finalTotalAmount');
+            if (finalTotalAmountEl) finalTotalAmountEl.innerText = '0.00';
+            
+            const cartCountEl = document.getElementById('cartCount');
+            if (cartCountEl) cartCountEl.innerText = '0 items';
+            
+            const changeReturnedEl = document.getElementById('changeReturned');
+            if (changeReturnedEl) changeReturnedEl.value = '0';
+            
+            showTempToast('Sale cancelled successfully', 'info');
+        })
+        .catch(err => { 
+            console.error("Cancel error:", err); 
+            alert("Failed to cancel sale: " + err.message); 
+        })
+        .finally(() => { 
+            if (cancelBtn) {
+                cancelBtn.innerHTML = originalText; 
+                cancelBtn.disabled = false; 
             }
         });
+    }
 
-        window.onload = function () {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get("saved") === "true") {
-                const toast = document.getElementById("successToast");
-                const invoiceId = params.get("invoiceId");
-                const btn = document.getElementById("invoiceBtn");
-                if (btn && invoiceId) btn.href = "/sales/invoice/" + invoiceId;
-                if (toast) { toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 5000); }
+    // ========== Cart Calculations ==========
+    function calculateTotals() {
+        let subtotal = 0;
+        let totalCgst = 0;
+        let totalSgst = 0;
+        let totalGst = 0;
+        let totalWithTax = 0;
+        
+        const cart = window.currentCart || [];
+        
+        cart.forEach(item => {
+            const price = parseFloat(item.price || 0);
+            const quantity = parseInt(item.quantity || 0);
+            const productGstPercent = parseFloat(item.gstPercent || 0);
+            
+            const basePrice = price * quantity;
+            const productGstAmount = basePrice * (productGstPercent / 100);
+            const productCgst = productGstAmount / 2;
+            const productSgst = productGstAmount / 2;
+            
+            subtotal += basePrice;
+            totalCgst += productCgst;
+            totalSgst += productSgst;
+            totalGst += productGstAmount;
+            totalWithTax += basePrice + productGstAmount;
+        });
+        
+        // Update UI
+        const subtotalAmountEl = document.getElementById('subtotalAmount');
+        if (subtotalAmountEl) subtotalAmountEl.innerText = subtotal.toFixed(2);
+        
+        const cgstAmountEl = document.getElementById('cgstAmount');
+        if (cgstAmountEl) cgstAmountEl.innerText = totalCgst.toFixed(2);
+        
+        const sgstAmountEl = document.getElementById('sgstAmount');
+        if (sgstAmountEl) sgstAmountEl.innerText = totalSgst.toFixed(2);
+        
+        const totalGstAmountEl = document.getElementById('totalGstAmount');
+        if (totalGstAmountEl) totalGstAmountEl.innerText = totalGst.toFixed(2);
+        
+        return { subtotal, totalCgst, totalSgst, totalGst, totalWithTax };
+    }
+
+    function calculateChange() {
+        const { totalWithTax } = calculateTotals();
+        
+        const discAmt = parseFloat(discountAmount?.value) || 0;
+        const discPct = parseFloat(discountPercent?.value) || 0;
+        
+        let discount = discAmt;
+        if (discPct > 0) {
+            discount = (totalWithTax * discPct) / 100;
+        }
+        
+        const netPayable = totalWithTax - discount;
+        const received = parseFloat(amountReceived?.value) || 0;
+        const change = Math.max(0, received - netPayable);
+        
+        const changeAmountEl = document.getElementById('changeAmount');
+        if (changeAmountEl) changeAmountEl.innerText = change.toFixed(2);
+        
+        const changeReturnedEl = document.getElementById('changeReturned');
+        if (changeReturnedEl) changeReturnedEl.value = change.toFixed(2);
+        
+        const discountDisplayEl = document.getElementById('discountDisplay');
+        if (discountDisplayEl) discountDisplayEl.innerText = discount.toFixed(2);
+        
+        const discountPercentDisplayEl = document.getElementById('discountPercentDisplay');
+        if (discountPercentDisplayEl) discountPercentDisplayEl.innerText = discPct.toFixed(2);
+        
+        const finalTotalEl = document.getElementById('finalTotalAmount');
+        if (finalTotalEl) finalTotalEl.innerText = netPayable.toFixed(2);
+    }
+
+    // ========== Cart UI Update ==========
+    window.updateCartUI = function (cart) {
+        window.currentCart = cart || [];
+        if (!cartContainer) return;
+        
+        if (!cart || cart.length === 0) {
+            cartContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Cart is empty</p><span>Add products to get started</span></div>';
+            calculateTotals();
+            calculateChange();
+            const cartCountEl = document.getElementById('cartCount');
+            if (cartCountEl) cartCountEl.innerText = '0 items';
+            return;
+        }
+        
+        let html = '';
+        cart.forEach((item, idx) => {
+            const price = parseFloat(item.price || 0);
+            const quantity = parseInt(item.quantity || 0);
+            const productGstPercent = parseFloat(item.gstPercent || 0);
+            
+            const basePrice = price * quantity;
+            const productGstAmount = basePrice * (productGstPercent / 100);
+            const productCgst = productGstAmount / 2;
+            const productSgst = productGstAmount / 2;
+            const totalWithGst = basePrice + productGstAmount;
+            
+            let gstClass = 'gst-badge';
+            if (productGstPercent === 0) gstClass += ' gst-zero';
+            else if (productGstPercent <= 5) gstClass += ' gst-low';
+            else if (productGstPercent <= 12) gstClass += ' gst-medium';
+            else gstClass += ' gst-high';
+            
+            html += `
+                <div class="cart-item" data-index="${idx}">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">
+                            ${escapeHtml(item.productName)}
+                            <span class="${gstClass}">${productGstPercent}% GST</span>
+                        </div>
+                        <div class="cart-item-price">
+                            Base: ₹${price.toFixed(2)} × ${quantity} = ₹${basePrice.toFixed(2)}
+                        </div>
+                        <div class="cart-item-gst-breakdown">
+                            <span class="cgst"><i class="fas fa-building"></i> CGST: ₹${productCgst.toFixed(2)} (${(productGstPercent / 2).toFixed(1)}%)</span>
+                            <span class="sgst"><i class="fas fa-globe"></i> SGST: ₹${productSgst.toFixed(2)} (${(productGstPercent / 2).toFixed(1)}%)</span>
+                        </div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <div class="cart-item-qty">
+                            <button class="qty-btn" onclick="window.changeQty(${idx}, -1)">-</button>
+                            <span>${quantity}</span>
+                            <button class="qty-btn" onclick="window.changeQty(${idx}, 1)">+</button>
+                        </div>
+                        <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
+                        <button class="cart-item-remove" onclick="window.removeItem(${idx})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        cartContainer.innerHTML = html;
+        const cartCountEl = document.getElementById('cartCount');
+        if (cartCountEl) cartCountEl.innerText = cart.length + ' items';
+        calculateTotals();
+        calculateChange();
+    };
+
+    // ========== Quantity Functions ==========
+    window.changeQty = function (index, change) {
+        if (!csrfToken) return;
+        
+        const currentItem = window.currentCart[index];
+        if (!currentItem) return;
+        
+        const newQuantity = (currentItem.quantity || 0) + change;
+        if (newQuantity < 1) return;
+        
+        const formData = new URLSearchParams();
+        formData.append("_csrf", csrfToken);
+        formData.append("index", index);
+        formData.append("change", change);
+        
+        fetch("/sales/update-qty", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        })
+        .then(async res => {
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text);
             }
-        };
-    </script>
+            return res.json();
+        })
+        .then(cartData => {
+            updateCartUI(cartData);
+        })
+        .catch(err => {
+            console.error("Qty update error:", err);
+            alert("Failed to update quantity");
+        });
+    };
+
+    window.removeItem = function (index) {
+        if (!csrfToken) return;
+        
+        const formData = new URLSearchParams();
+        formData.append("_csrf", csrfToken);
+        formData.append("index", index);
+        formData.append("change", -9999);
+        
+        fetch("/sales/update-qty", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        })
+        .then(res => res.ok ? res.json() : Promise.reject())
+        .then(cartData => {
+            updateCartUI(cartData);
+        })
+        .catch(err => alert("Failed to remove item"));
+    };
+
+    // ========== Add Product ==========
+    function addProduct() {
+        if (!selectedProduct) { 
+            alert("Please select a product first"); 
+            return; 
+        }
+        if (!csrfToken) { 
+            alert("CSRF token missing - refresh the page"); 
+            return; 
+        }
+        
+        const quantity = parseInt(qtyInput?.value) || 1;
+        
+        const formData = new URLSearchParams();
+        formData.append("_csrf", csrfToken);
+        formData.append("productId", selectedProduct.id);
+        formData.append("quantity", quantity);
+        
+        fetch("/sales/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        })
+        .then(async res => {
+            if (!res.ok) { 
+                const text = await res.text(); 
+                throw new Error(text.substring(0, 100)); 
+            }
+            return res.json();
+        })
+        .then(cartData => {
+            updateCartUI(cartData);
+            if (searchInput) searchInput.value = "";
+            if (qtyInput) qtyInput.value = "1";
+            selectedProduct = null;
+            selectedIndex = -1;
+            if (searchInput) searchInput.focus();
+        })
+        .catch(err => { 
+            console.error("Add error:", err); 
+            alert("Failed to add product: " + err.message); 
+        });
+    }
+
+    // ========== Search Functionality with Improved Display ==========
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            const keyword = this.value.trim();
+            if (keyword.length < 1) { 
+                if (resultsBox) resultsBox.innerHTML = ""; 
+                return; 
+            }
+            
+            fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
+                headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
+            })
+            .then(res => res.ok ? res.json() : Promise.reject("Search failed"))
+            .then(data => {
+                suggestions = data;
+                selectedIndex = -1;
+                if (resultsBox) resultsBox.innerHTML = "";
+                
+                data.forEach((p, i) => {
+                    const div = document.createElement("div");
+                    div.className = "suggestion-item";
+                    
+                    // Get GST class based on percentage
+                    let gstClass = '';
+                    if (p.gstPercent === 0) gstClass = 'gst-zero';
+                    else if (p.gstPercent <= 5) gstClass = 'gst-low';
+                    else if (p.gstPercent <= 12) gstClass = 'gst-medium';
+                    else gstClass = 'gst-high';
+                    
+                    div.innerHTML = `
+                        <div class="suggestion-name">${escapeHtml(p.name)}</div>
+                        <div class="suggestion-details">
+                            <span class="suggestion-price">₹${p.price}</span>
+                            <span class="suggestion-stock"><i class="fas fa-box"></i> ${p.stockQuantity || 0}</span>
+                            <span class="suggestion-gst ${gstClass}"><i class="fas fa-percent"></i> ${p.gstPercent || 0}% GST</span>
+                        </div>
+                    `;
+                    
+                    div.onclick = () => {
+                        selectedIndex = i;
+                        selectedProduct = p;
+                        searchInput.value = p.name;
+                        if (resultsBox) resultsBox.innerHTML = "";
+                        if (qtyInput) { 
+                            qtyInput.focus(); 
+                            qtyInput.select(); 
+                        }
+                    };
+                    if (resultsBox) resultsBox.appendChild(div);
+                });
+            })
+            .catch(err => console.error("Search error:", err));
+        });
+
+        searchInput.addEventListener("keydown", function (e) {
+            const items = document.querySelectorAll(".suggestion-item");
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (items.length) {
+                    selectedIndex = (selectedIndex + 1) % items.length;
+                    items.forEach((el, i) => el.classList.toggle("active", i === selectedIndex));
+                    items[selectedIndex]?.scrollIntoView({ block: "nearest" });
+                }
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (items.length) {
+                    selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                    items.forEach((el, i) => el.classList.toggle("active", i === selectedIndex));
+                    items[selectedIndex]?.scrollIntoView({ block: "nearest" });
+                }
+            } else if (e.key === "Enter" && selectedIndex >= 0 && suggestions[selectedIndex]) {
+                e.preventDefault();
+                selectedProduct = suggestions[selectedIndex];
+                searchInput.value = selectedProduct.name;
+                if (resultsBox) resultsBox.innerHTML = "";
+                if (qtyInput) { 
+                    qtyInput.focus(); 
+                    qtyInput.select(); 
+                }
+            }
+        });
+    }
+
+    // ========== Event Listeners ==========
+    if (amountReceived) amountReceived.addEventListener("input", calculateChange);
+    if (discountAmount) discountAmount.addEventListener("input", calculateChange);
+    if (discountPercent) discountPercent.addEventListener("input", calculateChange);
+    
+    if (addBtn) addBtn.addEventListener("click", addProduct);
+    if (qtyInput) {
+        qtyInput.addEventListener("keydown", e => { 
+            if (e.key === "Enter") { 
+                e.preventDefault(); 
+                addProduct(); 
+            } 
+        });
+    }
+
+    // ========== Initial Load ==========
+    const initialCart = /*[[${cart}]]*/[];
+    if (initialCart && initialCart.length) {
+        updateCartUI(initialCart);
+    } else {
+        updateCartUI([]);
+    }
+
+    // ========== Toast on Success ==========
+    window.onload = function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("saved") === "true") {
+            const toast = document.getElementById("successToast");
+            const invoiceId = params.get("invoiceId");
+            const btn = document.getElementById("invoiceBtn");
+            if (btn && invoiceId) btn.href = "/sales/invoice/" + invoiceId;
+            if (toast) { 
+                toast.classList.add("show"); 
+                setTimeout(() => toast.classList.remove("show"), 5000); 
+            }
+        }
+    };
+</script>
+
 </body>
 
 </html>

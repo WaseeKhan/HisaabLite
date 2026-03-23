@@ -1,0 +1,163 @@
+/* ===== SIDEBAR - Matching Dashboard Style ===== */
+.shop-sidebar {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid #e9eef2;
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+    overflow-y: auto;
+}
+
+.shop-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    padding-left: 4px;
+}
+
+.shop-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: #0f172a;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.shop-logo-text {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.2px;
+    color: #0f172a;
+}
+
+.shop-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.shop-nav-link {
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #5b6778;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+}
+
+.shop-nav-link i {
+    width: 20px;
+    font-size: 15px;
+    color: #8893a4;
+}
+
+.shop-nav-link:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.shop-nav-link:hover i {
+    color: #0f172a;
+}
+
+.shop-nav-link.active {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.shop-nav-link.active i {
+    color: #0f172a;
+}
+
+.shop-logout-btn {
+    width: 100%;
+    padding: 10px 14px;
+    background: #fef2f2;
+    border: none;
+    color: #b91c1c;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+    margin-top: 20px;
+}
+
+.shop-logout-btn i {
+    color: #b91c1c;
+}
+
+.shop-logout-btn:hover {
+    background: #fee2e2;
+}
+
+.shop-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.shop-sidebar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.shop-sidebar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .shop-sidebar {
+        width: 200px;
+        padding: 24px 16px;
+    }
+    
+    .shop-logo {
+        margin-bottom: 32px;
+    }
+    
+    .shop-logo-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .shop-logo-text {
+        font-size: 14px;
+    }
+    
+    .shop-nav-link {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .shop-nav-link i {
+        width: 18px;
+        font-size: 14px;
+    }
+    
+    .shop-logout-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
