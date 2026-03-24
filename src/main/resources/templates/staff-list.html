@@ -25,16 +25,18 @@
     <div class="shop-layout">
 
         <!-- Sidebar Fragment -->
-        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='staff')}"></div>
 
         <!-- Main Content -->
         <div class="shop-main">
             <div class="shop-content-wrapper">
 
                 <!-- Header Fragment -->
-                <div th:replace="~{fragments/shop-header :: header}"></div>
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
 
-                <!-- 4 Stats Cards in One Line -->
+                
+
+                <!-- Stats Cards Row -->
                 <div class="staff-stats-row">
                     <div class="staff-stat-card">
                         <div class="staff-stat-icon">
@@ -76,25 +78,24 @@
 
                 <!-- Search & Add Bar -->
                 <div class="staff-action-bar">
-                    
                     <div class="staff-search-wrapper">
                         <i class="fas fa-search staff-search-icon"></i>
                         <input type="text" id="searchStaff" class="staff-search-input" placeholder="Search by name, email, or role..." autocomplete="off">
                     </div>
-
                     <a th:href="@{/staff/new}" class="staff-add-button">
                         <i class="fas fa-plus"></i> Add Staff
                     </a>
-                    
                 </div>
 
-                <!-- Usage Progress Bar (Optional - Compact) -->
-                
-
-                <!-- Error Message -->
+                <!-- Error/Success Messages -->
                 <div th:if="${error}" class="staff-error-toast">
                     <i class="fas fa-exclamation-circle"></i>
                     <span th:text="${error}">Error message</span>
+                    <button onclick="this.parentElement.remove()">×</button>
+                </div>
+                <div th:if="${success}" class="staff-success-toast">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${success}">Success message</span>
                     <button onclick="this.parentElement.remove()">×</button>
                 </div>
 
@@ -108,53 +109,63 @@
                                 <th>Role</th>
                                 <th>Status</th>
                                 <th>Actions</th>
-                            </thead>
+                            </tr>
+                        </thead>
                         <tbody id="staffTableBody">
                             <tr th:each="user : ${staffList}" th:data-name="${user.name}" th:data-email="${user.username}" th:data-role="${user.role}">
                                 <td class="staff-name-cell">
                                     <div class="staff-avatar-small" th:text="${#strings.substring(user.name, 0, 1)}">J</div>
                                     <span class="staff-name-text" th:text="${user.name}">John Doe</span>
-                                 </td>
+                                </td>
                                 <td class="staff-email-cell">
                                     <i class="far fa-envelope"></i>
                                     <span th:text="${user.username}">john@example.com</span>
-                                 </td>
+                                </td>
                                 <td class="staff-role-cell">
                                     <span class="role-badge" th:classappend="${user.role == 'MANAGER' ? 'role-manager' : 'role-cashier'}">
                                         <i th:if="${user.role == 'MANAGER'}" class="fas fa-chart-line"></i>
                                         <i th:if="${user.role == 'CASHIER'}" class="fas fa-cash-register"></i>
                                         <span th:text="${user.role}">CASHIER</span>
                                     </span>
-                                 </td>
+                                </td>
                                 <td class="staff-status-cell">
                                     <span class="status-badge" th:classappend="${user.active ? 'status-active' : 'status-inactive'}">
                                         <i class="fas fa-circle"></i>
                                         <span th:text="${user.active ? 'Active' : 'Inactive'}">Active</span>
                                     </span>
-                                 </td>
+                                </td>
                                 <td class="staff-actions-cell">
-                                    <div class="staff-actions-group">
-                                        <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" class="staff-inline-form">
-                                            <select name="role" class="staff-role-select">
-                                                <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
-                                                <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
-                                            </select>
-                                            <button type="submit" class="staff-action-icon" title="Update Role">
-                                                <i class="fas fa-save"></i>
+                                    <div class="staff-actions-dropdown">
+                                        <button class="staff-actions-trigger" onclick="toggleActionsMenu(this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="staff-actions-menu">
+                                            <a th:href="@{/staff/edit/{id}(id=${user.id})}" class="staff-action-item">
+                                                <i class="fas fa-edit"></i> Edit Details
+                                            </a>
+                                            <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" class="staff-inline-form">
+                                                <select name="role" class="staff-role-select-inline">
+                                                    <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                                                    <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                                                </select>
+                                                <button type="submit" class="staff-action-item">
+                                                    <i class="fas fa-save"></i> Change Role
+                                                </button>
+                                            </form>
+                                            <button class="staff-action-item" onclick="resetPassword(${user.id})">
+                                                <i class="fas fa-key"></i> Reset Password
                                             </button>
-                                        </form>
-                                        <button class="staff-action-icon" onclick="resetPassword(${user.id})" title="Reset Password">
-                                            <i class="fas fa-key"></i>
-                                        </button>
-                                        <button class="staff-action-icon" onclick="toggleStatus(${user.id})" 
-                                                th:title="${user.active ? 'Deactivate' : 'Activate'}">
-                                            <i class="fas" th:class="${user.active ? 'fa-user-slash' : 'fa-user-check'}"></i>
-                                        </button>
-                                        <button class="staff-action-icon staff-action-delete" onclick="showDeleteModal(${user.id}, '${user.name}')" title="Delete">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+                                            <button class="staff-action-item" onclick="toggleStatus(${user.id})">
+                                                <i class="fas" th:class="${user.active ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                                                <span th:text="${user.active ? 'Deactivate' : 'Activate'}">Deactivate</span>
+                                            </button>
+                                            <div class="staff-action-divider"></div>
+                                            <button class="staff-action-item staff-action-delete" onclick="showDeleteModal(${user.id}, '${user.name}')">
+                                                <i class="fas fa-trash-alt"></i> Delete Staff
+                                            </button>
+                                        </div>
                                     </div>
-                                 </td>
+                                </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(staffList)}">
                                 <td colspan="5" class="staff-empty-cell">
@@ -165,7 +176,7 @@
                                             <i class="fas fa-plus"></i> Add Staff
                                         </a>
                                     </div>
-                                 </td>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -190,8 +201,11 @@
             </div>
             <p class="staff-modal-text">
                 Remove <strong id="deleteUserName"></strong> from your team?
-                <span class="staff-modal-warning">This user has sales records.</span>
             </p>
+            <div class="staff-modal-warning" id="modalWarning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>This user has sales records. Please reassign them.</span>
+            </div>
             <form id="deleteForm" method="post">
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
                 <div class="staff-modal-field">
@@ -227,6 +241,23 @@
         let currentUserId = null;
         let activeCount = 0;
 
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.staff-actions-dropdown')) {
+                document.querySelectorAll('.staff-actions-dropdown.open').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+
+        function toggleActionsMenu(button) {
+            const dropdown = button.closest('.staff-actions-dropdown');
+            document.querySelectorAll('.staff-actions-dropdown.open').forEach(open => {
+                if (open !== dropdown) open.classList.remove('open');
+            });
+            dropdown.classList.toggle('open');
+        }
+
         $(document).ready(function() {
             // Count active staff
             activeCount = $('.staff-status-cell .status-active').length;
@@ -256,7 +287,7 @@
                     method: 'POST', 
                     headers: { 'X-CSRF-TOKEN': csrfToken } 
                 })
-                .then(() => { hideLoading(); alert('Password reset successfully'); })
+                .then(() => { hideLoading(); alert('Password reset successfully'); location.reload(); })
                 .catch(() => { hideLoading(); alert('Failed to reset password'); });
             }
         }
@@ -309,7 +340,6 @@
         function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
         function showLoading() { document.getElementById('loadingSpinner').style.display = 'flex'; }
         function hideLoading() { document.getElementById('loadingSpinner').style.display = 'none'; }
-        function getCsrfToken() { return document.querySelector("meta[name='_csrf']").content; }
 
         document.addEventListener('DOMContentLoaded', function() {
             const deleteForm = document.getElementById('deleteForm');

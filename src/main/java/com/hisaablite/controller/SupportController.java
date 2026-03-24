@@ -29,23 +29,39 @@ public class SupportController {
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page) {
 
-        if (authentication != null) {
-            User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+        // Initialize default values
+        User user = null;
+        Shop shop = null;
+        String role = "USER";
+        Page<SupportTicket> tickets = Page.empty();
+
+        if (authentication != null && authentication.getName() != null) {
+            user = userRepository.findByUsername(authentication.getName()).orElse(null);
             if (user != null) {
+                role = user.getRole() != null ? user.getRole().name() : "USER";
+                shop = user.getShop(); // Get shop from user
+
                 try {
-                    // 🔴 FIXED: getUserTickets now throws exception for non-owners
-                    Page<SupportTicket> tickets = supportService.getShopTickets(user, page);
+                    // Get tickets for the shop
+                    tickets = supportService.getShopTickets(user, page);
                     model.addAttribute("tickets", tickets);
                     model.addAttribute("currentPage", page);
                 } catch (RuntimeException e) {
                     log.warn("User cannot view tickets: {}", e.getMessage());
                     model.addAttribute("tickets", Page.empty());
                 }
-                model.addAttribute("role", user.getRole().name());
             }
         }
-
+        PlanType planType = shop.getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+        // Add all attributes with null safety
+        model.addAttribute("shop", shop); // Pass shop object (can be null)
+        model.addAttribute("user", user);
+        model.addAttribute("role", role);
         model.addAttribute("faqs", getFAQs());
+        model.addAttribute("currentPage", "support");
+
         return "support";
     }
 
@@ -64,6 +80,7 @@ public class SupportController {
                     "Access Denied: Only shop owners can create support tickets. Your role: " + user.getRole());
             return "redirect:/support";
         }
+
         try {
             TicketPriority ticketPriority = priority != null ? TicketPriority.valueOf(priority.toUpperCase())
                     : TicketPriority.LOW;
@@ -82,7 +99,8 @@ public class SupportController {
         }
     }
 
-    @GetMapping("/ticket/{ticketNumber}")
+  
+ @GetMapping("/ticket/{ticketNumber}")
     public String viewTicket(@PathVariable String ticketNumber,
             Model model,
             Authentication authentication,
@@ -92,17 +110,26 @@ public class SupportController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         try {
-         
             boolean isAdmin = user.getRole() == Role.ADMIN;
             SupportTicket ticket = supportService.getTicket(ticketNumber, user, isAdmin);
 
-            
             List<TicketReply> replies = supportService.getTicketReplies(ticket.getId(), user, isAdmin);
 
+            // FIXED: Get shop from user and handle null safely
+            Shop shop = user.getShop();
+            PlanType planType = shop != null ? shop.getPlanType() : null;
+            String planTypeDisplay = planType != null ? planType.name() : "FREE";
+            model.addAttribute("planType", planTypeDisplay);
+
+            // Add shop and user info to model
+            model.addAttribute("currentPage", "support");
+            model.addAttribute("shop", shop);
+            model.addAttribute("user", user);
             model.addAttribute("ticket", ticket);
             model.addAttribute("replies", replies);
             model.addAttribute("role", user.getRole().name());
             model.addAttribute("isAdmin", isAdmin);
+            model.addAttribute("currentPageName", "support");
 
             return "ticket-detail";
 
@@ -124,10 +151,7 @@ public class SupportController {
 
         try {
             boolean isAdmin = user.getRole() == Role.ADMIN;
-
             SupportTicket ticket = supportService.getTicket(ticketNumber, user, isAdmin);
-
-           
             supportService.addReply(ticket.getId(), user, message, isAdmin);
 
             redirectAttributes.addFlashAttribute("success", "Reply added successfully");
@@ -150,11 +174,7 @@ public class SupportController {
 
         try {
             boolean isAdmin = user.getRole() == Role.ADMIN;
-
-            // First get the ticket to get its ID
             SupportTicket ticket = supportService.getTicket(ticketNumber, user, isAdmin);
-
-            
             supportService.resolveTicket(ticket.getId(), user, isAdmin);
 
             redirectAttributes.addFlashAttribute("success", "Ticket marked as resolved");
@@ -184,8 +204,6 @@ public class SupportController {
             }
 
             SupportTicket ticket = supportService.getTicket(ticketNumber, user, isAdmin);
-
-           
             supportService.closeTicket(ticket.getId(), user, isAdmin);
 
             redirectAttributes.addFlashAttribute("success", "Ticket closed successfully");

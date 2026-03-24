@@ -3,11 +3,11 @@
 <div th:fragment="header" class="topbar">
     <div class="shop-info">
         <div class="shop-brand">
-            <div class="brand-icon">HL</div>
-            <div class="shop-name" th:text="${shop.name}">Shop Name</div>
+            <div class="brand-icon">HL</div> 
+            <div class="shop-name" th:text="${shop?.name} ?: 'NA'">Shop Name</div>
         </div>
-        <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop.panNumber}">PAN123</span></div>
-        <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop.gstNumber} ?: 'N/A'">GST123</span></div>
+        <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop?.panNumber != null ? shop.panNumber : 'NA'}">PAN123</span> </div>
+        <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop?.gstNumber != null ? shop.gstNumber : 'N/A'}">GST123</span></div>
         <div class="info-tag"><i class="fas fa-calendar-alt"></i> <span th:text="${#temporals.format(shop.createdAt, 'MMM yyyy')}">Jan 2024</span></div>
     </div>
     <div class="user-info">
@@ -40,6 +40,7 @@
         </div>
         <div id="userMenu" class="dropdown-menu">
             <a th:href="@{/profile}"><i class="fas fa-user"></i> My Profile</a>
+             <a th:href="@{/forgot-password}"><i class="fas fa-key"></i> Change Password</a>
             <a th:href="@{/settings}"><i class="fas fa-cog"></i> Settings</a>
             <div class="dropdown-divider"></div>
             <form th:action="@{/logout}" method="post">

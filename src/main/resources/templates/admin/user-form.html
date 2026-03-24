@@ -452,7 +452,7 @@
                     <!-- Role -->
                     <div class="form-group">
                         <label><i class="fas fa-tag"></i> Role *</label>
-                        <select name="role" required>
+                        <select name="role" th:field="*{user.role}" required>
                             <option value="">Select Role</option>
                             <option value="OWNER" th:selected="${user.role == 'OWNER'}">Owner</option>
                             <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>

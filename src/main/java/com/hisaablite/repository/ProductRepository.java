@@ -54,4 +54,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> searchProducts(@Param("shop") Shop shop, @Param("keyword") String keyword);
 
 
+
+
+    long countByShopAndActiveTrue(Shop shop);
 }

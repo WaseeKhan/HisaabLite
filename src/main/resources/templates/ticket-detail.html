@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Ticket #${ticket.ticketNumber} • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
@@ -11,621 +12,137 @@
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR (Same as dashboard) ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT (Same as dashboard) ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .page-header h2 i {
-            color: #2563eb;
-        }
-
-        /* ===== TICKET DETAIL STYLES ===== */
-        .ticket-detail-container {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 32px;
-            margin-bottom: 24px;
-        }
-
-        .back-link {
-            margin-bottom: 24px;
-        }
-
-        .back-link a {
-            color: #64748b;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 40px;
-            transition: all 0.15s;
-        }
-
-        .back-link a:hover {
-            background: #f1f5f9;
-            color: #2563eb;
-        }
-
-        .ticket-header {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .ticket-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .ticket-title h3 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .ticket-status {
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-OPEN { background: #fef9e7; color: #b45309; }
-        .status-IN_PROGRESS { background: #e6f0ff; color: #2563eb; }
-        .status-WAITING_CUSTOMER { background: #f1f5f9; color: #64748b; }
-        .status-RESOLVED { background: #f0fdf4; color: #059669; }
-        .status-CLOSED { background: #f1f5f9; color: #64748b; }
-
-        .ticket-meta {
-            display: flex;
-            gap: 24px;
-            color: #64748b;
-            font-size: 14px;
-            flex-wrap: wrap;
-        }
-
-        .ticket-meta i {
-            margin-right: 4px;
-            color: #2563eb;
-        }
-
-        .ticket-body {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .ticket-message {
-            line-height: 1.8;
-            white-space: pre-wrap;
-        }
-
-        .ticket-attachment {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .ticket-attachment a {
-            color: #2563eb;
-            text-decoration: none;
-        }
-
-        .ticket-attachment a:hover {
-            text-decoration: underline;
-        }
-
-        /* Replies */
-        .replies-section {
-            margin-top: 24px;
-        }
-
-        .reply {
-            background: #f8fafc;
-            border: 1px solid #edf2f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .reply.admin {
-            background: #f0f9ff;
-            border-left: 4px solid #2563eb;
-        }
-
-        .reply-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .reply-author {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .reply-author i {
-            color: #2563eb;
-        }
-
-        .reply-time {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .reply-body {
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        /* Reply Form */
-        .reply-form {
-            background: #f8fafc;
-            border: 1px solid #edf2f7;
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 24px;
-        }
-
-        .reply-form h4 {
-            margin-bottom: 16px;
-        }
-
-        .reply-form textarea {
-            width: 100%;
-            padding: 16px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            min-height: 120px;
-            margin-bottom: 16px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            transition: all 0.15s;
-        }
-
-        .reply-form textarea:focus {
-            border-color: #2563eb;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-        }
-
-        .reply-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            background: #0f172a;
-            color: white;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-primary:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
-
-        .resolved-message {
-            background: #f0fdf4;
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 24px;
-            text-align: center;
-        }
-
-        .resolved-message i {
-            color: #10b981;
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
-
-        .resolved-message h4 {
-            color: #166534;
-            margin-bottom: 8px;
-        }
-
-        .resolved-message p {
-            color: #047857;
-        }
-
-        /* Footer */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-            margin-top: auto;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 8px;
-            display: none;
-            z-index: 1100;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .ticket-meta {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .reply-actions {
-                flex-direction: column;
-            }
-            
-            .reply-actions form {
-                width: 100%;
-            }
-            
-            .reply-actions button {
-                width: 100%;
-            }
-        }
-    </style>
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-ticket-detail.css}">
 </head>
-<body>
 
-    <!-- ===== SIDEBAR (Same as dashboard) ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
+<body class="shop-body">
 
-        <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i> Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a class="active" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
+    <div class="shop-layout">
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar (shop=${shop})}"></div>
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header (shop=${shop})}"></div>
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2><i class="fas fa-ticket-alt"></i> Ticket Details</h2>
-        </div>
+                
 
-        <!-- TICKET DETAIL CONTENT -->
-        <div class="ticket-detail-container">
+                <!-- Ticket Detail Container -->
+                <div class="ticket-detail-container">
 
-            <!-- Back Link -->
-            <div class="back-link">
-                <a th:href="@{/support}"><i class="fas fa-arrow-left"></i> Back to Support</a>
-            </div>
-
-            <!-- Ticket Header -->
-            <div class="ticket-header">
-                <div class="ticket-title">
-                    <h3 th:text="${ticket.subject}">Payment Issue</h3>
-                    <span class="ticket-status" 
-                          th:classappend="'status-' + ${ticket.status.name()}"
-                          th:text="${ticket.status.displayName}">OPEN</span>
-                </div>
-
-                <div class="ticket-meta">
-                    <span><i class="fas fa-hashtag"></i> <span th:text="${ticket.ticketNumber}">HL2024031300011234</span></span>
-                    <span><i class="far fa-calendar"></i> Created: <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 10:30 AM</span></span>
-                    <span><i class="fas fa-flag"></i> Priority: <span th:text="${ticket.priority.displayName}">MEDIUM</span></span>
-                </div>
-            </div>
-
-            <!-- Original Message -->
-            <div class="ticket-body">
-                <div class="ticket-message" th:text="${ticket.message}">
-                    I'm having trouble with payment. My transaction was successful but the invoice is not showing.
-                </div>
-                <div class="ticket-attachment" th:if="${ticket.attachmentUrl}">
-                    <i class="fas fa-paperclip"></i>
-                    <a th:href="${ticket.attachmentUrl}" target="_blank">View Attachment</a>
-                </div>
-            </div>
-
-            <!-- Replies Section -->
-            <div class="replies-section">
-                <h4 style="margin-bottom: 16px;">Conversation</h4>
-
-                <div th:each="reply : ${replies}" class="reply" th:classappend="${reply.adminReply} ? 'admin' : ''">
-                    <div class="reply-header">
-                        <span class="reply-author">
-                            <i th:if="${reply.adminReply}" class="fas fa-headset"></i>
-                            <i th:unless="${reply.adminReply}" class="fas fa-user"></i>
-                            <span th:text="${reply.adminReply} ? 'Support Team' : ${reply.user.name}">Support Team</span>
-                        </span>
-                        <span class="reply-time" th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 11:30 AM</span>
+                    <!-- Back Link -->
+                    <div class="back-link">
+                        <a th:href="@{/support}">
+                            <i class="fas fa-arrow-left"></i> Back to Support
+                        </a>
                     </div>
-                    <div class="reply-body" th:text="${reply.message}">
-                        We're looking into your issue. Please provide transaction ID.
+
+                    <!-- Ticket Header -->
+                    <div class="ticket-header">
+                        <div class="ticket-title">
+                            <h3 th:text="${ticket.subject}">Payment Issue</h3>
+                            <span class="ticket-status" 
+                                  th:classappend="'status-' + ${ticket.status.name()}"
+                                  th:text="${ticket.status.displayName}">OPEN</span>
+                        </div>
+
+                        <div class="ticket-meta">
+                            <span><i class="fas fa-hashtag"></i> <span th:text="${ticket.ticketNumber}">HL2024031300011234</span></span>
+                            <span><i class="far fa-calendar"></i> Created: <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 10:30 AM</span></span>
+                            <span><i class="fas fa-flag"></i> Priority: <span th:text="${ticket.priority.displayName}">MEDIUM</span></span>
+                            <span th:if="${ticket.updatedAt}"><i class="fas fa-clock"></i> Updated: <span th:text="${#temporals.format(ticket.updatedAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 11:30 AM</span></span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Reply Form (only if ticket not resolved/closed) -->
-            <div th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}" class="reply-form">
-                <h4>Add Reply</h4>
+                    <!-- Original Message -->
+                    <div class="ticket-body">
+                        <div class="ticket-message" th:text="${ticket.message}">
+                            I'm having trouble with payment. My transaction was successful but the invoice is not showing.
+                        </div>
+                        <div class="ticket-attachment" th:if="${ticket.attachmentUrl}">
+                            <i class="fas fa-paperclip"></i>
+                            <a th:href="${ticket.attachmentUrl}" target="_blank">View Attachment</a>
+                        </div>
+                    </div>
 
-                <form th:action="@{/support/ticket/{ticketNumber}/reply(ticketNumber=${ticket.ticketNumber})}" method="post">
-                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <!-- Replies Section -->
+                    <div class="replies-section">
+                        <h4><i class="fas fa-comments"></i> Conversation</h4>
 
-                    <textarea name="message" placeholder="Type your reply here..." required></textarea>
+                        <div th:if="${replies != null and not #lists.isEmpty(replies)}">
+                            <div th:each="reply : ${replies}" class="reply" th:classappend="${reply.adminReply} ? 'admin' : ''">
+                                <div class="reply-header">
+                                    <span class="reply-author">
+                                        <i th:if="${reply.adminReply}" class="fas fa-headset"></i>
+                                        <i th:unless="${reply.adminReply}" class="fas fa-user-circle"></i>
+                                        <span th:text="${reply.adminReply} ? 'Support Team' : ${reply.user != null ? reply.user.name : 'Customer'}">Support Team</span>
+                                    </span>
+                                    <span class="reply-time" th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 11:30 AM</span>
+                                </div>
+                                <div class="reply-body" th:text="${reply.message}">
+                                    We're looking into your issue. Please provide transaction ID.
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="reply-actions">
-                        <button type="submit" class="btn-primary">Post Reply</button>
+                        <div th:if="${replies == null or #lists.isEmpty(replies)}" class="empty-state" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-comment-dots" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                            <p style="color: #64748b;">No replies yet. Be the first to respond!</p>
+                        </div>
+                    </div>
 
-                        <form th:action="@{/support/ticket/{ticketNumber}/resolve(ticketNumber=${ticket.ticketNumber})}" 
-                              method="post" style="margin-left: auto;">
+                    <!-- Reply Form (only if ticket not resolved/closed) -->
+                    <div th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}" class="reply-form">
+                        <h4><i class="fas fa-reply"></i> Add Reply</h4>
+
+                        <form th:action="@{/support/ticket/{ticketNumber}/reply(ticketNumber=${ticket.ticketNumber})}" method="post">
                             <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="btn-success">
-                                <i class="fas fa-check"></i> Mark as Resolved
-                            </button>
+                            <textarea name="message" placeholder="Type your reply here..." required></textarea>
+                            <div class="reply-actions">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Post Reply
+                                </button>
+
+                                <form th:action="@{/support/ticket/{ticketNumber}/resolve(ticketNumber=${ticket.ticketNumber})}" 
+                                      method="post" style="display: inline;">
+                                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" class="btn-success" onclick="return confirm('Mark this ticket as resolved?')">
+                                        <i class="fas fa-check-circle"></i> Mark as Resolved
+                                    </button>
+                                </form>
+                            </div>
                         </form>
                     </div>
-                </form>
+
+                    <!-- Resolved Message -->
+                    <div th:if="${ticket.status.name() == 'RESOLVED'}" class="resolved-message">
+                        <i class="fas fa-check-circle"></i>
+                        <h4>Ticket Resolved</h4>
+                        <p>This ticket has been marked as resolved. You can create a new ticket if you need further assistance.</p>
+                    </div>
+
+                    <!-- Closed Message -->
+                    <div th:if="${ticket.status.name() == 'CLOSED'}" class="resolved-message closed">
+                        <i class="fas fa-lock"></i>
+                        <h4>Ticket Closed</h4>
+                        <p>This ticket is closed. Please create a new ticket for any new issues.</p>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Resolved Message -->
-            <div th:if="${ticket.status.name() == 'RESOLVED'}" class="resolved-message">
-                <i class="fas fa-check-circle"></i>
-                <h4>Ticket Resolved</h4>
-                <p>This ticket has been marked as resolved. You can create a new ticket if you need further assistance.</p>
-            </div>
-
-            <!-- Closed Message -->
-            <div th:if="${ticket.status.name() == 'CLOSED'}" class="resolved-message" style="background: #f1f5f9;">
-                <i class="fas fa-lock" style="color: #64748b;"></i>
-                <h4 style="color: #475569;">Ticket Closed</h4>
-                <p style="color: #64748b;">This ticket is closed. Create a new ticket for new issues.</p>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
@@ -635,27 +152,41 @@
     <script th:inline="javascript">
         // Handle success message
         var successMessage = /*[[${success}]]*/ null;
-        if (successMessage) {
+        if (successMessage && successMessage !== 'null') {
             showToast(successMessage);
         }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 5000);
+        // Handle error message
+        var errorMessage = /*[[${error}]]*/ null;
+        if (errorMessage && errorMessage !== 'null') {
+            showToast(errorMessage, 'error');
         }
 
-        // Auto-hide any alerts after 5 seconds
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                alert.style.display = 'none';
-            });
-        }, 5000);
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.textContent = message;
+                toast.style.backgroundColor = type === 'error' ? '#ef4444' : '#10b981';
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    toast.style.backgroundColor = '#10b981';
+                }, 5000);
+            }
+        }
+
+        // Auto-scroll to bottom of replies
+        document.addEventListener('DOMContentLoaded', function() {
+            const repliesSection = document.querySelector('.replies-section');
+            if (repliesSection) {
+                const lastReply = repliesSection.querySelector('.reply:last-child');
+                if (lastReply) {
+                    lastReply.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
     </script>
 
 </body>
+
 </html>

@@ -46,13 +46,14 @@ public class ProfileController {
         model.addAttribute("shop", shop);
         model.addAttribute("profileRequest", request);
         model.addAttribute("role", user.getRole().name());
-        model.addAttribute("currentPage", "products");
-
+       
+        
         PlanType planType = shop.getPlanType();
         String planTypeDisplay = planType != null ? planType.name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
         model.addAttribute("subscriptionPlan", planTypeDisplay);
-
+        model.addAttribute("currentPage", "profile");
+         model.addAttribute("user", user);
         return "profile";
     }
 

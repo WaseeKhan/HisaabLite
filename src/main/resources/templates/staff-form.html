@@ -2,570 +2,198 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Add Staff • HisaabLite</title>
+    <title th:text="${user != null and user.id != null} ? 'Edit Staff • HisaabLite' : 'Add Staff • HisaabLite'">
+        Add Staff • HisaabLite
+    </title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .page-header h2 i {
-            color: #2563eb;
-        }
-
-        /* ===== FORM CARD ===== */
-        .form-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 32px;
-            margin-bottom: 24px;
-            max-width: 550px;
-            width: 100%;
-            align-self: center;
-        }
-
-        .form-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .form-title i {
-            color: #2563eb;
-        }
-
-        /* ===== FORM STYLES ===== */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #5b6778;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .form-group label i {
-            color: #94a3b8;
-            font-size: 12px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 400;
-            background: #fafbfc;
-            transition: all 0.15s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #2563eb;
-            outline: none;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-        }
-
-        .form-group input::placeholder {
-            color: #a0aec0;
-            font-size: 13px;
-        }
-
-        /* ===== ERROR MESSAGE ===== */
-        .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid #fee2e2;
-        }
-
-        .error-message i {
-            font-size: 16px;
-        }
-
-        /* ===== ACTION BUTTONS ===== */
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            margin-top: 28px;
-            align-items: center;
-        }
-
-        .btn-primary {
-            background: #0f172a;
-            color: white;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
-            flex: 1;
-        }
-
-        .btn-primary:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #5b6778;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-            text-decoration: none;
-            flex: 1;
-            text-align: center;
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
-            color: #2563eb;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-            margin-top: auto;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left span {
-            color: #475569;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-            margin: 0 4px;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .footer {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-
-            .footer-left,
-            .footer-right {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-    </style>
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-staff-form.css}">
 </head>
 
-<body>
+<body class="shop-body">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
+    <div class="shop-layout">
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='staff')}"></div>
 
-        <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
 
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
-                    class="fas fa-cash-register"></i> Billing</a>
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
 
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
-                Products</a>
+                <!-- Page Header - Centered -->
+                <div class="page-header" style="text-align: center; justify-content: center;">
+                    <h2>
+                        <i class="fas fa-users"></i>
+                        <span th:text="${user != null and user.id != null} ? 'Edit Staff Member' : 'Add Staff Member'">
+                            Add Staff Member
+                        </span>
+                    </h2>
+                </div>
 
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
+                <!-- Form Card - Centered -->
+                <div style="display: flex; justify-content: center;">
+                    <div class="form-card">
 
-            <a class="active" th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
+                        <div class="form-title">
+                            <i class="fas" th:class="${user != null and user.id != null} ? 'fa-edit' : 'fa-user-plus'"></i>
+                            <span th:text="${user != null and user.id != null} ? 'Edit Staff Details' : 'Staff Details'">
+                                Staff Details
+                            </span>
+                        </div>
 
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
+                        <!-- Error Message -->
+                        <div th:if="${error}" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span th:text="${error}"></span>
+                        </div>
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
+                        <!-- Staff Form -->
+                        <form th:action="@{/staff/save}" th:object="${user}" method="post">
+                            <input type="hidden" th:field="*{id}" />
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i> Full Name</label>
+                                <input type="text" th:field="*{name}" placeholder="Enter full name" required />
+                            </div>
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2><i class="fas fa-users"></i> Add Staff Member</h2>
-        </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-envelope"></i> Email Address</label>
+                                <input type="email" th:field="*{username}" placeholder="Enter email" required />
+                            </div>
 
-        <!-- FORM CARD -->
-        <div class="form-card">
+                            <div class="form-group">
+                                <label><i class="fas fa-phone"></i> Phone Number</label>
+                                <input type="text" th:field="*{phone}" placeholder="Enter phone number" required />
+                            </div>
 
-            <div class="form-title">
-                <i class="fas fa-user-plus"></i> Staff Details
+                            <div class="form-group" th:if="${user == null or user.id == null}">
+                                <label><i class="fas fa-lock"></i> Password</label>
+                                <input type="password" th:field="*{password}" placeholder="Create password" required />
+                            </div>
+
+                            <div class="form-group" th:unless="${user == null or user.id == null}">
+                                <label><i class="fas fa-key"></i> New Password</label>
+                                <input type="password" th:field="*{password}" placeholder="Leave blank to keep current" />
+                                <div class="hint-text">
+                                    <i class="fas fa-info-circle"></i> Only fill if you want to change password
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-badge"></i> Role</label>
+                                <select th:field="*{role}">
+                                    <option value="MANAGER">👔 Manager - Full access</option>
+                                    <option value="CASHIER">💰 Cashier - Billing only</option>
+                                </select>
+                                <div class="hint-text">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <span th:text="${user != null and user.id != null} ? 'Changing role will update permissions' : 'Select appropriate role for staff member'">
+                                        Select appropriate role for staff member
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <span th:text="${user != null and user.id != null} ? 'Update Staff' : 'Save Staff'">
+                                        Save Staff
+                                    </span>
+                                </button>
+                                <a th:href="@{/staff}" class="btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- ERROR MESSAGE -->
-            <div th:if="${error}" class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <span th:text="${error}"></span>
-            </div>
-
-            <!-- STAFF FORM -->
-            <form th:action="@{/staff}" method="post" th:object="${user}">
-
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Full Name</label>
-                    <input type="text" th:field="*{name}" placeholder="Enter full name" required />
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email Address</label>
-                    <input type="email" th:field="*{username}" placeholder="Enter email" required />
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-phone"></i> Phone Number</label>
-                    <input type="text" th:field="*{phone}" placeholder="Enter phone number" required />
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" th:field="*{password}" placeholder="Create password" required />
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-badge"></i> Role</label>
-                    <select th:field="*{role}">
-                        <option value="MANAGER">👔 Manager</option>
-                        <option value="CASHIER">💰 Cashier</option>
-                    </select>
-                </div>
-
-                <div class="action-buttons">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Save Staff
-                    </button>
-                    <a th:href="@{/staff}" class="btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancel
-                    </a>
-                </div>
-
-            </form>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version">v2.1.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
-                    operational</span>
-            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
-
-
-
 
     <!-- Reassign Confirmation Modal -->
-<div th:if="${showReassignModal}" style="position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
-    <div style="background-color: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-        <h3 style="margin-bottom: 20px; color: #0f172a;">Reassign Records Before Delete</h3>
-        <p style="margin-bottom: 20px; color: #475569;">
-            User <strong th:text="${userToDelete.name}"></strong> has sales or ticket records.
-            Please select a user to reassign these records to:
-        </p>
-        
-        <form th:action="@{'/staff/' + ${userToDelete.id} + '/delete'}" method="post">
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Reassign to:</label>
-                <select name="reassignToId" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif;">
+    <div th:if="${showReassignModal}" class="reassign-modal">
+        <div class="modal-container">
+            <h3><i class="fas fa-exchange-alt"></i> Reassign Records</h3>
+            <p>
+                User <strong th:text="${userToDelete != null ? userToDelete.name : ''}"></strong> has existing 
+                sales or ticket records. Please select a staff member to reassign these records to:
+            </p>
+            
+            <form th:action="@{'/staff/' + ${userToDelete.id} + '/delete'}" method="post">
+                <label>Reassign to:</label>
+                <select name="reassignToId" required>
                     <option value="">-- Select Staff Member --</option>
                     <option th:each="staff : ${otherStaff}" 
                             th:value="${staff.id}" 
                             th:text="${staff.name} + ' (' + ${staff.role} + ')'"></option>
                 </select>
-            </div>
-            
-            <div style="display: flex; gap: 12px;">
-                <button type="submit" style="flex: 1; padding: 12px; background: #dc2626; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                    <i class="fas fa-trash"></i> Delete & Reassign
-                </button>
-                <a th:href="@{/staff}" style="flex: 1; padding: 12px; background: #6b7280; color: white; text-decoration: none; border-radius: 10px; font-weight: 600; text-align: center;">
-                    Cancel
-                </a>
-            </div>
-        </form>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete & Reassign
+                    </button>
+                    <a th:href="@{/staff}" class="btn-cancel">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+
+    <script>
+        // Auto-focus on first input
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstInput = document.querySelector('input[type="text"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+        
+        // Password strength indicator (optional)
+        const passwordInput = document.querySelector('input[type="password"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const value = this.value;
+                const strength = getPasswordStrength(value);
+                // You can add password strength UI here if needed
+            });
+        }
+        
+        function getPasswordStrength(password) {
+            if (!password) return 0;
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            return strength;
+        }
+    </script>
+
 </body>
 
 </html>

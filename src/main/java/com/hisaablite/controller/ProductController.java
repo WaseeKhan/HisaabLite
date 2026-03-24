@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Product;
@@ -17,6 +18,7 @@ import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.ProductService;
+import com.hisaablite.service.PlanLimitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +37,7 @@ public class ProductController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductService productService;
+    private final PlanLimitService planLimitService;
 
     private static final int PAGE_SIZE = 20;
 
@@ -46,44 +49,50 @@ public class ProductController {
     }
 
     // LIST PRODUCTS WITH SEARCH (Latest first)
-    @GetMapping
-    public String listProducts(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            Model model,
-            Authentication authentication) {
+  @GetMapping
+public String listProducts(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        Model model,
+        Authentication authentication) {
 
-        User user = getUser(authentication);
-        Shop shop = user.getShop();
+    User user = getUser(authentication);
+    Shop shop = user.getShop();
 
-        // Sort by id descending (latest first)
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Product> productPage;
+    Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "id"));
+    Page<Product> productPage;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            productPage = productService.searchProductsWithPagination(keyword.trim(), user.getShop(), pageable);
-            model.addAttribute("keyword", keyword);
-        } else {
-            productPage = productRepository.findByShopAndActiveTrue(user.getShop(), pageable);
-        }
-
-        model.addAttribute("products", productPage.getContent());
-        model.addAttribute("currentPage", productPage.getNumber());
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        model.addAttribute("totalItems", productPage.getTotalElements());
-        model.addAttribute("pageSize", PAGE_SIZE);
-        model.addAttribute("role", user.getRole().name());
-        model.addAttribute("currentPage", "products");
-        model.addAttribute("user", user);
-        model.addAttribute("shop", shop);
-
-        PlanType planType = user.getShop().getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
-
-        return "products";
+    if (keyword != null && !keyword.trim().isEmpty()) {
+        productPage = productService.searchProductsWithPagination(keyword.trim(), user.getShop(), pageable);
+        model.addAttribute("keyword", keyword);
+    } else {
+        productPage = productRepository.findByShopAndActiveTrue(user.getShop(), pageable);
     }
 
+    // Get product limit stats - Count ONLY ACTIVE products
+    long currentProductCount = productRepository.countByShopAndActiveTrue(shop);
+    int productLimit = planLimitService.getProductLimit(shop);
+    boolean canAddMore = currentProductCount < productLimit;
+
+    model.addAttribute("products", productPage.getContent());
+    model.addAttribute("currentPage", productPage.getNumber());
+    model.addAttribute("totalPages", productPage.getTotalPages());
+    model.addAttribute("totalItems", productPage.getTotalElements());
+    model.addAttribute("pageSize", PAGE_SIZE);
+    model.addAttribute("role", user.getRole().name());
+    model.addAttribute("currentPage", "products");
+    model.addAttribute("user", user);
+    model.addAttribute("shop", shop);
+    model.addAttribute("currentProductCount", currentProductCount);
+    model.addAttribute("productLimit", productLimit);
+    model.addAttribute("canAddMore", canAddMore);
+
+    PlanType planType = user.getShop().getPlanType();
+    String planTypeDisplay = planType != null ? planType.name() : "FREE";
+    model.addAttribute("planType", planTypeDisplay);
+
+    return "products";
+}
     // AJAX ENDPOINT FOR LIVE SEARCH (Latest first)
     @GetMapping("/search-live")
     @ResponseBody
@@ -114,7 +123,6 @@ public class ProductController {
             response.put("pageSize", productPage.getSize());
             response.put("hasNext", productPage.hasNext());
             response.put("hasPrevious", productPage.hasPrevious());
-            
 
             return ResponseEntity.ok(response);
 
@@ -172,7 +180,7 @@ public class ProductController {
         return value.replace("\"", "\"\"");
     }
 
-    // DUPLICATE PRODUCT
+    // DUPLICATE PRODUCT - WITH LIMIT CHECK
     @PostMapping("/duplicate")
     @ResponseBody
     public ResponseEntity<Map<String, String>> duplicateProduct(
@@ -181,11 +189,25 @@ public class ProductController {
         
         try {
             User user = getUser(authentication);
+            Shop shop = user.getShop();
+            
+            // Check product limit before duplicating using PlanLimitService
+            if (!planLimitService.canAddProduct(shop)) {
+                long currentCount = productRepository.countByShopAndActiveTrue(shop);
+                int maxLimit = planLimitService.getProductLimit(shop);
+                
+                return ResponseEntity.status(403).body(Map.of(
+                    "error", "Product limit reached! Your " + shop.getPlanType() +
+                    " plan allows maximum " + maxLimit + " products. " +
+                    "You currently have " + currentCount + " products."
+                ));
+            }
+            
             Product original = productRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
             // Check authorization
-            if (!original.getShop().getId().equals(user.getShop().getId())) {
+            if (!original.getShop().getId().equals(shop.getId())) {
                 return ResponseEntity.status(403).body(Map.of("error", "Unauthorized"));
             }
 
@@ -197,7 +219,7 @@ public class ProductController {
             duplicate.setStockQuantity(0);
             duplicate.setMinStock(original.getMinStock());
             duplicate.setGstPercent(original.getGstPercent());
-            duplicate.setShop(user.getShop());
+            duplicate.setShop(shop);
             duplicate.setActive(true);
 
             productRepository.save(duplicate);
@@ -242,23 +264,73 @@ public class ProductController {
         }
     }
 
-    // NEW PRODUCT FORM
-    @GetMapping("/new")
-    public String newProductForm(Model model, Authentication authentication) {
-        User user = getUser(authentication);
-        model.addAttribute("product", new Product());
-        model.addAttribute("role", user.getRole().name());
-        model.addAttribute("currentPage", "products");
-        return "product-form";
+    // NEW PRODUCT FORM - WITH LIMIT CHECK
+  @GetMapping("/new")
+public String newProductForm(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
+    User user = getUser(authentication);
+    Shop shop = user.getShop();
+
+    // Get current active product count
+    long currentCount = productRepository.countByShopAndActiveTrue(shop);
+    int maxLimit = planLimitService.getProductLimit(shop);
+    
+    log.info("Product limit check - Current active: {}, Max limit: {}", currentCount, maxLimit);
+    
+    // Check if limit is reached
+    if (currentCount >= maxLimit) {
+        redirectAttributes.addFlashAttribute("error",
+                "Product limit reached! Your " + shop.getPlanType() +
+                " plan allows maximum " + maxLimit + " products. " +
+                "You currently have " + currentCount + " active products. " +
+                "Please upgrade your plan to add more products.");
+        
+        return "redirect:/products";
     }
 
-    // SAVE OR UPDATE PRODUCT
+    // If limit not reached, show product form
+    model.addAttribute("product", new Product());
+    model.addAttribute("shop", shop);
+    model.addAttribute("user", user);
+    model.addAttribute("role", user.getRole().name());
+    model.addAttribute("currentPage", "products");
+    
+    PlanType planType = shop.getPlanType();
+    String planTypeDisplay = planType != null ? planType.name() : "FREE";
+    model.addAttribute("planType", planTypeDisplay);
+    model.addAttribute("productLimit", maxLimit);
+    model.addAttribute("currentProductCount", currentCount);
+    model.addAttribute("canAddMore", currentCount < maxLimit);
+
+    return "product-form";
+}
+    // SAVE OR UPDATE PRODUCT - WITH LIMIT CHECK FOR NEW PRODUCTS
     @PostMapping("/save")
     public String saveOrUpdateProduct(@ModelAttribute Product product,
-            Authentication authentication) {
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
 
         User user = getUser(authentication);
-        product.setShop(user.getShop());
+        Shop shop = user.getShop();
+        
+        // Check if this is a new product (id is null)
+        boolean isNewProduct = product.getId() == null;
+        
+        if (isNewProduct) {
+            // Check product limit before adding new product using PlanLimitService
+            if (!planLimitService.canAddProduct(shop)) {
+                long currentCount = productRepository.countByShopAndActiveTrue(shop);
+                int maxLimit = planLimitService.getProductLimit(shop);
+                
+                redirectAttributes.addFlashAttribute("error",
+                        "Product limit reached! Your " + shop.getPlanType() +
+                        " plan allows maximum " + maxLimit + " products. " +
+                        "You currently have " + currentCount + " products.");
+                
+                return "redirect:/products";
+            }
+        }
+        
+        product.setShop(shop);
         product.setActive(true);
 
         if (product.getMinStock() == null) {
@@ -266,6 +338,9 @@ public class ProductController {
         }
 
         productRepository.save(product);
+        
+        redirectAttributes.addFlashAttribute("success", 
+            isNewProduct ? "Product added successfully!" : "Product updated successfully!");
 
         return "redirect:/products";
     }
@@ -274,9 +349,11 @@ public class ProductController {
     @GetMapping("/edit/{id}")
     public String editProduct(@PathVariable Long id,
             Model model,
-            Authentication authentication) {
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
 
         User user = getUser(authentication);
+        Shop shop = user.getShop();
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -285,16 +362,29 @@ public class ProductController {
             throw new RuntimeException("Unauthorized access");
         }
 
+        long currentCount = productRepository.countByShopAndActiveTrue(shop);
+
         model.addAttribute("product", product);
+        model.addAttribute("shop", shop);
+        model.addAttribute("user", user);
         model.addAttribute("role", user.getRole().name());
         model.addAttribute("currentPage", "products");
+        model.addAttribute("currentProductCount", currentCount);
+        model.addAttribute("productLimit", planLimitService.getProductLimit(shop));
+        model.addAttribute("canAddMore", planLimitService.canAddProduct(shop));
+
+        PlanType planType = shop.getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+
         return "product-form";
     }
 
     // DELETE PRODUCT (SOFT DELETE)
     @PostMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id,
-            Authentication authentication) {
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
 
         User user = getUser(authentication);
 
@@ -304,8 +394,14 @@ public class ProductController {
         if (!product.getShop().getId().equals(user.getShop().getId())) {
             throw new RuntimeException("Unauthorized access");
         }
+        
+        String productName = product.getName();
         product.setActive(false);
         productRepository.save(product);
+        
+        redirectAttributes.addFlashAttribute("success", 
+            "Product '" + productName + "' deleted successfully!");
+
         return "redirect:/products";
     }
 }

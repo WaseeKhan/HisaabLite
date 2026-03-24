@@ -69,24 +69,24 @@ public class PlanLimitService {
     /**
      * Check if shop can add more products based on current plan limits
      */
-    public boolean canAddProduct(Shop shop) {
-        SubscriptionPlan plan = getCurrentPlan(shop);
-        
-        // -1 means unlimited
-        if (plan.getMaxProducts() == -1) {
-            log.debug("Shop {}: Unlimited products allowed", shop.getId());
-            return true;
-        }
-        
-        long currentProducts = productRepository.countByShop(shop);
-        boolean canAdd = currentProducts < plan.getMaxProducts();
-        
-        log.debug("Shop {}: current products={}, max={} (from plan: {}), canAdd={}", 
-                 shop.getId(), currentProducts, plan.getMaxProducts(), plan.getPlanName(), canAdd);
-        
-        return canAdd;
+  public boolean canAddProduct(Shop shop) {
+    SubscriptionPlan plan = getCurrentPlan(shop);
+    
+    // -1 means unlimited
+    if (plan.getMaxProducts() == -1) {
+        log.debug("Shop {}: Unlimited products allowed", shop.getId());
+        return true;
     }
-
+    
+    // FIXED: Count only ACTIVE products
+    long currentProducts = productRepository.countByShopAndActiveTrue(shop);
+    boolean canAdd = currentProducts < plan.getMaxProducts();
+    
+    log.debug("Shop {}: current active products={}, max={} (from plan: {}), canAdd={}", 
+             shop.getId(), currentProducts, plan.getMaxProducts(), plan.getPlanName(), canAdd);
+    
+    return canAdd;
+}
     /**
      * Get user limit for shop from database
      */
@@ -150,59 +150,58 @@ public class PlanLimitService {
     /**
      * Get detailed usage statistics for dashboard
      */
-    public Map<String, Object> getUsageStats(Shop shop) {
-        Map<String, Object> stats = new HashMap<>();
+ public Map<String, Object> getUsageStats(Shop shop) {
+    Map<String, Object> stats = new HashMap<>();
+    
+    try {
+        SubscriptionPlan plan = getCurrentPlan(shop);
         
-        try {
-            SubscriptionPlan plan = getCurrentPlan(shop);
-            
-            // Current usage counts
-            long currentUsers = userRepository.countByShop(shop);
-            long currentProducts = productRepository.countByShop(shop);
-            long currentSales = saleRepository.countByShop(shop); // You'll need this method
-            
-            // Plan limits from database
-            int maxUsers = plan.getMaxUsers();
-            int maxProducts = plan.getMaxProducts();
-            
-            stats.put("planId", plan.getId());
-            stats.put("planName", plan.getPlanName());
-            stats.put("planDescription", plan.getDescription());
-            stats.put("planFeatures", plan.getFeatures());
-            stats.put("planPrice", plan.getPrice());
-            stats.put("planDuration", plan.getDurationInDays());
-            
-            // User stats
-            stats.put("maxUsers", maxUsers == -1 ? "Unlimited" : maxUsers);
-            stats.put("currentUsers", currentUsers);
-            stats.put("usersPercentage", calculatePercentage(currentUsers, maxUsers));
-            stats.put("usersRemaining", maxUsers == -1 ? -1 : Math.max(0, maxUsers - currentUsers));
-            
-            // Product stats
-            stats.put("maxProducts", maxProducts == -1 ? "Unlimited" : maxProducts);
-            stats.put("currentProducts", currentProducts);
-            stats.put("productsPercentage", calculatePercentage(currentProducts, maxProducts));
-            stats.put("productsRemaining", maxProducts == -1 ? -1 : Math.max(0, maxProducts - currentProducts));
-            
-            // Sales stats (optional)
-            stats.put("totalSales", currentSales);
-            
-            // Subscription status
-            stats.put("subscriptionActive", isSubscriptionActive(shop));
-            stats.put("daysRemaining", getDaysRemaining(shop));
-            stats.put("expiryDate", shop.getSubscriptionEndDate());
-            
-            log.debug("Usage stats for shop {}: {} users/{}, {} products/{}", 
-                     shop.getId(), currentUsers, maxUsers, currentProducts, maxProducts);
-            
-        } catch (Exception e) {
-            log.error("Error getting usage stats for shop {}: {}", shop.getId(), e.getMessage());
-            stats.put("error", "Could not load plan details");
-        }
+        // Current usage counts - FIXED: Use active counts
+        long currentUsers = userRepository.countByShop(shop);
+        long currentProducts = productRepository.countByShopAndActiveTrue(shop);  // FIXED
+        long currentSales = saleRepository.countByShop(shop);
         
-        return stats;
+        // Plan limits from database
+        int maxUsers = plan.getMaxUsers();
+        int maxProducts = plan.getMaxProducts();
+        
+        stats.put("planId", plan.getId());
+        stats.put("planName", plan.getPlanName());
+        stats.put("planDescription", plan.getDescription());
+        stats.put("planFeatures", plan.getFeatures());
+        stats.put("planPrice", plan.getPrice());
+        stats.put("planDuration", plan.getDurationInDays());
+        
+        // User stats
+        stats.put("maxUsers", maxUsers == -1 ? "Unlimited" : maxUsers);
+        stats.put("currentUsers", currentUsers);
+        stats.put("usersPercentage", calculatePercentage(currentUsers, maxUsers));
+        stats.put("usersRemaining", maxUsers == -1 ? -1 : Math.max(0, maxUsers - currentUsers));
+        
+        // Product stats - FIXED: Use active products count
+        stats.put("maxProducts", maxProducts == -1 ? "Unlimited" : maxProducts);
+        stats.put("currentProducts", currentProducts);
+        stats.put("productsPercentage", calculatePercentage(currentProducts, maxProducts));
+        stats.put("productsRemaining", maxProducts == -1 ? -1 : Math.max(0, maxProducts - currentProducts));
+        
+        // Sales stats (optional)
+        stats.put("totalSales", currentSales);
+        
+        // Subscription status
+        stats.put("subscriptionActive", isSubscriptionActive(shop));
+        stats.put("daysRemaining", getDaysRemaining(shop));
+        stats.put("expiryDate", shop.getSubscriptionEndDate());
+        
+        log.debug("Usage stats for shop {}: {} users/{}, {} active products/{}", 
+                 shop.getId(), currentUsers, maxUsers, currentProducts, maxProducts);
+        
+    } catch (Exception e) {
+        log.error("Error getting usage stats for shop {}: {}", shop.getId(), e.getMessage());
+        stats.put("error", "Could not load plan details");
     }
-
+    
+    return stats;
+}
     /**
      * Validate if shop can perform an action based on limits
      */

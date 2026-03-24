@@ -1,0 +1,684 @@
+/* ===== SHOP PROFILE PAGE STYLES ===== */
+/* Compact, polished, adorable theme - with full width utilization */
+
+/* Page Header - compact */
+.profile-page-header {
+    margin-bottom: 20px;
+}
+
+.profile-page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.01em;
+}
+
+.profile-page-title i {
+    color: #3b82f6;
+    font-size: 1.4rem;
+}
+
+/* Profile Card - full width, compact */
+.profile-card {
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    width: 100%;
+    transition: box-shadow 0.2s ease;
+}
+
+.profile-card:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04);
+}
+
+/* Info Grid - refined, balanced */
+.profile-info-grid {
+    background: #fafcff;
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    border: 1px solid #eef2f8;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 28px;
+}
+
+.profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-info-item.full-width {
+    grid-column: span 2;
+}
+
+.profile-info-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #5b6e8c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-info-label i {
+    color: #8ba0bc;
+    font-size: 0.75rem;
+}
+
+.profile-info-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #0f172a;
+    background: white;
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 1px solid #e9edf2;
+    transition: all 0.2s;
+    word-break: break-word;
+}
+
+.profile-info-value.immutable {
+    background: #f8fafd;
+    color: #334155;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    border-color: #e2e8f0;
+}
+
+/* Password link - cute button */
+.profile-password-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1e293b;
+    color: white;
+    text-decoration: none;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.profile-password-link:hover {
+    background: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Form Title */
+.profile-form-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid #eff3f8;
+}
+
+.profile-form-title i {
+    color: #3b82f6;
+    font-size: 1rem;
+}
+
+/* Form Grid - full width utilization */
+.profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 24px;
+}
+
+.profile-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-form-group.full-width {
+    grid-column: span 2;
+}
+
+.profile-form-group label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #5e6f8d;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-form-group label i {
+    color: #90a1bc;
+    font-size: 0.7rem;
+}
+
+.profile-form-group input {
+    padding: 12px 16px;
+    border: 1.5px solid #e4e9f0;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    background: #ffffff;
+    transition: all 0.2s;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    width: 100%;
+}
+
+.profile-form-group input:focus {
+    border-color: #3b82f6;
+    outline: none;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+}
+
+.profile-form-group input::placeholder {
+    color: #b9c2d0;
+    font-size: 0.8rem;
+}
+
+/* Buttons - cute, compact */
+.profile-action-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    align-items: center;
+}
+
+.profile-btn-primary {
+    background: #1f2a3e;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    flex: 1;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.profile-btn-primary:hover {
+    background: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+.profile-btn-secondary {
+    background: #f1f5f9;
+    color: #4b5565;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    text-decoration: none;
+    flex: 1;
+}
+
+.profile-btn-secondary:hover {
+    background: #e6edf4;
+    color: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* WhatsApp Section - Enhanced Styling */
+.profile-whatsapp-section {
+    margin-top: 36px;
+    border-top: 1.5px solid #edf2f7;
+    padding-top: 32px;
+}
+
+.profile-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Connected state - polished */
+.profile-whatsapp-connected {
+    background: linear-gradient(135deg, #f6fef9 0%, #f0fdf4 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+
+.profile-whatsapp-disconnected {
+    background: linear-gradient(135deg, #fff8f5 0%, #fff7ed 100%);
+    border: 1px solid #fed7aa;
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.profile-whatsapp-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.profile-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+}
+
+.profile-status-dot.connected {
+    background: #22c55e;
+    box-shadow: 0 0 0 2px #bbf7d0;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+.profile-status-dot.disconnected {
+    background: #f97316;
+    box-shadow: 0 0 0 2px #fed7aa;
+}
+
+.profile-status-text {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+.profile-whatsapp-number {
+    color: #4b5563;
+    font-size: 0.85rem;
+    background: white;
+    padding: 6px 14px;
+    border-radius: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.profile-whatsapp-number i {
+    color: #25D366;
+    font-size: 1rem;
+}
+
+.profile-whatsapp-disconnect {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    transition: all 0.2s;
+}
+
+.profile-whatsapp-disconnect:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+
+.profile-whatsapp-message {
+    font-size: 0.8rem;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(34, 197, 94, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-whatsapp-message.success {
+    color: #15803d;
+}
+
+.profile-whatsapp-message i {
+    font-size: 0.9rem;
+}
+
+/* Number input area - improved */
+.profile-whatsapp-number-input {
+    margin-top: 8px;
+}
+
+.profile-whatsapp-number-input label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.profile-input-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.profile-whatsapp-input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.profile-whatsapp-input:focus {
+    border-color: #25D366;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+}
+
+.profile-whatsapp-connect-btn {
+    background: #25D366;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.profile-whatsapp-connect-btn:hover {
+    background: #1da15b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+}
+
+.profile-whatsapp-hint {
+    font-size: 0.7rem;
+    color: #6c7a91;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 12px;
+}
+
+.profile-whatsapp-hint i {
+    color: #3b82f6;
+}
+
+.profile-whatsapp-reconnect {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.profile-whatsapp-reconnect-btn {
+    background: #f1f5f9;
+    color: #4b5565;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.profile-whatsapp-reconnect-btn:hover {
+    background: #e6edf4;
+    color: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* Modal - adorable */
+.profile-whatsapp-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-whatsapp-modal-content {
+    background: white;
+    width: 450px;
+    max-width: 90%;
+    border-radius: 32px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.profile-whatsapp-modal-content h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1e293b;
+}
+
+.profile-whatsapp-modal-content p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 24px;
+}
+
+.profile-modal-body {
+    min-height: 280px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fafcff;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.profile-modal-success {
+    background: #f0fdf4;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-modal-success i {
+    font-size: 3rem;
+    color: #22c55e;
+}
+
+.profile-modal-success h3 {
+    margin: 12px 0 8px;
+    color: #15803d;
+    font-size: 1.2rem;
+}
+
+.profile-modal-success p {
+    margin-bottom: 0;
+    color: #166534;
+}
+
+/* QR code styling */
+.profile-modal-body canvas,
+.profile-modal-body img {
+    max-width: 220px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive - full width on mobile */
+@media (max-width: 768px) {
+    .profile-card {
+        padding: 20px;
+    }
+    
+    .profile-form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .profile-form-group.full-width {
+        grid-column: span 1;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .profile-info-item.full-width {
+        grid-column: span 1;
+    }
+
+    .profile-action-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .profile-input-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .profile-whatsapp-input {
+        width: 100%;
+    }
+    
+    .profile-whatsapp-connect-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .profile-whatsapp-status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-whatsapp-disconnect {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+
+    .profile-whatsapp-modal-content {
+        width: 90%;
+        padding: 24px;
+    }
+    
+    .profile-btn-primary,
+    .profile-btn-secondary {
+        width: 100%;
+    }
+}
+
+/* Extra polish for better spacing */
+.profile-info-value,
+.profile-form-group input {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Make form groups take full width on larger screens */
+@media (min-width: 1200px) {
+    .profile-card {
+        max-width: 100%;
+    }
+    
+    .profile-form-grid {
+        gap: 24px;
+    }
+}
+
+/* WhatsApp section - better visual hierarchy */
+.profile-whatsapp-connected .profile-whatsapp-status,
+.profile-whatsapp-disconnected .profile-whatsapp-status {
+    margin-bottom: 8px;
+}
+
+/* Add hover effects */
+.profile-whatsapp-connected:hover,
+.profile-whatsapp-disconnected:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}

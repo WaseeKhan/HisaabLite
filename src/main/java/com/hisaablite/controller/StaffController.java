@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
@@ -48,20 +49,25 @@ public class StaffController {
         User owner = userRepository
                 .findByUsername(auth.getName())
                 .orElseThrow();
-            User user = userRepository
+        
+        User user = userRepository
                 .findByUsername(auth.getName())
                 .orElseThrow();
         
         Shop shop = owner.getShop();
         List<User> staff = userRepository.findByShop(shop);
+        
         model.addAttribute("shop", shop);
-         String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
+        
+        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
+        
         model.addAttribute("staffList", staff);
         model.addAttribute("role", owner.getRole().name());
         model.addAttribute("user", user);
         model.addAttribute("usageStats", planLimitService.getUsageStats(shop));
         model.addAttribute("currentPage", "staff");
+        
         return "staff-list";
     }
 
@@ -71,21 +77,77 @@ public class StaffController {
                 .findByUsername(authentication.getName())
                 .orElseThrow();
 
-        if (!planLimitService.canAddUser(owner.getShop())) {
+        Shop shop = owner.getShop();
+        
+        if (!planLimitService.canAddUser(shop)) {
             model.addAttribute("error",
-                    "User limit reached! Your " + owner.getShop().getPlanType() +
-                            " plan allows maximum " + planLimitService.getUserLimit(owner.getShop()) + " users.");
+                    "User limit reached! Your " + shop.getPlanType() +
+                            " plan allows maximum " + planLimitService.getUserLimit(shop) + " users.");
+            
+            List<User> staff = userRepository.findByShop(shop);
+            
+            model.addAttribute("shop", shop);
+            model.addAttribute("staffList", staff);
+            model.addAttribute("role", owner.getRole().name());
+            model.addAttribute("currentPage", "staff");
+            model.addAttribute("user", owner);
+            
+            PlanType planType = shop.getPlanType();
+            String planTypeDisplay = planType != null ? planType.name() : "FREE";
+            model.addAttribute("planType", planTypeDisplay);
+            
+            model.addAttribute("usageStats", planLimitService.getUsageStats(shop));
+            
             return "staff-list";
         }
 
-        model.addAttribute("user", new User());
+        // Create new user object for the form
+        User newUser = new User();
+        newUser.setShop(shop);
+        newUser.setActive(true);
+        
+        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
+        
+        model.addAttribute("user", newUser);
+        model.addAttribute("shop", shop);
+        model.addAttribute("planType", planTypeDisplay);
         model.addAttribute("role", owner.getRole().name());
+        model.addAttribute("currentPage", "staff");
+        
         return "staff-form";
     }
 
-    @PostMapping
+    // ========== EDIT STAFF METHOD - ADD THIS ==========
+    @GetMapping("/edit/{id}")
+    public String editStaffForm(@PathVariable Long id, Model model, Authentication authentication) {
+        User owner = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow();
+
+        User staff = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        // Verify staff belongs to owner's shop
+        if (!staff.getShop().getId().equals(owner.getShop().getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        Shop shop = owner.getShop();
+        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
+
+        model.addAttribute("user", staff);
+        model.addAttribute("shop", shop);
+        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("role", owner.getRole().name());
+        model.addAttribute("currentPage", "staff");
+        
+        return "staff-form";
+    }
+
+    @PostMapping("/save")
     public String saveStaff(@ModelAttribute User user,
             Authentication auth,
+            RedirectAttributes redirectAttributes,
             Model model) {
 
         User owner = userRepository
@@ -94,39 +156,76 @@ public class StaffController {
 
         Shop shop = owner.getShop();
 
-        if (!planLimitService.canAddUser(shop)) {
-            model.addAttribute("error",
+        // Check if this is an update or new staff
+        boolean isUpdate = user.getId() != null;
+        
+        if (!isUpdate && !planLimitService.canAddUser(shop)) {
+            redirectAttributes.addFlashAttribute("error",
                     "User limit reached! Your " + shop.getPlanType() +
                             " plan allows maximum " + planLimitService.getUserLimit(shop) + " users.");
-            return "staff-form";
+            return "redirect:/staff";
         }
 
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            model.addAttribute("error", "Email already exists");
-            return "staff-form";
+        // Check email uniqueness (exclude current user if updating)
+        User existingByEmail = userRepository.findByUsername(user.getUsername()).orElse(null);
+        if (existingByEmail != null && (isUpdate ? !existingByEmail.getId().equals(user.getId()) : true)) {
+            redirectAttributes.addFlashAttribute("error", "Email already exists");
+            return "redirect:/staff";
         }
 
-        if (userRepository.findByPhone(user.getPhone()).isPresent()) {
-            model.addAttribute("error", "Phone number already exists");
-            return "staff-form";
+        // Check phone uniqueness (exclude current user if updating)
+        User existingByPhone = userRepository.findByPhone(user.getPhone()).orElse(null);
+        if (existingByPhone != null && (isUpdate ? !existingByPhone.getId().equals(user.getId()) : true)) {
+            redirectAttributes.addFlashAttribute("error", "Phone number already exists");
+            return "redirect:/staff";
         }
 
-        user.setShop(shop);
-        user.setActive(true);
-        user.setApproved(true);
-        user.setCurrentPlan(shop.getPlanType());
+        if (isUpdate) {
+            // UPDATE EXISTING STAFF
+            User existingStaff = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new RuntimeException("Staff not found"));
+            
+            // Update fields
+            existingStaff.setName(user.getName());
+            existingStaff.setUsername(user.getUsername());
+            existingStaff.setPhone(user.getPhone());
+            existingStaff.setRole(user.getRole());
+            
+            // Update password only if provided
+            if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+                existingStaff.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            
+            userRepository.save(existingStaff);
+            
+            log.info("Staff updated: {} with role {} for shop {}",
+                    existingStaff.getUsername(), existingStaff.getRole(), shop.getName());
+            
+            redirectAttributes.addFlashAttribute("success", 
+                    "Staff member updated successfully!");
+            
+        } else {
+            // CREATE NEW STAFF
+            user.setShop(shop);
+            user.setActive(true);
+            user.setApproved(true);
+            user.setCurrentPlan(shop.getPlanType());
 
-        if (user.getRole() != Role.MANAGER && user.getRole() != Role.CASHIER) {
-            user.setRole(Role.CASHIER);
+            if (user.getRole() != Role.MANAGER && user.getRole() != Role.CASHIER) {
+                user.setRole(Role.CASHIER);
+            }
+
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setCreatedAt(LocalDateTime.now());
+
+            userRepository.save(user);
+
+            log.info("Staff created: {} with role {} for shop {}",
+                    user.getUsername(), user.getRole(), shop.getName());
+            
+            redirectAttributes.addFlashAttribute("success", 
+                    "Staff member added successfully!");
         }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-
-        userRepository.save(user);
-
-        log.info("Staff created: {} with role {} for shop {}",
-                user.getUsername(), user.getRole(), shop.getName());
 
         return "redirect:/staff";
     }
@@ -142,6 +241,8 @@ public class StaffController {
             user.setRole(role);
             userRepository.save(user);
             log.info("Role changed for user {} to {}", user.getUsername(), role);
+            redirectAttributes.addFlashAttribute("success", 
+                    "Role changed to " + role + " for " + user.getName());
         }
 
         return "redirect:/staff";
@@ -178,67 +279,63 @@ public class StaffController {
         return "redirect:/staff";
     }
 
-@GetMapping("/{id}/active-staff")
-@ResponseBody
-public Map<String, Object> getActiveStaff(@PathVariable Long id) {
-    Map<String, Object> response = new HashMap<>();
-    log.info("=== GET ACTIVE STAFF CALLED for userId: {} ===", id);
-    
-    try {
-        log.info("Looking for user with ID: {}", id);
+    @GetMapping("/{id}/active-staff")
+    @ResponseBody
+    public Map<String, Object> getActiveStaff(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        log.info("=== GET ACTIVE STAFF CALLED for userId: {} ===", id);
         
-        User userToDelete = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-        
-        log.info("Found user: {}, Shop ID: {}, Role: {}", 
-            userToDelete.getUsername(), userToDelete.getShop().getId(), userToDelete.getRole());
-        
-        // Get other active staff in same shop
-        List<User> allShopUsers = userRepository.findByShop(userToDelete.getShop());
-        log.info("Total users in shop: {}", allShopUsers.size());
-        
-       
-        List<Map<String, Object>> activeStaff = allShopUsers
-                .stream()
-                .filter(u -> {
-                    // Not the same user, is active, and NOT an owner
-                    boolean condition = !u.getId().equals(id) && 
-                                       u.isActive() && 
-                                       u.getRole() != Role.OWNER;  
-                    
-                    log.debug("User {}: Role={}, id match={}, active={}, condition={}", 
-                        u.getUsername(), u.getRole(), !u.getId().equals(id), u.isActive(), condition);
-                    return condition;
-                })
-                .map(u -> {
-                    Map<String, Object> staff = new HashMap<>();
-                    staff.put("id", u.getId());
-                    staff.put("name", u.getName());
-                    staff.put("role", u.getRole().name());
-                    return staff;
-                })
-                .collect(Collectors.toList());
-        
-        log.info("Found {} active staff members to reassign to", activeStaff.size());
-        
-        response.put("success", true);
-        response.put("activeStaff", activeStaff);
-        
-        if (activeStaff.isEmpty()) {
-            response.put("message", "No other active staff members found");
+        try {
+            log.info("Looking for user with ID: {}", id);
+            
+            User userToDelete = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+            
+            log.info("Found user: {}, Shop ID: {}, Role: {}", 
+                userToDelete.getUsername(), userToDelete.getShop().getId(), userToDelete.getRole());
+            
+            List<User> allShopUsers = userRepository.findByShop(userToDelete.getShop());
+            log.info("Total users in shop: {}", allShopUsers.size());
+            
+            List<Map<String, Object>> activeStaff = allShopUsers
+                    .stream()
+                    .filter(u -> {
+                        boolean condition = !u.getId().equals(id) && 
+                                           u.isActive() && 
+                                           u.getRole() != Role.OWNER;  
+                        
+                        log.debug("User {}: Role={}, id match={}, active={}, condition={}", 
+                            u.getUsername(), u.getRole(), !u.getId().equals(id), u.isActive(), condition);
+                        return condition;
+                    })
+                    .map(u -> {
+                        Map<String, Object> staff = new HashMap<>();
+                        staff.put("id", u.getId());
+                        staff.put("name", u.getName());
+                        staff.put("role", u.getRole().name());
+                        return staff;
+                    })
+                    .collect(Collectors.toList());
+            
+            log.info("Found {} active staff members to reassign to", activeStaff.size());
+            
+            response.put("success", true);
+            response.put("activeStaff", activeStaff);
+            
+            if (activeStaff.isEmpty()) {
+                response.put("message", "No other active staff members found");
+            }
+            
+        } catch (Exception e) {
+            log.error("Error getting active staff: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            response.put("error", e.toString());
         }
         
-    } catch (Exception e) {
-        log.error("Error getting active staff: {}", e.getMessage(), e);
-        response.put("success", false);
-        response.put("message", e.getMessage());
-        response.put("error", e.toString());
+        log.info("Returning response: {}", response);
+        return response;
     }
-    
-    log.info("Returning response: {}", response);
-    return response;
-}
-
 
     @GetMapping("/{id}/deactivate")
     public String deactivateUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -254,89 +351,74 @@ public Map<String, Object> getActiveStaff(@PathVariable Long id) {
         return "redirect:/staff";
     }
 
+    @PostMapping("/{id}/delete")
+    public String deleteStaff(@PathVariable Long id,
+                             @RequestParam(required = false) Long reassignToId,  
+                             RedirectAttributes redirectAttributes,
+                             Authentication authentication) {  
 
-
-@PostMapping("/{id}/delete")
-public String deleteStaff(@PathVariable Long id,
-                         @RequestParam(required = false) Long reassignToId,  
-                         RedirectAttributes redirectAttributes,
-                         Authentication authentication) {  
-
-    // Get current logged in user
-    User currentUser = userRepository.findByUsername(authentication.getName())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-    
-    User userToDelete = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-
-    // CHECK 1: Owner cannot delete himself
-    if (currentUser.getId().equals(userToDelete.getId())) {
-        redirectAttributes.addFlashAttribute("error", 
-            "You cannot delete your own account! 🤦");
-        return "redirect:/staff";
-    }
-
-    // CHECK 2: Only owners can delete
-    if (currentUser.getRole() != Role.OWNER) {
-        redirectAttributes.addFlashAttribute("error", 
-            "Access Denied: Only owners can delete staff");
-        return "redirect:/staff";
-    }
-
-    // CHECK 3: Cannot delete another owner
-    if (userToDelete.getRole() == Role.OWNER) {
-        redirectAttributes.addFlashAttribute("error", 
-            "Cannot delete another owner account");
-        return "redirect:/staff";
-    }
-
-    // If no reassignToId, just deactivate (for users with no records)
-    if (reassignToId == null) {
-        userToDelete.setActive(false);
-        userRepository.save(userToDelete);
-        redirectAttributes.addFlashAttribute("warning", 
-            "User has been deactivated (no reassignment needed)");
-        return "redirect:/staff";
-    }
-    
-    User reassignTo = userRepository.findById(reassignToId)
-            .orElseThrow(() -> new RuntimeException("Target user not found with ID: " + reassignToId));
-
-    // CHECK 4: Cannot reassign to owner
-    if (reassignTo.getRole() == Role.OWNER) {
-        redirectAttributes.addFlashAttribute("error", 
-            "Cannot reassign records to owner. Please select a staff member.");
-        return "redirect:/staff";
-    }
-
-    try {
-        // Reassign sales
-        int salesReassigned = saleRepository.reassignSales(userToDelete, reassignTo);
+        User currentUser = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         
-        // Reassign tickets
-        int ticketsReassigned = supportTicketRepository.reassignTickets(userToDelete, reassignTo);
+        User userToDelete = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
+        if (currentUser.getId().equals(userToDelete.getId())) {
+            redirectAttributes.addFlashAttribute("error", 
+                "You cannot delete your own account! 🤦");
+            return "redirect:/staff";
+        }
+
+        if (currentUser.getRole() != Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Access Denied: Only owners can delete staff");
+            return "redirect:/staff";
+        }
+
+        if (userToDelete.getRole() == Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Cannot delete another owner account");
+            return "redirect:/staff";
+        }
+
+        if (reassignToId == null) {
+            userToDelete.setActive(false);
+            userRepository.save(userToDelete);
+            redirectAttributes.addFlashAttribute("warning", 
+                "User has been deactivated (no reassignment needed)");
+            return "redirect:/staff";
+        }
         
-        // Reassign replies
-        int repliesReassigned = ticketReplyRepository.reassignReplies(userToDelete, reassignTo);
+        User reassignTo = userRepository.findById(reassignToId)
+                .orElseThrow(() -> new RuntimeException("Target user not found with ID: " + reassignToId));
 
-        // Now delete the user
-        userRepository.delete(userToDelete);
+        if (reassignTo.getRole() == Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error", 
+                "Cannot reassign records to owner. Please select a staff member.");
+            return "redirect:/staff";
+        }
 
-        log.info("User deleted: {} → {} (Sales: {}, Tickets: {}, Replies: {})", 
-            userToDelete.getUsername(), reassignTo.getUsername(),
-            salesReassigned, ticketsReassigned, repliesReassigned);
+        try {
+            int salesReassigned = saleRepository.reassignSales(userToDelete, reassignTo);
+            int ticketsReassigned = supportTicketRepository.reassignTickets(userToDelete, reassignTo);
+            int repliesReassigned = ticketReplyRepository.reassignReplies(userToDelete, reassignTo);
 
-        redirectAttributes.addFlashAttribute("success", 
-            String.format("User deleted! %d sales, %d tickets reassigned to %s",
-                salesReassigned, ticketsReassigned, reassignTo.getName()));
+            userRepository.delete(userToDelete);
 
-    } catch (Exception e) {
-        log.error("Error deleting user: {}", e.getMessage());
-        redirectAttributes.addFlashAttribute("error", 
-            "Failed to delete user: " + e.getMessage());
+            log.info("User deleted: {} → {} (Sales: {}, Tickets: {}, Replies: {})", 
+                userToDelete.getUsername(), reassignTo.getUsername(),
+                salesReassigned, ticketsReassigned, repliesReassigned);
+
+            redirectAttributes.addFlashAttribute("success", 
+                String.format("User deleted! %d sales, %d tickets reassigned to %s",
+                    salesReassigned, ticketsReassigned, reassignTo.getName()));
+
+        } catch (Exception e) {
+            log.error("Error deleting user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", 
+                "Failed to delete user: " + e.getMessage());
+        }
+
+        return "redirect:/staff";
     }
-
-    return "redirect:/staff";
-}
-
 }

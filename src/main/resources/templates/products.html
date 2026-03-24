@@ -4,8 +4,6 @@
 <head>
     <title>Products • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-
-    <!-- Fonts & Icons -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -27,18 +25,88 @@
 <body class="shop-body">
 
     <div class="shop-layout">
-
         <!-- Sidebar Fragment -->
-        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='products')}">
+        </div>
 
         <!-- Main Content -->
         <div class="shop-main">
             <div class="shop-content-wrapper">
 
-                <!-- Header -->
-                <div th:replace="~{fragments/shop-header :: header}"></div>
+                <!-- Header Fragment -->
+                <div
+                    th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}">
+                </div>
 
-                
+                <!-- Product Limit Banner - Only show when limit is actually reached -->
+                <div th:if="${currentProductCount >= productLimit and planType != 'ENTERPRISE'}"
+                    class="shop-limit-banner">
+                    <div class="shop-limit-banner-content">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="shop-limit-banner-text">
+                            <strong>Product Limit Reached!</strong> You've reached the maximum of
+                            <strong th:text="${productLimit}">50</strong> products on your
+                            <strong th:text="${planType}">FREE</strong> plan.
+                        </div>
+                        <a th:href="@{/upgrade}" class="shop-upgrade-btn"><i class="fas fa-arrow-up"></i> Upgrade</a>
+                    </div>
+                </div>
+
+                <!-- Usage Progress Bar - Colorful -->
+                <div class="shop-usage-progress" th:if="${planType != 'ENTERPRISE'}">
+                    <div class="shop-usage-info">
+                        <div>
+                            <i class="fas fa-box"></i>
+                            <span>Products: </span>
+                            <strong th:text="${currentProductCount}">0</strong>
+                            <span>/</span>
+                            <strong th:text="${productLimit}">50</strong>
+                        </div>
+                        <div class="shop-usage-percent"
+                            th:classappend="${(currentProductCount * 100 / productLimit) < 50} ? 'percent-green' : (${(currentProductCount * 100 / productLimit) < 80} ? 'percent-yellow' : 'percent-red')"
+                            th:text="${(currentProductCount * 100 / productLimit) + '%'}">
+                            0%
+                        </div>
+                    </div>
+                    <div class="shop-progress-bar">
+                        <div class="shop-progress-fill"
+                            th:style="'width: ' + ${currentProductCount * 100 / productLimit} + '%'"
+                            th:classappend="${(currentProductCount * 100 / productLimit) < 50} ? 'fill-green' : (${(currentProductCount * 100 / productLimit) < 80} ? 'fill-yellow' : 'fill-red')">
+                        </div>
+                    </div>
+                    <!-- Warning only shows when near limit (>=80%) -->
+                    <div class="shop-usage-warning" th:if="${currentProductCount * 100 / productLimit >= 80}">
+                        <i th:if="${currentProductCount * 100 / productLimit >= 100}" class="fas fa-ban"></i>
+                        <i th:unless="${currentProductCount * 100 / productLimit >= 100}"
+                            class="fas fa-exclamation-triangle"></i>
+                        <span th:if="${currentProductCount * 100 / productLimit >= 100}">
+                             Limit reached! <a th:href="@{/upgrade}" class="warning-link">Upgrade now</a>
+                        </span>
+                        <span th:unless="${currentProductCount * 100 / productLimit >= 100}">
+                            <strong th:text="${productLimit - currentProductCount}"></strong> slots left! <a
+                                th:href="@{/upgrade}" class="warning-link">Upgrade</a>
+                        </span>
+                    </div>
+                    <!-- Optional: Show success message when under limit -->
+                    <div class="shop-usage-success"
+                        th:if="${currentProductCount * 100 / productLimit < 80 and currentProductCount > 0}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>You have <strong th:text="${productLimit - currentProductCount}"></strong> slots available
+                            for new products.</span>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${success}" class="shop-alert shop-alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${success}">Success</span>
+                    <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+                </div>
+                <div th:if="${error}" class="shop-alert shop-alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error</span>
+                    <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+                </div>
 
                 <!-- Stats Cards -->
                 <div class="shop-stats-grid">
@@ -47,61 +115,50 @@
                             <h4>Total Products</h4>
                             <div class="shop-stat-number" id="totalProducts">0</div>
                         </div>
-                        <div class="shop-stat-icon">
-                            <i class="fas fa-box"></i>
-                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-box"></i></div>
                     </div>
                     <div class="shop-stat-card">
                         <div class="shop-stat-info">
                             <h4>Low Stock</h4>
                             <div class="shop-stat-number" id="lowStockCount">0</div>
                         </div>
-                        <div class="shop-stat-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     </div>
                     <div class="shop-stat-card">
                         <div class="shop-stat-info">
                             <h4>Total Value</h4>
                             <div class="shop-stat-number" id="totalValue">₹0</div>
                         </div>
-                        <div class="shop-stat-icon">
-                            <i class="fas fa-rupee-sign"></i>
-                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-rupee-sign"></i></div>
                     </div>
                     <div class="shop-stat-card">
                         <div class="shop-stat-info">
                             <h4>Categories</h4>
                             <div class="shop-stat-number" id="categoryCount">0</div>
                         </div>
-                        <div class="shop-stat-icon">
-                            <i class="fas fa-tags"></i>
-                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-tags"></i></div>
                     </div>
                 </div>
 
-                <!-- Filter Bar with Action Buttons -->
+                <!-- Filter Bar -->
                 <div class="shop-filter-actions">
                     <div class="shop-filter-bar">
-                        <span class="shop-filter-chip active" data-filter="all">All Products</span>
+                        <span class="shop-filter-chip active" data-filter="all">All</span>
                         <span class="shop-filter-chip" data-filter="low-stock">Low Stock</span>
                         <span class="shop-filter-chip" data-filter="in-stock">In Stock</span>
                     </div>
                     <div class="shop-actions-right">
                         <div class="shop-search">
-                        <i class="fas fa-search shop-search-icon"></i>
-                        <input type="text" id="searchInput" class="shop-search-input"
-                            placeholder="Search products..." autocomplete="off">
-                        <i class="fas fa-spinner fa-pulse shop-search-loading" id="searchLoading"></i>
-                    </div>
-                        <button onclick="exportProducts()" class="shop-btn-icon">
-                            <i class="fas fa-download"></i> Export
-                        </button>
-                        <button onclick="window.print()" class="shop-btn-icon">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                        <a th:href="@{/products/new}" class="shop-btn-primary">
-                            <i class="fas fa-plus"></i> Add Product
+                            <i class="fas fa-search shop-search-icon"></i>
+                            <input type="text" id="searchInput" class="shop-search-input" placeholder="Search...">
+                            <i class="fas fa-spinner fa-pulse shop-search-loading" id="searchLoading"></i>
+                        </div>
+                        <button onclick="exportProducts()" class="shop-btn-icon"><i class="fas fa-download"></i>
+                            Export</button>
+                        <a th:href="@{/products/new}" class="shop-btn-primary"
+                            th:classappend="${currentProductCount >= productLimit} ? 'disabled' : ''"
+                            th:title="${currentProductCount >= productLimit} ? 'Product limit reached. Upgrade to add more.' : 'Add new product'">
+                            <i class="fas fa-plus"></i> Add
                         </a>
                     </div>
                 </div>
@@ -111,36 +168,28 @@
                     <div class="shop-table-responsive">
                         <table class="shop-table" id="productsTable">
                             <thead>
-                                <tr>
-                                    <th style="width: 30px;">
-                                        <input type="checkbox" id="selectAllCheckbox">
-                                    </th>
-                                    <th>Product</th>
+                                
+                                    <th><input type="checkbox" id="selectAllCheckbox"></th>
+                                    <th style="width: 220px;">Product</th>
                                     <th>Price</th>
                                     <th>GST</th>
                                     <th>Stock</th>
                                     <th>Actions</th>
-                                 </thead>
+                                </thead>
                             <tbody id="productsTableBody">
-                                <tr>
-                                    <td colspan="6" class="shop-empty-state">
-                                        <i class="fas fa-spinner fa-pulse"></i>
-                                        <p>Loading products...</p>
-                                     </tr>
+                                
+                                    <td colspan="6" class="shop-empty-state"><i class="fas fa-spinner fa-pulse"></i>
+                                        <p>Loading...</p>
+                                    
                             </tbody>
-                        </table>
+                         </table>
                     </div>
-
-                    <!-- Bulk Actions -->
                     <div id="bulkActions" class="shop-bulk-actions">
-                        <span id="selectedCount">0</span> products selected
-                        <button class="shop-btn-delete" onclick="bulkDelete()">
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                        <span id="selectedCount">0</span> selected
+                        <button class="shop-btn-delete" onclick="bulkDelete()"><i class="fas fa-trash"></i>
+                            Delete</button>
                         <button onclick="clearSelection()" class="shop-cancel-btn">Cancel</button>
                     </div>
-
-                    <!-- Pagination -->
                     <div id="paginationContainer"></div>
                     <div id="paginationInfo" class="shop-pagination-info"></div>
                 </div>
@@ -153,27 +202,25 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Your existing JavaScript (keep the same working code)
-        let currentPage = 0;
-        let currentKeyword = '';
-        let currentFilter = 'all';
-        let selectedProducts = new Set();
-        let allProductsData = [];
+        const productLimit = /*[[${productLimit}]]*/ 50;
+        let currentProductCount = /*[[${currentProductCount}]]*/ 0;
+        
+        let currentPage = 0, currentKeyword = '', currentFilter = 'all';
+        let selectedProducts = new Set(), allProductsData = [];
 
         $(document).ready(function () {
             loadProducts();
-
-            let searchTimeout;
             $('#searchInput').on('input', function () {
-                clearTimeout(searchTimeout);
-                currentKeyword = $(this).val();
-                currentPage = 0;
-                selectedProducts.clear();
-                updateBulkActions();
-                $('#searchLoading').show();
-                searchTimeout = setTimeout(function () { loadProducts(); }, 400);
+                clearTimeout($.data(this, 'timer'));
+                $(this).data('timer', setTimeout(() => {
+                    currentKeyword = $(this).val();
+                    currentPage = 0;
+                    selectedProducts.clear();
+                    updateBulkActions();
+                    $('#searchLoading').show();
+                    loadProducts();
+                }, 400));
             });
-
             $('.shop-filter-chip').click(function () {
                 $('.shop-filter-chip').removeClass('active');
                 $(this).addClass('active');
@@ -183,35 +230,54 @@
                 updateBulkActions();
                 loadProducts();
             });
-
             $('#selectAllCheckbox').change(function () {
-                if ($(this).is(':checked')) {
-                    allProductsData.forEach(product => { selectedProducts.add(product.id); });
-                } else {
-                    selectedProducts.clear();
-                }
+                if ($(this).is(':checked')) allProductsData.forEach(p => selectedProducts.add(p.id));
+                else selectedProducts.clear();
                 renderProducts({ products: allProductsData, totalItems: allProductsData.length });
                 updateBulkActions();
             });
         });
 
+        function updateAddButtonState() {
+            const canAdd = currentProductCount < productLimit;
+            const addButton = $('.shop-btn-primary');
+            if (!canAdd) {
+                addButton.addClass('disabled');
+                addButton.attr('title', 'Product limit reached');
+            } else {
+                addButton.removeClass('disabled');
+                addButton.removeAttr('title');
+            }
+        }
+
+        function updateLimitBanner() {
+            const limitBanner = $('.shop-limit-banner');
+            if (currentProductCount >= productLimit) {
+                limitBanner.show();
+            } else {
+                limitBanner.hide();
+            }
+        }
+
         function loadProducts() {
             $.ajax({
                 url: '/products/search-live',
-                method: 'GET',
                 data: { keyword: currentKeyword, page: currentPage },
-                success: function (response) {
-                    allProductsData = response.products;
-                    let filteredProducts = filterProducts(allProductsData);
-                    let filteredResponse = { ...response, products: filteredProducts, totalItems: filteredProducts.length };
-                    renderProducts(filteredResponse);
-                    renderPagination(filteredResponse);
-                    updateStats(filteredProducts);
+                success: function (res) {
+                    allProductsData = res.products;
+                    let filtered = filterProducts(allProductsData);
+                    
+                    // Update current product count
+                    currentProductCount = allProductsData.length;
+                    
+                    renderProducts({ ...res, products: filtered, totalItems: filtered.length });
+                    renderPagination({ ...res, products: filtered, totalItems: filtered.length });
+                    updateStats(filtered);
                     $('#searchLoading').hide();
-                },
-                error: function () {
-                    $('#searchLoading').hide();
-                    showError('Failed to load products');
+                    
+                    // Update button and banner state
+                    updateAddButtonState();
+                    updateLimitBanner();
                 }
             });
         }
@@ -223,230 +289,106 @@
         }
 
         function updateStats(products) {
-            const totalProducts = products.length;
-            const lowStockCount = products.filter(p => p.stockQuantity <= p.minStock).length;
-            const totalValue = products.reduce((sum, p) => sum + (p.price * p.stockQuantity), 0);
-            const categories = new Set(products.map(p => p.category || 'Uncategorized')).size;
-            $('#totalProducts').text(totalProducts);
-            $('#lowStockCount').text(lowStockCount);
-            $('#totalValue').text('₹' + totalValue.toLocaleString('en-IN'));
-            $('#categoryCount').text(categories);
+            $('#totalProducts').text(products.length);
+            $('#lowStockCount').text(products.filter(p => p.stockQuantity <= p.minStock).length);
+            $('#totalValue').text('₹' + products.reduce((s, p) => s + (p.price * p.stockQuantity), 0).toLocaleString('en-IN'));
+            $('#categoryCount').text(new Set(products.map(p => p.category || 'Uncategorized')).size);
         }
 
         function renderProducts(data) {
             const tbody = $('#productsTableBody');
             tbody.empty();
-
-            if (!data.products || data.products.length === 0) {
-                tbody.html(`
-                    <tr>
-                        <td colspan="6" class="shop-empty-state">
-                            <i class="fas fa-box-open"></i>
-                            <p>${currentKeyword ? 'No products found matching "' + escapeHtml(currentKeyword) + '"' : 'No products yet'}</p>
-                            ${!currentKeyword ? '<a href="/products/new" class="shop-add-link">Add Product</a>' : ''}
-                        </td>
-                    </tr>
-                `);
+            if (!data.products?.length) {
+                let msg = currentKeyword ? `No matches for "${escapeHtml(currentKeyword)}"` : (currentProductCount >= productLimit ? `Limit reached (${productLimit})` : 'No products');
+                tbody.html(`<tr><td colspan="6" class="shop-empty-state"><i class="fas fa-box-open"></i><p>${msg}</p>${!currentKeyword && currentProductCount < productLimit ? '<a href="/products/new" class="shop-add-link">Add Product</a>' : ''}${!currentKeyword && currentProductCount >= productLimit ? '<a href="/upgrade" class="shop-add-link shop-upgrade-link">Upgrade</a>' : ''}</td></tr>`);
                 return;
             }
-
-            data.products.forEach(function (product) {
-                const isLowStock = product.stockQuantity <= product.minStock;
-                const stockBadge = isLowStock ?
-                    '<span class="shop-low-stock-badge"><i class="fas fa-exclamation-circle"></i> Low Stock</span>' :
-                    '<span class="shop-in-stock-badge"><i class="fas fa-check-circle"></i> In Stock</span>';
-                const isChecked = selectedProducts.has(product.id);
-                const gstPercent = product.gstPercent || 0;
-
-                let gstBadgeClass = 'shop-gst-badge';
-                if (gstPercent === 0) {
-                    gstBadgeClass = 'shop-gst-badge shop-gst-badge-zero';
-                }
-
-                const row = `
+            data.products.forEach(p => {
+                const isLowStock = p.stockQuantity <= p.minStock;
+                tbody.append(`
                     <tr>
-                        <td style="text-align: center;">
-                            <input type="checkbox" class="product-checkbox" data-id="${product.id}" ${isChecked ? 'checked' : ''}>
-                        </td>
-                        <td>
-                            <div class="shop-product-name">${escapeHtml(product.name)}</div>
-                            ${product.description ? '<div class="shop-product-description">' + escapeHtml(product.description.substring(0, 60)) + '</div>' : ''}
-                        </td>
-                        <td><span class="shop-price">₹${formatPrice(product.price)}</span></td>
-                        <td><span class="${gstBadgeClass}">${gstPercent}%</span></td>
-                        <td>
-                            <div class="shop-stock-cell">
-                                <span class="shop-stock-quantity">${product.stockQuantity}</span>
-                                ${stockBadge}
-                            </div>
-                        </td>
-                        <td>
-                            <div class="shop-action-buttons-group">
-                                <a href="/products/edit/${product.id}" class="shop-btn-edit">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <button onclick="duplicateProduct(${product.id})" class="shop-btn-duplicate">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                                <form action="/products/delete/${product.id}" method="post" style="display:inline;">
-                                    <input type="hidden" name="_csrf" value="${getCsrfToken()}">
-                                    <button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(product.name)}?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+                        <td><input type="checkbox" class="product-checkbox" data-id="${p.id}" ${selectedProducts.has(p.id) ? 'checked' : ''}></td>
+                        <td><div class="shop-product-name">${escapeHtml(p.name)}</div>${p.description ? `<div class="shop-product-description">${escapeHtml(p.description.substring(0, 60))}</div>` : ''}</td>
+                        <td><span class="shop-price">₹${formatPrice(p.price)}</span></td>
+                        <td><span class="shop-gst-badge ${p.gstPercent === 0 ? 'shop-gst-badge-zero' : ''}">${p.gstPercent || 0}%</span></td>
+                        <td><div class="shop-stock-cell"><span class="shop-stock-quantity">${p.stockQuantity}</span><span class="${isLowStock ? 'shop-low-stock-badge' : 'shop-in-stock-badge'}"><i class="fas ${isLowStock ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${isLowStock ? 'Low' : 'In Stock'}</span></div></td>
+                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${currentProductCount >= productLimit ? 'disabled' : ''}><i class="fas fa-copy"></i></button><form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form></div></td>
                     </tr>
-                `;
-                tbody.append(row);
+                `);
             });
-
             $('.product-checkbox').change(function () {
-                const productId = parseInt($(this).data('id'));
-                if ($(this).is(':checked')) {
-                    selectedProducts.add(productId);
-                } else {
-                    selectedProducts.delete(productId);
-                }
+                let id = parseInt($(this).data('id'));
+                $(this).is(':checked') ? selectedProducts.add(id) : selectedProducts.delete(id);
                 updateBulkActions();
                 $('#selectAllCheckbox').prop('checked', selectedProducts.size === data.products.length && data.products.length > 0);
             });
         }
 
-        function updateBulkActions() {
-            const count = selectedProducts.size;
-            if (count > 0) {
-                $('#bulkActions').addClass('show');
-                $('#selectedCount').text(count);
-            } else {
-                $('#bulkActions').removeClass('show');
-            }
-        }
-
-        function clearSelection() {
-            selectedProducts.clear();
-            updateBulkActions();
-            $('#selectAllCheckbox').prop('checked', false);
-            loadProducts();
-        }
-
+        function updateBulkActions() { selectedProducts.size ? $('#bulkActions').addClass('show').find('#selectedCount').text(selectedProducts.size) : $('#bulkActions').removeClass('show'); }
+        function clearSelection() { selectedProducts.clear(); updateBulkActions(); $('#selectAllCheckbox').prop('checked', false); loadProducts(); }
+        
         function bulkDelete() {
-            if (selectedProducts.size === 0) return;
-            if (confirm(`Delete ${selectedProducts.size} selected product(s)?`)) {
-                const csrfToken = getCsrfToken();
-                const ids = Array.from(selectedProducts);
+            if(!selectedProducts.size) return;
+            if(confirm(`Delete ${selectedProducts.size} product(s)?`)) {
                 $.ajax({
                     url: '/products/bulk-delete',
                     method: 'POST',
                     contentType: 'application/json',
-                    headers: { 'X-CSRF-TOKEN': csrfToken },
-                    data: JSON.stringify(ids),
-                    success: function (response) {
-                        showSuccess(response.message);
+                    headers: { 'X-CSRF-TOKEN': getCsrfToken() },
+                    data: JSON.stringify(Array.from(selectedProducts)),
+                    success: function() {
+                        showSuccess('Deleted');
                         selectedProducts.clear();
                         updateBulkActions();
                         loadProducts();
                     },
-                    error: function () { showError('Failed to delete products'); }
+                    error: () => showError('Delete failed')
                 });
             }
         }
-
+        
         function duplicateProduct(id) {
+            if (currentProductCount >= productLimit) {
+                showError(`Limit reached (${productLimit})`);
+                return;
+            }
+            
             $.ajax({
                 url: '/products/duplicate',
                 method: 'POST',
                 headers: { 'X-CSRF-TOKEN': getCsrfToken() },
-                data: { id: id, _csrf: getCsrfToken() },
-                success: function () {
-                    showSuccess('Product duplicated successfully');
+                data: { id, _csrf: getCsrfToken() },
+                success: function() {
+                    showSuccess('Duplicated');
                     loadProducts();
                 },
-                error: function () { showError('Failed to duplicate product'); }
+                error: xhr => showError(xhr.responseJSON?.error || 'Failed')
             });
         }
 
-        function exportProducts() {
-            window.location.href = '/products/export';
-            showSuccess('Exporting products...');
-        }
-
+        function exportProducts() { window.location.href = '/products/export'; showSuccess('Exporting...'); }
+        
         function renderPagination(data) {
-            const container = $('#paginationContainer');
+            let container = $('#paginationContainer');
             container.empty();
-
             if (data.totalPages <= 1) return;
-
-            let paginationHtml = '<div class="shop-pagination">';
-            paginationHtml += `<button onclick="changePage(${data.currentPage - 1})" ${!data.hasPrevious ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left"></i>
-            </button>`;
-
-            const startPage = Math.max(0, data.currentPage - 2);
-            const endPage = Math.min(data.totalPages - 1, data.currentPage + 2);
-
-            if (startPage > 0) {
-                paginationHtml += `<button onclick="changePage(0)">1</button>`;
-                if (startPage > 1) paginationHtml += `<button disabled>...</button>`;
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                const activeClass = i === data.currentPage ? 'active' : '';
-                paginationHtml += `<button class="${activeClass}" onclick="changePage(${i})">${i + 1}</button>`;
-            }
-
-            if (endPage < data.totalPages - 1) {
-                if (endPage < data.totalPages - 2) paginationHtml += `<button disabled>...</button>`;
-                paginationHtml += `<button onclick="changePage(${data.totalPages - 1})">${data.totalPages}</button>`;
-            }
-
-            paginationHtml += `<button onclick="changePage(${data.currentPage + 1})" ${!data.hasNext ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right"></i>
-            </button>`;
-            paginationHtml += '</div>';
-            container.html(paginationHtml);
-
-            const startItem = data.currentPage * data.pageSize + 1;
-            const endItem = Math.min((data.currentPage + 1) * data.pageSize, data.totalItems);
-            $('#paginationInfo').html(`
-                Showing ${startItem} to ${endItem} of ${data.totalItems} products
-                ${currentKeyword ? ' · Searching: "' + escapeHtml(currentKeyword) + '"' : ''}
-                ${currentFilter !== 'all' ? ' · Filter: ' + currentFilter.replace('-', ' ') : ''}
-            `);
+            let html = '<div class="shop-pagination">';
+            html += `<button onclick="changePage(${data.currentPage - 1})" ${!data.hasPrevious ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+            let start = Math.max(0, data.currentPage - 2), end = Math.min(data.totalPages - 1, data.currentPage + 2);
+            if (start > 0) { html += `<button onclick="changePage(0)">1</button>`; if (start > 1) html += `<button disabled>...</button>`; }
+            for (let i = start; i <= end; i++) html += `<button class="${i === data.currentPage ? 'active' : ''}" onclick="changePage(${i})">${i + 1}</button>`;
+            if (end < data.totalPages - 1) { if (end < data.totalPages - 2) html += `<button disabled>...</button>`; html += `<button onclick="changePage(${data.totalPages - 1})">${data.totalPages}</button>`; }
+            html += `<button onclick="changePage(${data.currentPage + 1})" ${!data.hasNext ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button></div>`;
+            container.html(html);
+            $('#paginationInfo').html(`Showing ${data.currentPage * data.pageSize + 1} to ${Math.min((data.currentPage + 1) * data.pageSize, data.totalItems)} of ${data.totalItems} products`);
         }
-
-        function changePage(page) {
-            if (page === currentPage) return;
-            currentPage = page;
-            selectedProducts.clear();
-            updateBulkActions();
-            loadProducts();
-            document.querySelector('.shop-main').scrollTop = 0;
-        }
-
-        function formatPrice(price) {
-            return parseFloat(price).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
-        }
-
-        function getCsrfToken() {
-            return $('meta[name="_csrf"]').attr('content');
-        }
-
-        function showError(message) {
-            const errorDiv = $('<div>', { class: 'shop-toast-error', text: message }).appendTo('body');
-            setTimeout(() => errorDiv.fadeOut(300, function () { $(this).remove(); }), 3000);
-        }
-
-        function showSuccess(message) {
-            const successDiv = $('<div>', { class: 'shop-toast-success', text: '✓ ' + message }).appendTo('body');
-            setTimeout(() => successDiv.fadeOut(300, function () { $(this).remove(); }), 3000);
-        }
+        
+        function changePage(page) { if (page === currentPage) return; currentPage = page; selectedProducts.clear(); updateBulkActions(); loadProducts(); $('.shop-main').scrollTop(0); }
+        function formatPrice(p) { return parseFloat(p).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function escapeHtml(t) { if (!t) return ''; return t.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
+        function getCsrfToken() { return $('meta[name="_csrf"]').attr('content'); }
+        function showError(m) { let d = $('<div>', { class: 'shop-toast-error', text: m }).appendTo('body'); setTimeout(() => d.fadeOut(300, () => d.remove()), 3000); }
+        function showSuccess(m) { let d = $('<div>', { class: 'shop-toast-success', text: '✓ ' + m }).appendTo('body'); setTimeout(() => d.fadeOut(300, () => d.remove()), 3000); }
     </script>
 </body>
 

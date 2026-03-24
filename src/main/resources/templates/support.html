@@ -6,732 +6,136 @@
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .page-header h2 i {
-            color: #2563eb;
-        }
-
-        /* ===== SUPPORT CONTAINER ===== */
-        .support-container {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 32px;
-            margin-bottom: 24px;
-        }
-
-        .search-section {
-            background: #f8fafc;
-            border-radius: 60px;
-            border: 1px solid #e2e8f0;
-            padding: 4px 4px 4px 24px;
-            display: flex;
-            align-items: center;
-            max-width: 600px;
-            margin: 24px 0;
-        }
-
-        .search-section i {
-            color: #94a3b8;
-        }
-
-        .search-section input {
-            flex: 1;
-            padding: 12px 16px;
-            border: none;
-            outline: none;
-            font-size: 15px;
-            background: transparent;
-        }
-
-        .search-section button {
-            background: #0f172a;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .support-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 32px;
-        }
-
-        .tickets-section {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 24px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-header h3 {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .btn-new-ticket {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-
-        .btn-new-ticket:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-
-        .ticket-item {
-            background: white;
-            border: 1px solid #edf2f7;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .ticket-item:hover {
-            border-color: #2563eb;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-        }
-
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .ticket-id {
-            font-weight: 600;
-            color: #2563eb;
-            font-size: 12px;
-        }
-
-        .ticket-status {
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .status-OPEN {
-            background: #fef9e7;
-            color: #b45309;
-        }
-
-        .status-IN_PROGRESS {
-            background: #e6f0ff;
-            color: #2563eb;
-        }
-
-        .status-WAITING_CUSTOMER {
-            background: #f1f5f9;
-            color: #64748b;
-        }
-
-        .status-RESOLVED {
-            background: #f0fdf4;
-            color: #059669;
-        }
-
-        .status-CLOSED {
-            background: #f1f5f9;
-            color: #64748b;
-        }
-
-        .ticket-subject {
-            font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .ticket-meta {
-            font-size: 12px;
-            color: #64748b;
-            display: flex;
-            gap: 16px;
-        }
-
-        .faq-section {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 24px;
-        }
-
-        .faq-item {
-            background: white;
-            border: 1px solid #edf2f7;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .faq-question {
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            color: #0f172a;
-        }
-
-        .faq-question i {
-            color: #94a3b8;
-            transition: transform 0.2s;
-        }
-
-        .faq-item.open .faq-question i {
-            transform: rotate(180deg);
-        }
-
-        .faq-answer {
-            color: #64748b;
-            font-size: 14px;
-            margin-top: 16px;
-            line-height: 1.6;
-            display: none;
-        }
-
-        .faq-item.open .faq-answer {
-            display: block;
-        }
-
-        .contact-card {
-            background: white;
-            border: 1px solid #edf2f7;
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 24px;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .contact-item:last-child {
-            border-bottom: none;
-        }
-
-        .contact-item i {
-            width: 36px;
-            height: 36px;
-            background: #f1f5f9;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2563eb;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            width: 500px;
-            border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .modal h3 {
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #475569;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            transition: all 0.15s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #2563eb;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 24px;
-        }
-
-        .btn-primary {
-            background: #0f172a;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-primary:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 8px;
-            display: none;
-            z-index: 1100;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .pagination a {
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #475569;
-            transition: all 0.15s;
-        }
-
-        .pagination a:hover {
-            background: #f1f5f9;
-        }
-
-        .pagination a.active {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-            margin-top: auto;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-        }
-    </style>
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-support.css}">
 </head>
 
-<body>
+<body class="shop-body">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
+    <div class="shop-layout">
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar (shop=${shop})}"></div>
 
-        <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
-                    class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
-                Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a class="active" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header (shop=${shop})}"></div>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
+                <!-- Support Container -->
+                <div class="support-container">
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2><i class="fas fa-headset"></i> Support Center</h2>
-        </div>
-
-        <!-- SUPPORT CONTENT -->
-        <div class="support-container">
-
-            <!-- Search Section -->
-            <div class="search-section">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search for answers...">
-                <button type="button" onclick="searchFAQ()">Search</button>
-            </div>
-
-            <!-- Support Grid -->
-            <div class="support-grid">
-                <!-- Left Column - Tickets -->
-                <div>
-                    <div class="tickets-section">
-                        <div class="section-header">
-                            <h3><i class="fas fa-ticket-alt" style="color: #2563eb;"></i> Your Support Tickets</h3>
-                            <button type="button" class="btn-new-ticket" onclick="openTicketModal()">
-                                <i class="fas fa-plus"></i> New Ticket
-                            </button>
+                    <!-- Header Action Bar - Search and New Ticket in one line -->
+                    <div class="header-action-bar">
+                        <div class="search-section">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search for answers...">
+                            <button type="button" onclick="searchFAQ()">Search</button>
                         </div>
+                        <button type="button" class="btn-new-ticket" onclick="openTicketModal()">
+                            <i class="fas fa-plus"></i> New Ticket
+                        </button>
+                    </div>
 
-                        <div th:if="${tickets != null and not #lists.isEmpty(tickets.content)}">
-                            <div th:each="ticket : ${tickets.content}" class="ticket-item"
-                                th:attr="data-ticket-number=${ticket.ticketNumber}" onclick="viewTicket(this)">
-                                <div class="ticket-header">
-                                    <span class="ticket-id" th:text="${ticket.ticketNumber}">HL2024031300011234</span>
-                                    <span class="ticket-status" th:classappend="'status-' + ${ticket.status.name()}"
-                                        th:text="${ticket.status.getDisplayName()}">OPEN</span>
+                    <!-- Support Grid -->
+                    <div class="support-grid">
+                        <!-- Left Column - Tickets -->
+                        <div>
+                            <div class="tickets-section">
+                                <div class="section-header">
+                                    <h3><i class="fas fa-ticket-alt"></i> Your Support Tickets</h3>
                                 </div>
-                                <div class="ticket-subject" th:text="${ticket.subject}">Payment issue</div>
-                                <div class="ticket-meta">
-                                    <span><i class="far fa-clock"></i>
-                                        <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy')}">13 Mar
-                                            2026</span>
-                                    </span>
-                                    <span><i class="fas fa-flag"></i>
-                                        <span th:text="${ticket.priority.getDisplayName()}">MEDIUM</span>
-                                    </span>
-                                </div>
-                            </div>
 
-                            <!-- Pagination -->
-                            <div th:if="${tickets.totalPages > 1}" class="pagination">
-                                <a th:href="@{/support(page=${currentPage - 1})}"
-                                    th:if="${currentPage > 0}">Previous</a>
-                                <span th:each="i : ${#numbers.sequence(0, tickets.totalPages - 1)}">
-                                    <a th:href="@{/support(page=${i})}"
-                                        th:classappend="${i == currentPage ? 'active' : ''}" th:text="${i + 1}">1</a>
-                                </span>
-                                <a th:href="@{/support(page=${currentPage + 1})}"
-                                    th:if="${currentPage < tickets.totalPages - 1}">Next</a>
+                                <div th:if="${tickets != null and tickets.content != null and not #lists.isEmpty(tickets.content)}">
+                                    <div th:each="ticket : ${tickets.content}" class="ticket-item"
+                                        th:attr="data-ticket-number=${ticket.ticketNumber}" onclick="viewTicket(this)">
+                                        <div class="ticket-header">
+                                            <span class="ticket-id" th:text="${ticket.ticketNumber}">HL2024031300011234</span>
+                                            <span class="ticket-status" 
+                                                th:classappend="'status-' + ${ticket.status.name()}"
+                                                th:text="${ticket.status.getDisplayName()}">OPEN</span>
+                                        </div>
+                                        <div class="ticket-subject" th:text="${ticket.subject}">Payment issue</div>
+                                        <div class="ticket-meta">
+                                            <span><i class="far fa-clock"></i> <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy')}">13 Mar 2026</span></span>
+                                            <span><i class="fas fa-flag"></i> <span th:text="${ticket.priority.getDisplayName()}">MEDIUM</span></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <div th:if="${tickets.totalPages > 1}" class="pagination">
+                                        <a th:href="@{/support(page=${currentPage - 1})}" th:if="${currentPage > 0}"><i class="fas fa-chevron-left"></i></a>
+                                        <span th:each="i : ${#numbers.sequence(0, tickets.totalPages - 1)}">
+                                            <a th:href="@{/support(page=${i})}" th:classappend="${i == currentPage ? 'active' : ''}" th:text="${i + 1}">1</a>
+                                        </span>
+                                        <a th:href="@{/support(page=${currentPage + 1})}" th:if="${currentPage < tickets.totalPages - 1}"><i class="fas fa-chevron-right"></i></a>
+                                    </div>
+                                </div>
+
+                                <div th:if="${tickets == null or tickets.content == null or #lists.isEmpty(tickets.content)}" class="empty-state">
+                                    <i class="fas fa-ticket-alt"></i>
+                                    <p>No tickets yet. Create your first support ticket!</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div th:if="${tickets == null or #lists.isEmpty(tickets.content)}"
-                            style="text-align: center; padding: 40px;">
-                            <i class="fas fa-ticket-alt"
-                                style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
-                            <p style="color: #64748b;">No tickets yet. Create your first support ticket!</p>
+                        <!-- Right Column - FAQs & Contact -->
+                        <div>
+                            <!-- FAQs -->
+                            <div class="faq-section">
+                                <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
+
+                                <div th:if="${faqs != null and not #lists.isEmpty(faqs)}">
+                                    <div th:each="faq, iterStat : ${faqs}" class="faq-item" th:id="'faq-' + ${iterStat.index}">
+                                        <div class="faq-question" th:attr="onclick='toggleFAQ(' + ${iterStat.index} + ')'">
+                                            <span th:text="${faq.question}">How to add products?</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="faq-answer" th:text="${faq.answer}">Go to Products section...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Card -->
+                            <div class="contact-card">
+                                <h3><i class="fas fa-phone-alt"></i> Contact Support</h3>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div><div>Email</div><div>support@hisaablite.com</div></div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div><div>Phone</div><div>+91 98765 43210</div><div>Mon-Fri, 10AM - 6PM</div></div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div><div>Response Time</div><div>Within 24 hours</div></div>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                                    <div><div>WhatsApp</div><div>+91 98765 43210</div><div>Quick support</div></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column - FAQs & Contact -->
-                <div>
-                    <!-- FAQs -->
-                    <div class="faq-section">
-                        <h3 style="margin-bottom: 16px;"><i class="fas fa-question-circle" style="color: #2563eb;"></i>
-                            Frequently Asked Questions</h3>
-
-                        <div th:each="faq, iterStat : ${faqs}" class="faq-item" th:id="'faq-' + ${iterStat.index}">
-                            <div class="faq-question" th:attr="onclick='toggleFAQ(' + ${iterStat.index} + ')'">
-                                <span th:text="${faq.question}">How to add products?</span>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                            <div class="faq-answer" th:text="${faq.answer}">
-                                Go to Products section and click 'Add Product'...
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contact Card -->
-                    <div class="contact-card">
-                        <h3 style="margin-bottom: 16px;"><i class="fas fa-phone-alt" style="color: #2563eb;"></i>
-                            Contact Support</h3>
-
-                        <div class="contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <div style="font-weight: 600;">Email</div>
-                                <div style="font-size: 13px; color: #2563eb;">support@hisaablite.com</div>
-                            </div>
-                        </div>
-
-                        <div class="contact-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <div style="font-weight: 600;">Phone</div>
-                                <div style="font-size: 13px;">+91 98765 43210</div>
-                                <div style="font-size: 11px; color: #64748b;">Mon-Fri, 10AM - 6PM</div>
-                            </div>
-                        </div>
-
-                        <div class="contact-item">
-                            <i class="fas fa-clock"></i>
-                            <div>
-                                <div style="font-weight: 600;">Response Time</div>
-                                <div style="font-size: 13px;">Within 24 hours</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </div>
 
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
+            <!-- Footer Fragment - Same as profile page -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
@@ -739,15 +143,12 @@
     <div id="ticketModal" class="modal">
         <div class="modal-content">
             <h3>Create Support Ticket</h3>
-
             <form th:action="@{/support/create}" method="post">
                 <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
                 <div class="form-group">
                     <label>Subject</label>
                     <input type="text" name="subject" required placeholder="Brief summary of your issue">
                 </div>
-
                 <div class="form-group">
                     <label>Priority</label>
                     <select name="priority">
@@ -757,12 +158,10 @@
                         <option value="URGENT">Urgent</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Message</label>
                     <textarea name="message" required placeholder="Describe your issue in detail..."></textarea>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeTicketModal()">Cancel</button>
                     <button type="submit" class="btn-primary">Create Ticket</button>
@@ -776,63 +175,83 @@
 
     <script>
         function openTicketModal() {
-            document.getElementById('ticketModal').style.display = 'flex';
+            const modal = document.getElementById('ticketModal');
+            if (modal) modal.style.display = 'flex';
         }
 
         function closeTicketModal() {
-            document.getElementById('ticketModal').style.display = 'none';
+            const modal = document.getElementById('ticketModal');
+            if (modal) modal.style.display = 'none';
         }
 
         function viewTicket(element) {
             const ticketNumber = element.getAttribute('data-ticket-number');
-            window.location.href = '/support/ticket/' + ticketNumber;
+            if (ticketNumber) {
+                window.location.href = '/support/ticket/' + ticketNumber;
+            }
         }
 
         function toggleFAQ(index) {
             const faqItem = document.getElementById('faq-' + index);
-            faqItem.classList.toggle('open');
-            const icon = faqItem.querySelector('.faq-question i');
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
+            if (faqItem) faqItem.classList.toggle('open');
         }
 
         function searchFAQ() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) return;
+            
+            const term = searchInput.value.toLowerCase().trim();
             const faqItems = document.querySelectorAll('.faq-item');
+            let hasResults = false;
 
             faqItems.forEach(item => {
-                const question = item.querySelector('.faq-question span').textContent.toLowerCase();
-                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                const question = item.querySelector('.faq-question span')?.textContent.toLowerCase() || '';
+                const answer = item.querySelector('.faq-answer')?.textContent.toLowerCase() || '';
 
-                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                if (term === '' || question.includes(term) || answer.includes(term)) {
                     item.style.display = 'block';
+                    hasResults = true;
                 } else {
                     item.style.display = 'none';
                 }
             });
+
+            const faqSection = document.querySelector('.faq-section');
+            let noResultsMsg = document.getElementById('noResultsMsg');
+            
+            if (!hasResults && term !== '') {
+                if (!noResultsMsg && faqSection) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'noResultsMsg';
+                    noResultsMsg.className = 'empty-state';
+                    noResultsMsg.innerHTML = '<i class="fas fa-search"></i><p>No matching questions found</p>';
+                    faqSection.appendChild(noResultsMsg);
+                }
+            } else if (noResultsMsg) {
+                noResultsMsg.remove();
+            }
         }
 
         window.onclick = function (event) {
             const modal = document.getElementById('ticketModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
+            if (modal && event.target == modal) modal.style.display = 'none';
         }
 
-        // Handle success message
         var successMessage = /*[[${success}]]*/ null;
-        if (successMessage) {
-            showToast(successMessage);
-        }
+        if (successMessage && successMessage !== 'null') showToast(successMessage);
 
         function showToast(message) {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 5000);
+            if (toast) {
+                toast.textContent = message;
+                toast.style.display = 'block';
+                setTimeout(() => toast.style.display = 'none', 5000);
+            }
         }
+
+        document.getElementById('searchInput')?.addEventListener('input', function() {
+            if (this.value === '') searchFAQ();
+        });
     </script>
 
 </body>

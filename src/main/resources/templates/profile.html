@@ -4,931 +4,220 @@
 <head>
     <title>Shop Profile • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-profile.css}">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f4f6;
-            color: #1e293b;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 240px;
-            background: #ffffff;
-            border-right: 1px solid #e9eef2;
-            padding: 32px 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: none;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 4px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 16px;
-            letter-spacing: -0.2px;
-            color: #0f172a;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .nav-links a {
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #5b6778;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-        }
-
-        .nav-links a i {
-            width: 20px;
-            font-size: 15px;
-            color: #8893a4;
-        }
-
-        .nav-links a:hover {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .nav-links a:hover i {
-            color: #0f172a;
-        }
-
-        .nav-links a.active {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        .nav-links a.active i {
-            color: #0f172a;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #fef2f2;
-            border: none;
-            color: #b91c1c;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s;
-            margin-top: 20px;
-        }
-
-        .logout-btn i {
-            color: #b91c1c;
-        }
-
-        .logout-btn:hover {
-            background: #fee2e2;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            height: 100vh;
-            padding: 24px 32px 0 32px;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .page-header h2 i {
-            color: #2563eb;
-        }
-
-        /* ===== PROFILE CARD ===== */
-        .profile-card {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            padding: 32px;
-            margin-bottom: 24px;
-            max-width: 700px;
-            width: 100%;
-            align-self: center;
-        }
-
-        /* ===== INFO BOX ===== */
-        .info-grid {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 28px;
-            border: 1px solid #edf2f7;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .info-item.full-width {
-            grid-column: span 2;
-        }
-
-        .info-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .info-label i {
-            color: #94a3b8;
-            font-size: 12px;
-        }
-
-        .info-value {
-            font-size: 15px;
-            font-weight: 500;
-            color: #0f172a;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .info-value.immutable {
-            background: #f1f5f9;
-            color: #475569;
-            font-family: monospace;
-        }
-
-        /* ===== PASSWORD RESET LINK STYLE ===== */
-        .password-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: #0f172a;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.15s;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
-            margin-top: 4px;
-        }
-
-        .password-link:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
-        }
-
-        .password-link i {
-            font-size: 14px;
-        }
-
-        /* ===== FORM STYLES ===== */
-        .form-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .form-title i {
-            color: #2563eb;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group.full-width {
-            grid-column: span 2;
-        }
-
-        .form-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #5b6778;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .form-group label i {
-            color: #94a3b8;
-            font-size: 12px;
-        }
-
-        .form-group input {
-            padding: 12px 14px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 400;
-            background: #fafbfc;
-            transition: all 0.15s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .form-group input:focus {
-            border-color: #2563eb;
-            outline: none;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
-        }
-
-        .form-group input::placeholder {
-            color: #a0aec0;
-            font-size: 13px;
-        }
-
-        .form-group input[readonly] {
-            background: #f1f5f9;
-            border-color: #e2e8f0;
-            color: #64748b;
-            cursor: not-allowed;
-        }
-
-        /* ===== ACTION BUTTONS ===== */
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            margin-top: 28px;
-            align-items: center;
-        }
-
-        .btn-primary {
-            background: #0f172a;
-            color: white;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
-            flex: 1;
-        }
-
-        .btn-primary:hover {
-            background: #1e293b;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #5b6778;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-            text-decoration: none;
-            flex: 1;
-        }
-
-        .btn-secondary:hover {
-            background: #e2e8f0;
-            color: #2563eb;
-        }
-
-        /* WhatsApp specific styles */
-        .whatsapp-status-connected {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .whatsapp-status-disconnected {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .whatsapp-btn-primary {
-            background: #25D366;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.15s;
-        }
-
-        .whatsapp-btn-primary:hover {
-            background: #20b859;
-            transform: translateY(-2px);
-        }
-
-        .whatsapp-btn-danger {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .whatsapp-btn-danger:hover {
-            background: #fecaca;
-        }
-
-        .qr-container {
-            text-align: center;
-            padding: 24px;
-            background: white;
-            border-radius: 16px;
-            margin-top: 20px;
-            border: 2px solid #25D366;
-        }
-
-        .whatsapp-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            transition: all 0.15s;
-        }
-
-        .whatsapp-input:focus {
-            border-color: #25D366;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: white;
-            border-top: 1px solid #e9eef2;
-            padding: 16px 24px;
-            margin: 0 -32px 0 -32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            flex-shrink: 0;
-            margin-top: auto;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-left i {
-            color: #2563eb;
-            font-size: 14px;
-        }
-
-        .footer-left span {
-            color: #475569;
-        }
-
-        .footer-left .heart {
-            color: #ef4444;
-            margin: 0 4px;
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .footer-right a {
-            color: #64748b;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-right a:hover {
-            color: #2563eb;
-        }
-
-        .footer-right .version {
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full-width {
-                grid-column: span 1;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .info-item.full-width {
-                grid-column: span 1;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .footer {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-
-            .footer-left,
-            .footer-right {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        #qrCodeImage {
-            min-height: 240px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
 </head>
 
-<body>
+<body class="shop-body">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">HisaabLite</div>
-        </div>
+    <div class="shop-layout">
 
-        <div class="nav-links">
-            <a th:href="@{/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
-            <a th:if="${role == 'OWNER' or role == 'CASHIER'}" th:href="@{/sales/new}"><i
-                    class="fas fa-cash-register"></i> Billing</a>
-            <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}"><i class="fas fa-box"></i>
-                Products</a>
-            <a th:href="@{/sales/history}"><i class="fas fa-clock"></i> Sales History</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/staff}"><i class="fas fa-users"></i> Staff</a>
-            <a class="active" th:if="${role == 'OWNER'}" th:href="@{/profile}"><i class="fas fa-store"></i> Profile</a>
-            <a th:if="${role == 'OWNER'}" th:href="@{/support}"><i class="fas fa-headset"></i> Support</a>
-        </div>
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </form>
-    </div>
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main">
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
 
-        <!-- PAGE HEADER -->
-        <div class="page-header">
-            <h2><i class="fas fa-store"></i> Shop Profile</h2>
-        </div>
+               
 
-        <!-- PROFILE CARD -->
-        <div class="profile-card">
+                <!-- Profile Card -->
+                <div class="profile-card">
 
-            <!-- READ-ONLY INFO SECTION -->
-            <div class="info-grid">
-                <div class="info-item full-width">
-                    <span class="info-label"><i class="fas fa-store"></i> Shop Name</span>
-                    <div class="info-value" th:text="${shop.name}">Shop Name</div>
-                </div>
+                    <!-- Read-Only Info Section -->
+                    <div class="profile-info-grid">
+                        <div class="profile-info-item full-width">
+                            <span class="profile-info-label"><i class="fas fa-store"></i> Shop Name</span>
+                            <div class="profile-info-value" th:text="${shop.name}">Shop Name</div>
+                        </div>
 
-                <div class="info-item">
-                    <span class="info-label"><i class="fas fa-id-card"></i> PAN Number (Immutable)</span>
-                    <div class="info-value immutable" th:text="${shop.panNumber}">ABCDE1234F</div>
-                </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label"><i class="fas fa-id-card"></i> PAN Number</span>
+                            <div class="profile-info-value immutable" th:text="${shop.panNumber}">ABCDE1234F</div>
+                        </div>
 
-                <div class="info-item">
-                    <span class="info-label"><i class="far fa-building"></i> Business ID</span>
-                    <div class="info-value immutable" th:text="'HL' + ${shop.id}">HL12345</div>
-                </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label"><i class="far fa-building"></i> Business ID</span>
+                            <div class="profile-info-value immutable" th:text="'HL' + ${shop.id}">HL12345</div>
+                        </div>
 
-                <div class="info-item" th:if="${shop.createdAt}">
-                    <span class="info-label"><i class="far fa-calendar"></i> Member Since</span>
-                    <div class="info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026
-                    </div>
-                </div>
+                        <div class="profile-info-item" th:if="${shop.createdAt}">
+                            <span class="profile-info-label"><i class="far fa-calendar"></i> Member Since</span>
+                            <div class="profile-info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
+                        </div>
 
-                <div class="info-item">
-                    <span class="info-label"><i class="fas fa-crown"></i> Subscription Plan</span>
-                    <div class="info-value" th:text="${planType}">PREMIUM</div>
-                </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label"><i class="fas fa-crown"></i> Subscription Plan</span>
+                            <div class="profile-info-value" th:text="${planType}">PREMIUM</div>
+                        </div>
 
-                <!-- CHANGE PASSWORD LINK -->
-                <div class="info-item">
-                    <span class="info-label"><i class="fas fa-key"></i> Password</span>
-                    <a th:href="@{/forgot-password}" class="password-link">
-                        <i class="fas fa-edit"></i> Change Password
-                    </a>
-                </div>
-            </div>
-
-            <!-- EDITABLE FORM SECTION -->
-            <div class="form-title">
-                <i class="fas fa-edit"></i> Edit Business Information
-            </div>
-
-            <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
-                <div class="form-grid">
-
-                    <!-- GST Number -->
-                    <div class="form-group">
-                        <label><i class="fas fa-file-invoice"></i> GST Number</label>
-                        <input type="text" th:field="*{gstNumber}" placeholder="Enter GST number" />
+                        <div class="profile-info-item">
+                            <span class="profile-info-label"><i class="fas fa-key"></i> Password</span>
+                            <a th:href="@{/forgot-password}" class="profile-password-link">
+                                <i class="fas fa-edit"></i> Change Password
+                            </a>
+                        </div>
                     </div>
 
-                    <!-- UPI ID -->
-                    <div class="form-group">
-                        <label><i class="fas fa-credit-card"></i> UPI ID</label>
-                        <input type="text" th:field="*{upiId}" th:value="${shop.upiId}" placeholder="Enter UPI ID" />
+                    <!-- Editable Form Section -->
+                    <div class="profile-form-title">
+                        <i class="fas fa-edit"></i> Edit Business Information
                     </div>
 
-                    <!-- Address (Full Width) -->
-                    <div class="form-group full-width">
-                        <label><i class="fas fa-map-pin"></i> Address</label>
-                        <input type="text" th:field="*{address}" th:value="${shop.address}"
-                            placeholder="Enter street address" />
-                    </div>
+                    <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
+                        <div class="profile-form-grid">
+                            <div class="profile-form-group">
+                                <label><i class="fas fa-file-invoice"></i> GST Number</label>
+                                <input type="text" th:field="*{gstNumber}" placeholder="Enter GST number" />
+                            </div>
 
-                    <!-- City -->
-                    <div class="form-group">
-                        <label><i class="fas fa-city"></i> City</label>
-                        <input type="text" th:field="*{city}" th:value="${shop.city}" placeholder="Enter city" />
-                    </div>
+                            <div class="profile-form-group">
+                                <label><i class="fas fa-credit-card"></i> UPI ID</label>
+                                <input type="text" th:field="*{upiId}" th:value="${shop.upiId}" placeholder="Enter UPI ID" />
+                            </div>
 
-                    <!-- State -->
-                    <div class="form-group">
-                        <label><i class="fas fa-map"></i> State</label>
-                        <input type="text" th:field="*{state}" th:value="${shop.state}" placeholder="Enter state" />
-                    </div>
+                            <div class="profile-form-group full-width">
+                                <label><i class="fas fa-map-pin"></i> Address</label>
+                                <input type="text" th:field="*{address}" th:value="${shop.address}" placeholder="Enter street address" />
+                            </div>
 
-                    <!-- Pincode -->
-                    <div class="form-group">
-                        <label><i class="fas fa-mail-bulk"></i> Pincode</label>
-                        <input type="text" th:field="*{pincode}" th:value="${shop.pincode}"
-                            placeholder="Enter pincode" />
-                    </div>
+                            <div class="profile-form-group">
+                                <label><i class="fas fa-city"></i> City</label>
+                                <input type="text" th:field="*{city}" th:value="${shop.city}" placeholder="Enter city" />
+                            </div>
 
-                    <!-- Empty div for grid spacing -->
-                    <div></div>
+                            <div class="profile-form-group">
+                                <label><i class="fas fa-map"></i> State</label>
+                                <input type="text" th:field="*{state}" th:value="${shop.state}" placeholder="Enter state" />
+                            </div>
 
-                </div>
+                            <div class="profile-form-group">
+                                <label><i class="fas fa-mail-bulk"></i> Pincode</label>
+                                <input type="text" th:field="*{pincode}" th:value="${shop.pincode}" placeholder="Enter pincode" />
+                            </div>
+                        </div>
 
-                <!-- ACTION BUTTONS -->
-                <div class="action-buttons">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Update Profile
-                    </button>
-                    <a th:href="@{/dashboard}" class="btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
-            </form>
+                        <div class="profile-action-buttons">
+                            <button type="submit" class="profile-btn-primary">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                            <a th:href="@{/dashboard}" class="profile-btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
 
-            <!-- ===== WHATSAPP INTEGRATION SECTION ===== -->
-            <div style="margin-top: 40px; border-top: 2px solid #f1f5f9; padding-top: 24px;">
+                    <!-- WhatsApp Integration Section -->
+                    <div class="profile-whatsapp-section">
+                        <div class="profile-section-title">
+                            <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp Business Integration
+                        </div>
 
-                <!-- Section Title -->
-                <div class="form-title" style="margin-bottom: 20px;">
-                    <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp Business Integration
-                </div>
+                        <!-- Connected State -->
+                        <div th:if="${shop.whatsappConnected}" class="profile-whatsapp-connected">
+                            <div class="profile-whatsapp-status">
+                                <span class="profile-status-dot connected"></span>
+                                <span class="profile-status-text">WhatsApp Connected</span>
+                                <span class="profile-whatsapp-number" th:if="${shop.whatsappNumber}">
+                                    <i class="fab fa-whatsapp"></i> +91 <span th:text="${shop.whatsappNumber}">9876543210</span>
+                                </span>
+                                <button onclick="disconnectWhatsApp()" class="profile-whatsapp-disconnect">
+                                    <i class="fas fa-unlink"></i> Disconnect
+                                </button>
+                            </div>
+                            <p class="profile-whatsapp-message success">
+                                <i class="fas fa-check-circle"></i>
+                                Your WhatsApp is active. Invoices will be sent from your business number.
+                            </p>
+                        </div>
 
-                <!-- Status Display - Connected -->
-                <div th:if="${shop.whatsappConnected}" class="whatsapp-status-connected">
-                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <span
-                            style="background: #22c55e; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
-                        <span style="font-weight: 600; color: #166534;">WhatsApp Connected</span>
-                        <span style="color: #64748b; font-size: 14px;" th:if="${shop.whatsappNumber}">
-                            <i class="fab fa-whatsapp" style="color: #25D366;"></i> +91 <span
-                                th:text="${shop.whatsappNumber}">9876543210</span>
-                        </span>
-                        <button onclick="disconnectWhatsApp()" class="whatsapp-btn-danger" style="margin-left: auto;">
-                            <i class="fas fa-unlink"></i> Disconnect
-                        </button>
-                    </div>
-                    <p
-                        style="font-size: 13px; color: #166534; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-check-circle"></i>
-                        Your WhatsApp is active. Invoices will be sent from your business number.
-                    </p>
-                </div>
+                        <!-- Not Connected State -->
+                        <div th:unless="${shop.whatsappConnected}" class="profile-whatsapp-disconnected">
+                            <div class="profile-whatsapp-status">
+                                <span class="profile-status-dot disconnected"></span>
+                                <span class="profile-status-text">WhatsApp Not Connected</span>
+                            </div>
 
-                <!-- Status Display - Not Connected -->
-                <div th:unless="${shop.whatsappConnected}" class="whatsapp-status-disconnected">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                        <span
-                            style="background: #ef4444; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
-                        <span style="font-weight: 600; color: #991b1b;">WhatsApp Not Connected</span>
-                    </div>
+                            <div class="profile-whatsapp-number-input">
+                                <label>WhatsApp Business Number</label>
+                                <div class="profile-input-group">
+                                    <input type="text" id="whatsappNumber" class="profile-whatsapp-input"
+                                        placeholder="Enter 10-digit WhatsApp number" maxlength="10"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    <button onclick="saveWhatsAppNumber()" class="profile-whatsapp-connect-btn">
+                                        <i class="fab fa-whatsapp"></i> Save & Generate QR
+                                    </button>
+                                </div>
+                                <p class="profile-whatsapp-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    This number will appear as sender when you send invoices to customers
+                                </p>
+                            </div>
+                        </div>
 
-                    <!-- WhatsApp Number Input -->
-                    <div style="margin-bottom: 16px;">
-                        <label
-                            style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 8px;">
-                            <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp Business Number
-                        </label>
-                        <div style="display: flex; gap: 12px;">
-                            <input type="text" id="whatsappNumber" class="whatsapp-input"
-                                placeholder="Enter 10-digit WhatsApp number" maxlength="10"
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            <button onclick="saveWhatsAppNumber()" class="whatsapp-btn-primary">
-                                <i class="fab fa-whatsapp"></i> Save & Generate QR
+                        <!-- Reconnect Option -->
+                        <div th:if="${shop.whatsappConnected}" class="profile-whatsapp-reconnect">
+                            <button onclick="reconnectWhatsApp()" class="profile-whatsapp-reconnect-btn">
+                                <i class="fas fa-sync-alt"></i> Reconnect / Change Number
                             </button>
                         </div>
-                        <p style="font-size: 12px; color: #64748b; margin-top: 6px;">
-                            <i class="fas fa-info-circle"></i>
-                            This number will appear as sender when you send invoices to customers
-                        </p>
                     </div>
                 </div>
 
-                <!-- QR Code Section (Hidden by default) -->
-                <div id="qrSection" style="display: none;" class="qr-container">
-                    <h4 style="margin-bottom: 16px; color: #0f172a;">
-                        <i class="fab fa-whatsapp" style="color: #25D366;"></i>
-                        Connect Your WhatsApp
-                    </h4>
-                    <p style="color: #475569; margin-bottom: 20px;">
-                        Scan this QR code with <strong th:text="${shop.name}"></strong>'s WhatsApp Business app
-                    </p>
-                    <div id="qrCodeImage"
-                        style="margin-bottom: 20px; min-height: 200px; display: flex; justify-content: center; align-items: center;">
-                        <!-- QR code will be injected here -->
-                        <div class="qr-placeholder" style="color: #64748b;">QR code will appear here after generation...
-                        </div>
-                    </div>
-                    <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">
-                        Instance: <span id="instanceName"
-                            style="font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;"></span>
-                    </p>
-                    <div style="display: flex; gap: 12px; justify-content: center;">
-                        <button onclick="closeQR()" class="btn-secondary" style="flex: 0 1 auto; padding: 10px 24px;">
-                            Close
-                        </button>
-
-                    </div>
-                </div>
-
-                <!-- Reconnect Option (if connected) -->
-                <div th:if="${shop.whatsappConnected}" style="text-align: center; margin-top: 16px;">
-                    <button onclick="reconnectWhatsApp()" class="btn-secondary"
-                        style="flex: 0 1 auto; padding: 10px 24px;">
-                        <i class="fas fa-sync-alt"></i> Reconnect / Change Number
-                    </button>
-                </div>
             </div>
+
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 HisaabLite</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version">v2.0.0</span>
-                <span><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> All systems
-                    operational</span>
-            </div>
-        </div>
-
-        
     </div>
 
-
-
-
-    <div id="whatsappModal" style="
-                display:none;
-                position:fixed;
-                top:0;
-                left:0;
-                width:100%;
-                height:100%;
-                background:rgba(0,0,0,0.5);
-                z-index:9999;
-                justify-content:center;
-                align-items:center;
-                ">
-
-        <div style="
-                background:white;
-                width:420px;
-                border-radius:16px;
-                padding:28px;
-                text-align:center;
-                box-shadow:0 20px 40px rgba(0,0,0,0.15);
-                ">
-
-            <h3 style="margin-bottom:10px;">
-                <i class="fab fa-whatsapp" style="color:#25D366"></i>
-                Connect WhatsApp
-            </h3>
-
-            <p style="font-size:14px;color:#64748b;margin-bottom:20px;">
-                Follow the steps to connect your WhatsApp
-            </p>
-
-            <div id="modalContent">
+    <!-- WhatsApp Modal -->
+    <div id="whatsappModal" class="profile-whatsapp-modal" style="display: none;">
+        <div class="profile-whatsapp-modal-content">
+            <h3><i class="fab fa-whatsapp" style="color:#25D366"></i> Connect WhatsApp</h3>
+            <p>Follow the steps to connect your WhatsApp</p>
+            <div id="modalContent" class="profile-modal-body">
                 Loading...
             </div>
-
-            <button onclick="closeWhatsAppModal()" class="btn-secondary" style="margin-top:20px;">
-                Close
-            </button>
-
+            <button onclick="closeWhatsAppModal()" class="profile-btn-secondary">Close</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <script>
+    <script th:inline="javascript">
         function renderWhatsAppQR(qrData) {
-
-            const modalContainer = document.querySelector("#whatsappModal #qrCodeImage");
-
+            const modalContainer = document.querySelector("#whatsappModal .profile-modal-body");
             if (!modalContainer) {
-                console.error("QR container not found in modal");
+                console.error("QR container not found");
                 return;
             }
-
             modalContainer.innerHTML = "";
-
             if (!qrData) {
                 modalContainer.innerHTML = '<div style="color:red">QR data not available</div>';
                 return;
             }
-
-            // Evolution API QR ko modify mat karo
-            const cleanQR = qrData;
-
-            console.log("QR length:", cleanQR.length);
-            console.log("QR preview:", cleanQR.substring(0, 50));
-
             try {
-
                 new QRCode(modalContainer, {
-                    text: cleanQR,
+                    text: qrData,
                     width: 240,
                     height: 240,
                     correctLevel: QRCode.CorrectLevel.H
                 });
-
-                console.log("QR generated successfully");
-
                 setTimeout(() => {
                     const img = modalContainer.querySelector("img");
                     if (img) {
@@ -936,18 +225,15 @@
                         img.style.margin = "0 auto";
                     }
                 }, 100);
-
             } catch (error) {
                 console.error("QR generation error:", error);
-                modalContainer.innerHTML =
-                    `<div style="color:red">QR generation failed</div>`;
+                modalContainer.innerHTML = `<div style="color:red">QR generation failed</div>`;
             }
         }
+
         function openWhatsAppModal() {
             const modal = document.getElementById("whatsappModal");
-            if (modal) {
-                modal.style.display = "flex";
-            }
+            if (modal) modal.style.display = "flex";
         }
 
         function closeWhatsAppModal() {
@@ -971,14 +257,13 @@
 
         window.saveWhatsAppNumber = function () {
             const number = document.getElementById('whatsappNumber').value;
-
             if (!number || number.length !== 10) {
                 alert('Please enter valid 10-digit WhatsApp number');
                 return;
             }
 
-            const token = document.querySelector('meta[name="_csrf"]').content;
-            const header = document.querySelector('meta[name="_csrf_header"]').content;
+            const csrfToken = document.querySelector("meta[name='_csrf']").content;
+            const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
             const btn = document.querySelector('button[onclick="saveWhatsAppNumber()"]');
             const originalText = btn.innerHTML;
 
@@ -987,48 +272,32 @@
 
             fetch('/profile/whatsapp/create-instance?whatsappNumber=' + number, {
                 method: 'POST',
-                headers: { [header]: token }
+                headers: { [csrfHeader]: csrfToken }
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Response:", data);
-
                     if (data.success || data.qrCode) {
                         const instanceName = data.instanceName;
                         const qrData = data.qrCode;
 
-                        console.log("QR DATA:", qrData);
-
-                        // Modal content
                         const modalHtml = `
-                <div style="padding:10px">
-                    <div style="background:#f0fdf4;border-radius:12px;padding:16px;margin-bottom:20px">
-                        <i class="fas fa-check-circle" style="color:#22c55e;font-size:40px"></i>
-                        <h3 style="margin:10px 0;color:#166534">Instance Created</h3>
-                        <p style="font-size:13px">Instance: <b>${instanceName}</b></p>
-                    </div>
-
-                    <div id="qrCodeImage" style="text-align:center;margin-bottom:20px;min-height:240px;display:flex;justify-content:center;align-items:center;"></div>
-
-                    <p style="font-size:12px;color:#64748b;margin-top:20px;text-align:center">
-                        Scan QR with WhatsApp
-                    </p>
-                </div>
-            `;
-
+                            <div style="padding:10px">
+                                <div class="profile-modal-success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <h3>Instance Created</h3>
+                                    <p>Instance: <b>${instanceName}</b></p>
+                                </div>
+                                <div id="qrCodeImage" style="text-align:center;margin:20px 0;min-height:240px;"></div>
+                                <p style="font-size:12px;color:#64748b;text-align:center">Scan QR with WhatsApp</p>
+                            </div>
+                        `;
                         document.getElementById("modalContent").innerHTML = modalHtml;
-
-                        
-                        setTimeout(() => {
-                            renderWhatsAppQR(qrData);
-                            openWhatsAppModal();
-                            startConnectionPolling(instanceName);
-                        }, 200);
-
+                        setTimeout(() => renderWhatsAppQR(qrData), 200);
+                        openWhatsAppModal();
+                        startConnectionPolling(instanceName);
                     } else {
                         alert('Error: ' + (data.error || 'Failed to create instance'));
                     }
-
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 })
@@ -1040,45 +309,17 @@
                 });
         };
 
-        window.checkConnection = function () {
-            const instanceName = document.getElementById('instanceName').innerText;
-            if (!instanceName || instanceName === 'N/A') {
-                alert('No instance found');
-                return;
-            }
-
-            const token = document.querySelector('meta[name="_csrf"]').content;
-            const header = document.querySelector('meta[name="_csrf_header"]').content;
-
-            fetch('/profile/whatsapp/check-connection/' + instanceName, {
-                headers: { [header]: token }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.connected) {
-                        alert('WhatsApp connected successfully!');
-                        location.reload();
-                    } else {
-                        alert('Not connected yet. Please scan QR code.');
-                    }
-                });
-        };
-
         window.disconnectWhatsApp = function () {
             if (!confirm('Are you sure you want to disconnect WhatsApp?')) return;
-
-            const token = document.querySelector('meta[name="_csrf"]').content;
-            const header = document.querySelector('meta[name="_csrf_header"]').content;
-
+            const csrfToken = document.querySelector("meta[name='_csrf']").content;
+            const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
             fetch('/profile/whatsapp/reset', {
                 method: 'POST',
-                headers: { [header]: token }
+                headers: { [csrfHeader]: csrfToken }
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
+                    if (data.success) location.reload();
                 });
         };
 
