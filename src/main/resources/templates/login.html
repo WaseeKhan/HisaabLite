@@ -22,6 +22,34 @@
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
+    <style>
+        /* Additional styles for session expired message */
+        .message.warning {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+        
+        .message.warning i {
+            color: #f59e0b;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -36,6 +64,12 @@
                 <div class="login-header">
                     <h2>🔐 Welcome Back</h2>
                     <p>Login to your business account</p>
+                </div>
+
+                <!-- SESSION EXPIRED MESSAGE (NEW) -->
+                <div th:if="${param.expired}" class="message warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>⚠️ Session expired! You logged in from another device. Please login again.</span>
                 </div>
 
                 <!-- VERIFIED MESSAGE -->
@@ -98,6 +132,17 @@
     </div>
 
    <div th:replace="~{fragments/public-footer :: footer}"></div>
+   
+   <script>
+        // Clear expired parameter from URL after 5 seconds to prevent showing on refresh
+        setTimeout(() => {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('expired')) {
+                url.searchParams.delete('expired');
+                window.history.replaceState({}, document.title, url.pathname);
+            }
+        }, 5000);
+   </script>
 </body>
 
 </html>

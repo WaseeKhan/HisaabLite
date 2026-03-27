@@ -4,12 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.session.SessionInformationExpiredEvent;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import com.hisaablite.controller.CustomAuthFailureHandler;
 import com.hisaablite.security.CustomUserDetailsService;
+
+import java.io.IOException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,7 +33,7 @@ public class SecurityConfig {
                 http
                         .csrf(csrf -> csrf
                                 .ignoringRequestMatchers(
-                                        "/sales/invoice/*/pdf", // PDF download URLs ke liye CSRF off and open for all
+                                        "/sales/invoice/*/pdf",
                                         "/admin/users/approve/*",
                                         "/admin/users/bulk-approve"
                                 )
@@ -48,7 +56,6 @@ public class SecurityConfig {
                                 .requestMatchers("/app/**").authenticated()
                                 .anyRequest().authenticated())
                         
-                        // ===== ADDED: Headers configuration with CSP =====
                         .headers(headers -> headers
                                 .addHeaderWriter(new XXssProtectionHeaderWriter())
                                 .contentSecurityPolicy(csp -> csp
@@ -65,10 +72,21 @@ public class SecurityConfig {
                                 )
                         )
 
+                        // ===== ADDED: Session Management =====
+                        .sessionManagement(session -> session
+                                .maximumSessions(1) // Only ONE session per user
+                                .maxSessionsPreventsLogin(false) // Don't prevent, expire old session
+                                .expiredSessionStrategy(sessionInformationExpiredStrategy())
+                                .sessionRegistry(sessionRegistry())
+                        )
+                        .sessionManagement(session -> session
+                                .sessionFixation().migrateSession()
+                        )
+
                         .formLogin(form -> form
                                         .loginPage("/login")
                                         .failureHandler(failureHandler)
-                                        .defaultSuccessUrl("/dashboard")
+                                        .successHandler(authenticationSuccessHandler()) // Add custom success handler
                                         .permitAll())
                         .logout(logout -> logout
                                         .logoutUrl("/logout")
@@ -79,6 +97,46 @@ public class SecurityConfig {
                                         .permitAll());
 
                 return http.build();
+        }
+
+        @Bean
+        public SessionRegistry sessionRegistry() {
+                return new SessionRegistryImpl();
+        }
+
+        @Bean
+        public HttpSessionEventPublisher httpSessionEventPublisher() {
+                return new HttpSessionEventPublisher();
+        }
+
+        @Bean
+        public AuthenticationSuccessHandler authenticationSuccessHandler() {
+                return (request, response, authentication) -> {
+                        // Register new session
+                        sessionRegistry().registerNewSession(request.getSession().getId(), authentication.getPrincipal());
+                        
+                        // Redirect based on role
+                        String role = authentication.getAuthorities().iterator().next().getAuthority();
+                        if (role.equals("ROLE_OWNER")) {
+                                response.sendRedirect("/owner/dashboard");
+                        } else if (role.equals("ROLE_MANAGER")) {
+                                response.sendRedirect("/manager/dashboard");
+                        } else {
+                                response.sendRedirect("/cashier/dashboard");
+                        }
+                };
+        }
+
+        @Bean
+        public SessionInformationExpiredStrategy sessionInformationExpiredStrategy() {
+                return new SessionInformationExpiredStrategy() {
+                        @Override
+                        public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
+                                event.getRequest().getSession().setAttribute("sessionExpiredMessage", 
+                                        "Your session has expired because you logged in from another device.");
+                                event.getResponse().sendRedirect("/login?expired");
+                        }
+                };
         }
 
         @Bean

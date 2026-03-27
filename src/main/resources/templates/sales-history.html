@@ -34,8 +34,6 @@
                 <!-- Header Fragment -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
-               
-
                 <!-- Stats Cards -->
                 <div class="sales-stats-grid">
                     <div class="sales-stat-card">
@@ -123,16 +121,18 @@
                                     <th style="width: 100px;">Cashier</th>
                                     <th style="width: 100px;">Amount</th>
                                     <th style="width: 100px;">Status</th>
-                                    <th style="width: 100px;">Actions</th>
-                                 </thead>
+                                    <th style="width: 140px;">Actions</th>
+                                </tr>
+                            </thead>
                             <tbody id="salesTableBody">
-                                 <tr>
-                                    <td colspan="6" class="sales-empty-state">
+                                <tr>
+                                    <td colspan="7" class="sales-empty-state">
                                         <i class="fas fa-spinner fa-pulse"></i>
                                         <p>Loading sales...</p>
-                                     </tr>
+                                    </td>
+                                </tr>
                             </tbody>
-                          </table>
+                        </table>
                     </div>
 
                     <!-- Pagination -->
@@ -147,6 +147,29 @@
         </div>
     </div>
 
+    <!-- WhatsApp Modal -->
+    <div id="whatsappModal" class="whatsapp-modal" style="display: none;">
+        <div class="whatsapp-modal-content">
+            <div class="whatsapp-modal-header">
+                <i class="fab fa-whatsapp" style="color: #25D366; font-size: 24px;"></i>
+                <h3>Send Invoice via WhatsApp</h3>
+            </div>
+            <input type="text" id="whatsappPhone" class="whatsapp-modal-input" placeholder="Enter 10-digit phone number">
+            <div class="whatsapp-modal-note">
+                <i class="fas fa-info-circle"></i> PDF will be sent as attachment via WhatsApp
+            </div>
+            <div class="whatsapp-modal-actions">
+                <button class="whatsapp-modal-btn whatsapp-modal-btn-cancel" onclick="closeWhatsAppModal()">Cancel</button>
+                <button class="whatsapp-modal-btn whatsapp-modal-btn-send" onclick="sendWhatsAppPDF()">
+                    <i class="fab fa-whatsapp"></i> Send PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="sales-toast"></div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         let currentPage = 0;
@@ -155,6 +178,7 @@
         let currentDateRange = '';
         let currentSort = 'saleDate_desc';
         let searchTimeout;
+        let currentSaleId = null;
 
         // Get initial server data
         const totalSales = /*[[${totalSales}]]*/ 0;
@@ -238,7 +262,7 @@
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
                     $('#searchLoading').hide();
-                    showError('Failed to load sales');
+                    showToast('Failed to load sales', 'error');
                 }
             });
         }
@@ -249,12 +273,13 @@
             
             if (!sales || sales.length === 0) {
                 tbody.html(`
-                     <tr>
-                        <td colspan="6" class="sales-empty-state">
+                    <tr>
+                        <td colspan="7" class="sales-empty-state">
                             <i class="fas fa-receipt"></i>
                             <p>No sales found</p>
                             <span>${currentKeyword ? 'No results for "' + escapeHtml(currentKeyword) + '"' : 'Start billing to see sales'}</span>
-                         </tr>
+                        </td>
+                    </tr>
                 `);
                 return;
             }
@@ -268,7 +293,7 @@
                         <td><span class="invoice-number">#${sale.id}</span></td>
                         <td><i class="far fa-calendar"></i> ${formatDate(sale.saleDate)}</td>
                         <td><i class="fas fa-user"></i> ${escapeHtml(sale.customerName || 'Walk-in')}</td>
-                         <td><i class="far fa-user-circle"></i> ${escapeHtml(sale.cashierName || 'N/A')}</td>
+                        <td><i class="far fa-user-circle"></i> ${escapeHtml(sale.cashierName || 'N/A')}</td>
                         <td><span class="sale-amount">₹${formatNumber(sale.totalAmount)}</span></td>
                         <td>
                             <span class="status-badge ${statusClass}">
@@ -280,6 +305,12 @@
                                 <a href="/sales/invoice/${sale.id}" target="_blank" class="sales-btn-view" title="View Invoice">
                                     <i class="fas fa-file-invoice"></i>
                                 </a>
+                                <button onclick="downloadPDF(${sale.id})" class="sales-btn-pdf" title="Download PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button onclick="openWhatsAppModal(${sale.id}, '${escapeHtml(sale.customerPhone || '')}')" class="sales-btn-whatsapp" title="Send via WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
                                 ${sale.status === 'COMPLETED' ? `
                                     <a href="/sales/cancel/${sale.id}" class="sales-btn-cancel" 
                                        onclick="return confirm('Cancel this sale?')" title="Cancel Sale">
@@ -352,10 +383,83 @@
             $('.sales-card')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
+        function downloadPDF(saleId) {
+            showToast('Downloading PDF...', 'info');
+            window.location.href = '/sales/invoice/' + saleId + '/pdf';
+        }
+        
+        function openWhatsAppModal(saleId, phone) {
+            currentSaleId = saleId;
+            document.getElementById('whatsappPhone').value = phone;
+            document.getElementById('whatsappModal').style.display = 'flex';
+        }
+        
+        function closeWhatsAppModal() {
+            document.getElementById('whatsappModal').style.display = 'none';
+            currentSaleId = null;
+        }
+        
+        async function sendWhatsAppPDF() {
+            const phone = document.getElementById('whatsappPhone').value;
+            if (!phone) {
+                showToast('Please enter phone number', 'error');
+                return;
+            }
+            
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(phone.replace(/[^0-9]/g, ''))) {
+                showToast('Please enter valid 10-digit phone number', 'error');
+                return;
+            }
+            
+            showToast('Generating PDF...', 'info');
+            
+            try {
+                const saleId = currentSaleId;
+                
+                // Fetch PDF from backend
+                const pdfResponse = await fetch('/sales/invoice/' + saleId + '/pdf');
+                
+                if (!pdfResponse.ok) {
+                    throw new Error('Failed to generate PDF');
+                }
+                
+                const pdfBlob = await pdfResponse.blob();
+                
+                showToast('Sending PDF...', 'info');
+                
+                const formData = new FormData();
+                formData.append('file', pdfBlob, 'invoice_' + saleId + '.pdf');
+                formData.append('phoneNumber', phone);
+                
+                const token = document.querySelector('meta[name="_csrf"]').content;
+                const header = document.querySelector('meta[name="_csrf_header"]').content;
+                
+                const sendResponse = await fetch('/sales/invoice/' + saleId + '/send-whatsapp-pdf', {
+                    method: 'POST',
+                    headers: { [header]: token },
+                    body: formData
+                });
+                
+                const data = await sendResponse.json();
+                
+                if (data.success) {
+                    showToast('✓ Invoice sent via WhatsApp!', 'success');
+                    closeWhatsAppModal();
+                } else {
+                    showToast('❌ Failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Failed to send invoice', 'error');
+            }
+        }
+        
         function formatDate(dateStr) {
             if (!dateStr) return 'N/A';
             const date = new Date(dateStr);
-            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
         
         function formatNumber(value) {
@@ -369,11 +473,31 @@
             return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
         
-        function showError(message) {
-            const errorDiv = $('<div>', { class: 'sales-toast-error', text: message }).appendTo('body');
-            setTimeout(() => errorDiv.fadeOut(300, function() { $(this).remove(); }), 3000);
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            toast.style.background = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
+            toast.style.color = 'white';
+            toast.style.padding = '12px 20px';
+            toast.style.borderRadius = '8px';
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '9999';
+            toast.style.fontSize = '14px';
+            toast.style.fontWeight = '500';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.textContent = message;
+            setTimeout(function() { toast.style.display = 'none'; }, 5000);
+        }
+        
+        window.onclick = function(event) { 
+            const modal = document.getElementById('whatsappModal'); 
+            if (event.target == modal) { closeWhatsAppModal(); } 
         }
     </script>
+    
+  
 </body>
 
 </html>

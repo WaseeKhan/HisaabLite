@@ -34,180 +34,110 @@
                 <!-- Header -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
-                <!-- KPI CARDS - FIRST ROW (8 CARDS) - TODAY'S DATA -->
+                <!-- KPI CARDS -->
                 <div class="shop-kpi-grid">
-                    <div class="shop-kpi-card shop-revenue">
-                        <div class="shop-kpi-header">
-                            <div class="shop-kpi-icon"><i class="fas fa-rupee-sign"></i></div>
-                            <span class="shop-kpi-title">Today's Revenue</span>
-                        </div>
-                        <div class="shop-kpi-value">₹<span id="todayRevenue" th:text="${#numbers.formatDecimal(todayRevenue, 1, 2)}">0.00</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-calendar-day"></i> Total sales today</div>
-                    </div>
-                    
-                    <div class="shop-kpi-card shop-invoices">
-                        <div class="shop-kpi-header">
-                            <div class="shop-kpi-icon"><i class="fas fa-file-invoice"></i></div>
-                            <span class="shop-kpi-title">Total Invoices</span>
-                        </div>
-                        <div class="shop-kpi-value"><span id="totalInvoices" th:text="${todayInvoices}">0</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-receipt"></i> Invoices today</div>
-                    </div>
-                    
-                    <div class="shop-kpi-card shop-items">
-                        <div class="shop-kpi-header">
-                            <div class="shop-kpi-icon"><i class="fas fa-boxes"></i></div>
-                            <span class="shop-kpi-title">Items Sold</span>
-                        </div>
-                        <div class="shop-kpi-value"><span id="itemsSold" th:text="${todayItems}">0</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-cube"></i> Quantity sold today</div>
-                    </div>
-                    
                     <div class="shop-kpi-card shop-revenue">
                         <div class="shop-kpi-header">
                             <div class="shop-kpi-icon"><i class="fas fa-check-circle"></i></div>
                             <span class="shop-kpi-title">Completed</span>
                         </div>
-                        <div class="shop-kpi-value">₹<span id="completedRevenue" th:text="${#numbers.formatDecimal(completedRevenue, 1, 2)}">0.00</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-arrow-up"></i> Successful sales</div>
+                        <div class="shop-kpi-value">₹<span id="completedRevenue"
+                                th:text="${#numbers.formatDecimal(completedRevenue, 1, 2)}">0.00</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-arrow-up"></i> Revenue</div>
                     </div>
-                    
                     <div class="shop-kpi-card shop-cancelled">
                         <div class="shop-kpi-header">
                             <div class="shop-kpi-icon"><i class="fas fa-ban"></i></div>
                             <span class="shop-kpi-title">Cancelled</span>
                         </div>
-                        <div class="shop-kpi-value">₹<span id="cancelledAmount" th:text="${#numbers.formatDecimal(cancelledAmount, 1, 2)}">0.00</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-arrow-down"></i> Refund amount</div>
+                        <div class="shop-kpi-value">₹<span id="cancelledAmount"
+                                th:text="${#numbers.formatDecimal(cancelledAmount, 1, 2)}">0.00</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-arrow-down"></i> Refunds</div>
                     </div>
-                    
                     <div class="shop-kpi-card shop-net">
                         <div class="shop-kpi-header">
                             <div class="shop-kpi-icon"><i class="fas fa-chart-line"></i></div>
-                            <span class="shop-kpi-title">Net Revenue</span>
+                            <span class="shop-kpi-title">Net</span>
                         </div>
-                        <div class="shop-kpi-value">₹<span id="netRevenue" th:text="${#numbers.formatDecimal(netRevenue, 1, 2)}">0.00</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-equals"></i> After cancellations</div>
+                        <div class="shop-kpi-value">₹<span id="netRevenue"
+                                th:text="${#numbers.formatDecimal(netRevenue, 1, 2)}">0.00</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-equals"></i> Revenue</div>
                     </div>
-                    
                     <div class="shop-kpi-card shop-returned">
                         <div class="shop-kpi-header">
                             <div class="shop-kpi-icon"><i class="fas fa-undo-alt"></i></div>
                             <span class="shop-kpi-title">Returns</span>
                         </div>
                         <div class="shop-kpi-value"><span id="returnedItems" th:text="${returnedItems}">0</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-box-open"></i> Items returned</div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-box-open"></i> Items</div>
                     </div>
-                    
+                    <div class="shop-kpi-card shop-invoices">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-file-invoice"></i></div>
+                            <span class="shop-kpi-title">Invoices</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="inv" th:text="${todayInvoices}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-receipt"></i> Today</div>
+                    </div>
+                    <div class="shop-kpi-card shop-items">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-boxes"></i></div>
+                            <span class="shop-kpi-title">Sold</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="items" th:text="${todayItems}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-cube"></i> Items</div>
+                    </div>
                     <div class="shop-kpi-card shop-staff">
                         <div class="shop-kpi-header">
                             <div class="shop-kpi-icon"><i class="fas fa-users"></i></div>
-                            <span class="shop-kpi-title">Total Staff</span>
+                            <span class="shop-kpi-title">Staff</span>
                         </div>
-                        <div class="shop-kpi-value"><span id="totalStaff" th:text="${totalStaff}">0</span></div>
-                        <div class="shop-kpi-subtitle"><i class="fas fa-user-check"></i> Active team members</div>
+                        <div class="shop-kpi-value"><span id="staff" th:text="${totalStaff}">0</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-user-check"></i> Team</div>
+                    </div>
+                    <div class="shop-kpi-card shop-revenue">
+                        <div class="shop-kpi-header">
+                            <div class="shop-kpi-icon"><i class="fas fa-percent"></i></div>
+                            <span class="shop-kpi-title">Growth</span>
+                        </div>
+                        <div class="shop-kpi-value"><span id="growth">+12%</span></div>
+                        <div class="shop-kpi-subtitle"><i class="fas fa-trend-up"></i> vs yesterday</div>
                     </div>
                 </div>
 
-                <!-- Extended Stats Cards - SECOND ROW (4 CARDS) - TODAY'S CALCULATED METRICS -->
+                <!-- Extended Stats Cards -->
                 <div class="shop-stats-extended">
                     <div class="stats-ext-card">
                         <div class="stats-ext-info">
                             <h4>Avg Order Value</h4>
                             <div class="stats-ext-number" id="avgOrderValue">₹0</div>
-                            <div class="stats-ext-change"><i class="fas fa-chart-line"></i> Today's average</div>
+                            <div class="stats-ext-change"><i class="fas fa-arrow-up"></i> +12%</div>
                         </div>
                         <div class="stats-ext-icon"><i class="fas fa-shopping-cart"></i></div>
                     </div>
-                    
                     <div class="stats-ext-card">
                         <div class="stats-ext-info">
                             <h4>Conversion Rate</h4>
                             <div class="stats-ext-number" id="conversionRate">0%</div>
-                            <div class="stats-ext-change"><i class="fas fa-chart-line"></i> Completed vs Total</div>
+                            <div class="stats-ext-change"><i class="fas fa-arrow-up"></i> +5%</div>
                         </div>
                         <div class="stats-ext-icon"><i class="fas fa-chart-line"></i></div>
                     </div>
-                    
                     <div class="stats-ext-card">
                         <div class="stats-ext-info">
-                            <h4>Customer Count</h4>
-                            <div class="stats-ext-number" id="customerCount">0</div>
-                            <div class="stats-ext-change"><i class="fas fa-users"></i> Unique customers today</div>
+                            <h4>Customer Retention</h4>
+                            <div class="stats-ext-number" id="retentionRate">0%</div>
+                            <div class="stats-ext-change negative"><i class="fas fa-arrow-down"></i> -2%</div>
                         </div>
                         <div class="stats-ext-icon"><i class="fas fa-users"></i></div>
                     </div>
-                    
                     <div class="stats-ext-card">
                         <div class="stats-ext-info">
-                            <h4>Items per Invoice</h4>
-                            <div class="stats-ext-number" id="itemsPerInvoice">0</div>
-                            <div class="stats-ext-change"><i class="fas fa-box"></i> Average items/invoice</div>
+                            <h4>Inventory Turnover</h4>
+                            <div class="stats-ext-number" id="inventoryTurnover">0x</div>
+                            <div class="stats-ext-change"><i class="fas fa-arrow-up"></i> +8%</div>
                         </div>
                         <div class="stats-ext-icon"><i class="fas fa-boxes"></i></div>
-                    </div>
-                </div>
-
-                <!-- Overall Business Stats Cards - THIRD ROW (6 CARDS) - LIFETIME DATA -->
-                <div class="shop-overall-stats">
-                    <div class="overall-stats-header">
-                        <h3><i class="fas fa-chart-simple"></i> Lifetime Business Overview</h3>
-                        <span class="overall-badge">Since inception</span>
-                    </div>
-                    <div class="overall-stats-grid">
-                        <div class="overall-stat-card">
-                            <div class="overall-stat-icon"><i class="fas fa-coins"></i></div>
-                            <div class="overall-stat-info">
-                                <div class="overall-stat-label">Total Revenue</div>
-                                <div class="overall-stat-value">₹<span id="totalRevenue">0</span></div>
-                                <div class="overall-stat-sub">Lifetime earnings</div>
-                            </div>
-                        </div>
-                        
-                        <div class="overall-stat-card">
-                            <div class="overall-stat-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                            <div class="overall-stat-info">
-                                <div class="overall-stat-label">Total Invoices</div>
-                                <div class="overall-stat-value"><span id="totalInvoicesLifetime">0</span></div>
-                                <div class="overall-stat-sub">All time invoices</div>
-                            </div>
-                        </div>
-                        
-                        <div class="overall-stat-card">
-                            <div class="overall-stat-icon"><i class="fas fa-boxes"></i></div>
-                            <div class="overall-stat-info">
-                                <div class="overall-stat-label">Items Sold</div>
-                                <div class="overall-stat-value"><span id="totalItemsSold">0</span></div>
-                                <div class="overall-stat-sub">Total quantity</div>
-                            </div>
-                        </div>
-                        
-                        <div class="overall-stat-card">
-                            <div class="overall-stat-icon"><i class="fas fa-users"></i></div>
-                            <div class="overall-stat-info">
-                                <div class="overall-stat-label">Customers</div>
-                                <div class="overall-stat-value"><span id="totalCustomers">0</span></div>
-                                <div class="overall-stat-sub">Unique customers</div>
-                            </div>
-                        </div>
-                        
-                        <div class="overall-stat-card">
-                            <div class="overall-stat-icon"><i class="fas fa-chart-line"></i></div>
-                            <div class="overall-stat-info">
-                                <div class="overall-stat-label">Avg Order Value</div>
-                                <div class="overall-stat-value">₹<span id="avgOrderValueLifetime">0</span></div>
-                                <div class="overall-stat-sub">Per invoice average</div>
-                            </div>
-                        </div>
-                        
-                        <div class="overall-stat-card">
-                            <div class="overall-stat-icon"><i class="fas fa-star"></i></div>
-                            <div class="overall-stat-info">
-                                <div class="overall-stat-label">Customer LTV</div>
-                                <div class="overall-stat-value">₹<span id="customerLTV">0</span></div>
-                                <div class="overall-stat-sub">Avg per customer</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -286,7 +216,7 @@
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
+                <!-- Recent Activity - FIXED SCROLL -->
                 <div class="activity-section">
                     <div class="section-header">
                         <h3><i class="fas fa-clock"></i> Recent Activity</h3>
@@ -361,98 +291,102 @@
                         </div>
                     </div>
 
-                    <div class="dashboard-card business-card">
-                        <div class="card-header">
-                            <div class="header-left">
-                                <div class="header-icon success">
-                                    <i class="fas fa-store"></i>
-                                </div>
-                                <div class="header-text">
-                                    <h3>Business Overview</h3>
-                                    <p>Key business information</p>
-                                </div>
-                            </div>
-                            <div class="badge-active">
-                                <i class="fas fa-circle"></i> Active
-                            </div>
-                        </div>
-                        
-                        <div class="business-content-wrapper">
-                            <div class="business-info-row">
-                                <div class="info-chip">
-                                    <i class="fas fa-store"></i>
-                                    <span th:text="${shop.name}">Business Name</span>
-                                </div>
-                                <div class="info-chip">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">15 Jan 2024</span>
-                                </div>
-                                <div class="info-chip">
-                                    <i class="fas fa-tag"></i>
-                                    <span th:text="'ID: ' + ${shop.id}">ID: 12345</span>
-                                </div>
-                            </div>
+                   <div class="dashboard-card business-card">
+    <div class="card-header">
+        <div class="header-left">
+            <div class="header-icon success">
+                <i class="fas fa-store"></i>
+            </div>
+            <div class="header-text">
+                <h3>Business Overview</h3>
+                <p>Key business information</p>
+            </div>
+        </div>
+        <div class="badge-active">
+            <i class="fas fa-circle"></i> Active
+        </div>
+    </div>
+    
+    <div class="business-content-wrapper">
+        <!-- Shop Info Row -->
+        <div class="business-info-row">
+            <div class="info-chip">
+                <i class="fas fa-store"></i>
+                <span th:text="${shop.name}">Business Name</span>
+            </div>
+            <div class="info-chip">
+                <i class="fas fa-calendar-alt"></i>
+                <span th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">15 Jan 2024</span>
+            </div>
+            <div class="info-chip">
+                <i class="fas fa-tag"></i>
+                <span th:text="'ID: ' + ${shop.id}">ID: 12345</span>
+            </div>
+        </div>
 
-                            <div class="business-detail-item">
-                                <div class="detail-icon">
-                                    <i class="fas fa-location-dot"></i>
-                                </div>
-                                <div class="detail-content">
-                                    <div class="detail-label">Address</div>
-                                    <div class="detail-value" th:text="${shop.address ?: 'Not set'}">123 Business Street</div>
-                                    <div class="detail-sub" th:if="${shop.city != null or shop.state != null or shop.pincode != null}">
-                                        <span th:text="${shop.city ?: ''}">Mumbai</span>
-                                        <span th:if="${shop.city != null and shop.state != null}">, </span>
-                                        <span th:text="${shop.state ?: ''}">Maharashtra</span>
-                                        <span th:if="${shop.pincode != null}"> - </span>
-                                        <span th:text="${shop.pincode ?: ''}">400001</span>
-                                    </div>
-                                </div>
-                            </div>
+        <!-- Address Section -->
+        <div class="business-detail-item">
+            <div class="detail-icon">
+                <i class="fas fa-location-dot"></i>
+            </div>
+            <div class="detail-content">
+                <div class="detail-label">Address</div>
+                <div class="detail-value" th:text="${shop.address ?: 'Not set'}">123 Business Street</div>
+                <div class="detail-sub" th:if="${shop.city != null or shop.state != null or shop.pincode != null}">
+                    <span th:text="${shop.city ?: ''}">Mumbai</span>
+                    <span th:if="${shop.city != null and shop.state != null}">, </span>
+                    <span th:text="${shop.state ?: ''}">Maharashtra</span>
+                    <span th:if="${shop.pincode != null}"> - </span>
+                    <span th:text="${shop.pincode ?: ''}">400001</span>
+                </div>
+            </div>
+        </div>
 
-                            <div class="business-detail-row">
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-file-invoice"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">PAN Number</div>
-                                        <div class="detail-value" th:text="${shop.panNumber}">ABCDE1234F</div>
-                                    </div>
-                                </div>
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-percent"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">GST Number</div>
-                                        <div class="detail-value" th:text="${shop.gstNumber} ?: 'Not Added'">27ABCDE1234F1Z5</div>
-                                    </div>
-                                </div>
-                            </div>
+        <!-- Tax Info Row -->
+        <div class="business-detail-row">
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">PAN Number</div>
+                    <div class="detail-value" th:text="${shop.panNumber}">ABCDE1234F</div>
+                </div>
+            </div>
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">GST Number</div>
+                    <div class="detail-value" th:text="${shop.gstNumber} ?: 'Not Added'">27ABCDE1234F1Z5</div>
+                </div>
+            </div>
+        </div>
 
-                            <div class="business-detail-row">
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">UPI ID</div>
-                                        <div class="detail-value upi" th:text="${shop.upiId ?: 'Not Configured'}">shop@okhdfcbank</div>
-                                    </div>
-                                </div>
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">Staff Count</div>
-                                        <div class="detail-value" th:text="${totalStaff}">5</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Payment & Stats Row -->
+        <div class="business-detail-row">
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">UPI ID</div>
+                    <div class="detail-value upi" th:text="${shop.upiId ?: 'Not Configured'}">shop@okhdfcbank</div>
+                </div>
+            </div>
+            <div class="business-detail-item half">
+                <div class="detail-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-label">Staff Count</div>
+                    <div class="detail-value" th:text="${totalStaff}">5</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                 </div>
 
             </div>
@@ -462,42 +396,17 @@
         </div>
     </div>
 
-    <!-- Add this somewhere in your dashboard header to show session info -->
-<div th:if="${activeSessionsCount != null and activeSessionsCount > 1}" class="session-warning">
-    <i class="fas fa-exclamation-triangle"></i>
-    You are logged in on another device. This session will expire soon.
-</div>
-
-<style>
-.session-warning {
-    background: #fef3c7;
-    border-left: 4px solid #f59e0b;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #92400e;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-</style>
-
-
     <script th:inline="javascript">
         const serverData = {
             labels: /*[[${labels}]]*/['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             revenues: /*[[${revenues}]]*/[0, 0, 0, 0, 0, 0, 0],
-            todayRevenue: /*[[${todayRevenue}]]*/ 0,
-            todayInvoices: /*[[${todayInvoices}]]*/ 0,
-            todayItems: /*[[${todayItems}]]*/ 0,
             completedRevenue: /*[[${completedRevenue}]]*/ 0,
             cancelledAmount: /*[[${cancelledAmount}]]*/ 0,
             netRevenue: /*[[${netRevenue}]]*/ 0,
             returnedItems: /*[[${returnedItems}]]*/ 0,
-            totalStaff: /*[[${totalStaff}]]*/ 0,
-            totalSales: /*[[${totalSales}]]*/ 0,
-            uniqueCustomers: /*[[${uniqueCustomers}]]*/ 0
+            todayInvoices: /*[[${todayInvoices}]]*/ 0,
+            todayItems: /*[[${todayItems}]]*/ 0,
+            totalStaff: /*[[${totalStaff}]]*/ 0
         };
 
         function initCharts(data) {
@@ -565,40 +474,13 @@
             fetch('/app/metrics')
                 .then(res => res.json())
                 .then(data => {
-                    // Today's data
-                    document.getElementById("todayRevenue").innerText = formatMoney(data.todayRevenue);
-                    document.getElementById("totalInvoices").innerText = data.todayInvoices || 0;
-                    document.getElementById("itemsSold").innerText = data.todayItems || 0;
                     document.getElementById("completedRevenue").innerText = formatMoney(data.completedRevenue);
                     document.getElementById("cancelledAmount").innerText = formatMoney(data.cancelledAmount);
                     document.getElementById("netRevenue").innerText = formatMoney(data.netRevenue);
                     document.getElementById("returnedItems").innerText = data.returnedItems || 0;
-                    document.getElementById("totalStaff").innerText = data.totalStaff || 0;
-                    
-                    // Extended stats
-                    const avgOrderValue = data.todayInvoices > 0 ? data.completedRevenue / data.todayInvoices : 0;
-                    document.getElementById("avgOrderValue").innerText = '₹' + formatMoney(avgOrderValue);
-                    
-                    const conversionRate = data.todaySalesCount > 0 ? (data.completedCount / data.todaySalesCount * 100) : 0;
-                    document.getElementById("conversionRate").innerText = conversionRate.toFixed(1) + '%';
-                    
-                    document.getElementById("customerCount").innerText = data.uniqueCustomers || 0;
-                    
-                    const itemsPerInvoice = data.todayInvoices > 0 ? data.todayItems / data.todayInvoices : 0;
-                    document.getElementById("itemsPerInvoice").innerText = itemsPerInvoice.toFixed(1);
-                    
-                    // Lifetime overall data
-                    document.getElementById("totalRevenue").innerText = formatMoney(data.totalRevenue);
-                    document.getElementById("totalInvoicesLifetime").innerText = data.totalInvoicesLifetime || 0;
-                    document.getElementById("totalItemsSold").innerText = data.totalItemsSold || 0;
-                    document.getElementById("totalCustomers").innerText = data.totalCustomers || 0;
-                    
-                    const avgOrderValueLifetime = data.totalInvoicesLifetime > 0 ? data.totalRevenue / data.totalInvoicesLifetime : 0;
-                    document.getElementById("avgOrderValueLifetime").innerText = formatMoney(avgOrderValueLifetime);
-                    
-                    const customerLTV = data.totalCustomers > 0 ? data.totalRevenue / data.totalCustomers : 0;
-                    document.getElementById("customerLTV").innerText = formatMoney(customerLTV);
-                    
+                    document.getElementById("inv").innerText = data.todayInvoices || 0;
+                    document.getElementById("items").innerText = data.todayItems || 0;
+                    document.getElementById("staff").innerText = data.totalStaff || 0;
                     if (window.pieChart) {
                         window.pieChart.data.datasets[0].data = [data.completedRevenue || 0, data.cancelledAmount || 0, data.netRevenue || 0];
                         window.pieChart.update();
@@ -607,10 +489,7 @@
                 .catch(err => console.error("Metrics error:", err));
         }
 
-        function formatMoney(val) { 
-            return parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
-        }
-        
+        function formatMoney(val) { return parseFloat(val || 0).toFixed(2); }
         function togglePieSlice(index, element) {
             if (window.pieChart) {
                 const meta = window.pieChart.getDatasetMeta(0);
@@ -619,10 +498,20 @@
                 window.pieChart.update();
             }
         }
-        
+        function updateExtendedStats() {
+            const avgOrderValue = document.getElementById('avgOrderValue');
+            const conversionRate = document.getElementById('conversionRate');
+            const retentionRate = document.getElementById('retentionRate');
+            const inventoryTurnover = document.getElementById('inventoryTurnover');
+            if (avgOrderValue) avgOrderValue.innerText = '₹2,450';
+            if (conversionRate) conversionRate.innerText = '68%';
+            if (retentionRate) retentionRate.innerText = '42%';
+            if (inventoryTurnover) inventoryTurnover.innerText = '3.2x';
+        }
         document.addEventListener('DOMContentLoaded', function () {
             initCharts(serverData);
             fetchRealData();
+            updateExtendedStats();
             setInterval(fetchRealData, 30000);
         });
     </script>

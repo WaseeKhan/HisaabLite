@@ -134,4 +134,26 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
         LIMIT :limit
     """)
     List<Object[]> findTopCustomersByShop(@Param("shop") Shop shop, @Param("limit") int limit);
+
+    // ===== ADD THESE METHODS FOR DASHBOARD CARDS =====
+    
+    // Get today's total sales count (all sales including completed and cancelled)
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE")
+    Long getTodaySalesCount(@Param("shop") Shop shop);
+    
+    // Get today's completed sales count
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE AND s.status = 'COMPLETED'")
+    Long getTodayCompletedCount(@Param("shop") Shop shop);
+    
+    // Get today's unique customers count
+    @Query("SELECT COUNT(DISTINCT s.customerName) FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE AND s.customerName IS NOT NULL AND s.customerName != ''")
+    Long getTodayUniqueCustomers(@Param("shop") Shop shop);
+
+    // ===== LIFETIME BUSINESS DATA METHODS =====
+
+// Count distinct customers for a shop
+@Query("SELECT COUNT(DISTINCT s.customerName) FROM Sale s WHERE s.shop = :shop AND s.customerName IS NOT NULL AND s.customerName != ''")
+Long countDistinctCustomersByShop(@Param("shop") Shop shop);
+
+
 }

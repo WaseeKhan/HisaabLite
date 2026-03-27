@@ -1022,3 +1022,157 @@ canvas {
         font-size: 12px;
     }
 }
+
+
+/* ===== THIRD ROW - LIFETIME BUSINESS OVERVIEW (6 Cards) ===== */
+.shop-overall-stats {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+}
+
+.overall-stats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.overall-stats-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.overall-stats-header h3 i {
+    color: #3b82f6;
+    font-size: 14px;
+}
+
+.overall-badge {
+    background: #e2e8f0;
+    padding: 3px 10px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #475569;
+}
+
+.overall-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.overall-stat-card {
+    background: white;
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    border: 1px solid #eef2ff;
+    min-width: 0;
+}
+
+.overall-stat-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+}
+
+.overall-stat-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.overall-stat-icon i {
+    font-size: 16px;
+    color: white;
+}
+
+.overall-stat-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.overall-stat-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+.overall-stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.overall-stat-sub {
+    font-size: 8px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1400px) {
+    .overall-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 900px) {
+    .overall-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .overall-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .overall-stat-card {
+        padding: 10px;
+    }
+    
+    .overall-stat-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .overall-stat-icon i {
+        font-size: 14px;
+    }
+    
+    .overall-stat-value {
+        font-size: 14px;
+    }
+}

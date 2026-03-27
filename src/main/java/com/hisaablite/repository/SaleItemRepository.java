@@ -34,4 +34,13 @@ public interface SaleItemRepository extends JpaRepository<SaleItem, Long> {
         LIMIT :limit
     """)
     List<Object[]> findTopSellingProductsByShop(@Param("shop") Shop shop, @Param("limit") int limit);
+
+
+    // ===== LIFETIME BUSINESS DATA METHODS =====
+
+// Get total items sold for a shop (all time)
+@Query("SELECT COALESCE(SUM(si.quantity), 0) FROM SaleItem si WHERE si.sale.shop = :shop AND si.sale.status = 'COMPLETED'")
+Long getTotalItemsSoldByShop(@Param("shop") Shop shop);
+
+
 }
