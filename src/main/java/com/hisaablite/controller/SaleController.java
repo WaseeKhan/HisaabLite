@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.hisaablite.dto.CartItem;
@@ -559,36 +560,38 @@ public ResponseEntity<Map<String, Object>> searchSalesHistory(
         }
     }
 
-    @PostMapping("/invoice/{saleId}/send-whatsapp-pdf")
-    @ResponseBody
-    public ResponseEntity<?> sendWhatsAppWithPdf(
-            @PathVariable Long saleId,
-            @RequestParam String phoneNumber) {
 
-        log.info("Received request to send PDF invoice {} to {}", saleId, phoneNumber);
+@PostMapping("/invoice/{saleId}/send-whatsapp-pdf")
+@ResponseBody
+public ResponseEntity<?> sendWhatsAppWithPdf(
+        @PathVariable Long saleId,
+        @RequestParam String phoneNumber,
+        @RequestParam(required = false) MultipartFile file) {
 
-        try {
-            Sale sale = saleRepository.findByIdWithShop(saleId)
-                    .orElseThrow(() -> new RuntimeException("Sale not found"));
+    try {
+        Sale sale = saleRepository.findByIdWithShop(saleId)
+                .orElseThrow(() -> new RuntimeException("Sale not found"));
 
-            boolean sent = whatsAppService.sendInvoiceWithPdf(sale, phoneNumber);
-
-            if (sent) {
-                return ResponseEntity.ok(Map.of(
-                        "success", true,
-                        "message", "Invoice sent successfully"));
-            } else {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "error", "Failed to send invoice"));
-            }
-
-        } catch (Exception e) {
-            log.error("Error in sendWhatsAppWithPdf", e);
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage()));
+        boolean sent;
+        
+        if (file != null && !file.isEmpty()) {
+            sent = whatsAppService.sendInvoiceWithPdfAttachment(sale, phoneNumber, file);
+        } else {
+            sent = whatsAppService.sendInvoiceWithPdf(sale, phoneNumber);
         }
-    }
 
+        if (sent) {
+            return ResponseEntity.ok(Map.of("success", true, "message", "Invoice sent successfully"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to send invoice"));
+        }
+
+    } catch (Exception e) {
+        log.error("Error", e);
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
+}
+    
     @GetMapping("/invoice/{saleId}/pdf")
     public ResponseEntity<byte[]> downloadInvoicePdf(@PathVariable Long saleId) {
         Sale sale = saleRepository.findByIdWithShop(saleId)

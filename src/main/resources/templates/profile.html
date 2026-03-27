@@ -4,7 +4,9 @@
 <head>
     <title>Shop Profile • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Shop CSS -->
@@ -34,7 +36,7 @@
                 <!-- Header Fragment -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
-               
+
 
                 <!-- Profile Card -->
                 <div class="profile-card">
@@ -58,7 +60,8 @@
 
                         <div class="profile-info-item" th:if="${shop.createdAt}">
                             <span class="profile-info-label"><i class="far fa-calendar"></i> Member Since</span>
-                            <div class="profile-info-value" th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
+                            <div class="profile-info-value"
+                                th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
                         </div>
 
                         <div class="profile-info-item">
@@ -88,27 +91,32 @@
 
                             <div class="profile-form-group">
                                 <label><i class="fas fa-credit-card"></i> UPI ID</label>
-                                <input type="text" th:field="*{upiId}" th:value="${shop.upiId}" placeholder="Enter UPI ID" />
+                                <input type="text" th:field="*{upiId}" th:value="${shop.upiId}"
+                                    placeholder="Enter UPI ID" />
                             </div>
 
                             <div class="profile-form-group full-width">
                                 <label><i class="fas fa-map-pin"></i> Address</label>
-                                <input type="text" th:field="*{address}" th:value="${shop.address}" placeholder="Enter street address" />
+                                <input type="text" th:field="*{address}" th:value="${shop.address}"
+                                    placeholder="Enter street address" />
                             </div>
 
                             <div class="profile-form-group">
                                 <label><i class="fas fa-city"></i> City</label>
-                                <input type="text" th:field="*{city}" th:value="${shop.city}" placeholder="Enter city" />
+                                <input type="text" th:field="*{city}" th:value="${shop.city}"
+                                    placeholder="Enter city" />
                             </div>
 
                             <div class="profile-form-group">
                                 <label><i class="fas fa-map"></i> State</label>
-                                <input type="text" th:field="*{state}" th:value="${shop.state}" placeholder="Enter state" />
+                                <input type="text" th:field="*{state}" th:value="${shop.state}"
+                                    placeholder="Enter state" />
                             </div>
 
                             <div class="profile-form-group">
                                 <label><i class="fas fa-mail-bulk"></i> Pincode</label>
-                                <input type="text" th:field="*{pincode}" th:value="${shop.pincode}" placeholder="Enter pincode" />
+                                <input type="text" th:field="*{pincode}" th:value="${shop.pincode}"
+                                    placeholder="Enter pincode" />
                             </div>
                         </div>
 
@@ -134,7 +142,8 @@
                                 <span class="profile-status-dot connected"></span>
                                 <span class="profile-status-text">WhatsApp Connected</span>
                                 <span class="profile-whatsapp-number" th:if="${shop.whatsappNumber}">
-                                    <i class="fab fa-whatsapp"></i> +91 <span th:text="${shop.whatsappNumber}">9876543210</span>
+                                    <i class="fab fa-whatsapp"></i> +91 <span
+                                        th:text="${shop.whatsappNumber}">9876543210</span>
                                 </span>
                                 <button onclick="disconnectWhatsApp()" class="profile-whatsapp-disconnect">
                                     <i class="fas fa-unlink"></i> Disconnect
@@ -198,36 +207,44 @@
         </div>
     </div>
 
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script th:inline="javascript">
+
+
         function renderWhatsAppQR(qrData) {
-            const modalContainer = document.querySelector("#whatsappModal .profile-modal-body");
-            if (!modalContainer) {
+            const qrContainer = document.getElementById("qrCodeImage");
+            if (!qrContainer) {
                 console.error("QR container not found");
                 return;
             }
-            modalContainer.innerHTML = "";
+            qrContainer.innerHTML = "";
             if (!qrData) {
-                modalContainer.innerHTML = '<div style="color:red">QR data not available</div>';
+                qrContainer.innerHTML = '<div style="color:red">QR data not available</div>';
                 return;
             }
             try {
-                new QRCode(modalContainer, {
+                new QRCode(qrContainer, {
                     text: qrData,
-                    width: 240,
-                    height: 240,
+                    width: 180,
+                    height: 180,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
                     correctLevel: QRCode.CorrectLevel.H
                 });
                 setTimeout(() => {
-                    const img = modalContainer.querySelector("img");
-                    if (img) {
-                        img.style.display = "block";
-                        img.style.margin = "0 auto";
+                    const qrImg = qrContainer.querySelector("img");
+                    if (qrImg) {
+                        qrImg.style.display = "block";
+                        qrImg.style.margin = "0 auto";
+                        qrImg.style.borderRadius = "0";
+                        qrImg.style.width = "180px";
+                        qrImg.style.height = "180px";
                     }
                 }, 100);
             } catch (error) {
                 console.error("QR generation error:", error);
-                modalContainer.innerHTML = `<div style="color:red">QR generation failed</div>`;
+                qrContainer.innerHTML = `<div style="color:red">QR generation failed</div>`;
             }
         }
 
@@ -255,6 +272,7 @@
             }, 3000);
         }
 
+
         window.saveWhatsAppNumber = function () {
             const number = document.getElementById('whatsappNumber').value;
             if (!number || number.length !== 10) {
@@ -279,18 +297,33 @@
                     if (data.success || data.qrCode) {
                         const instanceName = data.instanceName;
                         const qrData = data.qrCode;
-
+                        
                         const modalHtml = `
-                            <div style="padding:10px">
-                                <div class="profile-modal-success">
-                                    <i class="fas fa-check-circle"></i>
-                                    <h3>Instance Created</h3>
-                                    <p>Instance: <b>${instanceName}</b></p>
-                                </div>
-                                <div id="qrCodeImage" style="text-align:center;margin:20px 0;min-height:240px;"></div>
-                                <p style="font-size:12px;color:#64748b;text-align:center">Scan QR with WhatsApp</p>
-                            </div>
-                        `;
+                    <div class="whatsapp-steps-compact">
+                        <div class="step-row">
+                            <span class="step-badge">1</span>
+                            <span class="step-label">Open WhatsApp → Linked Devices</span>
+                        </div>
+                        <div class="step-row">
+                            <span class="step-badge">2</span>
+                            <span class="step-label">Tap "Link a Device"</span>
+                        </div>
+                        <div class="step-row">
+                            <span class="step-badge">3</span>
+                            <span class="step-label">Scan QR code below</span>
+                        </div>
+                    </div>
+                    <div style="text-align:center; margin: 20px 0;">
+                        <div id="qrCodeImage"></div>
+                    </div>
+                    
+                    <p style="font-size: 11px; color: #64748b; margin-top: 12px;">
+                        Instance: <strong>${instanceName}</strong>
+                    </p>
+                `;
+
+
+
                         document.getElementById("modalContent").innerHTML = modalHtml;
                         setTimeout(() => renderWhatsAppQR(qrData), 200);
                         openWhatsAppModal();

@@ -1016,3 +1016,85 @@
         font-size: 12px;
     }
 }
+
+
+
+
+
+/* Plan Selection Status Container */
+div[style*="margin-bottom: 40px"] {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+/* Badge - No plan selected */
+.selected-plan-badge.warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid #fee2e2;
+}
+
+/* Required Message - Shows on validation error */
+.plan-required-message {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid #fee2e2;
+    animation: fadeIn 0.3s ease;
+}
+
+.plan-required-message i {
+    font-size: 0.65rem;
+    color: #dc2626;
+}
+
+/* Animation for message */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success badge (when plan selected) */
+.selected-plan-badge.success {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0fdf4;
+    color: #10b981;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid #bbf7d0;
+}
+
+/* Responsive - stack on mobile */
+@media (max-width: 640px) {
+    div[style*="margin-bottom: 40px"] {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

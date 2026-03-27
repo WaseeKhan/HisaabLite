@@ -168,7 +168,7 @@
 
     <div class="cart-summary">
         <div class="summary-row">
-            <span>Subtotal</span>
+            <span>Base Amount</span>
             <span>₹ <span id="subtotalAmount">0.00</span></span>
         </div>
         <div class="summary-row tax-row" id="cgstRow">
@@ -636,11 +636,11 @@
                     else gstClass = 'gst-high';
                     
                     div.innerHTML = `
-                        <div class="suggestion-name">${escapeHtml(p.name)}</div>
+                        <div class="suggestion-name"> ${escapeHtml(p.name)}</div>
                         <div class="suggestion-details">
-                            <span class="suggestion-price">₹${p.price}</span>
-                            <span class="suggestion-stock"><i class="fas fa-box"></i> ${p.stockQuantity || 0}</span>
-                            <span class="suggestion-gst ${gstClass}"><i class="fas fa-percent"></i> ${p.gstPercent || 0}% GST</span>
+                            <span class="suggestion-price">₹${p.price}</span> &nbsp;
+                            <span class="suggestion-stock"><i class="fas fa-box"></i> ${p.stockQuantity || 0}</span> &nbsp;
+                            <span class="suggestion-gst ${gstClass}"> ${p.gstPercent || 0}% GST</span>
                         </div>
                     `;
                     

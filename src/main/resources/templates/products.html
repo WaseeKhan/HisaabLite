@@ -38,9 +38,8 @@
                     th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}">
                 </div>
 
-                <!-- Product Limit Banner - Only show when limit is actually reached -->
-                <div th:if="${currentProductCount >= productLimit and planType != 'ENTERPRISE'}"
-                    class="shop-limit-banner">
+                <!-- Product Limit Banner - Only show when limit is actually reached and NOT unlimited -->
+                <div th:if="${productLimitRaw != -1 and currentProductCount >= productLimitRaw and planType != 'ENTERPRISE'}" class="shop-limit-banner">
                     <div class="shop-limit-banner-content">
                         <i class="fas fa-exclamation-triangle"></i>
                         <div class="shop-limit-banner-text">
@@ -52,8 +51,10 @@
                     </div>
                 </div>
 
-                <!-- Usage Progress Bar - Colorful -->
-                <div class="shop-usage-progress" th:if="${planType != 'ENTERPRISE'}">
+              
+
+                <!-- Usage Progress Bar - Only show for limited plans -->
+                <div class="shop-usage-progress" th:if="${planType != 'ENTERPRISE' and productLimitRaw != -1}">
                     <div class="shop-usage-info">
                         <div>
                             <i class="fas fa-box"></i>
@@ -63,35 +64,35 @@
                             <strong th:text="${productLimit}">50</strong>
                         </div>
                         <div class="shop-usage-percent"
-                            th:classappend="${(currentProductCount * 100 / productLimit) < 50} ? 'percent-green' : (${(currentProductCount * 100 / productLimit) < 80} ? 'percent-yellow' : 'percent-red')"
-                            th:text="${(currentProductCount * 100 / productLimit) + '%'}">
+                            th:classappend="${(currentProductCount * 100 / productLimitRaw) < 50} ? 'percent-green' : (${(currentProductCount * 100 / productLimitRaw) < 80} ? 'percent-yellow' : 'percent-red')"
+                            th:text="${(currentProductCount * 100 / productLimitRaw) + '%'}">
                             0%
                         </div>
                     </div>
                     <div class="shop-progress-bar">
                         <div class="shop-progress-fill"
-                            th:style="'width: ' + ${currentProductCount * 100 / productLimit} + '%'"
-                            th:classappend="${(currentProductCount * 100 / productLimit) < 50} ? 'fill-green' : (${(currentProductCount * 100 / productLimit) < 80} ? 'fill-yellow' : 'fill-red')">
+                            th:style="'width: ' + ${currentProductCount * 100 / productLimitRaw} + '%'"
+                            th:classappend="${(currentProductCount * 100 / productLimitRaw) < 50} ? 'fill-green' : (${(currentProductCount * 100 / productLimitRaw) < 80} ? 'fill-yellow' : 'fill-red')">
                         </div>
                     </div>
                     <!-- Warning only shows when near limit (>=80%) -->
-                    <div class="shop-usage-warning" th:if="${currentProductCount * 100 / productLimit >= 80}">
-                        <i th:if="${currentProductCount * 100 / productLimit >= 100}" class="fas fa-ban"></i>
-                        <i th:unless="${currentProductCount * 100 / productLimit >= 100}"
+                    <div class="shop-usage-warning" th:if="${currentProductCount * 100 / productLimitRaw >= 80}">
+                        <i th:if="${currentProductCount * 100 / productLimitRaw >= 100}" class="fas fa-ban"></i>
+                        <i th:unless="${currentProductCount * 100 / productLimitRaw >= 100}"
                             class="fas fa-exclamation-triangle"></i>
-                        <span th:if="${currentProductCount * 100 / productLimit >= 100}">
-                             Limit reached! <a th:href="@{/upgrade}" class="warning-link">Upgrade now</a>
+                        <span th:if="${currentProductCount * 100 / productLimitRaw >= 100}">
+                            🚫 Limit reached! <a th:href="@{/upgrade}" class="warning-link">Upgrade now</a>
                         </span>
-                        <span th:unless="${currentProductCount * 100 / productLimit >= 100}">
-                            <strong th:text="${productLimit - currentProductCount}"></strong> slots left! <a
+                        <span th:unless="${currentProductCount * 100 / productLimitRaw >= 100}">
+                            ⚠️ <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots left! <a
                                 th:href="@{/upgrade}" class="warning-link">Upgrade</a>
                         </span>
                     </div>
                     <!-- Optional: Show success message when under limit -->
                     <div class="shop-usage-success"
-                        th:if="${currentProductCount * 100 / productLimit < 80 and currentProductCount > 0}">
+                        th:if="${currentProductCount * 100 / productLimitRaw < 80 and currentProductCount > 0}">
                         <i class="fas fa-check-circle"></i>
-                        <span>You have <strong th:text="${productLimit - currentProductCount}"></strong> slots available
+                        <span>You have <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots available
                             for new products.</span>
                     </div>
                 </div>
@@ -141,28 +142,32 @@
                 </div>
 
                 <!-- Filter Bar -->
-                <div class="shop-filter-actions">
-                    <div class="shop-filter-bar">
-                        <span class="shop-filter-chip active" data-filter="all">All</span>
-                        <span class="shop-filter-chip" data-filter="low-stock">Low Stock</span>
-                        <span class="shop-filter-chip" data-filter="in-stock">In Stock</span>
-                    </div>
-                    <div class="shop-actions-right">
-                        <div class="shop-search">
-                            <i class="fas fa-search shop-search-icon"></i>
-                            <input type="text" id="searchInput" class="shop-search-input" placeholder="Search...">
-                            <i class="fas fa-spinner fa-pulse shop-search-loading" id="searchLoading"></i>
-                        </div>
-                        <button onclick="exportProducts()" class="shop-btn-icon"><i class="fas fa-download"></i>
-                            Export</button>
-                        <a th:href="@{/products/new}" class="shop-btn-primary"
-                            th:classappend="${currentProductCount >= productLimit} ? 'disabled' : ''"
-                            th:title="${currentProductCount >= productLimit} ? 'Product limit reached. Upgrade to add more.' : 'Add new product'">
-                            <i class="fas fa-plus"></i> Add
-                        </a>
-                    </div>
-                </div>
-
+                <!-- Filter Bar -->
+<div class="shop-filter-actions">
+    <div class="shop-filter-bar">
+        <span class="shop-filter-chip active" data-filter="all">All</span>
+        <span class="shop-filter-chip" data-filter="low-stock">Low Stock</span>
+        <span class="shop-filter-chip" data-filter="in-stock">In Stock</span>
+    </div>
+    <div class="shop-actions-right">
+        <div class="shop-search">
+            <i class="fas fa-search shop-search-icon"></i>
+            <input type="text" id="searchInput" class="shop-search-input" placeholder="Search...">
+            <i class="fas fa-spinner fa-pulse shop-search-loading" id="searchLoading"></i>
+        </div>
+        <button onclick="exportProducts()" class="shop-btn-icon"><i class="fas fa-download"></i> Export</button>
+        
+        <!-- Add Button with Unlimited Badge Inside -->
+        <a th:href="@{/products/new}" class="shop-btn-primary shop-btn-with-badge"
+            th:classappend="${productLimitRaw != -1 and currentProductCount >= productLimitRaw} ? 'disabled' : ''"
+            th:title="${productLimitRaw != -1 and currentProductCount >= productLimitRaw} ? 'Product limit reached. Upgrade to add more.' : 'Add new product'">
+            <i class="fas fa-plus"></i> Add
+            <span th:if="${productLimitRaw == -1 or planType == 'ENTERPRISE'}" class="btn-unlimited-badge">
+                ∞ Unlimited
+            </span>
+        </a>
+    </div>
+</div>
                 <!-- Products Table -->
                 <div class="shop-products-card">
                     <div class="shop-table-responsive">
@@ -182,7 +187,7 @@
                                         <p>Loading...</p>
                                     
                             </tbody>
-                         </table>
+                          </table>
                     </div>
                     <div id="bulkActions" class="shop-bulk-actions">
                         <span id="selectedCount">0</span> selected
@@ -202,8 +207,10 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const productLimit = /*[[${productLimit}]]*/ 50;
+        const productLimitRaw = /*[[${productLimitRaw}]]*/ 50;
+        const productLimitDisplay = /*[[${productLimit}]]*/ "50";
         let currentProductCount = /*[[${currentProductCount}]]*/ 0;
+        const isUnlimited = productLimitRaw === -1;
         
         let currentPage = 0, currentKeyword = '', currentFilter = 'all';
         let selectedProducts = new Set(), allProductsData = [];
@@ -239,7 +246,7 @@
         });
 
         function updateAddButtonState() {
-            const canAdd = currentProductCount < productLimit;
+            const canAdd = isUnlimited || currentProductCount < productLimitRaw;
             const addButton = $('.shop-btn-primary');
             if (!canAdd) {
                 addButton.addClass('disabled');
@@ -252,7 +259,7 @@
 
         function updateLimitBanner() {
             const limitBanner = $('.shop-limit-banner');
-            if (currentProductCount >= productLimit) {
+            if (!isUnlimited && currentProductCount >= productLimitRaw) {
                 limitBanner.show();
             } else {
                 limitBanner.hide();
@@ -299,8 +306,8 @@
             const tbody = $('#productsTableBody');
             tbody.empty();
             if (!data.products?.length) {
-                let msg = currentKeyword ? `No matches for "${escapeHtml(currentKeyword)}"` : (currentProductCount >= productLimit ? `Limit reached (${productLimit})` : 'No products');
-                tbody.html(`<tr><td colspan="6" class="shop-empty-state"><i class="fas fa-box-open"></i><p>${msg}</p>${!currentKeyword && currentProductCount < productLimit ? '<a href="/products/new" class="shop-add-link">Add Product</a>' : ''}${!currentKeyword && currentProductCount >= productLimit ? '<a href="/upgrade" class="shop-add-link shop-upgrade-link">Upgrade</a>' : ''}</td></tr>`);
+                let msg = currentKeyword ? `No matches for "${escapeHtml(currentKeyword)}"` : (currentProductCount >= productLimitRaw && !isUnlimited ? `Limit reached (${productLimitDisplay})` : 'No products');
+                tbody.html(`<tr><td colspan="6" class="shop-empty-state"><i class="fas fa-box-open"></i><p>${msg}</p>${!currentKeyword && (!isUnlimited && currentProductCount < productLimitRaw) ? '<a href="/products/new" class="shop-add-link">Add Product</a>' : ''}${!currentKeyword && (!isUnlimited && currentProductCount >= productLimitRaw) ? '<a href="/upgrade" class="shop-add-link shop-upgrade-link">Upgrade</a>' : ''}</td></tr>`);
                 return;
             }
             data.products.forEach(p => {
@@ -312,7 +319,7 @@
                         <td><span class="shop-price">₹${formatPrice(p.price)}</span></td>
                         <td><span class="shop-gst-badge ${p.gstPercent === 0 ? 'shop-gst-badge-zero' : ''}">${p.gstPercent || 0}%</span></td>
                         <td><div class="shop-stock-cell"><span class="shop-stock-quantity">${p.stockQuantity}</span><span class="${isLowStock ? 'shop-low-stock-badge' : 'shop-in-stock-badge'}"><i class="fas ${isLowStock ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${isLowStock ? 'Low' : 'In Stock'}</span></div></td>
-                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${currentProductCount >= productLimit ? 'disabled' : ''}><i class="fas fa-copy"></i></button><form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form></div></td>
+                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${(!isUnlimited && currentProductCount >= productLimitRaw) ? 'disabled' : ''}><i class="fas fa-copy"></i></button><form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form></div></td>
                     </tr>
                 `);
             });
@@ -348,8 +355,8 @@
         }
         
         function duplicateProduct(id) {
-            if (currentProductCount >= productLimit) {
-                showError(`Limit reached (${productLimit})`);
+            if (!isUnlimited && currentProductCount >= productLimitRaw) {
+                showError(`Limit reached (${productLimitDisplay})`);
                 return;
             }
             

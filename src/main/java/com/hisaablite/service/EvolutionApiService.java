@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,126 +70,117 @@ public class EvolutionApiService {
     }
 
     /**
-     * Simplified create instance - just return whatever we get
+     * Create WhatsApp instance
      */
-
-    // Create WhatsApp instance start
     public String createInstance(String instanceName) {
-    try {
-        String url = evolutionApiUrl + "/instance/create";
-        log.info("Creating instance: {}", instanceName);
+        try {
+            String url = evolutionApiUrl + "/instance/create";
+            log.info("Creating instance: {}", instanceName);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("apikey", apiKey);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("apikey", apiKey);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("instanceName", instanceName);
-        body.put("integration", "WHATSAPP-BAILEYS");
-        body.put("qrcode", true);
+            Map<String, Object> body = new HashMap<>();
+            body.put("instanceName", instanceName);
+            body.put("integration", "WHATSAPP-BAILEYS");
+            body.put("qrcode", true);
 
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response =
-                restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(url, request, String.class);
 
-        if (response.getStatusCode() == HttpStatus.CREATED) {
+            if (response.getStatusCode() == HttpStatus.CREATED) {
 
-            JsonNode json = objectMapper.readTree(response.getBody());
+                JsonNode json = objectMapper.readTree(response.getBody());
 
-            String qrCode = null;
+                String qrCode = null;
 
-            // SAFE QR EXTRACTION
-            if (json.has("qrcode") && json.get("qrcode").has("code")) {
-                qrCode = json.get("qrcode").get("code").asText();
-            }
-            else if (json.has("qrcode") && json.get("qrcode").has("base64")) {
-                qrCode = json.get("qrcode").get("base64").asText();
-            }
-            else if (json.has("base64")) {
-                qrCode = json.get("base64").asText();
-            }
-            else if (json.has("instance") && json.get("instance").has("qrcode")) {
-
-                JsonNode qrNode = json.get("instance").get("qrcode");
-
-                if (qrNode.has("code")) {
-                    qrCode = qrNode.get("code").asText();
+                // SAFE QR EXTRACTION
+                if (json.has("qrcode") && json.get("qrcode").has("code")) {
+                    qrCode = json.get("qrcode").get("code").asText();
                 }
-                else if (qrNode.has("base64")) {
-                    qrCode = qrNode.get("base64").asText();
+                else if (json.has("qrcode") && json.get("qrcode").has("base64")) {
+                    qrCode = json.get("qrcode").get("base64").asText();
                 }
+                else if (json.has("base64")) {
+                    qrCode = json.get("base64").asText();
+                }
+                else if (json.has("instance") && json.get("instance").has("qrcode")) {
+
+                    JsonNode qrNode = json.get("instance").get("qrcode");
+
+                    if (qrNode.has("code")) {
+                        qrCode = qrNode.get("code").asText();
+                    }
+                    else if (qrNode.has("base64")) {
+                        qrCode = qrNode.get("base64").asText();
+                    }
+                }
+
+                if (qrCode == null || qrCode.isEmpty()) {
+                    log.warn("QR not found in create response");
+                    return null;
+                }
+
+                // remove prefix if present
+                if (qrCode.startsWith("data:image")) {
+                    qrCode = qrCode.substring(qrCode.indexOf(",") + 1);
+                }
+
+                log.info("QR generated successfully. Length: {}", qrCode.length());
+
+                return qrCode;
             }
 
-            if (qrCode == null || qrCode.isEmpty()) {
-                log.warn("QR not found in create response");
-                return null;
-            }
+            throw new RuntimeException("Instance creation failed");
 
-            // remove prefix if present
-            if (qrCode.startsWith("data:image")) {
-                qrCode = qrCode.substring(qrCode.indexOf(",") + 1);
-            }
-
-            log.info("QR generated successfully. Length: {}", qrCode.length());
-
-            return qrCode;
+        } catch (Exception e) {
+            log.error("Error creating instance", e);
+            throw new RuntimeException("WhatsApp setup failed", e);
         }
-
-        throw new RuntimeException("Instance creation failed");
-
-    } catch (Exception e) {
-        log.error("Error creating instance", e);
-        throw new RuntimeException("WhatsApp setup failed", e);
     }
-}
-
-    // Create WhatsApp instance end
 
     /**
      * Check instance connection status
      */
-   
     public boolean checkConnection(String instanceName) {
+        try {
+            String url = evolutionApiUrl + "/instance/connectionState/" + instanceName;
 
-    try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("apikey", apiKey);
 
-        String url = evolutionApiUrl + "/instance/connectionState/" + instanceName;
+            HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("apikey", apiKey);
+            ResponseEntity<String> response =
+                    restTemplate.exchange(url, HttpMethod.GET, request, String.class);
 
-        HttpEntity<Void> request = new HttpEntity<>(headers);
+            JsonNode json = objectMapper.readTree(response.getBody());
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            log.info("Connection API response: {}", json);
+            log.info("Connection API response: {}", response.getBody());
 
-        JsonNode json = objectMapper.readTree(response.getBody());
+            String state = null;
 
-        log.info("Connection API response: {}", json);
-        log.info("Connection API response: {}", response.getBody());
+            if (json.has("instance") && json.get("instance").has("state")) {
+                state = json.get("instance").get("state").asText();
+            }
+            else if (json.has("state")) {
+                state = json.get("state").asText();
+            }
+            else if (json.has("connectionStatus")) {
+                state = json.get("connectionStatus").asText();
+            }
 
-        String state = null;
+            return "open".equalsIgnoreCase(state);
 
-        if (json.has("instance") && json.get("instance").has("state")) {
-            state = json.get("instance").get("state").asText();
+        } catch (Exception e) {
+            log.error("Error checking connection", e);
+            return false;
         }
-        else if (json.has("state")) {
-            state = json.get("state").asText();
-        }
-        else if (json.has("connectionStatus")) {
-            state = json.get("connectionStatus").asText();
-        }
-
-        return "open".equalsIgnoreCase(state);
-
-    } catch (Exception e) {
-
-        log.error("Error checking connection", e);
-        return false;
-
     }
-}
 
     /**
      * Get QR code for instance
@@ -252,7 +244,84 @@ public class EvolutionApiService {
         }
     }
 
+    /**
+     * Check if instance exists
+     */
     public boolean instanceExists(String instanceName) {
-        throw new UnsupportedOperationException("Unimplemented method 'instanceExists'");
+        try {
+            String url = evolutionApiUrl + "/instance/fetchInstances";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("apikey", apiKey);
+            HttpEntity<?> request = new HttpEntity<>(headers);
+            
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.GET, request, String.class);
+                    
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode json = objectMapper.readTree(response.getBody());
+                if (json.isArray()) {
+                    for (JsonNode instance : json) {
+                        if (instance.has("instanceName") && 
+                            instance.get("instanceName").asText().equals(instanceName)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Error checking instance existence", e);
+            return false;
+        }
+    }
+
+    /**
+     * Format phone number for WhatsApp
+     */
+    private String formatPhoneNumber(String phone) {
+        String cleaned = phone.replaceAll("[^0-9]", "");
+        if (cleaned.length() == 10) {
+            cleaned = "91" + cleaned;
+        }
+        return cleaned;
+    }
+
+/**
+     * Send media message (document, image, etc.) via WhatsApp with specific instance
+     */
+    public boolean sendMediaMessage(String instanceName, String phoneNumber, String caption, String fileName, byte[] fileData, String mediaType) {
+        try {
+            if (instanceName == null || instanceName.isEmpty()) {
+                log.error("Instance name is null or empty");
+                return false;
+            }
+            
+            String url = evolutionApiUrl + "/message/sendMedia/" + instanceName;
+            String formattedPhone = formatPhoneNumber(phoneNumber);
+            
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("number", formattedPhone);
+            requestBody.put("mediatype", mediaType);
+            requestBody.put("fileName", fileName);
+            requestBody.put("caption", caption);
+            requestBody.put("media", Base64.getEncoder().encodeToString(fileData));
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("apikey", apiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            
+            log.info("Sending media message to: {} using instance: {}", formattedPhone, instanceName);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+            
+            log.info("Media message response status: {}", response.getStatusCode());
+            
+            return response.getStatusCode().is2xxSuccessful();
+            
+        } catch (Exception e) {
+            log.error("Error sending media message", e);
+            return false;
+        }
     }
 }

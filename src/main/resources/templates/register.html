@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <title>Register • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}">
 
     <!-- Fonts & Icons -->
@@ -28,8 +29,6 @@
 
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-
-
     <!-- MAIN CONTENT (COMPACT) -->
     <div class="main-content">
         <div class="onboarding-wrapper">
@@ -38,6 +37,7 @@
                     <h2>🚀 Onboard Your Business</h2>
                     <p><span class="highlight">10+ businesses</span> Trust HisaabLite</p>
                 </div>
+                <br>
 
                 <!-- Success Modal (Hidden by default) -->
                 <div id="successContainer" style="display: none;">
@@ -85,7 +85,8 @@
                 <form id="registrationForm" th:action="@{/register}" th:object="${registerRequest}" method="post"
                     onsubmit="return handleSubmit()">
 
-                    <input type="hidden" name="planType" id="selectedPlanInput" th:value="*{planType}">
+                    <!-- Hidden input - EMPTY initially, set when plan selected -->
+                    <input type="hidden" name="planType" id="selectedPlanInput" value="">
 
                     <div class="registration-grid">
                         <!-- LEFT - Business -->
@@ -93,7 +94,7 @@
                             <div class="section-title">Business information</div>
 
                             <div class="form-group">
-                                <label>Shop name</label>
+                                <label>Shop name <span style="color: #dc2626;">*</span> </label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-store input-icon"></i>
                                     <input type="text" th:field="*{shopName}" placeholder="Urban Store" />
@@ -103,7 +104,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Owner name</label>
+                                <label>Owner name <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-user input-icon"></i>
                                     <input type="text" th:field="*{ownerName}" placeholder="Waseem Khan" />
@@ -113,7 +114,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Email</label>
+                                <label>Email <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-envelope input-icon"></i>
                                     <input type="email" th:field="*{username}" placeholder="waseem@urbanstore.com"
@@ -124,7 +125,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Phone</label>
+                                <label>Phone <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-phone input-icon"></i>
                                     <input type="tel" th:field="*{phone}" placeholder="9876543210" maxlength="10"
@@ -135,7 +136,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>PAN number</label>
+                                <label>PAN number <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-id-card input-icon"></i>
                                     <input type="text" th:field="*{panNumber}" placeholder="ABCDE1234F"
@@ -149,25 +150,29 @@
 
                         <!-- RIGHT - Plan Selection -->
                         <div>
-                            <div class="section-title">Choose your plan</div>
+                            <div class="section-title">Choose your plan <span style="color: #dc2626;">*</span></div>
 
                             <!-- Plan Selector Card -->
                             <div class="plan-selector" onclick="openPlanModal()" id="planSelector">
                                 <div class="plan-selector-info">
                                     <div class="plan-selector-icon" id="selectedPlanIcon">
-                                        <i class="fas fa-gem"></i>
+                                        <i class="fas fa-question-circle"></i>
                                     </div>
                                     <div class="plan-selector-text">
-                                        <span class="plan-selector-title" id="selectedPlanName">FREE</span>
-                                        <span class="plan-selector-subtitle" id="selectedPlanDetails">1 users · 10
-                                            products</span>
+                                        <span class="plan-selector-title" id="selectedPlanName">Select a Plan</span>
+                                        <span class="plan-selector-subtitle" id="selectedPlanDetails">Choose your plan</span>
                                     </div>
                                 </div>
-                                <div class="plan-selector-price" id="selectedPlanPrice">₹0</div>
+                                <div class="plan-selector-price" id="selectedPlanPrice"></div>
+                            </div>
+
+                            <!-- Inline Error Message -->
+                            <div id="planErrorMessage" style="display: none; color: #dc2626; font-size: 0.7rem; margin-top: 6px; margin-bottom: 8px;">
+                                <i class="fas fa-exclamation-circle"></i> Please select a plan before registering
                             </div>
 
                             <div style="margin-bottom: 40px;">
-                                <span class="selected-plan-badge" id="selectedPlanBadge">✓ Free plan selected</span>
+                                <span class="selected-plan-badge" id="selectedPlanBadge" style="background: #fef2f2; color: #dc2626; padding: 5px 12px; border-radius: 30px; font-size: 0.7rem; border: 1px solid #fee2e2;">⚠️ No plan selected</span>
                             </div>
 
                             <!-- City -->
@@ -183,7 +188,7 @@
 
                             <!-- Password -->
                             <div class="form-group">
-                                <label>Password</label>
+                                <label>Password <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-lock input-icon"></i>
                                     <input type="password" th:field="*{password}" placeholder="Create password" />
@@ -194,7 +199,7 @@
 
                             <!-- Confirm -->
                             <div class="form-group">
-                                <label>Confirm password</label>
+                                <label>Confirm password <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-lock input-icon"></i>
                                     <input type="password" id="confirmPassword" name="confirmPassword"
@@ -206,7 +211,7 @@
                         </div>
                     </div>
 
-                    <!-- Button - Yeh section replace karo -->
+                    <!-- Button -->
                     <button type="submit" class="btn-register" id="submitBtn">
                         <span id="buttonText">🚀 Register Business</span>
                         <span id="buttonSpinner" style="display: none;" class="btn-spinner"></span>
@@ -222,7 +227,7 @@
         </div>
     </div>
 
-    <!-- PLAN MODAL (COMPACT) -->
+    <!-- PLAN MODAL - NO DEFAULT SELECTION -->
     <div id="planModal" class="plan-modal">
         <div class="plan-modal-content">
             <div class="plan-modal-header">
@@ -231,12 +236,13 @@
             </div>
 
             <div class="plan-grid" id="planGrid">
+                <!-- No default selected class -->
                 <div th:each="plan : ${plans}" class="plan-card"
-                    th:classappend="${plan.planName == 'FREE' ? 'selected' : ''}" th:attr="data-plan-name=${plan.planName}, 
+                     th:attr="data-plan-name=${plan.planName}, 
                            data-plan-price=${plan.price},
                            data-plan-users=${plan.maxUsers == -1 ? 'Unlimited' : plan.maxUsers + ' users'},
                            data-plan-products=${plan.maxProducts == -1 ? 'Unlimited' : plan.maxProducts + ' products'}"
-                    onclick="selectPlan(this)">
+                     onclick="selectPlan(this)">
 
                     <div th:if="${plan.planName == 'PREMIUM'}" class="popular"></div>
                     <div th:if="${plan.planName == 'BASIC'}" class="best-value"></div>
@@ -253,7 +259,7 @@
                         <span th:if="${plan.price == 0}">FREE</span>
                         <span th:if="${plan.price > 0}">
                             ₹<span th:text="${#numbers.formatDecimal(plan.price, 0, 'COMMA', 0, 'POINT')}">499</span>
-                            <small>/month</small>
+                            <small>/year</small>
                         </span>
                     </div>
 
@@ -292,10 +298,9 @@
         </div>
     </div>
 
-
     <div th:replace="~{fragments/public-footer :: footer}"></div>
 
-   <script th:inline="javascript">
+    <script th:inline="javascript">
         const plansData = /*[[${plans}]]*/[];
         let countdownInterval;
         let countdownValue = 5;
@@ -318,25 +323,39 @@
 
         function confirmPlanSelection() {
             const selectedCard = document.querySelector('.plan-card.selected');
-            if (!selectedCard) return;
+            
+            if (!selectedCard) {
+                alert('Please select a plan to continue');
+                return;
+            }
 
             const planName = selectedCard.getAttribute('data-plan-name');
             const planPrice = selectedCard.getAttribute('data-plan-price');
             const planUsers = selectedCard.getAttribute('data-plan-users');
             const planProducts = selectedCard.getAttribute('data-plan-products');
 
+            // Set the hidden input value
             document.getElementById('selectedPlanInput').value = planName;
             document.getElementById('selectedPlanName').innerText = planName;
             document.getElementById('selectedPlanDetails').innerHTML = `${planUsers} · ${planProducts}`;
 
+            const priceElement = document.getElementById('selectedPlanPrice');
+            const badgeElement = document.getElementById('selectedPlanBadge');
+            
             if (parseFloat(planPrice) === 0) {
-                document.getElementById('selectedPlanPrice').innerHTML = 'FREE';
-                document.getElementById('selectedPlanPrice').classList.add('free');
-                document.getElementById('selectedPlanBadge').innerHTML = '✓ Free plan selected';
+                priceElement.innerHTML = 'FREE';
+                priceElement.classList.add('free');
+                badgeElement.innerHTML = '✓ Free plan selected';
+                badgeElement.style.background = '#f0fdf4';
+                badgeElement.style.color = '#10b981';
+                badgeElement.style.border = '1px solid #bbf7d0';
             } else {
-                document.getElementById('selectedPlanPrice').innerHTML = `₹${parseFloat(planPrice).toLocaleString('en-IN')}`;
-                document.getElementById('selectedPlanPrice').classList.remove('free');
-                document.getElementById('selectedPlanBadge').innerHTML = `✓ ${planName} plan selected`;
+                priceElement.innerHTML = `₹${parseFloat(planPrice).toLocaleString('en-IN')}/year`;
+                priceElement.classList.remove('free');
+                badgeElement.innerHTML = `✓ ${planName} plan selected`;
+                badgeElement.style.background = '#f0fdf4';
+                badgeElement.style.color = '#10b981';
+                badgeElement.style.border = '1px solid #bbf7d0';
             }
 
             const iconElement = document.getElementById('selectedPlanIcon').querySelector('i');
@@ -344,6 +363,17 @@
             else if (planName === 'BASIC') iconElement.className = 'fas fa-rocket';
             else if (planName === 'PREMIUM') iconElement.className = 'fas fa-crown';
             else iconElement.className = 'fas fa-building';
+
+            // Hide error message when plan is selected
+            const planErrorMessage = document.getElementById('planErrorMessage');
+            if (planErrorMessage) {
+                planErrorMessage.style.display = 'none';
+            }
+            
+            // Remove error styling
+            const planSelector = document.getElementById('planSelector');
+            planSelector.style.borderColor = '';
+            planSelector.style.background = '';
 
             closePlanModal();
         }
@@ -359,6 +389,27 @@
             }
 
             confirmError.style.display = 'none';
+            
+            // Validate plan selection - Show inline error instead of alert
+            const selectedPlan = document.getElementById('selectedPlanInput').value;
+            const planErrorMessage = document.getElementById('planErrorMessage');
+            const planSelector = document.getElementById('planSelector');
+            
+            if (!selectedPlan || selectedPlan === '') {
+                if (planErrorMessage) {
+                    planErrorMessage.style.display = 'block';
+                }
+                planSelector.style.borderColor = '#dc2626';
+                planSelector.style.background = '#fef2f2';
+                planSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+            
+            if (planErrorMessage) {
+                planErrorMessage.style.display = 'none';
+            }
+            planSelector.style.borderColor = '';
+            planSelector.style.background = '';
 
             const submitBtn = document.getElementById('submitBtn');
             const buttonText = document.getElementById('buttonText');
@@ -372,6 +423,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Ensure hidden input is empty on page load
+            const planInput = document.getElementById('selectedPlanInput');
+            if (planInput) planInput.value = '';
+            
             const password = document.querySelector('[name="password"]');
             const confirmPassword = document.getElementById('confirmPassword');
             const confirmError = document.getElementById('confirmError');
@@ -394,7 +449,6 @@
                 if (form) form.style.display = 'none';
                 if (successContainer) {
                     successContainer.style.display = 'block';
-                    // Start countdown after modal is shown
                     setTimeout(function() {
                         startCountdown();
                     }, 100);
@@ -403,7 +457,6 @@
         });
 
         function startCountdown() {
-            // Clear any existing interval
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
@@ -425,7 +478,6 @@
                     countdownValue--;
                     updateCountdownDisplay();
 
-                    // Update progress bar - calculate percentage based on remaining time
                     if (progressBar) {
                         const percentage = (countdownValue / 5) * 100;
                         progressBar.style.width = percentage + '%';
@@ -462,7 +514,6 @@
                 clearInterval(countdownInterval);
             }
 
-            // Hide success modal and show form again
             const successContainer = document.getElementById('successContainer');
             const registrationForm = document.getElementById('registrationForm');
             
@@ -470,7 +521,6 @@
             if (registrationForm) registrationForm.style.display = 'block';
             document.body.style.overflow = 'auto';
 
-            // Reset form submit button
             const submitBtn = document.getElementById('submitBtn');
             const buttonText = document.getElementById('buttonText');
             const buttonSpinner = document.getElementById('buttonSpinner');

@@ -102,9 +102,10 @@
 
 .search-results-dropdown .suggestion-item:hover,
 .search-results-dropdown .suggestion-item.active {
-    background: #f8fafc;
+    background: #f1f5f9;
+    color: #0f172a;
+    border-left: 3px solid #2563eb;
 }
-
 .suggestion-name {
     font-weight: 500;
     color: #0f172a;

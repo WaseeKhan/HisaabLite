@@ -49,50 +49,55 @@ public class ProductController {
     }
 
     // LIST PRODUCTS WITH SEARCH (Latest first)
-  @GetMapping
-public String listProducts(
-        @RequestParam(required = false) String keyword,
-        @RequestParam(defaultValue = "0") int page,
-        Model model,
-        Authentication authentication) {
+    @GetMapping
+    public String listProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            Model model,
+            Authentication authentication) {
 
-    User user = getUser(authentication);
-    Shop shop = user.getShop();
+        User user = getUser(authentication);
+        Shop shop = user.getShop();
 
-    Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "id"));
-    Page<Product> productPage;
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "id"));
+        Page<Product> productPage;
 
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        productPage = productService.searchProductsWithPagination(keyword.trim(), user.getShop(), pageable);
-        model.addAttribute("keyword", keyword);
-    } else {
-        productPage = productRepository.findByShopAndActiveTrue(user.getShop(), pageable);
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            productPage = productService.searchProductsWithPagination(keyword.trim(), user.getShop(), pageable);
+            model.addAttribute("keyword", keyword);
+        } else {
+            productPage = productRepository.findByShopAndActiveTrue(user.getShop(), pageable);
+        }
+
+        // Get product limit stats - Count ONLY ACTIVE products
+        long currentProductCount = productRepository.countByShopAndActiveTrue(shop);
+        int productLimit = planLimitService.getProductLimit(shop);
+        
+        // Handle unlimited (-1) correctly
+        boolean canAddMore = (productLimit == -1) || (currentProductCount < productLimit);
+        String displayProductLimit = (productLimit == -1) ? "Unlimited" : String.valueOf(productLimit);
+
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", productPage.getNumber());
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("totalItems", productPage.getTotalElements());
+        model.addAttribute("pageSize", PAGE_SIZE);
+        model.addAttribute("role", user.getRole().name());
+        model.addAttribute("currentPage", "products");
+        model.addAttribute("user", user);
+        model.addAttribute("shop", shop);
+        model.addAttribute("currentProductCount", currentProductCount);
+        model.addAttribute("productLimit", displayProductLimit);
+        model.addAttribute("productLimitRaw", productLimit);
+        model.addAttribute("canAddMore", canAddMore);
+
+        PlanType planType = user.getShop().getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+
+        return "products";
     }
-
-    // Get product limit stats - Count ONLY ACTIVE products
-    long currentProductCount = productRepository.countByShopAndActiveTrue(shop);
-    int productLimit = planLimitService.getProductLimit(shop);
-    boolean canAddMore = currentProductCount < productLimit;
-
-    model.addAttribute("products", productPage.getContent());
-    model.addAttribute("currentPage", productPage.getNumber());
-    model.addAttribute("totalPages", productPage.getTotalPages());
-    model.addAttribute("totalItems", productPage.getTotalElements());
-    model.addAttribute("pageSize", PAGE_SIZE);
-    model.addAttribute("role", user.getRole().name());
-    model.addAttribute("currentPage", "products");
-    model.addAttribute("user", user);
-    model.addAttribute("shop", shop);
-    model.addAttribute("currentProductCount", currentProductCount);
-    model.addAttribute("productLimit", productLimit);
-    model.addAttribute("canAddMore", canAddMore);
-
-    PlanType planType = user.getShop().getPlanType();
-    String planTypeDisplay = planType != null ? planType.name() : "FREE";
-    model.addAttribute("planType", planTypeDisplay);
-
-    return "products";
-}
+    
     // AJAX ENDPOINT FOR LIVE SEARCH (Latest first)
     @GetMapping("/search-live")
     @ResponseBody
@@ -191,11 +196,12 @@ public String listProducts(
             User user = getUser(authentication);
             Shop shop = user.getShop();
             
-            // Check product limit before duplicating using PlanLimitService
-            if (!planLimitService.canAddProduct(shop)) {
-                long currentCount = productRepository.countByShopAndActiveTrue(shop);
-                int maxLimit = planLimitService.getProductLimit(shop);
-                
+            // Check product limit before duplicating
+            int maxLimit = planLimitService.getProductLimit(shop);
+            
+            // Skip limit check if unlimited (-1)
+            if (maxLimit != -1 && !planLimitService.canAddProduct(shop)) {
+                long currentCount = productRepository.countByShopAndActiveTrue(shop);          
                 return ResponseEntity.status(403).body(Map.of(
                     "error", "Product limit reached! Your " + shop.getPlanType() +
                     " plan allows maximum " + maxLimit + " products. " +
@@ -264,46 +270,50 @@ public String listProducts(
         }
     }
 
-    // NEW PRODUCT FORM - WITH LIMIT CHECK
-  @GetMapping("/new")
-public String newProductForm(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
-    User user = getUser(authentication);
-    Shop shop = user.getShop();
+    // NEW PRODUCT FORM - WITH LIMIT CHECK (FIXED for unlimited)
+    @GetMapping("/new")
+    public String newProductForm(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = getUser(authentication);
+        Shop shop = user.getShop();
 
-    // Get current active product count
-    long currentCount = productRepository.countByShopAndActiveTrue(shop);
-    int maxLimit = planLimitService.getProductLimit(shop);
-    
-    log.info("Product limit check - Current active: {}, Max limit: {}", currentCount, maxLimit);
-    
-    // Check if limit is reached
-    if (currentCount >= maxLimit) {
-        redirectAttributes.addFlashAttribute("error",
-                "Product limit reached! Your " + shop.getPlanType() +
-                " plan allows maximum " + maxLimit + " products. " +
-                "You currently have " + currentCount + " active products. " +
-                "Please upgrade your plan to add more products.");
+        // Get current active product count
+        long currentCount = productRepository.countByShopAndActiveTrue(shop);
+        int maxLimit = planLimitService.getProductLimit(shop);
         
-        return "redirect:/products";
+        log.info("Product limit check - Current active: {}, Max limit: {}", currentCount, maxLimit);
+        
+        // Check if unlimited OR limit not reached
+        boolean isUnlimited = (maxLimit == -1);
+        
+        if (!isUnlimited && currentCount >= maxLimit) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Product limit reached! Your " + shop.getPlanType() +
+                    " plan allows maximum " + maxLimit + " products. " +
+                    "You currently have " + currentCount + " active products. " +
+                    "Please upgrade your plan to add more products.");
+            
+            return "redirect:/products";
+        }
+
+        // If limit not reached or unlimited, show product form
+        model.addAttribute("product", new Product());
+        model.addAttribute("shop", shop);
+        model.addAttribute("user", user);
+        model.addAttribute("role", user.getRole().name());
+        model.addAttribute("currentPage", "products");
+        
+        PlanType planType = shop.getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("productLimit", isUnlimited ? "Unlimited" : maxLimit);
+        model.addAttribute("productLimitRaw", maxLimit);
+        model.addAttribute("currentProductCount", currentCount);
+        model.addAttribute("canAddMore", isUnlimited || currentCount < maxLimit);
+
+        return "product-form";
     }
-
-    // If limit not reached, show product form
-    model.addAttribute("product", new Product());
-    model.addAttribute("shop", shop);
-    model.addAttribute("user", user);
-    model.addAttribute("role", user.getRole().name());
-    model.addAttribute("currentPage", "products");
     
-    PlanType planType = shop.getPlanType();
-    String planTypeDisplay = planType != null ? planType.name() : "FREE";
-    model.addAttribute("planType", planTypeDisplay);
-    model.addAttribute("productLimit", maxLimit);
-    model.addAttribute("currentProductCount", currentCount);
-    model.addAttribute("canAddMore", currentCount < maxLimit);
-
-    return "product-form";
-}
-    // SAVE OR UPDATE PRODUCT - WITH LIMIT CHECK FOR NEW PRODUCTS
+    // SAVE OR UPDATE PRODUCT - WITH LIMIT CHECK FOR NEW PRODUCTS (FIXED for unlimited)
     @PostMapping("/save")
     public String saveOrUpdateProduct(@ModelAttribute Product product,
             Authentication authentication,
@@ -316,10 +326,12 @@ public String newProductForm(Model model, Authentication authentication, Redirec
         boolean isNewProduct = product.getId() == null;
         
         if (isNewProduct) {
-            // Check product limit before adding new product using PlanLimitService
-            if (!planLimitService.canAddProduct(shop)) {
+            int maxLimit = planLimitService.getProductLimit(shop);
+            boolean isUnlimited = (maxLimit == -1);
+            
+            // Check product limit only if not unlimited
+            if (!isUnlimited && !planLimitService.canAddProduct(shop)) {
                 long currentCount = productRepository.countByShopAndActiveTrue(shop);
-                int maxLimit = planLimitService.getProductLimit(shop);
                 
                 redirectAttributes.addFlashAttribute("error",
                         "Product limit reached! Your " + shop.getPlanType() +
@@ -363,6 +375,8 @@ public String newProductForm(Model model, Authentication authentication, Redirec
         }
 
         long currentCount = productRepository.countByShopAndActiveTrue(shop);
+        int maxLimit = planLimitService.getProductLimit(shop);
+        boolean isUnlimited = (maxLimit == -1);
 
         model.addAttribute("product", product);
         model.addAttribute("shop", shop);
@@ -370,8 +384,9 @@ public String newProductForm(Model model, Authentication authentication, Redirec
         model.addAttribute("role", user.getRole().name());
         model.addAttribute("currentPage", "products");
         model.addAttribute("currentProductCount", currentCount);
-        model.addAttribute("productLimit", planLimitService.getProductLimit(shop));
-        model.addAttribute("canAddMore", planLimitService.canAddProduct(shop));
+        model.addAttribute("productLimit", isUnlimited ? "Unlimited" : maxLimit);
+        model.addAttribute("productLimitRaw", maxLimit);
+        model.addAttribute("canAddMore", isUnlimited || planLimitService.canAddProduct(shop));
 
         PlanType planType = shop.getPlanType();
         String planTypeDisplay = planType != null ? planType.name() : "FREE";
