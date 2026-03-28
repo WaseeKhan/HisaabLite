@@ -1,138 +1,80 @@
-# HisaabLite – Billing & Inventory POS System
+# HisaabLite – Retail Billing & Inventory Management System
 
-HisaabLite is a lightweight Point of Sale (POS) and inventory management system built using **Spring Boot**.  
-It is designed for small retail stores to perform **fast billing, product search, staff management and invoice generation**.
-
-The system provides a **modern billing dashboard**, real-time product search, and role-based access for store owners and staff.
+A lightweight, modern Point of Sale (POS) solution for small retail businesses. Streamline billing, inventory tracking, staff management, and customer invoicing with ease.
 
 ---
 
 ## 🚀 Live Demo
 
-**Application URL:**  
-Live Demo:  https://hisaablite.duckdns.org
+🔗 [https://hisaablite.duckdns.org](https://hisaablite.duckdns.org)
 
-Note: Since the application is hosted on a personal VM, the URL may occasionally be unavailable if the VM is stopped.
+*Hosted on a personal VM — may be temporarily unavailable if the server is stopped.*
+
 ---
 
-## ✨ Features
+## ✨ Core Features
 
-### 🧾 Billing System
-- Fast POS billing interface
-- Add products using **search + keyboard navigation**
-- Automatic subtotal and cart updates
-- Discount support
-- Multiple payment modes (Cash / UPI / Card)
+### 🧾 Smart Billing
+- Keyboard-driven POS interface
+- Real-time product search with AJAX
+- Instant cart updates with subtotal
+- Discount & change calculation
+- Multiple payment modes: Cash, UPI, Card
 
-### 📦 Product Management
-- Add, update and manage products
-- Stock tracking
-- Product search suggestions with available stock
+### 📦 Inventory Management
+- Add, edit, delete products
+- Real-time stock tracking
+- Low stock alerts
+- Product search with availability status
 
 ### 👥 Staff Management
-Owner can:
-- Add staff members
-- Assign roles (Manager / Cashier)
-- Reset staff passwords
-- Deactivate staff accounts
-- Delete staff users
+- Role-based access (Owner, Manager, Cashier)
+- Add, deactivate, or delete staff
+- Reset passwords
+- Secure authentication
 
-### 🔐 Authentication & Security
-- Spring Security based login system
-- Role-based access control
-- Inactive users prevented from logging in
+### 📊 Sales & Invoices
+- GST-compliant invoices
+- PDF download
+- WhatsApp sharing
+- Sales history with search & filters
 
-### 📊 Sales Management
-- Cart based billing
-- Invoice generation
-- Sales history tracking
+### 📈 Analytics Dashboard
+- Today's revenue, invoices, items sold
+- Lifetime business metrics
+- Top products & customers
+- Low stock alerts
 
----
-
-## 🧠 Key Highlights
-
-- Real-time **AJAX product search**
-- **Keyboard driven billing workflow**
-- **Role-based login system**
-- **Discount calculation**
-- **Change return calculation**
-- Clean **POS dashboard UI**
+### 💬 WhatsApp Integration
+- Connect WhatsApp Business number
+- QR code linking
+- Send invoices via WhatsApp
 
 ---
 
-## 🏗 Tech Stack
+## 🛠 Tech Stack
 
-**Backend**
-- Java
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-
-**Frontend**
-- Thymeleaf
-- HTML
-- CSS
-- JavaScript
-- AJAX
-
-**Database**
-- MySQL
-
-**Deployment**
-- Oracle Cloud Infrastructure (OCI)
-- Ubuntu VM
-- Nginx / OpenJDK runtime
+| Layer | Technology |
+|-------|------------|
+| Backend | Java 21, Spring Boot, Spring Security, Spring Data JPA |
+| Frontend | Thymeleaf, HTML5, CSS3, JavaScript, AJAX |
+| Database | MySQL 8.0 |
+| PDF | iTextPDF |
+| Charts | Chart.js |
+| Deployment | Oracle Cloud, Ubuntu, Nginx |
 
 ---
 
-## ⚙️ Installation (Local Setup)
+## ⚙️ Local Setup
 
-1. Clone repository
+### Prerequisites
+- Java 21+
+- MySQL 8.0+
+- Maven
 
+### Steps
 ```bash
 git clone https://github.com/yourusername/hisaablite.git
-```
-
-2. Navigate to project
-
-```bash
 cd hisaablite
-```
-
-3. Configure database in `application.properties`
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/hisaablite
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-spring.mail.host={your-smtp-provider}
-spring.mail.port={smtp-port}
-spring.mail.username=${MAIL_USERNAME}
-spring.mail.password=${MAIL_PASSWORD}
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
-```
-
-4. Run application
-
-```bash
+# Update database credentials in application.properties
 mvn spring-boot:run
-```
-
-Application will start at:
-
-```
-http://localhost:8080
-```
-
-
----
-
-## ⭐ Project Purpose
-
-This project was developed to demonstrate **real-world backend development skills**, including:
-
-- Spring Boot application design
-- Authentication & role management
-- Cloud deployment
-- POS system architecture
