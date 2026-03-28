@@ -42,7 +42,8 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        
+        log.info("Command Line Runner Started");
+
         String adminEmail = "admin@hisaablite.com";
         
         // Check if admin already exists
@@ -84,9 +85,11 @@ public class AdminInitializer implements CommandLineRunner {
             userRepository.save(admin);
             
           
-            
+         log.info("Command Line Runner Completed its Work");
+        
         } else {
             log.info("Admin user already exists: {}", adminEmail);
+            log.info("Command Line Runner Execution Completed");
         }
     }
 }

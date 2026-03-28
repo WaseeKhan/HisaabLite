@@ -97,7 +97,7 @@
                                 <label>Shop name <span style="color: #dc2626;">*</span> </label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-store input-icon"></i>
-                                    <input type="text" th:field="*{shopName}" placeholder="Urban Store" />
+                                    <input type="text" th:field="*{shopName}" placeholder="Shop Name" />
                                 </div>
                                 <small class="error-message" th:if="${#fields.hasErrors('shopName')}"
                                     th:errors="*{shopName}"></small>
@@ -107,7 +107,7 @@
                                 <label>Owner name <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-user input-icon"></i>
-                                    <input type="text" th:field="*{ownerName}" placeholder="Waseem Khan" />
+                                    <input type="text" th:field="*{ownerName}" placeholder="Owner Name" />
                                 </div>
                                 <small class="error-message" th:if="${#fields.hasErrors('ownerName')}"
                                     th:errors="*{ownerName}"></small>
@@ -117,7 +117,7 @@
                                 <label>Email <span style="color: #dc2626;">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-envelope input-icon"></i>
-                                    <input type="email" th:field="*{username}" placeholder="waseem@urbanstore.com"
+                                    <input type="email" th:field="*{username}" placeholder="username@example.com"
                                         oninput="this.value = this.value.toLowerCase()" />
                                 </div>
                                 <small class="error-message" th:if="${#fields.hasErrors('username')}"

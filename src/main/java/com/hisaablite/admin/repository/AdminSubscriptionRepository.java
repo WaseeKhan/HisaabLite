@@ -19,4 +19,14 @@ public interface AdminSubscriptionRepository extends JpaRepository<SubscriptionP
            "LEFT JOIN Shop s ON s.planType = sp.planName " +
            "GROUP BY sp.planName")
     List<Object[]> getPlanUsageStats();
+
+
+
+
+    // AdminSubscriptionRepository for debug
+@Query(value = "SELECT * FROM subscription_plans", nativeQuery = true)
+List<Object[]> findAllRaw();
+
+@Query(value = "SELECT COUNT(*) FROM subscription_plans WHERE active = 1", nativeQuery = true)
+int countActivePlansRaw();
 }

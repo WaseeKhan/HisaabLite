@@ -938,67 +938,142 @@ public Map<String, Object> approveUserGet(@PathVariable Long id) {
 
     // ===== SUBSCRIPTION MANAGEMENT =====
 
-    @GetMapping("/subscriptions")
-    public String subscriptions(Model model) {
-        log.info("Loading admin subscriptions page");
-
-        try {
-            // Get total shops count
-            long totalShops = adminShopRepo.count();
-
-            // Get shop counts by plan type
-            List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
-            Map<String, Long> shopCountMap = new HashMap<>();
-
-            for (Object[] stat : shopStats) {
-                PlanType planType = (PlanType) stat[0];
-                Long count = (Long) stat[1];
-                shopCountMap.put(planType.name(), count);
-            }
-
-            // Get subscription plans from database
-            List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findByActiveTrue();
-            List<SubscriptionPlanDTO> plans = new ArrayList<>();
-
-            if (!dbPlans.isEmpty()) {
-                for (SubscriptionPlan plan : dbPlans) {
-                    SubscriptionPlanDTO dto = convertToDTO(plan);
-
-                    // Get shop count from the map
-                    Long shopCount = shopCountMap.getOrDefault(plan.getPlanName().toUpperCase(), 0L);
-                    dto.setShopCount(shopCount);
-
-                    // Calculate percentage
-                    double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
-                    dto.setUsagePercent(Math.round(percentage * 10.0) / 10.0);
-
-                    plans.add(dto);
-                }
-            } else {
-                // Create default plans from enum
-                for (PlanType planType : PlanType.values()) {
-                    String planName = planType.name();
-                    Long shopCount = shopCountMap.getOrDefault(planName, 0L);
-                    double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
-
-                    SubscriptionPlanDTO dto = createDefaultPlanDTO(planName, shopCount, percentage);
-                    plans.add(dto);
-                }
-            }
-
-            // Sort plans in logical order
-            List<SubscriptionPlanDTO> sortedPlans = sortPlansByOrder(plans);
-
-            model.addAttribute("plans", sortedPlans);
-
-        } catch (Exception e) {
-            log.error("Error loading subscription plans: {}", e.getMessage(), e);
-            model.addAttribute("plans", getDefaultPlans());
-            model.addAttribute("error", "Could not load live data. Showing default values.");
+  @GetMapping("/subscriptions")
+public String subscriptions(Model model) {
+    log.info("========== SUBSCRIPTION PAGE LOAD START ==========");
+    
+    try {
+        // DEBUG 1: Check if repository is working
+        log.info("DEBUG 1: Checking repository...");
+        long totalCount = adminSubscriptionRepo.count();
+        log.info("DEBUG 1: Total plans in DB: {}", totalCount);
+        
+        // DEBUG 2: Fetch all plans
+        log.info("DEBUG 2: Fetching all plans...");
+        List<SubscriptionPlan> allPlans = adminSubscriptionRepo.findAll();
+        log.info("DEBUG 2: Found {} plans in DB", allPlans.size());
+        
+        // DEBUG 2.1: Log each plan details
+        for (SubscriptionPlan plan : allPlans) {
+            log.info("DEBUG 2.1 - Plan: ID={}, Name={}, Active={}, MaxProducts={}, MaxUsers={}", 
+                plan.getId(), 
+                plan.getPlanName(), 
+                plan.isActive(),
+                plan.getMaxProducts(),
+                plan.getMaxUsers());
         }
-
-        return "admin/subscriptions";
+        
+        // DEBUG 3: Get active plans
+        log.info("DEBUG 3: Fetching active plans using findByActiveTrue()...");
+        List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findByActiveTrue();
+        log.info("DEBUG 3: findByActiveTrue() returned {} plans", dbPlans.size());
+        
+        // DEBUG 3.1: If dbPlans is empty, log the reason
+        if (dbPlans.isEmpty()) {
+            log.warn("DEBUG 3.1: No active plans found! Checking each plan's active status:");
+            for (SubscriptionPlan plan : allPlans) {
+                log.warn("Plan: {} - Active value: {}, Active as boolean: {}", 
+                    plan.getPlanName(), 
+                    plan.isActive());
+            }
+        }
+        
+        // DEBUG 4: Get total shops
+        log.info("DEBUG 4: Fetching total shops count...");
+        long totalShops = adminShopRepo.count();
+        log.info("DEBUG 4: Total shops: {}", totalShops);
+        
+        // DEBUG 5: Get shop counts by plan type
+        log.info("DEBUG 5: Fetching shop counts by plan type...");
+        List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
+        Map<String, Long> shopCountMap = new HashMap<>();
+        
+        log.info("DEBUG 5.1: Shop stats from DB:");
+        for (Object[] stat : shopStats) {
+            PlanType planType = (PlanType) stat[0];
+            Long count = (Long) stat[1];
+            shopCountMap.put(planType.name(), count);
+            log.info("  Plan: {}, Shop Count: {}", planType.name(), count);
+        }
+        
+        // DEBUG 6: Process plans
+        log.info("DEBUG 6: Processing plans...");
+        List<SubscriptionPlanDTO> plans = new ArrayList<>();
+        
+        if (!dbPlans.isEmpty()) {
+            log.info("DEBUG 6.1: Using plans from database ({} plans found)", dbPlans.size());
+            
+            for (SubscriptionPlan plan : dbPlans) {
+                log.info("DEBUG 6.2: Processing plan: {}", plan.getPlanName());
+                
+                SubscriptionPlanDTO dto = convertToDTO(plan);
+                log.info("  - Converted to DTO, maxProducts: {}, maxUsers: {}", 
+                    dto.getMaxProducts(), dto.getMaxUsers());
+                
+                // Get shop count from the map
+                Long shopCount = shopCountMap.getOrDefault(plan.getPlanName().toUpperCase(), 0L);
+                dto.setShopCount(shopCount);
+                log.info("  - Shop count: {}", shopCount);
+                
+                // Calculate percentage
+                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                dto.setUsagePercent(Math.round(percentage * 10.0) / 10.0);
+                log.info("  - Usage percentage: {}%", percentage);
+                
+                plans.add(dto);
+                log.info("  - Plan added to list");
+            }
+        } else {
+            log.warn("DEBUG 6.1: No active plans found! Using default plans from enum");
+            
+            // Create default plans from enum
+            for (PlanType planType : PlanType.values()) {
+                String planName = planType.name();
+                Long shopCount = shopCountMap.getOrDefault(planName, 0L);
+                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                
+                log.info("DEBUG 6.2: Creating default plan: {}, shopCount: {}, percentage: {}", 
+                    planName, shopCount, percentage);
+                
+                SubscriptionPlanDTO dto = createDefaultPlanDTO(planName, shopCount, percentage);
+                plans.add(dto);
+            }
+        }
+        
+        // DEBUG 7: Sort plans
+        log.info("DEBUG 7: Sorting plans...");
+        List<SubscriptionPlanDTO> sortedPlans = sortPlansByOrder(plans);
+        log.info("DEBUG 7: Sorted plans count: {}", sortedPlans.size());
+        
+        for (SubscriptionPlanDTO plan : sortedPlans) {
+            log.info("DEBUG 7.1: Sorted plan: {}, maxProducts: {}, shopCount: {}, usagePercent: {}", 
+                plan.getPlanName(), plan.getMaxProducts(), plan.getShopCount(), plan.getUsagePercent());
+        }
+        
+        // DEBUG 8: Add to model
+        log.info("DEBUG 8: Adding plans to model...");
+        model.addAttribute("plans", sortedPlans);
+        log.info("DEBUG 8: Model attribute added");
+        
+        log.info("========== SUBSCRIPTION PAGE LOAD END - SUCCESS ==========");
+        
+    } catch (Exception e) {
+        log.error("========== SUBSCRIPTION PAGE LOAD ERROR ==========");
+        log.error("Error loading subscription plans: {}", e.getMessage(), e);
+        log.error("Exception stack trace:", e);
+        
+        model.addAttribute("plans", getDefaultPlans());
+        model.addAttribute("error", "Could not load live data. Showing default values.");
+        
+        log.error("========== SUBSCRIPTION PAGE LOAD END - WITH ERROR ==========");
     }
+    
+    return "admin/subscriptions";
+}
+
+
+
+
 
     @GetMapping("/subscriptions/new")
     public String newSubscriptionForm(Model model) {
