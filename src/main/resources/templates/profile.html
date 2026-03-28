@@ -3,7 +3,7 @@
 
 <head>
     <title>Shop Profile • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -25,7 +25,6 @@
 <body class="shop-body">
 
     <div class="shop-layout">
-
         <!-- Sidebar Fragment -->
         <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
@@ -38,324 +37,207 @@
 
 
 
-                <!-- Profile Card -->
-                <div class="profile-card">
-
-                    <!-- Read-Only Info Section -->
-                    <div class="profile-info-grid">
-                        <div class="profile-info-item full-width">
-                            <span class="profile-info-label"><i class="fas fa-store"></i> Shop Name</span>
-                            <div class="profile-info-value" th:text="${shop.name}">Shop Name</div>
+                <!-- Two Column Layout -->
+                <div class="profile-two-col">
+                    <!-- LEFT: Business Information -->
+                    <div class="info-panel">
+                        <div class="panel-header">
+                            <i class="fas fa-store"></i>
+                            <h2>Business Information</h2>
                         </div>
-
-                        <div class="profile-info-item">
-                            <span class="profile-info-label"><i class="fas fa-id-card"></i> PAN Number</span>
-                            <div class="profile-info-value immutable" th:text="${shop.panNumber}">ABCDE1234F</div>
-                        </div>
-
-                        <div class="profile-info-item">
-                            <span class="profile-info-label"><i class="far fa-building"></i> Business ID</span>
-                            <div class="profile-info-value immutable" th:text="'HL' + ${shop.id}">HL12345</div>
-                        </div>
-
-                        <div class="profile-info-item" th:if="${shop.createdAt}">
-                            <span class="profile-info-label"><i class="far fa-calendar"></i> Member Since</span>
-                            <div class="profile-info-value"
-                                th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
-                        </div>
-
-                        <div class="profile-info-item">
-                            <span class="profile-info-label"><i class="fas fa-crown"></i> Subscription Plan</span>
-                            <div class="profile-info-value" th:text="${planType}">PREMIUM</div>
-                        </div>
-
-                        <div class="profile-info-item">
-                            <span class="profile-info-label"><i class="fas fa-key"></i> Password</span>
-                            <a th:href="@{/forgot-password}" class="profile-password-link">
-                                <i class="fas fa-edit"></i> Change Password
-                            </a>
+                        <div class="info-list">
+                            <div class="info-row"><span class="info-label">Shop Name</span><span class="info-value"
+                                    th:text="${shop.name}">Shop Name</span></div>
+                            <div class="info-row"><span class="info-label">Business ID</span><span
+                                    class="info-value mono" th:text="'HL' + ${shop.id}">HL12345</span></div>
+                            <div class="info-row"><span class="info-label">PAN Number</span><span
+                                    class="info-value mono" th:text="${shop.panNumber}">ABCDE1234F</span></div>
+                            <div class="info-row"><span class="info-label">GST Number</span><span class="info-value"
+                                    th:text="${shop.gstNumber != null ? shop.gstNumber : '—'}">27ABCDE1234F1Z5</span>
+                            </div>
+                            <div class="info-row"><span class="info-label">UPI ID</span><span class="info-value"
+                                    th:text="${shop.upiId != null ? shop.upiId : '—'}">shop@okhdfcbank</span></div>
+                            <div class="info-row full"><span class="info-label">Address</span><span
+                                    class="info-value"><span th:text="${shop.address}">123 Business Street</span><span
+                                        th:if="${shop.city}">, <span th:text="${shop.city}">Mumbai</span></span><span
+                                        th:if="${shop.state}">, <span
+                                            th:text="${shop.state}">Maharashtra</span></span><span
+                                        th:if="${shop.pincode}"> - <span
+                                            th:text="${shop.pincode}">400001</span></span></span></div>
+                            <div class="info-row"><span class="info-label">Password</span><a
+                                    th:href="@{/forgot-password}" class="password-link"><i class="fas fa-key"></i>
+                                    Change Password</a></div>
                         </div>
                     </div>
 
-                    <!-- Editable Form Section -->
-                    <div class="profile-form-title">
-                        <i class="fas fa-edit"></i> Edit Business Information
-                    </div>
-
-                    <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
-                        <div class="profile-form-grid">
-                            <div class="profile-form-group">
-                                <label><i class="fas fa-file-invoice"></i> GST Number</label>
-                                <input type="text" th:field="*{gstNumber}" placeholder="Enter GST number" />
-                            </div>
-
-                            <div class="profile-form-group">
-                                <label><i class="fas fa-credit-card"></i> UPI ID</label>
-                                <input type="text" th:field="*{upiId}" th:value="${shop.upiId}"
-                                    placeholder="Enter UPI ID" />
-                            </div>
-
-                            <div class="profile-form-group full-width">
-                                <label><i class="fas fa-map-pin"></i> Address</label>
-                                <input type="text" th:field="*{address}" th:value="${shop.address}"
-                                    placeholder="Enter street address" />
-                            </div>
-
-                            <div class="profile-form-group">
-                                <label><i class="fas fa-city"></i> City</label>
-                                <input type="text" th:field="*{city}" th:value="${shop.city}"
-                                    placeholder="Enter city" />
-                            </div>
-
-                            <div class="profile-form-group">
-                                <label><i class="fas fa-map"></i> State</label>
-                                <input type="text" th:field="*{state}" th:value="${shop.state}"
-                                    placeholder="Enter state" />
-                            </div>
-
-                            <div class="profile-form-group">
-                                <label><i class="fas fa-mail-bulk"></i> Pincode</label>
-                                <input type="text" th:field="*{pincode}" th:value="${shop.pincode}"
-                                    placeholder="Enter pincode" />
-                            </div>
+                    <!-- RIGHT: Edit Form -->
+                    <div class="edit-panel">
+                        <div class="panel-header">
+                            <i class="fas fa-edit"></i>
+                            <h2>Edit Details</h2>
                         </div>
-
-                        <div class="profile-action-buttons">
-                            <button type="submit" class="profile-btn-primary">
-                                <i class="fas fa-save"></i> Update Profile
-                            </button>
-                            <a th:href="@{/dashboard}" class="profile-btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Back to Dashboard
-                            </a>
-                        </div>
-                    </form>
-
-                    <!-- WhatsApp Integration Section -->
-                    <div class="profile-whatsapp-section">
-                        <div class="profile-section-title">
-                            <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp Business Integration
-                        </div>
-
-                        <!-- Connected State -->
-                        <div th:if="${shop.whatsappConnected}" class="profile-whatsapp-connected">
-                            <div class="profile-whatsapp-status">
-                                <span class="profile-status-dot connected"></span>
-                                <span class="profile-status-text">WhatsApp Connected</span>
-                                <span class="profile-whatsapp-number" th:if="${shop.whatsappNumber}">
-                                    <i class="fab fa-whatsapp"></i> +91 <span
-                                        th:text="${shop.whatsappNumber}">9876543210</span>
-                                </span>
-                                <button onclick="disconnectWhatsApp()" class="profile-whatsapp-disconnect">
-                                    <i class="fas fa-unlink"></i> Disconnect
-                                </button>
+                        <form th:action="@{/profile}" th:object="${profileRequest}" method="post">
+                            <div class="edit-form">
+                                <div class="form-field"><label><i class="fas fa-file-invoice"></i> GST
+                                        Number</label><input type="text" th:field="*{gstNumber}"
+                                        placeholder="Enter GST number" /></div>
+                                <div class="form-field"><label><i class="fas fa-credit-card"></i> UPI ID</label><input
+                                        type="text" th:field="*{upiId}" placeholder="Enter UPI ID" /></div>
+                                <div class="form-field full"><label><i class="fas fa-map-pin"></i> Address</label><input
+                                        type="text" th:field="*{address}" placeholder="Street address" /></div>
+                                <div class="form-field"><label><i class="fas fa-city"></i> City</label><input
+                                        type="text" th:field="*{city}" placeholder="City" /></div>
+                                <div class="form-field"><label><i class="fas fa-map"></i> State</label><input
+                                        type="text" th:field="*{state}" placeholder="State" /></div>
+                                <div class="form-field"><label><i class="fas fa-mail-bulk"></i> Pincode</label><input
+                                        type="text" th:field="*{pincode}" placeholder="Pincode" /></div>
                             </div>
-                            <p class="profile-whatsapp-message success">
-                                <i class="fas fa-check-circle"></i>
-                                Your WhatsApp is active. Invoices will be sent from your business number.
-                            </p>
-                        </div>
-
-                        <!-- Not Connected State -->
-                        <div th:unless="${shop.whatsappConnected}" class="profile-whatsapp-disconnected">
-                            <div class="profile-whatsapp-status">
-                                <span class="profile-status-dot disconnected"></span>
-                                <span class="profile-status-text">WhatsApp Not Connected</span>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-save"><i class="fas fa-save"></i> Update</button>
+                                <a th:href="@{/dashboard}" class="btn-cancel"><i class="fas fa-arrow-left"></i>
+                                    Cancel</a>
                             </div>
-
-                            <div class="profile-whatsapp-number-input">
-                                <label>WhatsApp Business Number</label>
-                                <div class="profile-input-group">
-                                    <input type="text" id="whatsappNumber" class="profile-whatsapp-input"
-                                        placeholder="Enter 10-digit WhatsApp number" maxlength="10"
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                    <button onclick="saveWhatsAppNumber()" class="profile-whatsapp-connect-btn">
-                                        <i class="fab fa-whatsapp"></i> Save & Generate QR
-                                    </button>
-                                </div>
-                                <p class="profile-whatsapp-hint">
-                                    <i class="fas fa-info-circle"></i>
-                                    This number will appear as sender when you send invoices to customers
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Reconnect Option -->
-                        <div th:if="${shop.whatsappConnected}" class="profile-whatsapp-reconnect">
-                            <button onclick="reconnectWhatsApp()" class="profile-whatsapp-reconnect-btn">
-                                <i class="fas fa-sync-alt"></i> Reconnect / Change Number
-                            </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
 
+                <!-- Two Column Bottom: WhatsApp + FAQ -->
+                <div class="profile-two-col">
+                    <!-- LEFT: WhatsApp Integration -->
+                    <div class="whatsapp-panel">
+                        <div class="panel-header">
+                            <i class="fab fa-whatsapp"></i>
+                            <h2>WhatsApp Integration</h2>
+                        </div>
+                        <div th:if="${shop.whatsappConnected}" class="whatsapp-connected">
+                            <div class="whatsapp-status">
+                                <span class="badge success"><i class="fas fa-check-circle"></i> Connected</span>
+                                <span class="whatsapp-number"><i class="fab fa-whatsapp"></i> +91 <span
+                                        th:text="${shop.whatsappNumber}">9876543210</span></span>
+                                <button onclick="disconnectWhatsApp()" class="btn-disconnect"><i
+                                        class="fas fa-unlink"></i> Disconnect</button>
+                            </div>
+                            <p class="whatsapp-note"><i class="fas fa-check-circle"></i> Invoices sent from your
+                                business number</p>
+                            <div class="whatsapp-footer"><button onclick="reconnectWhatsApp()" class="btn-outline"><i
+                                        class="fas fa-sync-alt"></i> Change Number</button></div>
+                        </div>
+                        <div th:unless="${shop.whatsappConnected}" class="whatsapp-disconnected">
+                            <div class="whatsapp-status"><span class="badge warning"><i
+                                        class="fas fa-exclamation-circle"></i> Not Connected</span></div>
+                            <div class="whatsapp-input-group">
+                                <input type="text" id="whatsappNumber" class="whatsapp-input"
+                                    placeholder="Enter 10-digit number" maxlength="10"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <button onclick="saveWhatsAppNumber()" class="btn-connect"><i
+                                        class="fab fa-whatsapp"></i> Connect</button>
+                            </div>
+                            <p class="whatsapp-hint"><i class="fas fa-info-circle"></i> This number appears as sender on
+                                invoices</p>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: FAQ -->
+                    <div class="faq-panel">
+                        <div class="panel-header">
+                            <i class="fas fa-question-circle"></i>
+                            <h2>How to Connect</h2>
+                        </div>
+                        <div class="faq-content">
+                            <div class="faq-item">
+                                <div class="faq-question"><span>1</span>
+                                    <h4>Enter WhatsApp number</h4>
+                                </div>
+                                <p>Enter your 10-digit WhatsApp business number</p>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question"><span>2</span>
+                                    <h4>Scan QR code</h4>
+                                </div>
+                                <p>Open WhatsApp → Settings → Linked Devices → Link a Device</p>
+                            </div>
+                            <div class="faq-item">
+                                <div class="faq-question"><span>3</span>
+                                    <h4>Scan & Connect</h4>
+                                </div>
+                                <p>Scan QR code shown on screen. Auto connects in seconds</p>
+                            </div>
+                            <div class="faq-tip"><i class="fas fa-lightbulb"></i><span>QR expires in 2 minutes. Click
+                                    "Change Number" to generate new QR</span></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Footer Fragment -->
+            <!-- Footer -->
             <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
     <!-- WhatsApp Modal -->
-    <div id="whatsappModal" class="profile-whatsapp-modal" style="display: none;">
-        <div class="profile-whatsapp-modal-content">
-            <h3><i class="fab fa-whatsapp" style="color:#25D366"></i> Connect WhatsApp</h3>
-            <p>Follow the steps to connect your WhatsApp</p>
-            <div id="modalContent" class="profile-modal-body">
-                Loading...
+    <div id="whatsappModal" class="whatsapp-modal" style="display: none;">
+        <div class="whatsapp-modal-content">
+            <div class="modal-header">
+                <i class="fab fa-whatsapp" style="color:#25D366"></i>
+                <h3>Connect WhatsApp</h3>
+                <button class="modal-close" onclick="closeWhatsAppModal()">×</button>
             </div>
-            <button onclick="closeWhatsAppModal()" class="profile-btn-secondary">Close</button>
+            <div id="modalContent" class="modal-body">Loading...</div>
         </div>
     </div>
 
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script th:inline="javascript">
-
-
         function renderWhatsAppQR(qrData) {
             const qrContainer = document.getElementById("qrCodeImage");
-            if (!qrContainer) {
-                console.error("QR container not found");
-                return;
-            }
+            if (!qrContainer) return;
             qrContainer.innerHTML = "";
-            if (!qrData) {
-                qrContainer.innerHTML = '<div style="color:red">QR data not available</div>';
-                return;
-            }
-            try {
-                new QRCode(qrContainer, {
-                    text: qrData,
-                    width: 180,
-                    height: 180,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-                setTimeout(() => {
-                    const qrImg = qrContainer.querySelector("img");
-                    if (qrImg) {
-                        qrImg.style.display = "block";
-                        qrImg.style.margin = "0 auto";
-                        qrImg.style.borderRadius = "0";
-                        qrImg.style.width = "180px";
-                        qrImg.style.height = "180px";
-                    }
-                }, 100);
-            } catch (error) {
-                console.error("QR generation error:", error);
-                qrContainer.innerHTML = `<div style="color:red">QR generation failed</div>`;
-            }
+            if (!qrData) { qrContainer.innerHTML = '<div style="color:red">QR not available</div>'; return; }
+            try { new QRCode(qrContainer, { text: qrData, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H }); }
+            catch (error) { qrContainer.innerHTML = `<div style="color:red">QR failed</div>`; }
         }
-
-        function openWhatsAppModal() {
-            const modal = document.getElementById("whatsappModal");
-            if (modal) modal.style.display = "flex";
-        }
-
-        function closeWhatsAppModal() {
-            document.getElementById("whatsappModal").style.display = "none";
-        }
-
+        function openWhatsAppModal() { document.getElementById("whatsappModal").style.display = "flex"; }
+        function closeWhatsAppModal() { document.getElementById("whatsappModal").style.display = "none"; }
         function startConnectionPolling(instanceName) {
             const interval = setInterval(() => {
-                fetch('/profile/whatsapp/check-connection/' + instanceName)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.connected) {
-                            clearInterval(interval);
-                            closeWhatsAppModal();
-                            setTimeout(() => location.reload(), 500);
-                        }
-                    })
-                    .catch(err => console.error("Polling error:", err));
+                fetch('/profile/whatsapp/check-connection/' + instanceName).then(r => r.json()).then(data => {
+                    if (data.connected) { clearInterval(interval); closeWhatsAppModal(); setTimeout(() => location.reload(), 500); }
+                }).catch(err => console.error("Polling error:", err));
             }, 3000);
         }
-
-
         window.saveWhatsAppNumber = function () {
             const number = document.getElementById('whatsappNumber').value;
-            if (!number || number.length !== 10) {
-                alert('Please enter valid 10-digit WhatsApp number');
-                return;
-            }
-
+            if (!number || number.length !== 10) { alert('Enter valid 10-digit WhatsApp number'); return; }
             const csrfToken = document.querySelector("meta[name='_csrf']").content;
             const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
             const btn = document.querySelector('button[onclick="saveWhatsAppNumber()"]');
             const originalText = btn.innerHTML;
-
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
             btn.disabled = true;
-
-            fetch('/profile/whatsapp/create-instance?whatsappNumber=' + number, {
-                method: 'POST',
-                headers: { [csrfHeader]: csrfToken }
-            })
+            fetch('/profile/whatsapp/create-instance?whatsappNumber=' + number, { method: 'POST', headers: { [csrfHeader]: csrfToken } })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success || data.qrCode) {
                         const instanceName = data.instanceName;
                         const qrData = data.qrCode;
-                        
-                        const modalHtml = `
-                    <div class="whatsapp-steps-compact">
-                        <div class="step-row">
-                            <span class="step-badge">1</span>
-                            <span class="step-label">Open WhatsApp → Linked Devices</span>
-                        </div>
-                        <div class="step-row">
-                            <span class="step-badge">2</span>
-                            <span class="step-label">Tap "Link a Device"</span>
-                        </div>
-                        <div class="step-row">
-                            <span class="step-badge">3</span>
-                            <span class="step-label">Scan QR code below</span>
-                        </div>
-                    </div>
-                    <div style="text-align:center; margin: 20px 0;">
-                        <div id="qrCodeImage"></div>
-                    </div>
-                    
-                    <p style="font-size: 11px; color: #64748b; margin-top: 12px;">
-                        Instance: <strong>${instanceName}</strong>
-                    </p>
-                `;
-
-
-
+                        const modalHtml = `<div class="steps"><div class="step"><span>1</span> Open WhatsApp → Linked Devices</div><div class="step"><span>2</span> Tap "Link a Device"</div><div class="step"><span>3</span> Scan QR code below</div></div><div id="qrCodeImage" style="text-align:center; margin:16px 0;"></div><div class="expiry"><i class="fas fa-hourglass-half"></i> QR expires in 2 minutes</div><p class="instance">Instance: <strong>${instanceName}</strong></p>`;
                         document.getElementById("modalContent").innerHTML = modalHtml;
                         setTimeout(() => renderWhatsAppQR(qrData), 200);
                         openWhatsAppModal();
                         startConnectionPolling(instanceName);
-                    } else {
-                        alert('Error: ' + (data.error || 'Failed to create instance'));
-                    }
+                    } else { alert('Error: ' + (data.error || 'Failed')); }
                     btn.innerHTML = originalText;
                     btn.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error: ' + error.message);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                });
+                }).catch(error => { alert('Error: ' + error.message); btn.innerHTML = originalText; btn.disabled = false; });
         };
-
         window.disconnectWhatsApp = function () {
-            if (!confirm('Are you sure you want to disconnect WhatsApp?')) return;
+            if (!confirm('Disconnect WhatsApp?')) return;
             const csrfToken = document.querySelector("meta[name='_csrf']").content;
             const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
-            fetch('/profile/whatsapp/reset', {
-                method: 'POST',
-                headers: { [csrfHeader]: csrfToken }
-            })
+            fetch('/profile/whatsapp/reset', { method: 'POST', headers: { [csrfHeader]: csrfToken } })
                 .then(response => response.json())
-                .then(data => {
-                    if (data.success) location.reload();
-                });
+                .then(data => { if (data.success) location.reload(); });
         };
-
         window.reconnectWhatsApp = window.disconnectWhatsApp;
     </script>
 </body>

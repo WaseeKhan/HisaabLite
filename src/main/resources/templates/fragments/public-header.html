@@ -1,116 +1,103 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Public Header - Compact with Emojis -->
-<header th:fragment="public-header" class="public-header">
-    <div class="header-container">
+<!-- Public Header - Relevant Pages for Billing SaaS -->
+<header th:fragment="public-header" class="hl-public-header">
+    <div class="hl-header-container">
         <!-- Logo -->
-        <a href="/" class="header-logo">
-            <div class="header-logo-icon">HL</div>
-            <span class="header-logo-text">HisaabLite</span>
+        <a href="/" class="hl-logo">
+            <div class="hl-logo-icon">HL</div>
+            <span class="hl-logo-text">HisaabLite</span>
         </a>
         
-        <!-- Desktop Navigation - with emojis -->
-        <nav class="header-nav">
-            <a href="/" class="home-link">
-                <i class="fas fa-home"></i> Home
+        <!-- Navigation - Relevant Pages -->
+        <nav class="hl-nav">
+            <a href="/features" class="hl-nav-link">
+                <i class="fas fa-star"></i> Features
             </a>
-            <a href="/login" class="login-link">
-                <i class="fas fa-sign-in-alt"></i> Log in
+            <a href="/how-it-works" class="hl-nav-link">
+                <i class="fas fa-play-circle"></i> How It Works
             </a>
-            <a href="/register" class="register-link">
-                <i class="fas fa-rocket"></i> Start Free
+            <a href="/pricing" class="hl-nav-link">
+                <i class="fas fa-tag"></i> Pricing
+            </a>
+            <a href="/blog" class="hl-nav-link">
+                <i class="fas fa-newspaper"></i> Blog
+            </a>
+            <a href="/help" class="hl-nav-link">
+                <i class="fas fa-headset"></i> Help
             </a>
         </nav>
         
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" id="menuToggle" aria-label="Toggle menu">
-            <i class="fas fa-bars" id="menuIcon"></i>
+        <!-- Actions -->
+        <div class="hl-actions">
+            <a href="/login" class="hl-btn-login">Login</a>
+            <a href="/register" class="hl-btn-register">Start Free</a>
+        </div>
+        
+        <!-- Mobile Toggle -->
+        <button class="hl-mobile-toggle" id="hlMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
     </div>
     
-    <!-- Mobile Menu - with emojis -->
-    <div class="mobile-menu" id="mobileMenu">
-        <a href="/">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="/login">
-            <i class="fas fa-sign-in-alt"></i> Log in
-        </a>
-        <a href="/register" class="register-link">
-            <i class="fas fa-rocket"></i> Start Free
-        </a>
+    <!-- Mobile Menu -->
+    <div class="hl-mobile-menu" id="hlMobileMenu">
+        <div class="hl-mobile-inner">
+            <a href="/features" class="hl-mobile-link">
+                <i class="fas fa-star"></i> Features
+            </a>
+            <a href="/how-it-works" class="hl-mobile-link">
+                <i class="fas fa-play-circle"></i> How It Works
+            </a>
+            <a href="/pricing" class="hl-mobile-link">
+                <i class="fas fa-tag"></i> Pricing
+            </a>
+            <a href="/blog" class="hl-mobile-link">
+                <i class="fas fa-newspaper"></i> Blog
+            </a>
+            <a href="/help" class="hl-mobile-link">
+                <i class="fas fa-headset"></i> Help
+            </a>
+            <div class="hl-mobile-actions">
+                <a href="/login" class="hl-mobile-login">Login</a>
+                <a href="/register" class="hl-mobile-register">Start Free</a>
+            </div>
+        </div>
     </div>
 </header>
 
-<!-- Keep your existing JavaScript -->
 <script>
-(function() {
-    'use strict';
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('hlMenuToggle');
+    const menu = document.getElementById('hlMobileMenu');
     
-    document.addEventListener('DOMContentLoaded', function() {
-        const menuToggle = document.getElementById('menuToggle');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuIcon = document.getElementById('menuIcon');
+    if (toggle && menu) {
+        toggle.addEventListener('click', function() {
+            toggle.classList.toggle('hl-active');
+            menu.classList.toggle('hl-active');
+            document.body.style.overflow = menu.classList.contains('hl-active') ? 'hidden' : '';
+        });
         
-        if (!menuToggle || !mobileMenu || !menuIcon) {
-            console.error('Menu elements not found!');
-            return;
-        }
-        
-        function toggleMenu(event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const isActive = mobileMenu.classList.contains('active');
-            
-            if (isActive) {
-                mobileMenu.classList.remove('active');
-                menuIcon.className = 'fas fa-bars';
-                menuToggle.setAttribute('aria-expanded', 'false');
-            } else {
-                mobileMenu.classList.add('active');
-                menuIcon.className = 'fas fa-times';
-                menuToggle.setAttribute('aria-expanded', 'true');
-            }
-        }
-        
-        menuToggle.addEventListener('click', toggleMenu);
-        menuToggle.addEventListener('touchstart', toggleMenu, { passive: false });
-        
-        document.addEventListener('click', function(event) {
-            if (!mobileMenu.classList.contains('active')) return;
-            
-            const isClickInside = menuToggle.contains(event.target) || mobileMenu.contains(event.target);
-            
-            if (!isClickInside) {
-                mobileMenu.classList.remove('active');
-                menuIcon.className = 'fas fa-bars';
-                menuToggle.setAttribute('aria-expanded', 'false');
+        document.addEventListener('click', function(e) {
+            if (menu.classList.contains('hl-active') && 
+                !toggle.contains(e.target) && 
+                !menu.contains(e.target)) {
+                toggle.classList.remove('hl-active');
+                menu.classList.remove('hl-active');
+                document.body.style.overflow = '';
             }
         });
         
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
-                mobileMenu.classList.remove('active');
-                menuIcon.className = 'fas fa-bars';
-                menuToggle.setAttribute('aria-expanded', 'false');
+            if (e.key === 'Escape' && menu.classList.contains('hl-active')) {
+                toggle.classList.remove('hl-active');
+                menu.classList.remove('hl-active');
+                document.body.style.overflow = '';
             }
         });
-        
-        let resizeTimer;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function() {
-                if (window.innerWidth > 768) {
-                    mobileMenu.classList.remove('active');
-                    menuIcon.className = 'fas fa-bars';
-                    menuToggle.setAttribute('aria-expanded', 'false');
-                }
-            }, 250);
-        });
-    });
-})();
+    }
+});
 </script>

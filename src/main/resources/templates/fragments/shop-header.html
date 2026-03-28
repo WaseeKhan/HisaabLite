@@ -3,9 +3,11 @@
 <div th:fragment="header" class="topbar">
     <div class="shop-info">
         <div class="shop-brand">
-            <div class="brand-icon">HL</div> 
-            <div class="shop-name" th:text="${shop?.name} ?: 'NA'">Shop Name</div>
-        </div>
+    <div class="brand-icon">
+        <i class="fas fa-store"></i>
+    </div>
+    <div class="shop-name" th:text="${shop?.name} ?: 'NA'">Shop Name</div>
+</div>
         <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop?.panNumber != null ? shop.panNumber : 'NA'}">PAN123</span> </div>
         <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop?.gstNumber != null ? shop.gstNumber : 'N/A'}">GST123</span></div>
         <div class="info-tag"><i class="fas fa-calendar-alt"></i> <span th:text="${#temporals.format(shop.createdAt, 'MMM yyyy')}">Jan 2024</span></div>
@@ -16,7 +18,7 @@
             <span th:text="${role}">OWNER</span>
         </div>
         <span class="divider"></span>
-        <span class="shop-id"><i class="far fa-building"></i> HL<span th:text="${shop.id}"></span></span>
+        <span class="shop-id"><i class="far fa-building"></i><span th:text="'HL' + ${shop.id}"></span></span>
         <span class="divider"></span>
         <div class="plan-wrapper">
             <div class="plan-badge" th:classappend="${planType == 'FREE' ? 'plan-free' : (planType == 'BASIC' ? 'plan-basic' : (planType == 'PREMIUM' ? 'plan-premium' : 'plan-enterprise'))}">

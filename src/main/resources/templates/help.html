@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Help Center • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/help.css}">
+</head>
+
+<body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+    <section class="help-hero">
+        <div class="help-hero-content">
+            <h1>How can we help?</h1>
+            <div class="help-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="helpSearch" placeholder="Search articles...">
+            </div>
+        </div>
+    </section>
+
+    <section class="help-categories">
+        <div class="categories-grid">
+            <div class="category-card"><i class="fas fa-rocket"></i><h3>Getting Started</h3><span>5 articles</span></div>
+            <div class="category-card"><i class="fas fa-cash-register"></i><h3>Billing</h3><span>8 articles</span></div>
+            <div class="category-card"><i class="fas fa-boxes"></i><h3>Inventory</h3><span>6 articles</span></div>
+            <div class="category-card"><i class="fab fa-whatsapp"></i><h3>WhatsApp</h3><span>4 articles</span></div>
+            <div class="category-card"><i class="fas fa-chart-line"></i><h3>Reports</h3><span>4 articles</span></div>
+            <div class="category-card"><i class="fas fa-user-cog"></i><h3>Account</h3><span>5 articles</span></div>
+        </div>
+    </section>
+
+    <section class="popular-articles">
+        <h2>Popular Articles</h2>
+        <div class="articles-grid">
+            <div class="article-card"><i class="fas fa-file-alt"></i><div><h3>Create first invoice</h3><a href="#">Read →</a></div></div>
+            <div class="article-card"><i class="fab fa-whatsapp"></i><div><h3>Connect WhatsApp</h3><a href="#">Read →</a></div></div>
+            <div class="article-card"><i class="fas fa-boxes"></i><div><h3>Add products</h3><a href="#">Read →</a></div></div>
+            <div class="article-card"><i class="fas fa-chart-line"></i><div><h3>Sales reports</h3><a href="#">Read →</a></div></div>
+        </div>
+    </section>
+
+    <section class="need-help">
+        <div class="need-help-content">
+            <i class="fas fa-headset"></i>
+            <h3>Still need help?</h3>
+            <div class="help-buttons">
+                <a href="#" class="help-btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <a href="#" class="help-btn-email"><i class="fas fa-envelope"></i> Email</a>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+
+    <script>
+        function searchHelp() {
+            let input = document.getElementById('helpSearch').value.toLowerCase();
+            let articles = document.querySelectorAll('.article-card');
+            articles.forEach(article => {
+                let title = article.querySelector('h3').innerText.toLowerCase();
+                article.style.display = title.includes(input) ? '' : 'none';
+            });
+        }
+        document.getElementById('helpSearch').addEventListener('keyup', searchHelp);
+    </script>
+</body>
+</html>

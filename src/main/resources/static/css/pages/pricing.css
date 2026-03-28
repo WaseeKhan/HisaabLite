@@ -576,11 +576,11 @@ input:checked + .slider:before {
 
 @media (max-width: 480px) {
     .pricing-hero h1 {
-        font-size: 28px;
+        font-size: 24px;
     }
     
     .pricing-hero p {
-        font-size: 14px;
+        font-size: 12px;
     }
     
     .btn-cta {

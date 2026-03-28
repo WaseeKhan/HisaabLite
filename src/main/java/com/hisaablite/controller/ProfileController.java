@@ -5,6 +5,8 @@ import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.repository.ProductRepository;
+import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.service.ShopService;
 import com.hisaablite.service.EvolutionApiService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +32,8 @@ public class ProfileController {
     private final ShopService shopService;
     private final UserRepository userRepository;
     private final EvolutionApiService evolutionApiService;
+    private final ProductRepository productRepository;
+    private final SaleRepository saleRepository;
 
     @GetMapping
     @Transactional(readOnly = true)
@@ -46,14 +52,53 @@ public class ProfileController {
         model.addAttribute("shop", shop);
         model.addAttribute("profileRequest", request);
         model.addAttribute("role", user.getRole().name());
-       
         
-        PlanType planType = shop.getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        // Plan Type
+        PlanType planType = shop.getPlanType() != null ? shop.getPlanType() : PlanType.FREE;
+        String planTypeDisplay = planType.name();
         model.addAttribute("planType", planTypeDisplay);
         model.addAttribute("subscriptionPlan", planTypeDisplay);
+        
+        // Plan Start Date - Using subscriptionStartDate field
+        LocalDateTime planStartDate = shop.getSubscriptionStartDate() != null ? 
+                                      shop.getSubscriptionStartDate() : shop.getCreatedAt();
+        model.addAttribute("planStartDate", planStartDate);
+        
+        // Plan End Date & Days Remaining - Using subscriptionEndDate field
+        LocalDateTime planEndDate = shop.getSubscriptionEndDate();
+        long daysRemaining = 0;
+        
+        if (planType != PlanType.FREE && planEndDate != null) {
+            daysRemaining = ChronoUnit.DAYS.between(LocalDateTime.now(), planEndDate);
+            daysRemaining = Math.max(0, daysRemaining);
+            model.addAttribute("planEndDate", planEndDate);
+            model.addAttribute("daysRemaining", daysRemaining);
+        } else {
+            model.addAttribute("planEndDate", null);
+            model.addAttribute("daysRemaining", null);
+        }
+        
+        // Staff Usage
+        long currentStaffCount = userRepository.countByShop(shop);
+        int maxStaffLimit = getMaxStaffLimit(planType);
+        model.addAttribute("currentStaffCount", currentStaffCount);
+        model.addAttribute("maxStaffLimit", maxStaffLimit);
+        
+        // Products Usage
+        long currentProductCount = productRepository.countByShop(shop);
+        int productLimitRaw = getProductLimit(planType);
+        String productLimit = productLimitRaw == -1 ? "∞" : String.valueOf(productLimitRaw);
+        model.addAttribute("currentProductCount", currentProductCount);
+        model.addAttribute("productLimitRaw", productLimitRaw);
+        model.addAttribute("productLimit", productLimit);
+        
+        // Invoices Count (for additional info)
+        long totalInvoices = saleRepository.countByShop(shop);
+        model.addAttribute("totalInvoices", totalInvoices);
+        
         model.addAttribute("currentPage", "profile");
-         model.addAttribute("user", user);
+        model.addAttribute("user", user);
+        
         return "profile";
     }
 
@@ -63,8 +108,38 @@ public class ProfileController {
         shopService.updateProfile(user, request);
         return "redirect:/dashboard";
     }
+    
+    private int getMaxStaffLimit(PlanType planType) {
+        switch (planType) {
+            case FREE:
+                return 1; // Only owner
+            case BASIC:
+                return 1; // Only owner
+            case PREMIUM:
+                return 10; // 1 Owner + 9 Staff
+            case ENTERPRISE:
+                return -1; // Unlimited
+            default:
+                return 1;
+        }
+    }
+    
+    private int getProductLimit(PlanType planType) {
+        switch (planType) {
+            case FREE:
+                return 10;
+            case BASIC:
+                return 50;
+            case PREMIUM:
+                return 1000;
+            case ENTERPRISE:
+                return -1; // Unlimited
+            default:
+                return 10;
+        }
+    }
 
-    // ========== STEP 1: CREATE INSTANCE ==========
+    // ========== WHATSAPP METHODS ==========
     @PostMapping("/whatsapp/create-instance")
     @ResponseBody
     public ResponseEntity<?> createWhatsAppInstance(@RequestParam String whatsappNumber,
@@ -85,19 +160,15 @@ public class ProfileController {
 
             String instanceName = "shop_" + shop.getId();
 
-            // Delete if exists
             try {
                 evolutionApiService.deleteInstance(instanceName);
             } catch (Exception e) {
                 log.info("No existing instance to delete");
             }
 
-            // Create new instance
             String qrCode = evolutionApiService.createInstance(instanceName);
 
-            // Check if QR code is null (instance created but no QR)
             if (qrCode == null) {
-                // Try to fetch QR separately
                 qrCode = evolutionApiService.getQRCode(instanceName);
             }
 
@@ -121,7 +192,6 @@ public class ProfileController {
         }
     }
 
-    // ========== STEP 2: CHECK CONNECTION ==========
     @GetMapping("/whatsapp/check-connection/{instanceName}")
     @ResponseBody
     public ResponseEntity<?> checkInstanceConnection(@PathVariable String instanceName, Authentication authentication) {
@@ -134,6 +204,7 @@ public class ProfileController {
                 User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
                 Shop shop = user.getShop();
                 shop.setWhatsappConnected(true);
+                shop.setWhatsappConnectedAt(LocalDateTime.now());
                 shopService.saveShop(shop);
             }
 
@@ -146,7 +217,6 @@ public class ProfileController {
         }
     }
 
-    // ========== STEP 3: RESET / DISCONNECT ==========
     @PostMapping("/whatsapp/reset")
     @ResponseBody
     public ResponseEntity<?> resetWhatsApp(Authentication authentication) {
@@ -163,6 +233,7 @@ public class ProfileController {
             shop.setWhatsappInstanceName(null);
             shop.setWhatsappQrCode(null);
             shop.setWhatsappConnected(false);
+            shop.setWhatsappConnectedAt(null);
             shopService.saveShop(shop);
 
             response.put("success", true);

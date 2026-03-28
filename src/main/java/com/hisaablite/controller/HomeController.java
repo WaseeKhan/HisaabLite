@@ -60,4 +60,17 @@ public class HomeController {
     public String terms() {
         return "terms";
     }
+
+
+    
+    @GetMapping("/how-it-works")
+    public String howItWorks() {
+        return "how-it-works";
+    }
+    
+   
+    @GetMapping("/help")
+    public String help() {
+        return "help";
+    }
 }

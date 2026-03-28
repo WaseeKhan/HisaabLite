@@ -3,7 +3,7 @@
 
 <head>
     <title>Products • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -81,10 +81,10 @@
                         <i th:unless="${currentProductCount * 100 / productLimitRaw >= 100}"
                             class="fas fa-exclamation-triangle"></i>
                         <span th:if="${currentProductCount * 100 / productLimitRaw >= 100}">
-                            🚫 Limit reached! <a th:href="@{/upgrade}" class="warning-link">Upgrade now</a>
+                             Limit reached! <a th:href="@{/upgrade}" class="warning-link">Upgrade now</a>
                         </span>
                         <span th:unless="${currentProductCount * 100 / productLimitRaw >= 100}">
-                            ⚠️ <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots left! <a
+                             <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots left! <a
                                 th:href="@{/upgrade}" class="warning-link">Upgrade</a>
                         </span>
                     </div>

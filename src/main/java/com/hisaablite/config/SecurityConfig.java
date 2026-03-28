@@ -44,7 +44,8 @@ public class SecurityConfig {
                                                 "/favicon.png", "/favicon.ico", "/css/**", "/js/**",
                                                 "/sales/whatsapp/test", "/support/**",
                                                 "/sales/invoice/*/pdf", "/about", "/careers", "/blog",
-                                        "/pricing", "/features", "/images/**", "/blog", "/contact", "/privacy", "/terms")
+                                        "/pricing", "/features", "/images/**", "/blog", "/contact", "/privacy", "/terms",
+                                "/how-it-works","/features", "/help")
                                 .permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/owner/**").hasRole("OWNER")
