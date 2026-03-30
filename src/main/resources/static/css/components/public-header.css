@@ -295,3 +295,23 @@
 .hl-mobile-menu.hl-active .hl-mobile-inner {
     animation: hlFadeIn 0.3s ease-out;
 }
+
+.hero-tagline{
+margin-top:10px;
+font-size:20px;
+font-weight:600;
+color:#0f172a;
+letter-spacing:0.4px;
+}
+
+.hero-subtext{
+margin-top:8px;
+font-size:16px;
+color:#6b7280;
+}
+
+.hero-tagline{
+background: linear-gradient(90deg,#0f172a,#475569);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}

@@ -395,3 +395,117 @@
     display: block;
     margin: 0 auto !important;
 }
+
+
+/* Plan Badges */
+.panel-header .plan-badge {
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-left: auto;
+    font-weight: 500;
+}
+
+.panel-header .plan-badge.basic {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.panel-header .plan-badge.free {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.panel-header .plan-badge.premium {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.panel-header .plan-badge.enterprise {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+/* WhatsApp Disabled for BASIC/FREE Plans */
+.whatsapp-panel.whatsapp-disabled {
+    position: relative;
+}
+
+.whatsapp-panel.whatsapp-disabled::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(248, 250, 252, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 1;
+    border-radius: 16px;
+    pointer-events: none;
+}
+
+/* Upgrade Message */
+.upgrade-message {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin: 20px;
+    border: 1px solid #fbbf24;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+}
+
+.upgrade-message i {
+    font-size: 36px;
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.upgrade-message strong {
+    font-size: 15px;
+    color: #b45309;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.upgrade-message p {
+    font-size: 12px;
+    color: #92400e;
+    margin-bottom: 12px;
+}
+
+.upgrade-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f59e0b;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.upgrade-btn:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .upgrade-message {
+        flex-direction: column;
+        text-align: center;
+    }
+    .upgrade-message i {
+        font-size: 32px;
+    }
+}

@@ -161,3 +161,51 @@
         font-size: 12px;
     }
 }
+
+
+
+/* Upgrade Link - Simple */
+.upgrade-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 12px;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.upgrade-link i {
+    color: #f59e0b;
+    font-size: 14px;
+}
+
+.upgrade-link:hover {
+    background: #fde68a;
+    transform: translateX(2px);
+}
+
+.upgrade-link.active {
+    background: #f59e0b;
+    color: white;
+}
+
+.upgrade-link.active i {
+    color: white;
+}
+
+.upgrade-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 20px;
+    margin-left: auto;
+}

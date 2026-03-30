@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 .requestMatchers("/profile/**").hasRole("OWNER")
                                 .requestMatchers("/staff/**").hasRole("OWNER")
                                 .requestMatchers("/app/**").authenticated()
+                                .requestMatchers("/upgrade/**").authenticated()
                                 .anyRequest().authenticated())
                         
                         .headers(headers -> headers

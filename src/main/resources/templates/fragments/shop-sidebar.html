@@ -50,6 +50,17 @@
             <i class="fas fa-headset"></i>
             <span>Support</span>
         </a>
+
+
+
+    <!-- Upgrade Plan - Simple -->
+<a th:href="@{/upgrade}" class="upgrade-link" th:classappend="${currentPage == 'upgrade' ? 'active' : ''}">
+    <i class="fas fa-arrow-up"></i>
+    <span>Upgrade Plan</span>
+    <span class="upgrade-badge" th:if="${planType == 'FREE' or planType == 'BASIC' or 'PREMIUM'}">NEW</span>
+</a>
+
+    
     </div>
 
     <form th:action="@{/logout}" method="post">

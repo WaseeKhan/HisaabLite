@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Upgrade Plan • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Shop CSS -->
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/upgrade.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<body class="shop-body">
+
+    <div class="shop-layout">
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+
+                <!-- Header Fragment -->
+                <div th:replace="~{fragments/shop-header :: header}"></div>
+
+                <!-- Page Header -->
+                <div class="upgrade-header">
+                    <div>
+                        <h1>Upgrade Your Plan</h1>
+                        <p>Choose the perfect plan for your business needs</p>
+                    </div>
+                    <div class="current-plan">
+                        <span class="plan-badge" th:classappend="${planType == 'PREMIUM' ? 'premium' : (planType == 'BASIC' ? 'basic' : (planType == 'ENTERPRISE' ? 'enterprise' : 'free'))}">
+                            <i class="fas fa-crown"></i>
+                            Current: <span th:text="${planType}">FREE</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Plans Grid -->
+                <div class="plans-grid">
+                    <!-- FREE Plan -->
+                    <div class="plan-card" th:classappend="${planType == 'FREE' ? 'current' : ''}">
+                        <div class="plan-header free">
+                            <h3>FREE</h3>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">0</span>
+                                <span class="period">/year</span>
+                            </div>
+                            <div class="price-note">Lifetime Free</div>
+                        </div>
+                        <div class="plan-body">
+                            <ul class="features-list">
+                                <li><i class="fas fa-check"></i> <span>1 Owner</span></li>
+                                <li><i class="fas fa-check"></i> <span>10 Products</span></li>
+                                <li><i class="fas fa-check"></i> <span>GST Invoices</span></li>
+                                <li><i class="fas fa-check"></i> <span>Basic Reports</span></li>
+                                <li><i class="fas fa-check"></i> <span>Dashboard Access</span></li>
+                                <li class="not-included"><i class="fas fa-times"></i> <span>WhatsApp Integration</span></li>
+                                <li class="not-included"><i class="fas fa-times"></i> <span>Staff Management</span></li>
+                            </ul>
+                            <div class="plan-footer">
+                                <span th:if="${planType == 'FREE'}" class="current-badge">Current Plan</span>
+                                <a th:if="${planType != 'FREE'}" th:href="@{/upgrade/request/FREE}" class="btn-outline disabled">Downgrade not available</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BASIC Plan -->
+                    <div class="plan-card" th:classappend="${planType == 'BASIC' ? 'current' : ''}">
+                        <div class="plan-header basic">
+                            <h3>BASIC</h3>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">4,990</span>
+                                <span class="period">/year</span>
+                            </div>
+                            <div class="price-note">Save ₹998 vs monthly</div>
+                        </div>
+                        <div class="plan-body">
+                            <ul class="features-list">
+                                <li><i class="fas fa-check"></i> <span>1 Owner</span></li>
+                                <li><i class="fas fa-check"></i> <span>50 Products</span></li>
+                                <li><i class="fas fa-check"></i> <span>GST Invoices</span></li>
+                                <li><i class="fas fa-check"></i> <span>Email Support</span></li>
+                                <li><i class="fas fa-check"></i> <span>Advanced Reports</span></li>
+                                <li class="not-included"><i class="fas fa-times"></i> <span>WhatsApp Integration</span></li>
+                                <li class="not-included"><i class="fas fa-times"></i> <span>Staff Management</span></li>
+                            </ul>
+                            <div class="plan-footer">
+                                <span th:if="${planType == 'BASIC'}" class="current-badge">Current Plan</span>
+                                <a th:if="${planType != 'BASIC'}" th:href="@{/upgrade/request/BASIC}" class="btn-upgrade">Upgrade to BASIC</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREMIUM Plan (Popular) -->
+                    <div class="plan-card popular" th:classappend="${planType == 'PREMIUM' ? 'current' : ''}">
+                        <div class="popular-badge">🔥 MOST POPULAR</div>
+                        <div class="plan-header premium">
+                            <h3>PREMIUM</h3>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">9,990</span>
+                                <span class="period">/year</span>
+                            </div>
+                            <div class="price-note">Save ₹1,998 vs monthly</div>
+                        </div>
+                        <div class="plan-body">
+                            <ul class="features-list">
+                                <li><i class="fas fa-check"></i> <span>1 Owner + 9 Staff</span></li>
+                                <li><i class="fas fa-check"></i> <span>1000 Products</span></li>
+                                <li><i class="fas fa-check"></i> <span>GST Invoices</span></li>
+                                <li><i class="fas fa-check"></i> <span>WhatsApp Integration</span></li>
+                                <li><i class="fas fa-check"></i> <span>Priority Support</span></li>
+                                <li><i class="fas fa-check"></i> <span>Staff Management</span></li>
+                                <li><i class="fas fa-check"></i> <span>24/7 Support</span></li>
+                            </ul>
+                            <div class="plan-footer">
+                                <span th:if="${planType == 'PREMIUM'}" class="current-badge">Current Plan</span>
+                                <a th:if="${planType != 'PREMIUM'}" th:href="@{/upgrade/request/PREMIUM}" class="btn-upgrade primary">Upgrade to PREMIUM</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ENTERPRISE Plan -->
+                    <div class="plan-card" th:classappend="${planType == 'ENTERPRISE' ? 'current' : ''}">
+                        <div class="plan-header enterprise">
+                            <h3>ENTERPRISE</h3>
+                            <div class="plan-price">
+                                <span class="currency">₹</span>
+                                <span class="amount">19,990</span>
+                                <span class="period">/year</span>
+                            </div>
+                            <div class="price-note">Save ₹3,998 vs monthly</div>
+                        </div>
+                        <div class="plan-body">
+                            <ul class="features-list">
+                                <li><i class="fas fa-check"></i> <span>Unlimited Users</span></li>
+                                <li><i class="fas fa-check"></i> <span>Unlimited Products</span></li>
+                                <li><i class="fas fa-check"></i> <span>All Premium Features</span></li>
+                                <li><i class="fas fa-check"></i> <span>Dedicated Support</span></li>
+                                <li><i class="fas fa-check"></i> <span>API Access</span></li>
+                                <li><i class="fas fa-check"></i> <span>Custom Integration</span></li>
+                            </ul>
+                            <div class="plan-footer">
+                                <span th:if="${planType == 'ENTERPRISE'}" class="current-badge">Current Plan</span>
+                                <a th:if="${planType != 'ENTERPRISE'}" th:href="@{/upgrade/request/ENTERPRISE}" class="btn-upgrade">Contact Sales</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Stats Banner -->
+                <div class="usage-banner">
+                    <div class="usage-item">
+                        <span class="usage-label">Current Products</span>
+                        <span class="usage-value" th:text="${currentProductCount}">0</span>
+                        <span class="usage-max" th:text="'/' + ${productLimit}">/50</span>
+                    </div>
+                    <div class="usage-item">
+                        <span class="usage-label">Staff Members</span>
+                        <span class="usage-value" th:text="${currentStaffCount}">0</span>
+                        <span class="usage-max" th:text="'/' + ${staffLimit}">/10</span>
+                    </div>
+                    <div class="usage-item highlight">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Upgrade to unlock more features</span>
+                    </div>
+                </div>
+
+                <!-- Manual Upgrade Process -->
+                <div class="upgrade-process">
+                    <h2><i class="fas fa-clock"></i> How to Upgrade</h2>
+                    <div class="process-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Select Your Plan</h3>
+                                <p>Choose the plan that fits your business needs</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Contact Our Team</h3>
+                                <p>Reach out via WhatsApp or Email</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Make Payment</h3>
+                                <p>Bank transfer or UPI</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h3>Get Activated</h3>
+                                <p>Within 24 hours</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="contact-section">
+                    <div class="contact-card">
+                        <i class="fab fa-whatsapp"></i>
+                        <h3>WhatsApp Support</h3>
+                        <p>Quickest way to get help</p>
+                        <a href="https://wa.me/919876543210" class="contact-btn whatsapp" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Chat Now
+                        </a>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email Support</h3>
+                        <p>Response within 24 hours</p>
+                        <a href="mailto:support@hisaablite.com" class="contact-btn email">
+                            <i class="fas fa-envelope"></i> Send Email
+                        </a>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h3>Call Us</h3>
+                        <p>Speak directly with our team</p>
+                        <a href="tel:+919876543210" class="contact-btn phone">
+                            <i class="fas fa-phone"></i> Call Now
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="payment-details">
+                    <h3><i class="fas fa-university"></i> Bank Transfer Details</h3>
+                    <div class="bank-info">
+                        <div class="info-row">
+                            <span class="label">Account Name:</span>
+                            <span class="value">HisaabLite</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Bank Name:</span>
+                            <span class="value">-------------</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Account Number:</span>
+                            <span class="value">-------------</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">IFSC Code:</span>
+                            <span class="value">------------</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">UPI ID:</span>
+                            <span class="value">--------------</span>
+                        </div>
+                    </div>
+                    <p class="payment-note">
+                        <i class="fas fa-info-circle"></i>
+                        After payment, share the transaction ID via WhatsApp or Email. Your account will be activated within 24 hours.
+                    </p>
+                </div>
+
+                <!-- Coming Soon Banner -->
+                <div class="coming-soon">
+                    <i class="fas fa-rocket"></i>
+                    <div>
+                        <strong>Automatic Payment Coming Soon!</strong>
+                        <p>We're integrating Razorpay payment gateway. Soon you'll be able to pay and activate instantly.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+
+</body>
+</html>

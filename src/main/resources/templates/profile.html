@@ -103,37 +103,58 @@
 
                 <!-- Two Column Bottom: WhatsApp + FAQ -->
                 <div class="profile-two-col">
+
                     <!-- LEFT: WhatsApp Integration -->
-                    <div class="whatsapp-panel">
+
+                    <!-- LEFT: WhatsApp Integration -->
+                    <div class="whatsapp-panel" th:classappend="${planType == 'BASIC' ? 'whatsapp-disabled' : ''}">
                         <div class="panel-header">
                             <i class="fab fa-whatsapp"></i>
                             <h2>WhatsApp Integration</h2>
+                            <span th:if="${planType == 'BASIC'}" class="plan-badge basic">BASIC Plan</span>
                         </div>
-                        <div th:if="${shop.whatsappConnected}" class="whatsapp-connected">
-                            <div class="whatsapp-status">
-                                <span class="badge success"><i class="fas fa-check-circle"></i> Connected</span>
-                                <span class="whatsapp-number"><i class="fab fa-whatsapp"></i> +91 <span
-                                        th:text="${shop.whatsappNumber}">9876543210</span></span>
-                                <button onclick="disconnectWhatsApp()" class="btn-disconnect"><i
-                                        class="fas fa-unlink"></i> Disconnect</button>
+
+                        <!-- Show upgrade message only for BASIC plan -->
+                        <div th:if="${planType == 'BASIC'}" class="upgrade-message">
+                            <i class="fas fa-lock"></i>
+                            <div>
+                                <strong>WhatsApp Integration is available on PREMIUM plans</strong>
+                                <p>Upgrade to PREMIUM to send invoices via WhatsApp and connect your business number.
+                                </p>
+                                <a href="/upgrade" class="upgrade-btn">Upgrade Now →</a>
                             </div>
-                            <p class="whatsapp-note"><i class="fas fa-check-circle"></i> Invoices sent from your
-                                business number</p>
-                            <div class="whatsapp-footer"><button onclick="reconnectWhatsApp()" class="btn-outline"><i
-                                        class="fas fa-sync-alt"></i> Change Number</button></div>
                         </div>
-                        <div th:unless="${shop.whatsappConnected}" class="whatsapp-disconnected">
-                            <div class="whatsapp-status"><span class="badge warning"><i
-                                        class="fas fa-exclamation-circle"></i> Not Connected</span></div>
-                            <div class="whatsapp-input-group">
-                                <input type="text" id="whatsappNumber" class="whatsapp-input"
-                                    placeholder="Enter 10-digit number" maxlength="10"
-                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                <button onclick="saveWhatsAppNumber()" class="btn-connect"><i
-                                        class="fab fa-whatsapp"></i> Connect</button>
+
+                        <!-- Normal content - for all plans except BASIC -->
+                        <div th:unless="${planType == 'BASIC'}">
+                            <div th:if="${shop.whatsappConnected}" class="whatsapp-connected">
+                                <div class="whatsapp-status">
+                                    <span class="badge success"><i class="fas fa-check-circle"></i> Connected</span>
+                                    <span class="whatsapp-number"><i class="fab fa-whatsapp"></i> +91 <span
+                                            th:text="${shop.whatsappNumber}">9876543210</span></span>
+                                    <button onclick="disconnectWhatsApp()" class="btn-disconnect"><i
+                                            class="fas fa-unlink"></i> Disconnect</button>
+                                </div>
+                                <p class="whatsapp-note"><i class="fas fa-check-circle"></i> Invoices sent from your
+                                    business number</p>
+                                <div class="whatsapp-footer"><button onclick="reconnectWhatsApp()"
+                                        class="btn-outline"><i class="fas fa-sync-alt"></i> Change Number</button></div>
                             </div>
-                            <p class="whatsapp-hint"><i class="fas fa-info-circle"></i> This number appears as sender on
-                                invoices</p>
+
+                            <div th:unless="${shop.whatsappConnected}" class="whatsapp-disconnected">
+                                <div class="whatsapp-status"><span class="badge warning"><i
+                                            class="fas fa-exclamation-circle"></i> Not Connected</span></div>
+                                <div class="whatsapp-input-group">
+                                    <input type="text" id="whatsappNumber" class="whatsapp-input"
+                                        placeholder="Enter 10-digit number" maxlength="10"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    <button onclick="saveWhatsAppNumber()" class="btn-connect"><i
+                                            class="fab fa-whatsapp"></i> Connect</button>
+                                </div>
+                                <p class="whatsapp-hint"><i class="fas fa-info-circle"></i> This number appears as
+                                    sender on
+                                    invoices</p>
+                            </div>
                         </div>
                     </div>
 
