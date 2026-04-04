@@ -10,7 +10,7 @@ public class AppConfig {
     @Value("${app.name:HisaabLite}")
     private String appName;
     
-    @Value("${app.version:2.1.2}")
+    @Value("${app.version:2.1.3}")
     private String appVersion;
     
     @Value("${app.base-url:}")
