@@ -1,0 +1,941 @@
+// =========================
+// HisaabLite Billing JS
+// Keyboard-first billing flow
+// =========================
+
+const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+
+const searchInput = document.getElementById("searchInput");
+const qtyInput = document.getElementById("qtyInput");
+const resultsBox = document.getElementById("searchResults");
+const addBtn = document.getElementById("addBtn");
+const cartContainer = document.getElementById("cartContainer");
+const billingForm = document.getElementById("billingForm");
+const completeBtn = document.querySelector(".btn-complete");
+const cancelPopup = document.getElementById("cancelPopup");
+const paymentMode = document.getElementById("paymentMode");
+const customerNameInput = document.querySelector('input[name="customerName"]');
+const customerPhoneInput = document.querySelector('input[name="customerPhone"]');
+const amountReceived = document.getElementById("amountReceived");
+const discountAmount = document.getElementById("discountAmount");
+const discountPercent = document.getElementById("discountPercent");
+const successToast = document.getElementById("successToast");
+const invoiceBtn = document.getElementById("invoiceBtn");
+const printInvoiceBtn = document.getElementById("printInvoiceBtn");
+const whatsappInvoiceBtn = document.getElementById("whatsappInvoiceBtn");
+const successToastMessage = document.getElementById("successToastMessage");
+const lastInvoiceBar = document.getElementById("lastInvoiceBar");
+const lastInvoiceNumber = document.getElementById("lastInvoiceNumber");
+const lastInvoiceHint = document.getElementById("lastInvoiceHint");
+const lastInvoiceViewBtn = document.getElementById("lastInvoiceViewBtn");
+const lastInvoicePrintBtn = document.getElementById("lastInvoicePrintBtn");
+const lastInvoiceWhatsappBtn = document.getElementById("lastInvoiceWhatsappBtn");
+const invoicePhoneModal = document.getElementById("invoicePhoneModal");
+const invoicePhoneInput = document.getElementById("invoicePhoneInput");
+const invoicePhoneSendBtn = document.getElementById("invoicePhoneSendBtn");
+
+let suggestions = [];
+let selectedIndex = -1;
+let selectedProduct = null;
+let lastSavedInvoiceId = null;
+let lastSavedPhone = null;
+let audioContext = null;
+window.currentCart = [];
+
+function persistLastInvoiceContext() {
+    if (!window.sessionStorage) return;
+    if (!lastSavedInvoiceId) {
+        window.sessionStorage.removeItem("hisaab:lastInvoice");
+        return;
+    }
+    window.sessionStorage.setItem("hisaab:lastInvoice", JSON.stringify({
+        invoiceId: lastSavedInvoiceId,
+        phone: lastSavedPhone || null
+    }));
+}
+
+function restoreLastInvoiceContext() {
+    if (!window.sessionStorage) return;
+    if (lastSavedInvoiceId) return;
+    try {
+        const raw = window.sessionStorage.getItem("hisaab:lastInvoice");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        lastSavedInvoiceId = parsed.invoiceId || null;
+        lastSavedPhone = parsed.phone || null;
+    } catch (_) {
+        window.sessionStorage.removeItem("hisaab:lastInvoice");
+    }
+}
+
+function refreshLastInvoiceBar() {
+    if (!lastInvoiceBar || !lastSavedInvoiceId) {
+        if (lastInvoiceBar) {
+            lastInvoiceBar.hidden = true;
+        }
+        return;
+    }
+
+    const invoiceLabel = `Invoice_${lastSavedInvoiceId}`;
+    const invoiceUrl = getInvoiceViewUrl(lastSavedInvoiceId);
+    lastInvoiceBar.hidden = false;
+    if (lastInvoiceNumber) {
+        lastInvoiceNumber.textContent = invoiceLabel;
+    }
+    if (lastInvoiceHint) {
+        lastInvoiceHint.textContent = lastSavedPhone
+            ? "Use Thermal Print or WhatsApp anytime from here. F10 prints and F9 sends on WhatsApp."
+            : "Use Thermal Print anytime from here. Add customer phone on the next bill for WhatsApp.";
+    }
+    if (invoiceBtn && invoiceUrl) {
+        invoiceBtn.href = invoiceUrl;
+    }
+    if (lastInvoiceViewBtn && invoiceUrl) {
+        lastInvoiceViewBtn.href = invoiceUrl;
+    }
+    if (whatsappInvoiceBtn) {
+        whatsappInvoiceBtn.disabled = false;
+    }
+    if (lastInvoiceWhatsappBtn) {
+        lastInvoiceWhatsappBtn.disabled = false;
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return "";
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showTempToast(message, type = "success") {
+    const toast = document.createElement("div");
+    toast.className = "temp-toast";
+    const backgrounds = {
+        success: "#059669",
+        error: "#dc2626",
+        warning: "#d97706",
+        info: "#2563eb"
+    };
+    const icons = {
+        success: "fa-check-circle",
+        error: "fa-exclamation-circle",
+        warning: "fa-exclamation-triangle",
+        info: "fa-info-circle"
+    };
+    toast.style.background = backgrounds[type] || backgrounds.info;
+    toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2200);
+}
+
+function getAudioContext() {
+    if (audioContext) {
+        return audioContext;
+    }
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+        return null;
+    }
+
+    audioContext = new AudioContextClass();
+    return audioContext;
+}
+
+function playBeepSequence(tones) {
+    const context = getAudioContext();
+    if (!context) {
+        return;
+    }
+
+    if (context.state === "suspended") {
+        context.resume().catch(() => {});
+    }
+
+    const startTime = context.currentTime + 0.02;
+    tones.forEach((tone, index) => {
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+        const toneStart = startTime + (tone.delay || 0);
+        const duration = tone.duration || 0.08;
+        const frequency = tone.frequency || 880;
+        const volume = tone.volume || 0.035;
+
+        oscillator.type = tone.type || "sine";
+        oscillator.frequency.setValueAtTime(frequency, toneStart);
+
+        gainNode.gain.setValueAtTime(0.0001, toneStart);
+        gainNode.gain.exponentialRampToValueAtTime(volume, toneStart + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, toneStart + duration);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+
+        oscillator.start(toneStart);
+        oscillator.stop(toneStart + duration + 0.02);
+    });
+}
+
+function playCartAddedSound() {
+    playBeepSequence([
+        { frequency: 880, duration: 0.07, volume: 0.03, type: "triangle" }
+    ]);
+}
+
+function playSaleCompletedSound() {
+    playBeepSequence([
+        { frequency: 784, duration: 0.07, volume: 0.032, type: "triangle", delay: 0 },
+        { frequency: 1046, duration: 0.11, volume: 0.04, type: "triangle", delay: 0.09 }
+    ]);
+}
+
+function focusAndSelect(element) {
+    if (!element) return;
+    element.focus();
+    if (typeof element.select === "function") {
+        element.select();
+    }
+}
+
+function focusSearch() {
+    focusAndSelect(searchInput);
+}
+
+function closeSuggestions() {
+    if (resultsBox) {
+        resultsBox.innerHTML = "";
+    }
+    suggestions = [];
+    selectedIndex = -1;
+}
+
+function selectSuggestion(product) {
+    selectedProduct = product;
+    if (searchInput) {
+        searchInput.value = product.name;
+    }
+    closeSuggestions();
+    focusAndSelect(qtyInput);
+}
+
+function getInvoiceViewUrl(invoiceId = lastSavedInvoiceId) {
+    return invoiceId ? `/sales/invoice/${invoiceId}` : null;
+}
+
+function getThermalPrintUrl(invoiceId = lastSavedInvoiceId) {
+    return invoiceId ? `/sales/invoice/${invoiceId}/thermal?autoprint=true` : null;
+}
+
+function printInvoice(invoiceId = lastSavedInvoiceId) {
+    const thermalUrl = getThermalPrintUrl(invoiceId);
+    if (!thermalUrl) {
+        showTempToast("No completed invoice available yet", "warning");
+        return;
+    }
+    const thermalWindow = window.open(
+        thermalUrl,
+        "_blank",
+        "noopener,noreferrer,width=420,height=760"
+    );
+    if (!thermalWindow) {
+        showTempToast("Popup blocked. Please allow popups for thermal printing.", "warning");
+        return;
+    }
+    thermalWindow.focus();
+}
+
+function sendInvoiceOnWhatsApp(invoiceId = lastSavedInvoiceId, phoneNumber = lastSavedPhone) {
+    if (!invoiceId) {
+        showTempToast("No completed invoice available yet", "warning");
+        return;
+    }
+    if (!phoneNumber) {
+        openInvoicePhoneModal();
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append("phoneNumber", phoneNumber);
+
+    fetch(`/sales/invoice/${invoiceId}/send-whatsapp-pdf`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            ...(csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {})
+        },
+        body: formData.toString()
+    })
+        .then(async response => {
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || "Failed to send invoice");
+            }
+            return payload;
+        })
+        .then(() => showTempToast("Invoice sent on WhatsApp", "success"))
+        .catch(error => showTempToast(error.message || "WhatsApp sending failed", "error"));
+}
+
+function openInvoicePhoneModal() {
+    if (!invoicePhoneModal) {
+        showTempToast("Customer phone number is required for WhatsApp", "warning");
+        focusAndSelect(customerPhoneInput);
+        return;
+    }
+    invoicePhoneModal.classList.add("show");
+    if (invoicePhoneInput) {
+        invoicePhoneInput.value = lastSavedPhone || customerPhoneInput?.value || "";
+        focusAndSelect(invoicePhoneInput);
+    }
+}
+
+function hideInvoicePhoneModal() {
+    invoicePhoneModal?.classList.remove("show");
+}
+
+window.hideInvoicePhoneModal = hideInvoicePhoneModal;
+
+function showPopup() {
+    cancelPopup?.classList.add("show");
+}
+
+function hidePopup() {
+    cancelPopup?.classList.remove("show");
+}
+
+function resetBillingFields() {
+    if (customerNameInput) customerNameInput.value = "";
+    if (customerPhoneInput) customerPhoneInput.value = "";
+    if (paymentMode) paymentMode.value = "CASH";
+    if (amountReceived) amountReceived.value = "";
+    if (discountAmount) discountAmount.value = "0";
+    if (discountPercent) discountPercent.value = "0";
+    const ids = [
+        ["changeAmount", "0.00"],
+        ["discountDisplay", "0.00"],
+        ["finalTotalAmount", "0.00"],
+        ["subtotalAmount", "0.00"],
+        ["cgstAmount", "0.00"],
+        ["sgstAmount", "0.00"],
+        ["totalGstAmount", "0.00"],
+        ["cartCount", "0 items"],
+        ["changeReturned", "0.00"]
+    ];
+    ids.forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        if ("value" in element) {
+            element.value = value;
+        } else {
+            element.innerText = value;
+        }
+    });
+}
+
+function readErrorMessage(response) {
+    return response.text().then(text => text || "Request failed");
+}
+
+function calculateTotals() {
+    let subtotal = 0;
+    let totalCgst = 0;
+    let totalSgst = 0;
+    let totalGst = 0;
+    let totalWithTax = 0;
+
+    window.currentCart.forEach(item => {
+        const price = parseFloat(item.price || 0);
+        const quantity = parseInt(item.quantity || 0, 10);
+        const gstPercent = parseFloat(item.gstPercent || 0);
+
+        const basePrice = price * quantity;
+        const gstAmount = basePrice * (gstPercent / 100);
+
+        subtotal += basePrice;
+        totalCgst += gstAmount / 2;
+        totalSgst += gstAmount / 2;
+        totalGst += gstAmount;
+        totalWithTax += basePrice + gstAmount;
+    });
+
+    document.getElementById("subtotalAmount").innerText = subtotal.toFixed(2);
+    document.getElementById("cgstAmount").innerText = totalCgst.toFixed(2);
+    document.getElementById("sgstAmount").innerText = totalSgst.toFixed(2);
+    document.getElementById("totalGstAmount").innerText = totalGst.toFixed(2);
+
+    return { subtotal, totalWithTax };
+}
+
+function calculateChange() {
+    const { totalWithTax } = calculateTotals();
+    let discount = parseFloat(discountAmount?.value) || 0;
+    const discountPct = parseFloat(discountPercent?.value) || 0;
+
+    if (discountPct > 0) {
+        discount = totalWithTax * (discountPct / 100);
+    }
+
+    const netPayable = Math.max(0, totalWithTax - discount);
+    const received = parseFloat(amountReceived?.value) || 0;
+    const change = Math.max(0, received - netPayable);
+
+    document.getElementById("changeAmount").innerText = change.toFixed(2);
+    document.getElementById("changeReturned").value = change.toFixed(2);
+    document.getElementById("discountDisplay").innerText = discount.toFixed(2);
+    document.getElementById("finalTotalAmount").innerText = netPayable.toFixed(2);
+
+    return { totalWithTax, discount, netPayable, received, change };
+}
+
+window.updateCartUI = function updateCartUI(cart) {
+    window.currentCart = cart || [];
+    if (!cartContainer) return;
+
+    if (!window.currentCart.length) {
+        cartContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Cart is empty</p><span>Add products to get started</span></div>';
+        document.getElementById("cartCount").innerText = "0 items";
+        calculateChange();
+        return;
+    }
+
+    let html = "";
+    window.currentCart.forEach((item, index) => {
+        const price = parseFloat(item.price || 0);
+        const qty = parseInt(item.quantity || 0, 10);
+        const gst = parseFloat(item.gstPercent || 0);
+        const basePrice = price * qty;
+        const gstAmount = basePrice * (gst / 100);
+        const totalWithGst = basePrice + gstAmount;
+        const gstClass = gst === 0 ? "gst-zero" : gst <= 5 ? "gst-low" : gst <= 12 ? "gst-medium" : "gst-high";
+
+        html += `
+        <div class="cart-item" data-index="${index}">
+            <div class="cart-item-info">
+                <div class="cart-item-name">${escapeHtml(item.productName)} <span class="${gstClass}">${gst}% GST</span></div>
+                <div class="cart-item-price">Base: ₹${price.toFixed(2)} × ${qty} = ₹${basePrice.toFixed(2)}</div>
+                <div class="cart-item-gst-breakdown">
+                    <span class="cgst">CGST: ₹${(gstAmount / 2).toFixed(2)} (${(gst / 2).toFixed(1)}%)</span>
+                    <span class="sgst">SGST: ₹${(gstAmount / 2).toFixed(2)} (${(gst / 2).toFixed(1)}%)</span>
+                </div>
+            </div>
+            <div class="cart-item-controls">
+                <div class="cart-item-qty">
+                    <button class="qty-btn" onclick="window.changeQty(${index}, -1)" tabindex="-1">-</button>
+                    <span>${qty}</span>
+                    <button class="qty-btn" onclick="window.changeQty(${index}, 1)" tabindex="-1">+</button>
+                </div>
+                <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
+                <button class="cart-item-remove" onclick="window.removeItem(${index})" tabindex="-1"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>`;
+    });
+
+    cartContainer.innerHTML = html;
+    document.getElementById("cartCount").innerText = `${window.currentCart.length} items`;
+    calculateChange();
+};
+
+window.changeQty = function changeQty(index, delta) {
+    const item = window.currentCart[index];
+    if (!item) return;
+    if ((item.quantity || 0) + delta < 1) return;
+
+    const formData = new URLSearchParams();
+    formData.append("_csrf", csrfToken);
+    formData.append("index", index);
+    formData.append("change", delta);
+
+    fetch("/sales/update-qty", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+    })
+        .then(response => response.ok ? response.json() : readErrorMessage(response).then(message => Promise.reject(message)))
+        .then(updateCartUI)
+        .catch(error => showTempToast(`Failed to update quantity: ${error}`, "error"));
+};
+
+window.removeItem = function removeItem(index) {
+    const formData = new URLSearchParams();
+    formData.append("_csrf", csrfToken);
+    formData.append("index", index);
+    formData.append("change", -9999);
+
+    fetch("/sales/update-qty", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+    })
+        .then(response => response.ok ? response.json() : readErrorMessage(response).then(message => Promise.reject(message)))
+        .then(updateCartUI)
+        .catch(error => showTempToast(`Failed to remove item: ${error}`, "error"));
+};
+
+function addProduct() {
+    if (!selectedProduct) {
+        showTempToast("Select a product first", "warning");
+        focusSearch();
+        return;
+    }
+
+    const addedProductName = selectedProduct.name || "Product";
+    const qty = parseInt(qtyInput?.value || "1", 10);
+    if (qty < 1) {
+        showTempToast("Quantity must be at least 1", "warning");
+        focusAndSelect(qtyInput);
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append("_csrf", csrfToken);
+    formData.append("productId", selectedProduct.id);
+    formData.append("quantity", qty);
+
+    fetch("/sales/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+    })
+        .then(response => response.ok ? response.json() : response.text().then(text => Promise.reject(text)))
+        .then(cartData => {
+            updateCartUI(cartData);
+            selectedProduct = null;
+            if (searchInput) searchInput.value = "";
+            if (qtyInput) qtyInput.value = "1";
+            playCartAddedSound();
+            showTempToast(`${addedProductName} added to cart`, "success");
+            focusSearch();
+        })
+        .catch(error => showTempToast(`Failed to add product: ${error}`, "error"));
+}
+
+function renderSuggestions(products) {
+    if (!resultsBox) return;
+    closeSuggestions();
+
+    if (!Array.isArray(products) || products.length === 0) {
+        resultsBox.innerHTML = '<div class="suggestion-item empty">No matching product found</div>';
+        return;
+    }
+
+    suggestions = products;
+    products.forEach((product, index) => {
+        const div = document.createElement("div");
+        const gstClass = product.gstPercent === 0 ? "gst-zero" : product.gstPercent <= 5 ? "gst-low" : product.gstPercent <= 12 ? "gst-medium" : "gst-high";
+        div.className = "suggestion-item";
+        div.innerHTML = `
+            <div class="suggestion-name">${escapeHtml(product.name)}</div>
+            <div class="suggestion-details">
+                <span class="suggestion-price">₹${product.price}</span>
+                <span class="suggestion-stock"><i class="fas fa-box"></i> ${product.stockQuantity || 0}</span>
+                <span class="suggestion-gst ${gstClass}">${product.gstPercent || 0}% GST</span>
+            </div>`;
+        div.addEventListener("click", () => {
+            selectedIndex = index;
+            selectSuggestion(product);
+        });
+        resultsBox.appendChild(div);
+    });
+}
+
+function highlight(items) {
+    items.forEach((element, index) => element.classList.toggle("active", index === selectedIndex));
+    items[selectedIndex]?.scrollIntoView({ block: "nearest" });
+}
+
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        const keyword = searchInput.value.trim();
+        selectedProduct = null;
+        if (!keyword) {
+            closeSuggestions();
+            return;
+        }
+
+        fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
+            headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
+        })
+            .then(response => response.ok ? response.json() : Promise.reject("Search failed"))
+            .then(renderSuggestions)
+            .catch(error => {
+                console.error(error);
+                showTempToast("Product search failed. Please try again.", "error");
+            });
+    });
+
+    searchInput.addEventListener("keydown", event => {
+        const items = document.querySelectorAll(".suggestion-item:not(.empty)");
+
+        if (event.key === "ArrowDown" && items.length) {
+            event.preventDefault();
+            selectedIndex = (selectedIndex + 1) % items.length;
+            highlight(items);
+        } else if (event.key === "ArrowUp" && items.length) {
+            event.preventDefault();
+            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            highlight(items);
+        } else if (event.key === "Enter") {
+            event.preventDefault();
+            if (selectedIndex >= 0 && items[selectedIndex]) {
+                items[selectedIndex].click();
+            } else if (suggestions.length === 1) {
+                selectSuggestion(suggestions[0]);
+            }
+        } else if (event.key === "Escape") {
+            closeSuggestions();
+        }
+    });
+}
+
+if (addBtn) addBtn.addEventListener("click", addProduct);
+if (qtyInput) {
+    qtyInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addProduct();
+        }
+    });
+}
+
+if (customerNameInput) {
+    customerNameInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            focusAndSelect(customerPhoneInput);
+        }
+    });
+}
+
+if (customerPhoneInput) {
+    customerPhoneInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            paymentMode?.focus();
+        }
+    });
+}
+
+if (paymentMode) {
+    paymentMode.addEventListener("change", () => {
+        const { netPayable } = calculateChange();
+        if ((paymentMode.value === "UPI" || paymentMode.value === "CARD") && amountReceived && !amountReceived.value) {
+            amountReceived.value = netPayable.toFixed(2);
+            calculateChange();
+        }
+    });
+    paymentMode.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            focusAndSelect(amountReceived);
+        }
+    });
+}
+
+if (amountReceived) {
+    amountReceived.addEventListener("input", () => {
+        if ((parseFloat(amountReceived.value) || 0) < 0) {
+            amountReceived.value = "0";
+        }
+        calculateChange();
+    });
+    amountReceived.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            billingForm?.requestSubmit();
+        }
+    });
+}
+
+if (discountAmount) {
+    discountAmount.addEventListener("input", () => {
+        if ((parseFloat(discountAmount.value) || 0) > 0 && discountPercent) {
+            discountPercent.value = "0";
+        }
+        calculateChange();
+    });
+}
+
+if (discountPercent) {
+    discountPercent.addEventListener("input", () => {
+        let value = parseFloat(discountPercent.value) || 0;
+        if (value > 100) {
+            value = 100;
+            discountPercent.value = "100";
+        }
+        if (value > 0 && discountAmount) {
+            discountAmount.value = "0";
+        }
+        calculateChange();
+    });
+}
+
+if (billingForm) {
+    billingForm.addEventListener("submit", event => {
+        if (!window.currentCart || window.currentCart.length === 0) {
+            event.preventDefault();
+            showTempToast("Cart is empty", "warning");
+            focusSearch();
+            return;
+        }
+
+        const { netPayable, received } = calculateChange();
+        const paymentValue = paymentMode?.value || "CASH";
+        if ((paymentValue === "UPI" || paymentValue === "CARD") && received < netPayable) {
+            event.preventDefault();
+            showTempToast(`Amount received must cover ₹${netPayable.toFixed(2)} for ${paymentValue} payments`, "warning");
+            focusAndSelect(amountReceived);
+            return;
+        }
+
+        if (completeBtn) {
+            completeBtn.disabled = true;
+            completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Completing...';
+        }
+    });
+}
+
+if (printInvoiceBtn) {
+    printInvoiceBtn.addEventListener("click", () => printInvoice());
+}
+
+if (lastInvoicePrintBtn) {
+    lastInvoicePrintBtn.addEventListener("click", () => printInvoice());
+}
+
+if (whatsappInvoiceBtn) {
+    whatsappInvoiceBtn.addEventListener("click", () => sendInvoiceOnWhatsApp());
+}
+
+if (lastInvoiceWhatsappBtn) {
+    lastInvoiceWhatsappBtn.addEventListener("click", () => sendInvoiceOnWhatsApp());
+}
+
+if (invoicePhoneSendBtn) {
+    invoicePhoneSendBtn.addEventListener("click", () => {
+        const phone = invoicePhoneInput?.value?.trim();
+        if (!phone) {
+            showTempToast("Enter mobile number to send invoice", "warning");
+            focusAndSelect(invoicePhoneInput);
+            return;
+        }
+        if (!/^\d{10}$/.test(phone)) {
+            showTempToast("Enter a valid 10-digit mobile number", "warning");
+            focusAndSelect(invoicePhoneInput);
+            return;
+        }
+        lastSavedPhone = phone;
+        persistLastInvoiceContext();
+        refreshLastInvoiceBar();
+        hideInvoicePhoneModal();
+        sendInvoiceOnWhatsApp(lastSavedInvoiceId, phone);
+    });
+}
+
+if (invoicePhoneInput) {
+    invoicePhoneInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            invoicePhoneSendBtn?.click();
+        }
+    });
+}
+
+document.addEventListener("hisaab:collect-commands", event => {
+    if (!billingForm) {
+        return;
+    }
+
+    event.detail.commands.push(
+        {
+            id: "billing:focus-search",
+            title: "Billing: Focus product search",
+            description: "Jump back to product search",
+            keywords: "billing search product focus item scan",
+            run: focusSearch
+        },
+        {
+            id: "billing:focus-quantity",
+            title: "Billing: Focus quantity",
+            description: "Move to quantity input",
+            keywords: "billing quantity qty focus",
+            run: () => focusAndSelect(qtyInput)
+        },
+        {
+            id: "billing:focus-payment",
+            title: "Billing: Focus payment mode",
+            description: "Jump to payment mode selector",
+            keywords: "billing payment mode cash upi card",
+            run: () => paymentMode?.focus()
+        },
+        {
+            id: "billing:focus-amount",
+            title: "Billing: Focus amount received",
+            description: "Jump to amount received field",
+            keywords: "billing amount received cash",
+            run: () => focusAndSelect(amountReceived)
+        },
+        {
+            id: "billing:complete",
+            title: "Billing: Complete current bill",
+            description: "Submit the bill with current cart",
+            keywords: "billing complete submit save invoice",
+            run: () => billingForm.requestSubmit()
+        },
+        {
+            id: "billing:print",
+            title: "Billing: Print last invoice",
+            description: "Open the most recent invoice for printing",
+            keywords: "billing print invoice latest",
+            run: () => printInvoice()
+        },
+        {
+            id: "billing:whatsapp",
+            title: "Billing: Send last invoice on WhatsApp",
+            description: "Send the most recent invoice to customer WhatsApp",
+            keywords: "billing whatsapp send invoice latest",
+            run: () => sendInvoiceOnWhatsApp()
+        },
+        {
+            id: "billing:cancel",
+            title: "Billing: Cancel current sale",
+            description: "Cancel current cart and clear billing form",
+            keywords: "billing cancel sale cart",
+            run: () => showPopup()
+        }
+    );
+});
+
+document.addEventListener("keydown", event => {
+    const activeTag = document.activeElement?.tagName;
+    const isTyping = activeTag === "INPUT" || activeTag === "TEXTAREA" || activeTag === "SELECT";
+    const popupOpen = cancelPopup?.classList.contains("show");
+
+    if (event.key === "Escape") {
+        if (invoicePhoneModal?.classList.contains("show")) {
+            event.preventDefault();
+            hideInvoicePhoneModal();
+            focusSearch();
+            return;
+        }
+        if (popupOpen) {
+            event.preventDefault();
+            hidePopup();
+            focusSearch();
+            return;
+        }
+        if (document.activeElement === searchInput) {
+            closeSuggestions();
+            selectedProduct = null;
+        }
+        focusSearch();
+        return;
+    }
+
+    if (popupOpen) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            confirmCancel();
+        }
+        return;
+    }
+
+    if (event.key === "F2") {
+        event.preventDefault();
+        focusSearch();
+    } else if (event.key === "F3") {
+        event.preventDefault();
+        focusAndSelect(qtyInput);
+    } else if (event.key === "F4") {
+        event.preventDefault();
+        paymentMode?.focus();
+    } else if (event.key === "F6") {
+        event.preventDefault();
+        focusAndSelect(amountReceived);
+    } else if (event.key === "F7") {
+        event.preventDefault();
+        focusAndSelect(discountAmount);
+    } else if (event.key === "F8") {
+        event.preventDefault();
+        focusAndSelect(discountPercent);
+    } else if (event.key === "F9") {
+        event.preventDefault();
+        sendInvoiceOnWhatsApp();
+    } else if (event.key === "F10") {
+        event.preventDefault();
+        printInvoice();
+    } else if (event.ctrlKey && event.key === "Enter") {
+        event.preventDefault();
+        billingForm?.requestSubmit();
+    } else if (!isTyping && event.key === "Enter" && selectedProduct) {
+        event.preventDefault();
+        addProduct();
+    }
+});
+
+function confirmCancel() {
+    hidePopup();
+    if (!csrfToken) {
+        showTempToast("Security token missing. Refresh the page and try again.", "error");
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append("_csrf", csrfToken);
+
+    const cancelBtn = document.querySelector(".btn-cancel");
+    const originalText = cancelBtn?.innerHTML;
+    if (cancelBtn) {
+        cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+        cancelBtn.disabled = true;
+    }
+
+    fetch("/sales/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+    })
+        .then(response => response.ok ? response.json() : Promise.reject("Cancel failed"))
+        .then(cartData => {
+            updateCartUI(cartData);
+            resetBillingFields();
+            showTempToast("Sale cancelled successfully", "info");
+            focusSearch();
+        })
+        .catch(error => showTempToast(`Failed to cancel sale: ${error}`, "error"))
+        .finally(() => {
+            if (cancelBtn) {
+                cancelBtn.innerHTML = originalText;
+                cancelBtn.disabled = false;
+            }
+        });
+}
+
+fetch("/sales/cart")
+    .then(response => response.ok ? response.json() : Promise.resolve([]))
+    .then(cart => updateCartUI(Array.isArray(cart) ? cart : []))
+    .catch(() => updateCartUI([]));
+
+window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    restoreLastInvoiceContext();
+    if (params.get("saved") === "true") {
+        lastSavedInvoiceId = params.get("invoiceId");
+        lastSavedPhone = params.get("phone");
+        persistLastInvoiceContext();
+        if (invoiceBtn && lastSavedInvoiceId) {
+            invoiceBtn.href = getInvoiceViewUrl(lastSavedInvoiceId);
+        }
+        if (successToastMessage) {
+            successToastMessage.textContent = lastSavedPhone
+                ? "Use F10 to print or F9 to send on WhatsApp."
+                : "Use F10 to print. F9 lets you enter a phone number for WhatsApp.";
+        }
+        playSaleCompletedSound();
+        successToast?.classList.add("show");
+        setTimeout(() => successToast?.classList.remove("show"), 5000);
+    }
+    refreshLastInvoiceBar();
+    focusSearch();
+};

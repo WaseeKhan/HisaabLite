@@ -2,6 +2,7 @@ package com.hisaablite.controller;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.hisaablite.dto.CartItem;
@@ -63,6 +67,24 @@ public class SaleController {
     private final WhatsAppService whatsAppService;
     private final PdfService pdfService;
 
+    private User getAuthenticatedUser(Authentication authentication) {
+        return userRepository.findByUsername(authentication.getName())
+                .orElseThrow();
+    }
+
+    private Sale getAuthorizedSale(Long saleId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        Sale sale = saleRepository.findByIdWithShop(saleId)
+                .orElseThrow(() -> new RuntimeException("Sale not found"));
+
+        if (sale.getShop() == null || user.getShop() == null
+                || !sale.getShop().getId().equals(user.getShop().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sale not found");
+        }
+
+        return sale;
+    }
+
     @GetMapping("/new")
     public String newSale(Model model, HttpSession session, Authentication authentication) {
 
@@ -90,7 +112,7 @@ public class SaleController {
         PlanType planType = user.getShop().getPlanType();
         String planTypeDisplay = planType != null ? planType.name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
-        
+
         log.info("Billing page loaded - Shop: {}, Plan: {}",
                 user.getShop().getName(), planTypeDisplay);
 
@@ -226,42 +248,17 @@ public class SaleController {
 
         try {
 
-            savedSale = saleService.completeSale(cart, user.getShop(), user);
-
-            if (discountAmount == null)
-                discountAmount = BigDecimal.ZERO;
-            if (discountPercent == null)
-                discountPercent = BigDecimal.ZERO;
-
-            BigDecimal originalTotal = savedSale.getTotalAmount();
-
-            if (discountPercent.compareTo(BigDecimal.ZERO) > 0) {
-
-                if (discountPercent.compareTo(BigDecimal.valueOf(100)) > 0) {
-                    throw new RuntimeException("Discount % cannot exceed 100 %");
-                }
-
-                discountAmount = originalTotal
-                        .multiply(discountPercent)
-                        .divide(BigDecimal.valueOf(100));
-            }
-
-            if (discountAmount.compareTo(originalTotal) > 0) {
-                throw new RuntimeException("Discount cannot exceed total amount");
-            }
-
-            BigDecimal finalTotal = originalTotal.subtract(discountAmount);
-            savedSale.setDiscountAmount(discountAmount);
-            savedSale.setDiscountPercent(discountPercent);
-            savedSale.setTotalAmount(finalTotal);
-
-            savedSale.setCustomerName(customerName);
-            savedSale.setCustomerPhone(customerPhone);
-            savedSale.setPaymentMode(paymentMode);
-            savedSale.setAmountReceived(amountReceived != null ? amountReceived : 0.0);
-            savedSale.setChangeReturned(changeReturned != null ? changeReturned : 0.0);
-
-            saleRepository.save(savedSale);
+            savedSale = saleService.completeSale(
+                    cart,
+                    user.getShop(),
+                    user,
+                    customerName,
+                    customerPhone,
+                    paymentMode,
+                    amountReceived,
+                    changeReturned,
+                    discountAmount,
+                    discountPercent);
 
             session.removeAttribute("cart");
 
@@ -285,14 +282,18 @@ public class SaleController {
             }
         }
 
-        return "redirect:/sales/new?saved=true&invoiceId=" + savedSale.getId();
+        String redirectUrl = "redirect:/sales/new?saved=true&invoiceId=" + savedSale.getId();
+        if (savedSale.getCustomerPhone() != null && !savedSale.getCustomerPhone().isBlank()) {
+            redirectUrl += "&phone=" + UriUtils.encode(savedSale.getCustomerPhone(), StandardCharsets.UTF_8);
+        }
+
+        return redirectUrl;
     }
 
     @GetMapping("/invoice/{saleId}")
-    public String viewInvoice(@PathVariable Long saleId, Model model) {
+    public String viewInvoice(@PathVariable Long saleId, Model model, Authentication authentication) {
 
-        Sale sale = saleRepository.findByIdWithShop(saleId)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
+        Sale sale = getAuthorizedSale(saleId, authentication);
 
         List<SaleItem> items = saleItemRepository.findBySale(sale);
 
@@ -302,112 +303,47 @@ public class SaleController {
         return "invoice";
     }
 
+    // ======Thermal Invoice =====//
+
+    @GetMapping("/invoice/{saleId}/thermal")
+    public String viewThermalInvoice(@PathVariable Long saleId, Model model, Authentication authentication) {
+
+        Sale sale = getAuthorizedSale(saleId, authentication);
+
+        List<SaleItem> items = saleItemRepository.findBySale(sale);
+
+        model.addAttribute("sale", sale);
+        model.addAttribute("items", items);
+
+        return "invoice-thermal";
+    }
+
     // ===== SALES HISTORY WITH FILTERS =====
- @GetMapping("/history")
-public String salesHistory(
-        Model model,
-        Authentication authentication,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(required = false) String keyword,
-        @RequestParam(required = false) String status,
-        @RequestParam(required = false) String dateRange,
-        @RequestParam(required = false) String sortBy) {
+    @GetMapping("/history")
+    public String salesHistory(
+            Model model,
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String dateRange,
+            @RequestParam(required = false) String sortBy) {
 
-    User user = userRepository.findByUsername(authentication.getName())
-            .orElseThrow();
-
-    // Default sort by date descending
-    Sort sort = Sort.by("saleDate").descending();
-    if (sortBy != null && sortBy.equals("amount")) {
-        sort = Sort.by("totalAmount").descending();
-    } else if (sortBy != null && sortBy.equals("amount_asc")) {
-        sort = Sort.by("totalAmount").ascending();
-    }
-
-    Pageable pageable = PageRequest.of(page, 10, sort);
-    
-    Page<Sale> salesPage;
-    
-    // Apply filters
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        salesPage = saleRepository.searchSales(user.getShop(), keyword.trim(), pageable);
-    } else if (status != null && !status.isEmpty()) {
-        SaleStatus saleStatus;
-        try {
-            saleStatus = SaleStatus.valueOf(status);
-            salesPage = saleRepository.findByShopAndStatus(user.getShop(), saleStatus, pageable);
-        } catch (IllegalArgumentException e) {
-            salesPage = saleRepository.findByShop(user.getShop(), pageable);
-        }
-    } else if (dateRange != null && !dateRange.isEmpty()) {
-        LocalDateTime startDate = getStartDate(dateRange);
-        salesPage = saleRepository.findByShopAndSaleDateAfter(user.getShop(), startDate, pageable);
-    } else {
-        salesPage = saleRepository.findByShop(user.getShop(), pageable);
-    }
-    
-    // Convert to DTO for display
-    List<SaleHistoryDTO> saleDTOs = new ArrayList<>();
-    for (Sale sale : salesPage.getContent()) {
-        SaleHistoryDTO dto = SaleHistoryDTO.builder()
-                .id(sale.getId())
-                .saleDate(sale.getSaleDate())
-                .totalAmount(sale.getTotalAmount())
-                .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
-                .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
-                .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
-                .build();
-        saleDTOs.add(dto);
-    }
-    
-    // Add filter attributes to model
-    model.addAttribute("sales", saleDTOs);
-    model.addAttribute("salesPage", salesPage);
-    model.addAttribute("currentPage", "sales-history");
-    model.addAttribute("currentKeyword", keyword);
-    model.addAttribute("currentStatus", status);
-    model.addAttribute("currentDateRange", dateRange);
-    model.addAttribute("currentSortBy", sortBy);
-    
-    
-    model.addAttribute("role", user.getRole().name());
-    model.addAttribute("shop", user.getShop());
-    model.addAttribute("planType", user.getShop().getPlanType() != null ? user.getShop().getPlanType().name() : "FREE");
-    model.addAttribute("user", user);
-    
-    // Get summary stats
-    model.addAttribute("totalSales", saleRepository.countByShop(user.getShop()));
-    model.addAttribute("totalRevenue", saleRepository.getTotalRevenueByShop(user.getShop()));
-    model.addAttribute("completedCount", saleRepository.countByShopAndStatus(user.getShop(), SaleStatus.COMPLETED));
-    model.addAttribute("cancelledCount", saleRepository.countByShopAndStatus(user.getShop(), SaleStatus.CANCELLED));
-
-    return "sales-history";
-}
-
-
-
-    // AJAX endpoint for live search
-  // AJAX endpoint for live search - FIXED with DTO
-@GetMapping("/history/search")
-@ResponseBody
-public ResponseEntity<Map<String, Object>> searchSalesHistory(
-        Authentication authentication,
-        @RequestParam(required = false) String keyword,
-        @RequestParam(required = false) String status,
-        @RequestParam(required = false) String dateRange,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "saleDate") String sortBy,
-        @RequestParam(defaultValue = "desc") String sortDir) {
-
-    try {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow();
-        
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+
+        // Default sort by date descending
+        Sort sort = Sort.by("saleDate").descending();
+        if (sortBy != null && sortBy.equals("amount")) {
+            sort = Sort.by("totalAmount").descending();
+        } else if (sortBy != null && sortBy.equals("amount_asc")) {
+            sort = Sort.by("totalAmount").ascending();
+        }
+
         Pageable pageable = PageRequest.of(page, 10, sort);
-        
+
         Page<Sale> salesPage;
-        
+
         // Apply filters
         if (keyword != null && !keyword.trim().isEmpty()) {
             salesPage = saleRepository.searchSales(user.getShop(), keyword.trim(), pageable);
@@ -425,8 +361,8 @@ public ResponseEntity<Map<String, Object>> searchSalesHistory(
         } else {
             salesPage = saleRepository.findByShop(user.getShop(), pageable);
         }
-        
-        // Convert to DTO to avoid circular reference
+
+        // Convert to DTO for display
         List<SaleHistoryDTO> saleDTOs = new ArrayList<>();
         for (Sale sale : salesPage.getContent()) {
             SaleHistoryDTO dto = SaleHistoryDTO.builder()
@@ -434,34 +370,112 @@ public ResponseEntity<Map<String, Object>> searchSalesHistory(
                     .saleDate(sale.getSaleDate())
                     .totalAmount(sale.getTotalAmount())
                     .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
+                    .customerPhone(sale.getCustomerPhone())
                     .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
                     .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
                     .build();
             saleDTOs.add(dto);
         }
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("sales", saleDTOs);
-        response.put("currentPage", salesPage.getNumber());
-        response.put("totalPages", salesPage.getTotalPages());
-        response.put("totalItems", salesPage.getTotalElements());
-        response.put("pageSize", salesPage.getSize());
-        response.put("hasNext", salesPage.hasNext());
-        response.put("hasPrevious", salesPage.hasPrevious());
-        
-        log.info("Found {} sales, total pages: {}", saleDTOs.size(), salesPage.getTotalPages());
-        
-        return ResponseEntity.ok(response);
-        
-    } catch (Exception e) {
-        log.error("Error searching sales: ", e);
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("error", e.getMessage());
-        return ResponseEntity.status(500).body(errorResponse);
+
+        // Add filter attributes to model
+        model.addAttribute("sales", saleDTOs);
+        model.addAttribute("salesPage", salesPage);
+        model.addAttribute("currentPage", "sales-history");
+        model.addAttribute("currentKeyword", keyword);
+        model.addAttribute("currentStatus", status);
+        model.addAttribute("currentDateRange", dateRange);
+        model.addAttribute("currentSortBy", sortBy);
+
+        model.addAttribute("role", user.getRole().name());
+        model.addAttribute("shop", user.getShop());
+        model.addAttribute("planType",
+                user.getShop().getPlanType() != null ? user.getShop().getPlanType().name() : "FREE");
+        model.addAttribute("user", user);
+
+        // Get summary stats
+        model.addAttribute("totalSales", saleRepository.countByShop(user.getShop()));
+        model.addAttribute("totalRevenue", saleRepository.getTotalRevenueByShop(user.getShop()));
+        model.addAttribute("completedCount", saleRepository.countByShopAndStatus(user.getShop(), SaleStatus.COMPLETED));
+        model.addAttribute("cancelledCount", saleRepository.countByShopAndStatus(user.getShop(), SaleStatus.CANCELLED));
+
+        return "sales-history";
     }
-}
 
+    // AJAX endpoint for live search
+    // AJAX endpoint for live search - FIXED with DTO
+    @GetMapping("/history/search")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> searchSalesHistory(
+            Authentication authentication,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String dateRange,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "saleDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
 
+        try {
+            User user = userRepository.findByUsername(authentication.getName())
+                    .orElseThrow();
+
+            Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+            Pageable pageable = PageRequest.of(page, 10, sort);
+
+            Page<Sale> salesPage;
+
+            // Apply filters
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                salesPage = saleRepository.searchSales(user.getShop(), keyword.trim(), pageable);
+            } else if (status != null && !status.isEmpty()) {
+                SaleStatus saleStatus;
+                try {
+                    saleStatus = SaleStatus.valueOf(status);
+                    salesPage = saleRepository.findByShopAndStatus(user.getShop(), saleStatus, pageable);
+                } catch (IllegalArgumentException e) {
+                    salesPage = saleRepository.findByShop(user.getShop(), pageable);
+                }
+            } else if (dateRange != null && !dateRange.isEmpty()) {
+                LocalDateTime startDate = getStartDate(dateRange);
+                salesPage = saleRepository.findByShopAndSaleDateAfter(user.getShop(), startDate, pageable);
+            } else {
+                salesPage = saleRepository.findByShop(user.getShop(), pageable);
+            }
+
+            // Convert to DTO to avoid circular reference
+            List<SaleHistoryDTO> saleDTOs = new ArrayList<>();
+            for (Sale sale : salesPage.getContent()) {
+                SaleHistoryDTO dto = SaleHistoryDTO.builder()
+                        .id(sale.getId())
+                        .saleDate(sale.getSaleDate())
+                        .totalAmount(sale.getTotalAmount())
+                        .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
+                        .customerPhone(sale.getCustomerPhone())
+                        .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
+                        .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
+                        .build();
+                saleDTOs.add(dto);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("sales", saleDTOs);
+            response.put("currentPage", salesPage.getNumber());
+            response.put("totalPages", salesPage.getTotalPages());
+            response.put("totalItems", salesPage.getTotalElements());
+            response.put("pageSize", salesPage.getSize());
+            response.put("hasNext", salesPage.hasNext());
+            response.put("hasPrevious", salesPage.hasPrevious());
+
+            log.info("Found {} sales, total pages: {}", saleDTOs.size(), salesPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error searching sales: ", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
 
     // Helper method for date ranges
     private LocalDateTime getStartDate(String dateRange) {
@@ -482,12 +496,14 @@ public ResponseEntity<Map<String, Object>> searchSalesHistory(
         }
     }
 
-    @GetMapping("/cancel/{id}")
+    @PostMapping("/cancel/{id}")
     public String cancelSale(@PathVariable Long id,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
 
         try {
-            saleService.cancelSale(id);
+            User user = getAuthenticatedUser(authentication);
+            saleService.cancelSale(id, user);
             redirectAttributes.addFlashAttribute("success", "Sale cancelled successfully!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -523,29 +539,65 @@ public ResponseEntity<Map<String, Object>> searchSalesHistory(
 
     @PostMapping("/update-qty")
     @ResponseBody
-    public List<CartItem> updateQuantity(
+    public ResponseEntity<?> updateQuantity(
             @RequestParam int index,
             @RequestParam int change,
-            HttpSession session) {
+            HttpSession session,
+            Authentication authentication) {
 
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-
-        if (cart != null && index >= 0 && index < cart.size()) {
-
-            CartItem item = cart.get(index);
-
-            int newQty = item.getQuantity() + change;
-
-            if (newQty <= 0) {
-                cart.remove(index);
-            } else {
-                item.setQuantity(newQty);
-            }
-
-            session.setAttribute("cart", cart);
+        if (cart == null) {
+            return ResponseEntity.ok(Collections.emptyList());
         }
 
-        return cart;
+        if (index < 0 || index >= cart.size()) {
+            return ResponseEntity.badRequest().body("Invalid cart item");
+        }
+
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow();
+
+        CartItem item = cart.get(index);
+
+        if (change <= -9999) {
+            cart.remove(index);
+            session.setAttribute("cart", cart);
+            return ResponseEntity.ok(cart);
+        }
+
+        int newQty = item.getQuantity() + change;
+        if (newQty <= 0) {
+            cart.remove(index);
+            session.setAttribute("cart", cart);
+            return ResponseEntity.ok(cart);
+        }
+
+        Product product = productService
+                .getProductByIdAndShop(item.getProductId(), user.getShop())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (newQty > product.getStockQuantity()) {
+            return ResponseEntity.badRequest()
+                    .body("Only " + product.getStockQuantity() + " items available");
+        }
+
+        BigDecimal price = product.getPrice();
+        BigDecimal subtotal = price.multiply(BigDecimal.valueOf(newQty));
+        Integer gstPercent = product.getGstPercent() != null ? product.getGstPercent() : 0;
+        BigDecimal gstMultiplier = BigDecimal.valueOf(gstPercent)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal gstAmount = subtotal.multiply(gstMultiplier);
+        BigDecimal totalWithGst = subtotal.add(gstAmount);
+
+        item.setQuantity(newQty);
+        item.setPrice(price);
+        item.setSubtotal(subtotal);
+        item.setGstPercent(gstPercent);
+        item.setGstAmount(gstAmount);
+        item.setTotalWithGst(totalWithGst);
+        session.setAttribute("cart", cart);
+
+        return ResponseEntity.ok(cart);
     }
 
     @PostMapping("/cancel")
@@ -560,49 +612,47 @@ public ResponseEntity<Map<String, Object>> searchSalesHistory(
         }
     }
 
+    @PostMapping("/invoice/{saleId}/send-whatsapp-pdf")
+    @ResponseBody
+    public ResponseEntity<?> sendWhatsAppWithPdf(
+            @PathVariable Long saleId,
+            @RequestParam String phoneNumber,
+            @RequestParam(required = false) MultipartFile file,
+            Authentication authentication) {
 
-@PostMapping("/invoice/{saleId}/send-whatsapp-pdf")
-@ResponseBody
-public ResponseEntity<?> sendWhatsAppWithPdf(
-        @PathVariable Long saleId,
-        @RequestParam String phoneNumber,
-        @RequestParam(required = false) MultipartFile file) {
+        try {
+            Sale sale = getAuthorizedSale(saleId, authentication);
 
-    try {
-        Sale sale = saleRepository.findByIdWithShop(saleId)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
+            boolean sent;
 
-        boolean sent;
-        
-        if (file != null && !file.isEmpty()) {
-            sent = whatsAppService.sendInvoiceWithPdfAttachment(sale, phoneNumber, file);
-        } else {
-            sent = whatsAppService.sendInvoiceWithPdf(sale, phoneNumber);
+            if (file != null && !file.isEmpty()) {
+                sent = whatsAppService.sendInvoiceWithPdfAttachment(sale, phoneNumber, file);
+            } else {
+                sent = whatsAppService.sendInvoiceWithPdf(sale, phoneNumber);
+            }
+
+            if (sent) {
+                return ResponseEntity.ok(Map.of("success", true, "message", "Invoice sent successfully"));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "Failed to send invoice"));
+            }
+
+        } catch (Exception e) {
+            log.error("Error", e);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-
-        if (sent) {
-            return ResponseEntity.ok(Map.of("success", true, "message", "Invoice sent successfully"));
-        } else {
-            return ResponseEntity.badRequest().body(Map.of("error", "Failed to send invoice"));
-        }
-
-    } catch (Exception e) {
-        log.error("Error", e);
-        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     }
-}
-    
+
     @GetMapping("/invoice/{saleId}/pdf")
-    public ResponseEntity<byte[]> downloadInvoicePdf(@PathVariable Long saleId) {
-        Sale sale = saleRepository.findByIdWithShop(saleId)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
+    public ResponseEntity<byte[]> downloadInvoicePdf(@PathVariable Long saleId, Authentication authentication) {
+        Sale sale = getAuthorizedSale(saleId, authentication);
 
         byte[] pdfBytes = pdfService.generateInvoicePdf(sale);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(ContentDisposition.builder("attachment")
-                .filename("invoice-" + saleId + ".pdf").build());
+                .filename("invoice_" + saleId + ".pdf").build());
 
         return ResponseEntity.ok()
                 .headers(headers)

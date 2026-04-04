@@ -13,6 +13,7 @@ import com.hisaablite.entity.User;
 import com.hisaablite.repository.EmailVerificationTokenRepository;
 import com.hisaablite.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -23,7 +24,7 @@ public class VerificationController {
     private final UserRepository userRepository;
 
     @GetMapping("/verify")
-    public String verifyAccount(@RequestParam String token, Model model) {
+    public String verifyAccount(@RequestParam String token, Model model, HttpServletResponse response) {
 
         Optional<EmailVerificationToken> tokenOpt =
                 Optional.ofNullable(tokenRepository.findByToken(token));
@@ -31,8 +32,9 @@ public class VerificationController {
         if (tokenOpt.isEmpty() ||
                 tokenOpt.get().getExpiryDate().isBefore(LocalDateTime.now())) {
 
-            model.addAttribute("error", "Invalid or expired verification link.");
-            return "error";
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            model.addAttribute("message", "This verification link is invalid or has expired.");
+            return "error/404";
         }
 
         EmailVerificationToken verificationToken = tokenOpt.get();

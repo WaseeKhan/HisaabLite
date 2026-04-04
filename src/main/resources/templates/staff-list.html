@@ -122,7 +122,8 @@
                                     <span th:text="${user.username}">john@example.com</span>
                                 </td>
                                 <td class="staff-role-cell">
-                                    <span class="role-badge" th:classappend="${user.role == 'MANAGER' ? 'role-manager' : 'role-cashier'}">
+                                    <span class="role-badge" th:classappend="${user.role == 'OWNER' ? 'role-owner' : (user.role == 'MANAGER' ? 'role-manager' : 'role-cashier')}">
+                                        <i th:if="${user.role == 'OWNER'}" class="fas fa-crown"></i>
                                         <i th:if="${user.role == 'MANAGER'}" class="fas fa-chart-line"></i>
                                         <i th:if="${user.role == 'CASHIER'}" class="fas fa-cash-register"></i>
                                         <span th:text="${user.role}">CASHIER</span>
@@ -140,6 +141,14 @@
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="staff-actions-menu">
+                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-item" style="cursor:default; opacity:0.75;">
+                                                <i class="fas fa-shield-alt"></i> Owner managed by admin only
+                                            </div>
+                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-item" style="cursor:not-allowed; opacity:0.45; pointer-events:none;">
+                                                <i class="fas fa-edit"></i> Edit Details
+                                            </div>
+                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-divider"></div>
+                                            <th:block th:if="${user.role != 'OWNER'}">
                                             <a th:href="@{/staff/edit/{id}(id=${user.id})}" class="staff-action-item">
                                                 <i class="fas fa-edit"></i> Edit Details
                                             </a>
@@ -163,6 +172,7 @@
                                             <button class="staff-action-item staff-action-delete" onclick="showDeleteModal(${user.id}, '${user.name}')">
                                                 <i class="fas fa-trash-alt"></i> Delete Staff
                                             </button>
+                                            </th:block>
                                         </div>
                                     </div>
                                 </td>
@@ -236,10 +246,28 @@
         </div>
     </div>
 
+    <div id="staffActionToast" class="staff-floating-toast" hidden></div>
+
+    <div id="staffConfirmModal" class="staff-confirm-modal" hidden>
+        <div class="staff-confirm-card">
+            <div class="staff-confirm-icon">
+                <i id="staffConfirmIcon" class="fas fa-circle-info"></i>
+            </div>
+            <h3 id="staffConfirmTitle">Confirm Action</h3>
+            <p id="staffConfirmMessage">Are you sure?</p>
+            <div class="staff-confirm-actions">
+                <button type="button" class="staff-btn staff-btn-secondary" id="staffConfirmCancelBtn">Cancel</button>
+                <button type="button" class="staff-btn staff-btn-primary" id="staffConfirmActionBtn">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script th:inline="javascript">
         let currentUserId = null;
         let activeCount = 0;
+        let confirmAction = null;
+        const csrfToken = document.querySelector("meta[name='_csrf']").content;
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
@@ -249,6 +277,42 @@
                 });
             }
         });
+
+        function showStaffToast(message, type = 'success') {
+            const toast = document.getElementById('staffActionToast');
+            if (!toast) return;
+            toast.className = 'staff-floating-toast show ' + type;
+            toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check')}"></i><span>${message}</span>`;
+            toast.hidden = false;
+            clearTimeout(window.staffToastTimer);
+            window.staffToastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => { toast.hidden = true; }, 180);
+            }, 2600);
+        }
+
+        function openConfirmModal(config) {
+            const modal = document.getElementById('staffConfirmModal');
+            const title = document.getElementById('staffConfirmTitle');
+            const message = document.getElementById('staffConfirmMessage');
+            const icon = document.getElementById('staffConfirmIcon');
+            const actionBtn = document.getElementById('staffConfirmActionBtn');
+            if (!modal || !title || !message || !icon || !actionBtn) return;
+
+            title.textContent = config.title || 'Confirm Action';
+            message.textContent = config.message || 'Are you sure?';
+            icon.className = config.icon || 'fas fa-circle-info';
+            actionBtn.textContent = config.actionLabel || 'Continue';
+            actionBtn.className = 'staff-btn ' + (config.actionClass || 'staff-btn-primary');
+            confirmAction = config.onConfirm || null;
+            modal.hidden = false;
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('staffConfirmModal');
+            if (modal) modal.hidden = true;
+            confirmAction = null;
+        }
 
         function toggleActionsMenu(button) {
             const dropdown = button.closest('.staff-actions-dropdown');
@@ -280,33 +344,57 @@
         });
 
         function resetPassword(userId) {
-            if (confirm('Reset password for this user? A temporary password will be sent.')) {
-                showLoading();
-                const csrfToken = document.querySelector("meta[name='_csrf']").content;
-                fetch('/staff/' + userId + '/reset', { 
-                    method: 'POST', 
-                    headers: { 'X-CSRF-TOKEN': csrfToken } 
-                })
-                .then(() => { hideLoading(); alert('Password reset successfully'); location.reload(); })
-                .catch(() => { hideLoading(); alert('Failed to reset password'); });
-            }
+            openConfirmModal({
+                title: 'Reset Password',
+                message: 'Reset this staff password to the default temporary password?',
+                icon: 'fas fa-key',
+                actionLabel: 'Reset Password',
+                actionClass: 'staff-btn-primary',
+                onConfirm: () => {
+                    closeConfirmModal();
+                    showLoading();
+                    fetch('/staff/' + userId + '/reset', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error();
+                        showStaffToast('Password reset successfully', 'success');
+                        setTimeout(() => location.reload(), 700);
+                    })
+                    .catch(() => showStaffToast('Failed to reset password', 'error'))
+                    .finally(() => hideLoading());
+                }
+            });
         }
 
         function toggleStatus(userId) {
-            if (confirm('Change status for this user?')) {
-                showLoading();
-                const csrfToken = document.querySelector("meta[name='_csrf']").content;
-                fetch('/staff/' + userId + '/toggle', { 
-                    method: 'POST', 
-                    headers: { 'X-CSRF-TOKEN': csrfToken } 
-                })
-                .then(() => { hideLoading(); location.reload(); })
-                .catch(() => { hideLoading(); alert('Failed to change status'); });
-            }
+            openConfirmModal({
+                title: 'Change Staff Status',
+                message: 'Update this staff account status now?',
+                icon: 'fas fa-user-gear',
+                actionLabel: 'Update Status',
+                actionClass: 'staff-btn-primary',
+                onConfirm: () => {
+                    closeConfirmModal();
+                    showLoading();
+                    fetch('/staff/' + userId + '/toggle', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken }
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error();
+                        showStaffToast('Staff status updated', 'success');
+                        setTimeout(() => location.reload(), 500);
+                    })
+                    .catch(() => showStaffToast('Failed to change status', 'error'))
+                    .finally(() => hideLoading());
+                }
+            });
         }
 
         function showDeleteModal(userId, userName) {
-            if (!userId) { alert('Invalid user ID'); return; }
+            if (!userId) { showStaffToast('Invalid user selected', 'error'); return; }
             currentUserId = userId;
             document.getElementById('deleteUserName').innerText = userName;
             showLoading();
@@ -328,13 +416,21 @@
                             document.getElementById('deleteForm').action = '/staff/' + userId + '/delete';
                             document.getElementById('deleteModal').style.display = 'flex';
                         } else {
-                            if (confirm('No other active staff found. Deactivate this user instead?')) {
-                                window.location.href = '/staff/' + userId + '/deactivate';
-                            }
+                            openConfirmModal({
+                                title: 'Deactivate Staff Instead',
+                                message: 'No other active staff found for reassignment. Deactivate this user instead?',
+                                icon: 'fas fa-user-slash',
+                                actionLabel: 'Deactivate',
+                                actionClass: 'staff-btn-primary',
+                                onConfirm: () => {
+                                    closeConfirmModal();
+                                    window.location.href = '/staff/' + userId + '/deactivate';
+                                }
+                            });
                         }
-                    } else { alert('Error: ' + (data.message || 'Unknown error')); }
+                    } else { showStaffToast(data.message || 'Unable to load staff members', 'error'); }
                 })
-                .catch(error => { hideLoading(); alert('Error loading staff members'); });
+                .catch(error => { hideLoading(); showStaffToast('Error loading staff members', 'error'); });
         }
 
         function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
@@ -345,11 +441,29 @@
             const deleteForm = document.getElementById('deleteForm');
             if (deleteForm) {
                 deleteForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
                     const select = document.getElementById('reassignSelect');
-                    if (!select.value) { e.preventDefault(); alert('Please select a staff member'); return; }
-                    if (!confirm('Delete this user? All sales will be reassigned.')) e.preventDefault();
+                    if (!select.value) { showStaffToast('Please select a staff member', 'warning'); return; }
+                    openConfirmModal({
+                        title: 'Delete Staff Member',
+                        message: 'Delete this staff member and reassign all linked records now?',
+                        icon: 'fas fa-trash-alt',
+                        actionLabel: 'Delete Staff',
+                        actionClass: 'staff-btn-danger',
+                        onConfirm: () => {
+                            closeConfirmModal();
+                            deleteForm.submit();
+                        }
+                    });
                 });
             }
+            document.getElementById('staffConfirmCancelBtn')?.addEventListener('click', closeConfirmModal);
+            document.getElementById('staffConfirmActionBtn')?.addEventListener('click', function() {
+                if (typeof confirmAction === 'function') confirmAction();
+            });
+            document.getElementById('staffConfirmModal')?.addEventListener('click', function(event) {
+                if (event.target === this) closeConfirmModal();
+            });
         });
     </script>
 </body>

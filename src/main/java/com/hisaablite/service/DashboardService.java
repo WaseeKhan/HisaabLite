@@ -4,6 +4,7 @@ import com.hisaablite.entity.*;
 import com.hisaablite.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,7 +27,9 @@ public class DashboardService {
         List<Map<String, Object>> topProducts = new ArrayList<>();
         
         try {
-            List<Object[]> results = saleItemRepository.findTopSellingProductsByShop(shop, limit);
+            List<Object[]> results = saleItemRepository.findTopSellingProductsByShop(
+                    shop,
+                    PageRequest.of(0, limit));
             
             if (results != null && !results.isEmpty()) {
                 for (Object[] row : results) {
@@ -51,7 +54,9 @@ public class DashboardService {
         List<Map<String, Object>> topCustomers = new ArrayList<>();
         
         try {
-            List<Object[]> results = saleRepository.findTopCustomersByShop(shop, limit);
+            List<Object[]> results = saleRepository.findTopCustomersByShop(
+                    shop,
+                    PageRequest.of(0, limit));
             
             if (results != null && !results.isEmpty()) {
                 for (Object[] row : results) {

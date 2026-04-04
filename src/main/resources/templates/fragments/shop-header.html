@@ -6,7 +6,7 @@
     <div class="brand-icon">
         <i class="fas fa-store"></i>
     </div>
-    <div class="shop-name" th:text="${shop?.name} ?: 'NA'">Shop Name</div>
+    <div class="shop-name" th:text="${shop != null and shop.name != null ? shop.name : 'NA'}">Shop Name</div>
 </div>
         <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop?.panNumber != null ? shop.panNumber : 'NA'}">PAN123</span> </div>
         <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop?.gstNumber != null ? shop.gstNumber : 'N/A'}">GST123</span></div>
@@ -46,6 +46,7 @@
             <a th:href="@{/settings}"><i class="fas fa-cog"></i> Settings</a>
             <div class="dropdown-divider"></div>
             <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </form>
         </div>

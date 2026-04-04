@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,10 +30,13 @@ import com.hisaablite.admin.dto.AdminDashboardDTO;
 import com.hisaablite.admin.dto.PopularPlanDTO;
 import com.hisaablite.admin.dto.ShopDTO;
 import com.hisaablite.admin.dto.SubscriptionPlanDTO;
+import com.hisaablite.admin.repository.AuditLogRepository;
 import com.hisaablite.admin.repository.AdminShopRepository;
 import com.hisaablite.admin.repository.AdminSubscriptionRepository;
 import com.hisaablite.admin.repository.AdminUserRepository;
 import com.hisaablite.admin.service.AdminService;
+import com.hisaablite.admin.service.AuditService;
+import com.hisaablite.entity.AuditLog;
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Shop;
@@ -53,6 +57,8 @@ public class AdminController {
     private final AdminUserRepository adminUserRepo;
     private final AdminShopRepository adminShopRepo;
     private final AdminSubscriptionRepository adminSubscriptionRepo;
+    private final AuditLogRepository auditLogRepository;
+    private final AuditService auditService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;  // Added EmailService
 
@@ -184,6 +190,94 @@ public class AdminController {
         return data;
     }
 
+    private String currentAdminUsername() {
+        try {
+            return SecurityContextHolder.getContext().getAuthentication().getName();
+        } catch (Exception e) {
+            return "SYSTEM";
+        }
+    }
+
+    private String currentAdminRole() {
+        return "ADMIN";
+    }
+
+    private Map<String, Object> snapshotUser(User user) {
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("id", user.getId());
+        snapshot.put("name", user.getName());
+        snapshot.put("username", user.getUsername());
+        snapshot.put("phone", user.getPhone());
+        snapshot.put("role", user.getRole() != null ? user.getRole().name() : null);
+        snapshot.put("active", user.isActive());
+        snapshot.put("approved", user.isApproved());
+        snapshot.put("shopId", user.getShop() != null ? user.getShop().getId() : null);
+        snapshot.put("shopName", user.getShop() != null ? user.getShop().getName() : null);
+        snapshot.put("currentPlan", user.getCurrentPlan() != null ? user.getCurrentPlan().name() : null);
+        return snapshot;
+    }
+
+    @GetMapping("/audit")
+    public String auditLogs(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String shopName,
+            @RequestParam(required = false) String action,
+            @RequestParam(required = false) String status) {
+        log.info("Loading admin audit logs - page: {}, size: {}, username: {}, shop: {}, action: {}, status: {}",
+                page, size, username, shopName, action, status);
+
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timestamp"));
+            Page<AuditLog> auditPage = auditLogRepository.searchAuditLogs(username, shopName, action, status, pageable);
+
+            model.addAttribute("auditLogs", auditPage);
+            model.addAttribute("currentPage", auditPage.getNumber());
+            model.addAttribute("totalPages", auditPage.getTotalPages());
+            model.addAttribute("pageSize", size);
+            model.addAttribute("username", username);
+            model.addAttribute("shopName", shopName);
+            model.addAttribute("selectedAction", action);
+            model.addAttribute("selectedStatus", status);
+            model.addAttribute("availableActions", auditLogRepository.findDistinctActions());
+            model.addAttribute("availableShops", auditLogRepository.findDistinctShopNames());
+            model.addAttribute("totalAuditLogs", auditLogRepository.count());
+            model.addAttribute("failedAuditLogs", auditLogRepository.countFailedActions());
+            model.addAttribute("recentAuditLogs", auditLogRepository.countRecentActions(LocalDateTime.now().minusHours(24)));
+            model.addAttribute("successAuditLogs",
+                    Math.max(0L, auditLogRepository.count() - auditLogRepository.countFailedActions()));
+            model.addAttribute("shopActivitySummary",
+                    auditLogRepository.getShopActivitySummary(PageRequest.of(0, 5)));
+            model.addAttribute("actionSummary",
+                    auditLogRepository.getActionStats(LocalDateTime.now().minusDays(7)));
+            model.addAttribute("userActivitySummary",
+                    auditLogRepository.getUserActivitySummary(PageRequest.of(0, 5)));
+        } catch (Exception e) {
+            log.error("Error loading audit logs: {}", e.getMessage(), e);
+            model.addAttribute("auditLogs", Page.empty());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("username", username);
+            model.addAttribute("shopName", shopName);
+            model.addAttribute("selectedAction", action);
+            model.addAttribute("selectedStatus", status);
+            model.addAttribute("availableActions", List.of());
+            model.addAttribute("availableShops", List.of());
+            model.addAttribute("totalAuditLogs", 0L);
+            model.addAttribute("failedAuditLogs", 0L);
+            model.addAttribute("recentAuditLogs", 0L);
+            model.addAttribute("successAuditLogs", 0L);
+            model.addAttribute("shopActivitySummary", List.of());
+            model.addAttribute("actionSummary", List.of());
+            model.addAttribute("userActivitySummary", List.of());
+            model.addAttribute("error", "Could not load audit logs right now.");
+        }
+
+        return "admin/audit-logs";
+    }
+
     // ===== USER MANAGEMENT =====
 
     @GetMapping("/users")
@@ -308,6 +402,8 @@ public String pendingApprovals(Model model,
             user.setShop(shop);
 
             // Check if new user or existing
+            boolean isNewUser = user.getId() == null;
+            Map<String, Object> oldUserState = null;
             if (user.getId() == null) {
                 // New user
                 if (user.getPassword() == null || user.getPassword().isEmpty()) {
@@ -320,6 +416,7 @@ public String pendingApprovals(Model model,
                 // Existing user
                 User existingUser = adminUserRepo.findById(user.getId()).orElse(null);
                 if (existingUser != null) {
+                    oldUserState = snapshotUser(existingUser);
                     if (user.getPassword() == null || user.getPassword().isEmpty()) {
                         user.setPassword(existingUser.getPassword());
                     } else {
@@ -329,7 +426,18 @@ public String pendingApprovals(Model model,
                 }
             }
 
-            adminUserRepo.save(user);
+            User savedUser = adminUserRepo.save(user);
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    savedUser.getShop(),
+                    isNewUser ? "ADMIN_USER_CREATED" : "ADMIN_USER_UPDATED",
+                    "User",
+                    savedUser.getId(),
+                    "SUCCESS",
+                    oldUserState,
+                    snapshotUser(savedUser),
+                    isNewUser ? "Admin created a user" : "Admin updated a user");
             redirectAttributes.addFlashAttribute("success", "User saved successfully");
         } catch (Exception e) {
             log.error("Error saving user: {}", e.getMessage());
@@ -376,7 +484,22 @@ public String pendingApprovals(Model model,
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Deleting user id: {}", id);
         try {
+            User user = adminUserRepo.findById(id).orElse(null);
+            Map<String, Object> deletedUserState = user != null ? snapshotUser(user) : null;
             adminUserRepo.deleteById(id);
+            if (user != null) {
+                auditService.logAction(
+                        currentAdminUsername(),
+                        currentAdminRole(),
+                        user.getShop(),
+                        "ADMIN_USER_DELETED",
+                        "User",
+                        user.getId(),
+                        "SUCCESS",
+                        deletedUserState,
+                        null,
+                        "Admin deleted a user");
+            }
             redirectAttributes.addFlashAttribute("success", "User deleted successfully");
         } catch (Exception e) {
             log.error("Error deleting user: {}", e.getMessage());
@@ -385,99 +508,13 @@ public String pendingApprovals(Model model,
         return "redirect:/admin/users";
     }
 
-    // ===== ENHANCED APPROVE USER WITH EMAIL =====
-    @PostMapping("/users/approve/{id}")
-    @ResponseBody
-    public Map<String, Object> approveUser(@PathVariable Long id) {
-        log.info("API: Approving user ID: {}", id);
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            User user = adminUserRepo.findById(id)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            // Check if user is active (email verified)
-            if (!user.isActive()) {
-                response.put("success", false);
-                response.put("message", "User has not verified email yet. Cannot approve.");
-                return response;
-            }
-            
-            // Check if already approved
-            if (user.isApproved()) {
-                response.put("success", false);
-                response.put("message", "User already approved");
-                return response;
-            }
-            
-            // Check if FREE plan (should be auto-approved)
-            if (user.getCurrentPlan() == PlanType.FREE) {
-                response.put("success", false);
-                response.put("message", "FREE plan users are auto-approved during registration");
-                return response;
-            }
-            
-            // Fetch plan details from database
-            SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(user.getCurrentPlan().name())
-                    .orElseThrow(() -> new RuntimeException("Plan not found in database"));
-            
-            log.info("Approving user: {} with plan: {}", user.getUsername(), plan.getPlanName());
-            log.info("Plan duration: {} days, Price: ₹{}", plan.getDurationInDays(), plan.getPrice());
-            
-            // Set approval
-            user.setApproved(true);
-            user.setApprovalDate(LocalDateTime.now());
-            
-            // Calculate expiry from approval date using plan duration
-            if (plan.getDurationInDays() != null && plan.getDurationInDays() > 0) {
-                LocalDateTime expiryDate = LocalDateTime.now().plusDays(plan.getDurationInDays());
-                user.setSubscriptionEndDate(expiryDate);
-                log.info("Subscription expiry set to: {}", expiryDate);
-            }
-            
-            // Save user
-            adminUserRepo.save(user);
-            log.info("User approved and saved to database");
-            
-            // Update shop if owner
-            if (user.getRole() == Role.OWNER && user.getShop() != null) {
-                Shop shop = user.getShop();
-                shop.setPlanType(user.getCurrentPlan());
-                shop.setSubscriptionStartDate(user.getApprovalDate());
-                shop.setSubscriptionEndDate(user.getSubscriptionEndDate());
-                adminShopRepo.save(shop);
-                log.info("Shop subscription updated for shop: {}", shop.getName());
-            }
-            
-            // SEND APPROVAL EMAIL - This is the key part!
-            try {
-                emailService.sendApprovalEmail(user, plan);
-                log.info("Approval email sent successfully to: {}", user.getUsername());
-            } catch (Exception e) {
-                log.error("Failed to send approval email but user was approved: {}", e.getMessage());
-                // Don't fail the approval if email fails
-            }
-            
-            response.put("success", true);
-            response.put("message", "User approved successfully and email sent");
-            response.put("userId", user.getId());
-            response.put("userName", user.getName());
-            response.put("userEmail", user.getUsername());
-            response.put("planName", plan.getPlanName());
-            response.put("expiryDate", user.getSubscriptionEndDate() != null ? 
-                    user.getSubscriptionEndDate().toString() : "No expiry");
-            
-        } catch (Exception e) {
-            log.error("Error approving user: {}", e.getMessage(), e);
-            response.put("success", false);
-            response.put("message", "Error: " + e.getMessage());
-        }
-        
-        return response;
-    }
 
-    // ===== GET APPROVAL EMAIL PREVIEW =====
+
+
+// ===== GET APPROVAL EMAIL PREVIEW =====
+
+
+
     @GetMapping("/users/preview-approval-email/{id}")
     @ResponseBody
     public Map<String, Object> previewApprovalEmail(@PathVariable Long id) {
@@ -510,56 +547,483 @@ public String pendingApprovals(Model model,
         return response;
     }
 
-    // ===== KEEP YOUR EXISTING GET APPROVE METHOD FOR REDIRECTS =====
- 
-@GetMapping("/users/approve/{id}")
+
+
+
+// ===== ENHANCED APPROVE USER WITH EMAIL =====
+@PostMapping("/users/approve/{id}")
 @ResponseBody
-public Map<String, Object> approveUserGet(@PathVariable Long id) {
+public Map<String, Object> approveUser(@PathVariable Long id) {
+    log.info("========== START: Approving user ID: {} ==========", id);
+    
     Map<String, Object> response = new HashMap<>();
+    long startTime = System.currentTimeMillis();
+    
     try {
+        // Step 1: Fetch user
+        log.info("Step 1: Fetching user with ID: {}", id);
         User user = adminUserRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        if (user.getCurrentPlan() == PlanType.FREE) {
+        log.info("✅ User found:");
+        log.info("  - ID: {}", user.getId());
+        log.info("  - Username: {}", user.getUsername());
+        log.info("  - Name: {}", user.getName());
+        log.info("  - Role: {}", user.getRole());
+        log.info("  - Approved: {}", user.isApproved());
+        log.info("  - Active: {}", user.isActive());
+        log.info("  - User CurrentPlan: {}", user.getCurrentPlan());
+        
+        // Step 2: Check if user is active (email verified)
+        log.info("Step 2: Checking if user is active (email verified)");
+        if (!user.isActive()) {
+            log.warn("❌ User {} (ID: {}) cannot be approved - email not verified", user.getUsername(), user.getId());
             response.put("success", false);
-            response.put("message", "FREE plan users are auto-approved");
+            response.put("message", "User has not verified email yet. Cannot approve.");
+            return response;
+        }
+        log.info("✅ User email is verified");
+        
+        // Step 3: Check if already approved
+        log.info("Step 3: Checking if user is already approved");
+        if (user.isApproved()) {
+            log.warn("❌ User {} (ID: {}) is already approved", user.getUsername(), user.getId());
+            response.put("success", false);
+            response.put("message", "User already approved");
+            return response;
+        }
+        log.info("✅ User is not approved yet");
+        
+        // Step 4: Get plan from shop
+        log.info("Step 4: Getting plan from shop");
+        if (user.getShop() == null) {
+            log.error("❌ User {} (ID: {}) has no associated shop!", user.getUsername(), user.getId());
+            response.put("success", false);
+            response.put("message", "User has no associated shop. Cannot approve.");
             return response;
         }
         
-        SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(user.getCurrentPlan().name())
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
+        Shop shop = user.getShop();
+        log.info("  - Shop ID: {}", shop.getId());
+        log.info("  - Shop Name: {}", shop.getName());
+        log.info("  - Shop Plan Type: {}", shop.getPlanType());
+        log.info("  - Shop Subscription Start: {}", shop.getSubscriptionStartDate());
+        log.info("  - Shop Subscription End: {}", shop.getSubscriptionEndDate());
         
+        PlanType planType = shop.getPlanType();
+        
+        // Step 5: Validate plan
+        log.info("Step 5: Validating plan");
+        if (planType == null) {
+            log.error("❌ Shop {} has no plan type set!", shop.getName());
+            response.put("success", false);
+            response.put("message", "Shop has no plan assigned. Please assign a plan to the shop first.");
+            return response;
+        }
+        log.info("✅ Plan found in shop: {}", planType);
+        
+        // Step 6: Check if FREE plan
+        log.info("Step 6: Checking if plan is FREE");
+        if (planType == PlanType.FREE) {
+            log.info("⚠️ User {} has FREE plan (from shop) - auto-approved during registration, skipping manual approval", 
+                    user.getUsername());
+            response.put("success", false);
+            response.put("message", "FREE plan users are auto-approved during registration");
+            response.put("planType", planType.name());
+            return response;
+        }
+        log.info("✅ User has PAID plan: {}", planType);
+        
+        // Step 7: Fetch plan details from database
+        log.info("Step 7: Fetching plan details from database for plan type: {}", planType.name());
+        SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(planType.name())
+                .orElseThrow(() -> {
+                    log.error("❌ Plan not found in database: {}", planType.name());
+                    return new RuntimeException("Plan not found in database: " + planType.name());
+                });
+        
+        log.info("✅ Plan details fetched:");
+        log.info("  - Plan ID: {}", plan.getId());
+        log.info("  - Plan Name: {}", plan.getPlanName());
+        log.info("  - Duration: {} days", plan.getDurationInDays());
+        log.info("  - Price: ₹{}", plan.getPrice());
+        log.info("  - Max Products: {}", plan.getMaxProducts());
+        log.info("  - Max Users: {}", plan.getMaxUsers());
+        log.info("  - Features: {}", plan.getFeatures());
+        log.info("  - Active: {}", plan.isActive());
+        
+        // Step 8: Set approval details on user
+        log.info("Step 8: Setting approval details on user");
         user.setApproved(true);
         user.setApprovalDate(LocalDateTime.now());
+        user.setCurrentPlan(planType); // Set the plan on user for consistency
+        user.setSubscriptionStartDate(LocalDateTime.now());
         
+        log.info("  - Set Approved: true");
+        log.info("  - Set Approval Date: {}", user.getApprovalDate());
+        log.info("  - Set Current Plan: {}", user.getCurrentPlan());
+        log.info("  - Set Subscription Start Date: {}", user.getSubscriptionStartDate());
+        
+        // Step 9: Calculate and set expiry date
+        log.info("Step 9: Calculating subscription expiry date");
         if (plan.getDurationInDays() != null && plan.getDurationInDays() > 0) {
-            user.setSubscriptionEndDate(LocalDateTime.now().plusDays(plan.getDurationInDays()));
+            LocalDateTime expiryDate = LocalDateTime.now().plusDays(plan.getDurationInDays());
+            user.setSubscriptionEndDate(expiryDate);
+            log.info("  - Duration: {} days", plan.getDurationInDays());
+            log.info("  - Expiry Date set to: {}", expiryDate);
+            log.info("  - Subscription will expire on: {}", expiryDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
+        } else {
+            log.warn("  - Plan has no duration or duration is 0 - no expiry set");
+            user.setSubscriptionEndDate(null);
         }
         
-        adminUserRepo.save(user);
+        // Step 10: Save user
+        log.info("Step 10: Saving user to database");
+        User savedUser = adminUserRepo.save(user);
+        log.info("✅ User saved successfully:");
+        log.info("  - User ID: {}", savedUser.getId());
+        log.info("  - Username: {}", savedUser.getUsername());
+        log.info("  - Approved: {}", savedUser.isApproved());
+        log.info("  - Current Plan: {}", savedUser.getCurrentPlan());
+        log.info("  - Subscription End: {}", savedUser.getSubscriptionEndDate());
         
+        // Step 11: Log audit
+        log.info("Step 11: Recording audit log");
+        try {
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    user.getShop(),
+                    "ADMIN_USER_APPROVED",
+                    "User",
+                    user.getId(),
+                    "SUCCESS",
+                    null,
+                    snapshotUser(user),
+                    "Admin approved user account");
+            log.info("✅ Audit log recorded successfully");
+        } catch (Exception e) {
+            log.error("⚠️ Failed to record audit log: {}", e.getMessage(), e);
+        }
+        
+        // Step 12: Update shop subscription
+        log.info("Step 12: Updating shop subscription details");
         if (user.getRole() == Role.OWNER && user.getShop() != null) {
-            Shop shop = user.getShop();
-            shop.setPlanType(user.getCurrentPlan());
-            shop.setSubscriptionStartDate(user.getApprovalDate());
-            shop.setSubscriptionEndDate(user.getSubscriptionEndDate());
-            adminShopRepo.save(shop);
+            log.info("  - User is OWNER, updating shop subscription");
+            Shop updatedShop = user.getShop();
+            updatedShop.setPlanType(user.getCurrentPlan());
+            updatedShop.setSubscriptionStartDate(user.getApprovalDate());
+            updatedShop.setSubscriptionEndDate(user.getSubscriptionEndDate());
+            
+            log.info("  - Shop before update:");
+            log.info("    * Shop ID: {}", updatedShop.getId());
+            log.info("    * Shop Name: {}", updatedShop.getName());
+            log.info("    * Old Plan: {}", updatedShop.getPlanType());
+            log.info("    * Old Start Date: {}", updatedShop.getSubscriptionStartDate());
+            log.info("    * Old End Date: {}", updatedShop.getSubscriptionEndDate());
+            
+            adminShopRepo.save(updatedShop);
+            
+            log.info("  - Shop after update:");
+            log.info("    * New Plan: {}", updatedShop.getPlanType());
+            log.info("    * New Start Date: {}", updatedShop.getSubscriptionStartDate());
+            log.info("    * New End Date: {}", updatedShop.getSubscriptionEndDate());
+            log.info("✅ Shop subscription updated successfully");
+        } else {
+            log.info("  - User is not OWNER or has no shop, skipping shop update");
+            log.info("    * User Role: {}", user.getRole());
+            log.info("    * Has Shop: {}", user.getShop() != null);
         }
         
-        emailService.sendApprovalEmail(user, plan);
+        // Step 13: Send approval email
+        log.info("========== STEP 13: SENDING APPROVAL EMAIL ==========");
+        log.info("Email Details:");
+        log.info("  - To: {} ({})", user.getName(), user.getUsername());
+        log.info("  - Plan: {}", plan.getPlanName());
+        log.info("  - Plan Type: {}", planType);
+        log.info("  - Duration: {} days", plan.getDurationInDays());
+        log.info("  - Expiry Date: {}", user.getSubscriptionEndDate());
+        log.info("  - Approval Date: {}", user.getApprovalDate());
+        log.info("  - Shop Name: {}", shop.getName());
         
+        long emailStartTime = System.currentTimeMillis();
+        boolean emailSent = false;
+        String emailError = null;
+        
+        try {
+            emailService.sendApprovalEmail(user, plan);
+            long emailDuration = System.currentTimeMillis() - emailStartTime;
+            emailSent = true;
+            
+            log.info("✅ APPROVAL EMAIL SENT SUCCESSFULLY!");
+            log.info("  - To: {}", user.getUsername());
+            log.info("  - Time taken: {} ms", emailDuration);
+            log.info("  - Email includes:");
+            log.info("    * Welcome message");
+            log.info("    * Plan details: {}", plan.getPlanName());
+            log.info("    * Subscription expiry: {}", user.getSubscriptionEndDate());
+            log.info("    * Login instructions");
+            log.info("    * Support contact information");
+            
+        } catch (Exception e) {
+         
+            emailSent = false;
+            emailError = e.getMessage();
+            
+            log.error("❌ FAILED TO SEND APPROVAL EMAIL!");
+            log.error("  - To: {}", user.getUsername());
+            
+            log.error("  - Error type: {}", e.getClass().getSimpleName());
+            log.error("  - Error message: {}", e.getMessage());
+            log.error("  - Stack trace:", e);
+            
+            log.error("Please check the following:");
+            log.error("  1. SMTP server configuration in application.properties");
+            log.error("  2. Email sender credentials (username/password)");
+            log.error("  3. Network connectivity to mail server");
+            log.error("  4. Recipient email address validity: {}", user.getUsername());
+            log.error("  5. Email template: approval-email.html exists");
+            log.error("  6. JavaMailSender bean configuration");
+        }
+        log.info("========== EMAIL SENDING PROCESS COMPLETED ==========");
+        
+        // Calculate total time
+        long totalDuration = System.currentTimeMillis() - startTime;
+        
+        // Step 14: Prepare response
+        log.info("Step 14: Preparing response");
         response.put("success", true);
-        response.put("message", "User approved successfully");
+        response.put("message", emailSent ? "User approved successfully and email sent" : "User approved successfully but email failed to send");
+        response.put("userId", user.getId());
+        response.put("userName", user.getName());
+        response.put("userEmail", user.getUsername());
+        response.put("shopName", shop.getName());
+        response.put("planName", plan.getPlanName());
+        response.put("planType", planType.name());
+        response.put("planDuration", plan.getDurationInDays());
+        response.put("planPrice", plan.getPrice());
+        response.put("expiryDate", user.getSubscriptionEndDate() != null ? 
+                user.getSubscriptionEndDate().toString() : "No expiry");
+        response.put("approvalDate", user.getApprovalDate().toString());
+        response.put("emailSent", emailSent);
+        if (emailError != null) {
+            response.put("emailError", emailError);
+        }
+        response.put("processingTimeMs", totalDuration);
+        
+        log.info("========== APPROVAL COMPLETED SUCCESSFULLY FOR USER {} ==========", user.getUsername());
+        log.info("Summary:");
+        log.info("  - User: {} ({})", user.getName(), user.getUsername());
+        log.info("  - Shop: {}", shop.getName());
+        log.info("  - Plan: {} ({} days)", plan.getPlanName(), plan.getDurationInDays());
+        log.info("  - Expiry: {}", user.getSubscriptionEndDate());
+        log.info("  - Email Sent: {}", emailSent);
+        log.info("  - Total Time: {} ms", totalDuration);
         
     } catch (Exception e) {
-        log.error("Error approving user: {}", e.getMessage());
+        long totalDuration = System.currentTimeMillis() - startTime;
+        log.error("========== ERROR APPROVING USER ID: {} ==========", id);
+        log.error("Error occurred after {} ms", totalDuration);
+        log.error("Error type: {}", e.getClass().getName());
+        log.error("Error message: {}", e.getMessage());
+        log.error("Stack trace:", e);
+        
         response.put("success", false);
         response.put("message", "Error: " + e.getMessage());
+        response.put("errorType", e.getClass().getSimpleName());
+        response.put("processingTimeMs", totalDuration);
     }
+    
     return response;
 }
 
-    // ===== BULK APPROVE USERS =====
+@GetMapping("/users/approve/{id}")
+public String approveUserGet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    log.info("========== GET APPROVAL START: Approving user ID: {} ==========", id);
+    
+    long startTime = System.currentTimeMillis();
+    
+    try {
+        // Step 1: Fetch user
+        log.info("Step 1: Fetching user with ID: {}", id);
+        User user = adminUserRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        log.info("✅ User found:");
+        log.info("  - ID: {}", user.getId());
+        log.info("  - Email: {}", user.getUsername());
+        log.info("  - Name: {}", user.getName());
+        log.info("  - Role: {}", user.getRole());
+        log.info("  - Approved: {}", user.isApproved());
+        log.info("  - Active: {}", user.isActive());
+        
+        // Step 2: Check if already approved
+        if (user.isApproved()) {
+            log.warn("User {} is already approved", user.getUsername());
+            redirectAttributes.addFlashAttribute("error", "User is already approved");
+            return "redirect:/admin/users";
+        }
+        
+        // Step 3: Get plan from shop
+        log.info("Step 2: Getting plan from shop");
+        if (user.getShop() == null) {
+            log.error("❌ User has no associated shop!");
+            redirectAttributes.addFlashAttribute("error", "User has no associated shop. Cannot approve.");
+            return "redirect:/admin/users";
+        }
+        
+        Shop shop = user.getShop();
+        PlanType planType = shop.getPlanType();
+        
+        log.info("  - Shop ID: {}", shop.getId());
+        log.info("  - Shop Name: {}", shop.getName());
+        log.info("  - Shop Plan Type: {}", planType);
+        
+        // Step 4: Validate plan
+        log.info("Step 3: Validating plan");
+        if (planType == null) {
+            log.error("❌ Shop has no plan type set!");
+            redirectAttributes.addFlashAttribute("error", "Shop has no plan assigned. Cannot approve.");
+            return "redirect:/admin/users";
+        }
+        log.info("✅ Plan from shop: {}", planType);
+        
+        // Step 5: Check if FREE plan
+        log.info("Step 4: Checking if plan is FREE");
+        if (planType == PlanType.FREE) {
+            log.info("⚠️ User has FREE plan - cannot approve manually");
+            redirectAttributes.addFlashAttribute("error", "FREE plan users are auto-approved during registration");
+            return "redirect:/admin/users";
+        }
+        log.info("✅ User has PAID plan: {}", planType);
+        
+        // Step 6: Fetch plan details
+        log.info("Step 5: Fetching plan details from database");
+        SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(planType.name())
+                .orElseThrow(() -> new RuntimeException("Plan not found: " + planType.name()));
+        
+        log.info("✅ Plan details:");
+        log.info("  - Name: {}", plan.getPlanName());
+        log.info("  - Duration: {} days", plan.getDurationInDays());
+        log.info("  - Price: ₹{}", plan.getPrice());
+        
+        // Step 7: Set approval on user
+        log.info("Step 6: Setting approval on user");
+        user.setApproved(true);
+        user.setApprovalDate(LocalDateTime.now());
+        user.setCurrentPlan(planType);
+        user.setSubscriptionStartDate(LocalDateTime.now());
+        
+        log.info("  - Approved: true");
+        log.info("  - Approval Date: {}", user.getApprovalDate());
+        log.info("  - Current Plan: {}", user.getCurrentPlan());
+        
+        // Step 8: Set expiry
+        log.info("Step 7: Setting subscription expiry");
+        if (plan.getDurationInDays() != null && plan.getDurationInDays() > 0) {
+            user.setSubscriptionEndDate(LocalDateTime.now().plusDays(plan.getDurationInDays()));
+            log.info("  - Expiry set to: {}", user.getSubscriptionEndDate());
+        } else {
+            log.warn("  - No expiry set (duration is null or 0)");
+        }
+        
+        // Step 9: Save user
+        log.info("Step 8: Saving user");
+        adminUserRepo.save(user);
+        log.info("✅ User saved successfully");
+        
+        // Step 10: Log audit
+        log.info("Step 9: Recording audit log");
+        try {
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    user.getShop(),
+                    "ADMIN_USER_APPROVED",
+                    "User",
+                    user.getId(),
+                    "SUCCESS",
+                    null,
+                    snapshotUser(user),
+                    "Admin approved user account");
+            log.info("✅ Audit log recorded");
+        } catch (Exception e) {
+            log.error("⚠️ Failed to record audit log: {}", e.getMessage(), e);
+        }
+        
+        // Step 11: Update shop if owner
+        log.info("Step 10: Updating shop if owner");
+        if (user.getRole() == Role.OWNER && user.getShop() != null) {
+            Shop updatedShop = user.getShop();
+            updatedShop.setPlanType(user.getCurrentPlan());
+            updatedShop.setSubscriptionStartDate(user.getApprovalDate());
+            updatedShop.setSubscriptionEndDate(user.getSubscriptionEndDate());
+            adminShopRepo.save(updatedShop);
+            log.info("✅ Shop updated with new subscription details");
+            log.info("  - Shop: {}", updatedShop.getName());
+            log.info("  - New Plan: {}", updatedShop.getPlanType());
+            log.info("  - New Expiry: {}", updatedShop.getSubscriptionEndDate());
+        } else {
+            log.info("  - User is not owner or has no shop, skipping shop update");
+        }
+        
+        // Step 12: Send email
+        log.info("========== SENDING APPROVAL EMAIL ==========");
+        log.info("Recipient: {} ({})", user.getName(), user.getUsername());
+        log.info("Plan: {}", plan.getPlanName());
+        
+        long emailStartTime = System.currentTimeMillis();
+        boolean emailSent = false;
+        String emailError = null;
+        
+        try {
+            emailService.sendApprovalEmail(user, plan);
+            long emailDuration = System.currentTimeMillis() - emailStartTime;
+            emailSent = true;
+            
+            log.info("✅ Approval email sent successfully to {} in {} ms", user.getUsername(), emailDuration);
+        } catch (Exception e) {
+            long emailDuration = System.currentTimeMillis() - emailStartTime;
+            emailSent = false;
+            emailError = e.getMessage();
+            log.error("❌ Failed to send approval email to {} after {} ms: {}", 
+                    user.getUsername(), emailDuration, e.getMessage());
+            log.error("Email error details:", e);
+        }
+        log.info("========== EMAIL SENDING COMPLETE ==========");
+        
+        long totalDuration = System.currentTimeMillis() - startTime;
+        
+        // Step 13: Add success message
+        String successMessage = emailSent ? 
+                String.format("User %s approved successfully! Email sent to %s.", user.getName(), user.getUsername()) :
+                String.format("User %s approved successfully but email failed to send. Please check email configuration.", user.getName());
+        
+        redirectAttributes.addFlashAttribute("success", successMessage);
+        redirectAttributes.addFlashAttribute("userName", user.getName());
+        redirectAttributes.addFlashAttribute("userEmail", user.getUsername());
+        redirectAttributes.addFlashAttribute("planName", plan.getPlanName());
+        redirectAttributes.addFlashAttribute("expiryDate", user.getSubscriptionEndDate());
+        redirectAttributes.addFlashAttribute("emailSent", emailSent);
+        
+        log.info("========== GET APPROVAL COMPLETED FOR USER {} in {} ms ==========", 
+                user.getUsername(), totalDuration);
+        
+        return "redirect:/admin/users";
+        
+    } catch (Exception e) {
+        long totalDuration = System.currentTimeMillis() - startTime;
+        log.error("========== ERROR IN GET APPROVAL FOR USER ID: {} ==========", id);
+        log.error("Error after {} ms: {}", totalDuration, e.getMessage(), e);
+        
+        redirectAttributes.addFlashAttribute("error", "Error approving user: " + e.getMessage());
+        return "redirect:/admin/users";
+    }
+}
+
+
+
+// ===== BULK APPROVE USERS =====
     @PostMapping("/users/bulk-approve")
     @ResponseBody
     public Map<String, Object> bulkApprove(@RequestBody List<Long> userIds) {
@@ -585,6 +1049,17 @@ public Map<String, Object> approveUserGet(@PathVariable Long id) {
                     }
                     
                     adminUserRepo.save(user);
+                    auditService.logAction(
+                            currentAdminUsername(),
+                            currentAdminRole(),
+                            user.getShop(),
+                            "ADMIN_USER_APPROVED",
+                            "User",
+                            user.getId(),
+                            "SUCCESS",
+                            null,
+                            snapshotUser(user),
+                            "Admin bulk approved user account");
                     
                     // Send email
                     if (plan != null) {
@@ -616,8 +1091,20 @@ public Map<String, Object> approveUserGet(@PathVariable Long id) {
         try {
             User user = adminUserRepo.findById(id).orElse(null);
             if (user != null) {
+                Map<String, Object> oldUserState = snapshotUser(user);
                 user.setActive(false);
                 adminUserRepo.save(user);
+                auditService.logAction(
+                        currentAdminUsername(),
+                        currentAdminRole(),
+                        user.getShop(),
+                        "ADMIN_USER_SUSPENDED",
+                        "User",
+                        user.getId(),
+                        "SUCCESS",
+                        oldUserState,
+                        snapshotUser(user),
+                        "Admin suspended user");
                 redirectAttributes.addFlashAttribute("success", "User suspended successfully");
             }
         } catch (Exception e) {
@@ -633,8 +1120,20 @@ public Map<String, Object> approveUserGet(@PathVariable Long id) {
         try {
             User user = adminUserRepo.findById(id).orElse(null);
             if (user != null) {
+                Map<String, Object> oldUserState = snapshotUser(user);
                 user.setActive(true);
                 adminUserRepo.save(user);
+                auditService.logAction(
+                        currentAdminUsername(),
+                        currentAdminRole(),
+                        user.getShop(),
+                        "ADMIN_USER_ACTIVATED",
+                        "User",
+                        user.getId(),
+                        "SUCCESS",
+                        oldUserState,
+                        snapshotUser(user),
+                        "Admin activated user");
                 redirectAttributes.addFlashAttribute("success", "User activated successfully");
             }
         } catch (Exception e) {
@@ -938,138 +1437,56 @@ public Map<String, Object> approveUserGet(@PathVariable Long id) {
 
     // ===== SUBSCRIPTION MANAGEMENT =====
 
-  @GetMapping("/subscriptions")
-public String subscriptions(Model model) {
-    log.info("========== SUBSCRIPTION PAGE LOAD START ==========");
-    
-    try {
-        // DEBUG 1: Check if repository is working
-        log.info("DEBUG 1: Checking repository...");
-        long totalCount = adminSubscriptionRepo.count();
-        log.info("DEBUG 1: Total plans in DB: {}", totalCount);
-        
-        // DEBUG 2: Fetch all plans
-        log.info("DEBUG 2: Fetching all plans...");
-        List<SubscriptionPlan> allPlans = adminSubscriptionRepo.findAll();
-        log.info("DEBUG 2: Found {} plans in DB", allPlans.size());
-        
-        // DEBUG 2.1: Log each plan details
-        for (SubscriptionPlan plan : allPlans) {
-            log.info("DEBUG 2.1 - Plan: ID={}, Name={}, Active={}, MaxProducts={}, MaxUsers={}", 
-                plan.getId(), 
-                plan.getPlanName(), 
-                plan.isActive(),
-                plan.getMaxProducts(),
-                plan.getMaxUsers());
-        }
-        
-        // DEBUG 3: Get active plans
-        log.info("DEBUG 3: Fetching active plans using findByActiveTrue()...");
-        List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findByActiveTrue();
-        log.info("DEBUG 3: findByActiveTrue() returned {} plans", dbPlans.size());
-        
-        // DEBUG 3.1: If dbPlans is empty, log the reason
-        if (dbPlans.isEmpty()) {
-            log.warn("DEBUG 3.1: No active plans found! Checking each plan's active status:");
-            for (SubscriptionPlan plan : allPlans) {
-                log.warn("Plan: {} - Active value: {}, Active as boolean: {}", 
-                    plan.getPlanName(), 
-                    plan.isActive());
+    @GetMapping("/subscriptions")
+    public String subscriptions(Model model) {
+        log.info("Loading admin subscriptions page");
+
+        try {
+            List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findByActiveTrue();
+            long totalShops = adminShopRepo.count();
+            List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
+            Map<String, Long> shopCountMap = new HashMap<>();
+
+            for (Object[] stat : shopStats) {
+                PlanType planType = (PlanType) stat[0];
+                Long count = (Long) stat[1];
+                shopCountMap.put(planType.name(), count);
             }
-        }
-        
-        // DEBUG 4: Get total shops
-        log.info("DEBUG 4: Fetching total shops count...");
-        long totalShops = adminShopRepo.count();
-        log.info("DEBUG 4: Total shops: {}", totalShops);
-        
-        // DEBUG 5: Get shop counts by plan type
-        log.info("DEBUG 5: Fetching shop counts by plan type...");
-        List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
-        Map<String, Long> shopCountMap = new HashMap<>();
-        
-        log.info("DEBUG 5.1: Shop stats from DB:");
-        for (Object[] stat : shopStats) {
-            PlanType planType = (PlanType) stat[0];
-            Long count = (Long) stat[1];
-            shopCountMap.put(planType.name(), count);
-            log.info("  Plan: {}, Shop Count: {}", planType.name(), count);
-        }
-        
-        // DEBUG 6: Process plans
-        log.info("DEBUG 6: Processing plans...");
-        List<SubscriptionPlanDTO> plans = new ArrayList<>();
-        
-        if (!dbPlans.isEmpty()) {
-            log.info("DEBUG 6.1: Using plans from database ({} plans found)", dbPlans.size());
-            
-            for (SubscriptionPlan plan : dbPlans) {
-                log.info("DEBUG 6.2: Processing plan: {}", plan.getPlanName());
-                
-                SubscriptionPlanDTO dto = convertToDTO(plan);
-                log.info("  - Converted to DTO, maxProducts: {}, maxUsers: {}", 
-                    dto.getMaxProducts(), dto.getMaxUsers());
-                
-                // Get shop count from the map
-                Long shopCount = shopCountMap.getOrDefault(plan.getPlanName().toUpperCase(), 0L);
-                dto.setShopCount(shopCount);
-                log.info("  - Shop count: {}", shopCount);
-                
-                // Calculate percentage
-                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
-                dto.setUsagePercent(Math.round(percentage * 10.0) / 10.0);
-                log.info("  - Usage percentage: {}%", percentage);
-                
-                plans.add(dto);
-                log.info("  - Plan added to list");
+
+            List<SubscriptionPlanDTO> plans = new ArrayList<>();
+
+            if (!dbPlans.isEmpty()) {
+                for (SubscriptionPlan plan : dbPlans) {
+                    SubscriptionPlanDTO dto = convertToDTO(plan);
+                    Long shopCount = shopCountMap.getOrDefault(plan.getPlanName().toUpperCase(), 0L);
+                    dto.setShopCount(shopCount);
+
+                    double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                    dto.setUsagePercent(Math.round(percentage * 10.0) / 10.0);
+                    plans.add(dto);
+                }
+            } else {
+                log.warn("No active subscription plans found. Falling back to default plan definitions.");
+                for (PlanType planType : PlanType.values()) {
+                    String planName = planType.name();
+                    Long shopCount = shopCountMap.getOrDefault(planName, 0L);
+                    double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
+                    plans.add(createDefaultPlanDTO(planName, shopCount, percentage));
+                }
             }
-        } else {
-            log.warn("DEBUG 6.1: No active plans found! Using default plans from enum");
-            
-            // Create default plans from enum
-            for (PlanType planType : PlanType.values()) {
-                String planName = planType.name();
-                Long shopCount = shopCountMap.getOrDefault(planName, 0L);
-                double percentage = totalShops > 0 ? (shopCount * 100.0 / totalShops) : 0;
-                
-                log.info("DEBUG 6.2: Creating default plan: {}, shopCount: {}, percentage: {}", 
-                    planName, shopCount, percentage);
-                
-                SubscriptionPlanDTO dto = createDefaultPlanDTO(planName, shopCount, percentage);
-                plans.add(dto);
-            }
+
+            List<SubscriptionPlanDTO> sortedPlans = sortPlansByOrder(plans);
+            model.addAttribute("plans", sortedPlans);
+            log.info("Loaded {} subscription plans for admin view", sortedPlans.size());
+
+        } catch (Exception e) {
+            log.error("Error loading subscription plans: {}", e.getMessage(), e);
+            model.addAttribute("plans", getDefaultPlans());
+            model.addAttribute("error", "Could not load live data. Showing default values.");
         }
-        
-        // DEBUG 7: Sort plans
-        log.info("DEBUG 7: Sorting plans...");
-        List<SubscriptionPlanDTO> sortedPlans = sortPlansByOrder(plans);
-        log.info("DEBUG 7: Sorted plans count: {}", sortedPlans.size());
-        
-        for (SubscriptionPlanDTO plan : sortedPlans) {
-            log.info("DEBUG 7.1: Sorted plan: {}, maxProducts: {}, shopCount: {}, usagePercent: {}", 
-                plan.getPlanName(), plan.getMaxProducts(), plan.getShopCount(), plan.getUsagePercent());
-        }
-        
-        // DEBUG 8: Add to model
-        log.info("DEBUG 8: Adding plans to model...");
-        model.addAttribute("plans", sortedPlans);
-        log.info("DEBUG 8: Model attribute added");
-        
-        log.info("========== SUBSCRIPTION PAGE LOAD END - SUCCESS ==========");
-        
-    } catch (Exception e) {
-        log.error("========== SUBSCRIPTION PAGE LOAD ERROR ==========");
-        log.error("Error loading subscription plans: {}", e.getMessage(), e);
-        log.error("Exception stack trace:", e);
-        
-        model.addAttribute("plans", getDefaultPlans());
-        model.addAttribute("error", "Could not load live data. Showing default values.");
-        
-        log.error("========== SUBSCRIPTION PAGE LOAD END - WITH ERROR ==========");
+
+        return "admin/subscriptions";
     }
-    
-    return "admin/subscriptions";
-}
 
 
 

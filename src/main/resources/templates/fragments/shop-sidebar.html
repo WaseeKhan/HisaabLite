@@ -7,45 +7,58 @@
     </div>
 
     <div class="shop-nav-links">
-        <a th:href="@{/dashboard}" class="shop-nav-link" th:classappend="${currentPage == 'dashboard'} ? 'active' : ''">
+        <a th:href="@{/dashboard}" class="shop-nav-link" data-shortcut="Alt + D" th:classappend="${currentPage == 'dashboard'} ? 'active' : ''">
             <i class="fas fa-chart-pie"></i>
             <span>Dashboard</span>
         </a>
         <a th:if="${role == 'OWNER' or role == 'CASHIER'}" 
            th:href="@{/sales/new}" 
-           class="shop-nav-link" 
+           class="shop-nav-link"
+           data-shortcut="Alt + B"
            th:classappend="${currentPage == 'billing'} ? 'active' : ''">
             <i class="fas fa-cash-register"></i>
             <span>Billing</span>
         </a>
         <a th:if="${role == 'OWNER' or role == 'MANAGER'}" 
            th:href="@{/products}" 
-           class="shop-nav-link" 
+           class="shop-nav-link"
+           data-shortcut="Alt + P"
            th:classappend="${currentPage == 'products'} ? 'active' : ''">
             <i class="fas fa-box"></i>
             <span>Products</span>
         </a>
-        <a th:href="@{/sales/history}" class="shop-nav-link" th:classappend="${currentPage == 'sales-history'} ? 'active' : ''">
+        <a th:href="@{/sales/history}" class="shop-nav-link" data-shortcut="Alt + H" th:classappend="${currentPage == 'sales-history'} ? 'active' : ''">
             <i class="fas fa-clock"></i>
             <span>Sales History</span>
         </a>
         <a th:if="${role == 'OWNER'}" 
            th:href="@{/staff}" 
-           class="shop-nav-link" 
+           class="shop-nav-link"
+           data-shortcut="Alt + S"
            th:classappend="${currentPage == 'staff'} ? 'active' : ''">
             <i class="fas fa-users"></i>
             <span>Staff</span>
         </a>
         <a th:if="${role == 'OWNER'}" 
            th:href="@{/profile}" 
-           class="shop-nav-link" 
+           class="shop-nav-link"
+           data-shortcut="Alt + R"
            th:classappend="${currentPage == 'profile'} ? 'active' : ''">
             <i class="fas fa-store"></i>
             <span>Profile</span>
         </a>
+        <a th:if="${role == 'OWNER'}"
+           th:href="@{/activity}"
+           class="shop-nav-link"
+           data-shortcut="Alt + A"
+           th:classappend="${currentPage == 'activity'} ? 'active' : ''">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Activity</span>
+        </a>
         <a th:if="${role == 'OWNER'}" 
            th:href="@{/support}" 
-           class="shop-nav-link" 
+           class="shop-nav-link"
+           data-shortcut="Alt + U"
            th:classappend="${currentPage == 'support'} ? 'active' : ''">
             <i class="fas fa-headset"></i>
             <span>Support</span>
@@ -57,17 +70,86 @@
 <a th:href="@{/upgrade}" class="upgrade-link" th:classappend="${currentPage == 'upgrade' ? 'active' : ''}">
     <i class="fas fa-arrow-up"></i>
     <span>Upgrade Plan</span>
-    <span class="upgrade-badge" th:if="${planType == 'FREE' or planType == 'BASIC' or 'PREMIUM'}">NEW</span>
+    <span class="upgrade-badge" th:if="${planType == 'FREE' or planType == 'BASIC' or planType == 'PREMIUM'}">NEW</span>
 </a>
 
     
     </div>
 
+    <button type="button" class="shop-shortcut-hint" id="shopShortcutHint">
+        <i class="fas fa-keyboard"></i>
+        <span>Keyboard Help</span>
+        <span class="shop-shortcut-hint-key">F1</span>
+    </button>
+
     <form th:action="@{/logout}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <button type="submit" class="shop-logout-btn">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
         </button>
     </form>
+
+    <div class="shop-shortcut-overlay" id="shopShortcutOverlay" aria-hidden="true">
+        <div class="shop-shortcut-backdrop" data-close-shortcuts></div>
+        <div class="shop-shortcut-panel" role="dialog" aria-modal="true" aria-labelledby="shopShortcutTitle">
+            <div class="shop-shortcut-panel-header">
+                <div>
+                    <p class="shop-shortcut-eyebrow">Keyboard Mode</p>
+                    <h3 id="shopShortcutTitle">Shortcuts for fast shop work</h3>
+                </div>
+                <button type="button" class="shop-shortcut-close" data-close-shortcuts aria-label="Close keyboard help">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <p class="shop-shortcut-note shop-shortcut-note-top">Use <strong>Alt + key</strong> on Windows/Linux or <strong>Ctrl + key</strong> on Mac to move between pages, and use the function keys on billing and sales history for zero-mouse actions.</p>
+
+            <div class="shop-shortcut-grid">
+                <div class="shop-shortcut-card">
+                    <div class="shop-shortcut-card-title">Sidebar Navigation</div>
+                    <div class="shop-shortcut-item"><span>Dashboard</span><kbd>Alt/Ctrl + D</kbd></div>
+                    <div class="shop-shortcut-item"><span>Billing</span><kbd>Alt/Ctrl + B</kbd></div>
+                    <div class="shop-shortcut-item"><span>Products</span><kbd>Alt/Ctrl + P</kbd></div>
+                    <div class="shop-shortcut-item"><span>Sales History</span><kbd>Alt/Ctrl + H</kbd></div>
+                    <div class="shop-shortcut-item"><span>Staff</span><kbd>Alt/Ctrl + S</kbd></div>
+                    <div class="shop-shortcut-item"><span>Profile</span><kbd>Alt/Ctrl + R</kbd></div>
+                    <div class="shop-shortcut-item"><span>Activity</span><kbd>Alt/Ctrl + A</kbd></div>
+                    <div class="shop-shortcut-item"><span>Support</span><kbd>Alt/Ctrl + U</kbd></div>
+                </div>
+
+                <div class="shop-shortcut-card">
+                    <div class="shop-shortcut-card-title">Billing Page</div>
+                    <div class="shop-shortcut-item"><span>Search product</span><kbd>F2</kbd></div>
+                    <div class="shop-shortcut-item"><span>Quantity</span><kbd>F3</kbd></div>
+                    <div class="shop-shortcut-item"><span>Payment mode</span><kbd>F4</kbd></div>
+                    <div class="shop-shortcut-item"><span>Amount received</span><kbd>F6</kbd></div>
+                    <div class="shop-shortcut-item"><span>Discount amount</span><kbd>F7</kbd></div>
+                    <div class="shop-shortcut-item"><span>Discount percent</span><kbd>F8</kbd></div>
+                    <div class="shop-shortcut-item"><span>Send WhatsApp invoice</span><kbd>F9</kbd></div>
+                    <div class="shop-shortcut-item"><span>Thermal print invoice</span><kbd>F10</kbd></div>
+                    <div class="shop-shortcut-item"><span>Complete bill</span><kbd>Ctrl + Enter</kbd></div>
+                </div>
+
+                <div class="shop-shortcut-card">
+                    <div class="shop-shortcut-card-title">Sales History Page</div>
+                    <div class="shop-shortcut-item"><span>Focus search</span><kbd>F6</kbd></div>
+                    <div class="shop-shortcut-item"><span>View latest visible invoice</span><kbd>F7</kbd></div>
+                    <div class="shop-shortcut-item"><span>Open thermal invoice</span><kbd>F8</kbd></div>
+                    <div class="shop-shortcut-item"><span>Open WhatsApp send</span><kbd>F9</kbd></div>
+                    <div class="shop-shortcut-item"><span>Cancel latest visible sale</span><kbd>F10</kbd></div>
+                </div>
+
+                <div class="shop-shortcut-card">
+                    <div class="shop-shortcut-card-title">General</div>
+                    <div class="shop-shortcut-item"><span>Open help</span><kbd>F1</kbd></div>
+                    <div class="shop-shortcut-item"><span>Close popup or help</span><kbd>Esc</kbd></div>
+                    <p class="shop-shortcut-note">Only pages visible in your sidebar are enabled for navigation, so owners, managers, and cashiers each get the right shortcuts automatically.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/shop-shortcuts.js}"></script>
 </div>
 </html>

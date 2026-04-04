@@ -1,14 +1,19 @@
 package com.hisaablite.admin.service;
 
 import com.hisaablite.entity.AuditLog;
+import com.hisaablite.entity.Shop;
+import com.hisaablite.entity.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.hisaablite.admin.repository.AuditLogRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hisaablite.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import java.time.LocalDateTime;
@@ -22,22 +27,39 @@ public class AuditService {
 
     private final AuditLogRepository auditLogRepository;
     private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
 
     // Simple log method
     public void logAction(String username, String userRole, String action, 
                          String entityType, Long entityId, String status) {
-        logAction(username, userRole, action, entityType, entityId, status, null, null, null);
+        logAction(username, userRole, null, action, entityType, entityId, status, null, null, null);
+    }
+
+    public void logAction(String username, String userRole, Shop shop, String action,
+            String entityType, Long entityId, String status) {
+        logAction(username, userRole, shop, action, entityType, entityId, status, null, null, null);
     }
 
     // Main log method with all details
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logAction(String username, String userRole, String action, 
                          String entityType, Long entityId, String status,
                          Object oldValue, Object newValue, String additionalDetails) {
+        logAction(username, userRole, null, action, entityType, entityId, status, oldValue, newValue, additionalDetails);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void logAction(String username, String userRole, Shop shop, String action,
+            String entityType, Long entityId, String status,
+            Object oldValue, Object newValue, String additionalDetails) {
         
         try {
+            Shop resolvedShop = shop != null ? shop : resolveShop(username);
             AuditLog.AuditLogBuilder builder = AuditLog.builder()
                 .username(username)
                 .userRole(userRole)
+                .shopId(resolvedShop != null ? resolvedShop.getId() : null)
+                .shopName(resolvedShop != null ? resolvedShop.getName() : null)
                 .action(action)
                 .entityType(entityType)
                 .entityId(entityId)
@@ -70,6 +92,21 @@ public class AuditService {
             
         } catch (Exception e) {
             log.error("Failed to create audit log: {}", e.getMessage());
+        }
+    }
+
+    private Shop resolveShop(String username) {
+        if (username == null || username.isBlank() || "SYSTEM".equalsIgnoreCase(username)) {
+            return null;
+        }
+
+        try {
+            return userRepository.findByUsername(username)
+                    .map(User::getShop)
+                    .orElse(null);
+        } catch (Exception e) {
+            log.debug("Could not resolve shop for audit username {}", username);
+            return null;
         }
     }
 

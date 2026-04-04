@@ -23,6 +23,7 @@ import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
+import com.hisaablite.admin.service.AuditService;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.SupportTicketRepository;
@@ -43,6 +44,7 @@ public class StaffController {
     private final SaleRepository saleRepository;
     private final SupportTicketRepository supportTicketRepository;
     private final TicketReplyRepository ticketReplyRepository;
+    private final AuditService auditService;
 
     @GetMapping
     public String listStaff(Model model, Authentication auth) {
@@ -119,7 +121,8 @@ public class StaffController {
 
     // ========== EDIT STAFF METHOD - ADD THIS ==========
     @GetMapping("/edit/{id}")
-    public String editStaffForm(@PathVariable Long id, Model model, Authentication authentication) {
+    public String editStaffForm(@PathVariable Long id, Model model, Authentication authentication,
+            RedirectAttributes redirectAttributes) {
         User owner = userRepository
                 .findByUsername(authentication.getName())
                 .orElseThrow();
@@ -129,7 +132,15 @@ public class StaffController {
 
         // Verify staff belongs to owner's shop
         if (!staff.getShop().getId().equals(owner.getShop().getId())) {
-            throw new RuntimeException("Unauthorized access");
+            redirectAttributes.addFlashAttribute("error",
+                    "Access Denied: You can manage staff only within your own shop");
+            return "redirect:/staff";
+        }
+
+        if (staff.getRole() == Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Owner account can only be managed from admin portal");
+            return "redirect:/staff";
         }
 
         Shop shop = owner.getShop();
@@ -184,6 +195,7 @@ public class StaffController {
             // UPDATE EXISTING STAFF
             User existingStaff = userRepository.findById(user.getId())
                     .orElseThrow(() -> new RuntimeException("Staff not found"));
+            Map<String, Object> oldStaffState = snapshotStaff(existingStaff);
             
             // Update fields
             existingStaff.setName(user.getName());
@@ -197,6 +209,17 @@ public class StaffController {
             }
             
             userRepository.save(existingStaff);
+            auditService.logAction(
+                    owner.getUsername(),
+                    owner.getRole().name(),
+                    shop,
+                    "STAFF_UPDATED",
+                    "User",
+                    existingStaff.getId(),
+                    "SUCCESS",
+                    oldStaffState,
+                    snapshotStaff(existingStaff),
+                    "Staff member updated");
             
             log.info("Staff updated: {} with role {} for shop {}",
                     existingStaff.getUsername(), existingStaff.getRole(), shop.getName());
@@ -219,6 +242,17 @@ public class StaffController {
             user.setCreatedAt(LocalDateTime.now());
 
             userRepository.save(user);
+            auditService.logAction(
+                    owner.getUsername(),
+                    owner.getRole().name(),
+                    shop,
+                    "STAFF_CREATED",
+                    "User",
+                    user.getId(),
+                    "SUCCESS",
+                    null,
+                    snapshotStaff(user),
+                    "Staff member created");
 
             log.info("Staff created: {} with role {} for shop {}",
                     user.getUsername(), user.getRole(), shop.getName());
@@ -233,13 +267,33 @@ public class StaffController {
     @PostMapping("/{id}/role")
     public String changeRole(@PathVariable Long id,
             @RequestParam Role role,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Authentication authentication) {
 
         User user = userRepository.findById(id).orElseThrow();
+        User actingUser = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Map<String, Object> oldStaffState = snapshotStaff(user);
+
+        if (!user.getShop().getId().equals(actingUser.getShop().getId()) || user.getRole() == Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Owner account can only be managed from admin portal");
+            return "redirect:/staff";
+        }
 
         if (role == Role.MANAGER || role == Role.CASHIER) {
             user.setRole(role);
             userRepository.save(user);
+            auditService.logAction(
+                    actingUser.getUsername(),
+                    actingUser.getRole().name(),
+                    actingUser.getShop(),
+                    "STAFF_ROLE_CHANGED",
+                    "User",
+                    user.getId(),
+                    "SUCCESS",
+                    oldStaffState,
+                    snapshotStaff(user),
+                    "Staff role changed");
             log.info("Role changed for user {} to {}", user.getUsername(), role);
             redirectAttributes.addFlashAttribute("success", 
                     "Role changed to " + role + " for " + user.getName());
@@ -250,12 +304,31 @@ public class StaffController {
 
     @PostMapping("/{id}/reset")
     public String resetPassword(@PathVariable Long id,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Authentication authentication) {
 
         User user = userRepository.findById(id).orElseThrow();
+        User actingUser = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        if (!user.getShop().getId().equals(actingUser.getShop().getId()) || user.getRole() == Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Owner account can only be managed from admin portal");
+            return "redirect:/staff";
+        }
 
         user.setPassword(passwordEncoder.encode("123456"));
         userRepository.save(user);
+        auditService.logAction(
+                actingUser.getUsername(),
+                actingUser.getRole().name(),
+                actingUser.getShop(),
+                "STAFF_PASSWORD_RESET",
+                "User",
+                user.getId(),
+                "SUCCESS",
+                null,
+                Map.of("username", user.getUsername()),
+                "Staff password reset to default by owner/manager");
 
         redirectAttributes.addFlashAttribute("success",
                 "Password reset to 123456 for " + user.getUsername());
@@ -265,12 +338,32 @@ public class StaffController {
 
     @PostMapping("/{id}/toggle")
     public String toggleStatus(@PathVariable Long id,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Authentication authentication) {
 
         User user = userRepository.findById(id).orElseThrow();
+        User actingUser = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Map<String, Object> oldStaffState = snapshotStaff(user);
+
+        if (!user.getShop().getId().equals(actingUser.getShop().getId()) || user.getRole() == Role.OWNER) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Owner account can only be managed from admin portal");
+            return "redirect:/staff";
+        }
 
         user.setActive(!user.isActive());
         userRepository.save(user);
+        auditService.logAction(
+                actingUser.getUsername(),
+                actingUser.getRole().name(),
+                actingUser.getShop(),
+                "STAFF_STATUS_TOGGLED",
+                "User",
+                user.getId(),
+                "SUCCESS",
+                oldStaffState,
+                snapshotStaff(user),
+                "Staff status changed");
 
         String status = user.isActive() ? "activated" : "deactivated";
         redirectAttributes.addFlashAttribute("success",
@@ -283,19 +376,25 @@ public class StaffController {
     @ResponseBody
     public Map<String, Object> getActiveStaff(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
-        log.info("=== GET ACTIVE STAFF CALLED for userId: {} ===", id);
+        log.debug("Loading active staff list for reassignment, userId={}", id);
         
         try {
-            log.info("Looking for user with ID: {}", id);
+            log.debug("Looking up user {}", id);
             
             User userToDelete = userRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
+            if (userToDelete.getRole() == Role.OWNER) {
+                response.put("success", false);
+                response.put("message", "Owner account cannot be deleted from shop panel");
+                return response;
+            }
             
-            log.info("Found user: {}, Shop ID: {}, Role: {}", 
+            log.debug("Found user: {}, shopId: {}, role: {}", 
                 userToDelete.getUsername(), userToDelete.getShop().getId(), userToDelete.getRole());
             
             List<User> allShopUsers = userRepository.findByShop(userToDelete.getShop());
-            log.info("Total users in shop: {}", allShopUsers.size());
+            log.debug("Total users in shop: {}", allShopUsers.size());
             
             List<Map<String, Object>> activeStaff = allShopUsers
                     .stream()
@@ -317,7 +416,7 @@ public class StaffController {
                     })
                     .collect(Collectors.toList());
             
-            log.info("Found {} active staff members to reassign to", activeStaff.size());
+            log.debug("Found {} active staff members to reassign to", activeStaff.size());
             
             response.put("success", true);
             response.put("activeStaff", activeStaff);
@@ -333,17 +432,31 @@ public class StaffController {
             response.put("error", e.toString());
         }
         
-        log.info("Returning response: {}", response);
+        log.debug("Returning active staff response: {}", response);
         return response;
     }
 
     @GetMapping("/{id}/deactivate")
-    public String deactivateUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deactivateUser(@PathVariable Long id, RedirectAttributes redirectAttributes,
+            Authentication authentication) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        User actingUser = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Map<String, Object> oldStaffState = snapshotStaff(user);
 
         user.setActive(false);
         userRepository.save(user);
+        auditService.logAction(
+                actingUser.getUsername(),
+                actingUser.getRole().name(),
+                actingUser.getShop(),
+                "STAFF_DEACTIVATED",
+                "User",
+                user.getId(),
+                "SUCCESS",
+                oldStaffState,
+                snapshotStaff(user),
+                "Staff deactivated without reassignment");
 
         redirectAttributes.addFlashAttribute("warning",
                 "User has been deactivated (no active staff to reassign sales)");
@@ -363,6 +476,12 @@ public class StaffController {
         User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
+        if (!userToDelete.getShop().getId().equals(currentUser.getShop().getId())) {
+            redirectAttributes.addFlashAttribute("error",
+                "Access Denied: You can manage staff only within your own shop");
+            return "redirect:/staff";
+        }
+
         if (currentUser.getId().equals(userToDelete.getId())) {
             redirectAttributes.addFlashAttribute("error", 
                 "You cannot delete your own account! 🤦");
@@ -377,13 +496,25 @@ public class StaffController {
 
         if (userToDelete.getRole() == Role.OWNER) {
             redirectAttributes.addFlashAttribute("error", 
-                "Cannot delete another owner account");
+                "Owner account can only be deleted from admin portal");
             return "redirect:/staff";
         }
 
         if (reassignToId == null) {
+            Map<String, Object> oldStaffState = snapshotStaff(userToDelete);
             userToDelete.setActive(false);
             userRepository.save(userToDelete);
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentUser.getShop(),
+                    "STAFF_DEACTIVATED",
+                    "User",
+                    userToDelete.getId(),
+                    "SUCCESS",
+                    oldStaffState,
+                    snapshotStaff(userToDelete),
+                    "Staff deactivated without reassignment during delete flow");
             redirectAttributes.addFlashAttribute("warning", 
                 "User has been deactivated (no reassignment needed)");
             return "redirect:/staff";
@@ -392,6 +523,12 @@ public class StaffController {
         User reassignTo = userRepository.findById(reassignToId)
                 .orElseThrow(() -> new RuntimeException("Target user not found with ID: " + reassignToId));
 
+        if (!reassignTo.getShop().getId().equals(currentUser.getShop().getId())) {
+            redirectAttributes.addFlashAttribute("error",
+                "Please select a staff member from your own shop.");
+            return "redirect:/staff";
+        }
+
         if (reassignTo.getRole() == Role.OWNER) {
             redirectAttributes.addFlashAttribute("error", 
                 "Cannot reassign records to owner. Please select a staff member.");
@@ -399,11 +536,28 @@ public class StaffController {
         }
 
         try {
+            Map<String, Object> deletedStaffState = snapshotStaff(userToDelete);
             int salesReassigned = saleRepository.reassignSales(userToDelete, reassignTo);
             int ticketsReassigned = supportTicketRepository.reassignTickets(userToDelete, reassignTo);
             int repliesReassigned = ticketReplyRepository.reassignReplies(userToDelete, reassignTo);
 
             userRepository.delete(userToDelete);
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentUser.getShop(),
+                    "STAFF_DELETED",
+                    "User",
+                    userToDelete.getId(),
+                    "SUCCESS",
+                    deletedStaffState,
+                    Map.of(
+                            "reassignedToId", reassignTo.getId(),
+                            "reassignedToUsername", reassignTo.getUsername(),
+                            "salesReassigned", salesReassigned,
+                            "ticketsReassigned", ticketsReassigned,
+                            "repliesReassigned", repliesReassigned),
+                    "Staff deleted and records reassigned");
 
             log.info("User deleted: {} → {} (Sales: {}, Tickets: {}, Replies: {})", 
                 userToDelete.getUsername(), reassignTo.getUsername(),
@@ -420,5 +574,18 @@ public class StaffController {
         }
 
         return "redirect:/staff";
+    }
+
+    private Map<String, Object> snapshotStaff(User user) {
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("id", user.getId());
+        snapshot.put("name", user.getName());
+        snapshot.put("username", user.getUsername());
+        snapshot.put("phone", user.getPhone());
+        snapshot.put("role", user.getRole() != null ? user.getRole().name() : null);
+        snapshot.put("active", user.isActive());
+        snapshot.put("approved", user.isApproved());
+        snapshot.put("shopId", user.getShop() != null ? user.getShop().getId() : null);
+        return snapshot;
     }
 }

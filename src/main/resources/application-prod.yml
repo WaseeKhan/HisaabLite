@@ -35,11 +35,15 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: INFO
+
+management:
+  endpoint:
+    health:
+      show-details: when_authorized
       
 server:
   error:
     whitelabel:
       enabled: false
   port: ${PORT:8080}
-
 

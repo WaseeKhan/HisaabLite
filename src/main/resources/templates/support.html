@@ -113,11 +113,11 @@
                                 <h3><i class="fas fa-phone-alt"></i> Contact Support</h3>
                                 <div class="contact-item">
                                     <i class="fas fa-envelope"></i>
-                                    <div><div>Email</div><div>support@hisaablite.com</div></div>
+                                    <div><div>Email</div><div th:text="${supportEmail}">support@hisaablite.com</div></div>
                                 </div>
                                 <div class="contact-item">
                                     <i class="fas fa-phone"></i>
-                                    <div><div>Phone</div><div>+91 98765 43210</div><div>Mon-Fri, 10AM - 6PM</div></div>
+                                    <div><div>Phone</div><div th:text="${formattedSupportPhone}">+91 98765 43210</div><div>Mon-Fri, 10AM - 6PM</div></div>
                                 </div>
                                 <div class="contact-item">
                                     <i class="fas fa-clock"></i>
@@ -125,7 +125,7 @@
                                 </div>
                                 <div class="contact-item">
                                     <i class="fab fa-whatsapp" style="color: #25D366;"></i>
-                                    <div><div>WhatsApp</div><div>+91 98765 43210</div><div>Quick support</div></div>
+                                    <div><div>WhatsApp</div><div th:text="${formattedSupportPhone}">+91 98765 43210</div><div>Quick support</div></div>
                                 </div>
                             </div>
                         </div>
@@ -171,12 +171,19 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" hidden>
+        <i id="toastIcon" class="fas fa-circle-check"></i>
+        <span id="toastMessage">Done</span>
+        <button type="button" class="toast-close" onclick="hideToast()">×</button>
+    </div>
 
     <script>
         function openTicketModal() {
             const modal = document.getElementById('ticketModal');
-            if (modal) modal.style.display = 'flex';
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => modal.querySelector('input[name="subject"]')?.focus(), 40);
+            }
         }
 
         function closeTicketModal() {
@@ -238,19 +245,46 @@
         }
 
         var successMessage = /*[[${success}]]*/ null;
-        if (successMessage && successMessage !== 'null') showToast(successMessage);
+        var errorMessage = /*[[${error}]]*/ null;
 
-        function showToast(message) {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             if (toast) {
-                toast.textContent = message;
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 5000);
+                const icon = document.getElementById('toastIcon');
+                const text = document.getElementById('toastMessage');
+                toast.className = 'toast ' + type;
+                if (icon) {
+                    icon.className = 'fas ' + (type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check');
+                }
+                if (text) {
+                    text.textContent = message;
+                }
+                toast.hidden = false;
+                toast.style.display = 'flex';
+                clearTimeout(window.supportToastTimer);
+                window.supportToastTimer = setTimeout(hideToast, 4200);
             }
         }
 
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.style.display = 'none';
+                toast.hidden = true;
+            }
+        }
+
+        if (successMessage && successMessage !== 'null') showToast(successMessage, 'success');
+        if (errorMessage && errorMessage !== 'null') showToast(errorMessage, 'error');
+
         document.getElementById('searchInput')?.addEventListener('input', function() {
             if (this.value === '') searchFAQ();
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTicketModal();
+            }
         });
     </script>
 

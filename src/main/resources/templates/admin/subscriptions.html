@@ -568,6 +568,10 @@
                 
                <i class="fas fa-headset"></i>  <span> Support </span>
             </a>
+            <a th:href="@{/admin/audit}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Audit Logs</span>
+            </a>
         </div>
 
         <div class="quick-actions">
@@ -587,6 +591,7 @@
         </div>
 
         <form th:action="@{/admin/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <button type="submit" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout

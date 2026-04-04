@@ -10,9 +10,9 @@
 }
 
 .staff-stat-card {
-    background: white;
-    border-radius: 20px;
-    border: 1px solid #edf2f7;
+    background: var(--shop-surface);
+    border-radius: var(--shop-radius-xl);
+    border: 1px solid var(--shop-panel-border);
     padding: 16px 20px;
     display: flex;
     align-items: center;
@@ -22,7 +22,7 @@
 
 .staff-stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shop-shadow-sm);
 }
 
 .staff-stat-icon {
@@ -84,26 +84,29 @@
 
 .staff-search-input {
     width: 100%;
+    min-height: var(--shop-input-height);
     padding: 10px 14px 10px 40px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 40px;
+    border: 1.5px solid #dbe2ea;
+    border-radius: 14px;
     font-size: 0.85rem;
     font-family: 'Inter', sans-serif;
     transition: all 0.2s;
-    background: white;
+    background: var(--shop-surface-soft);
 }
 
 .staff-search-input:focus {
     border-color: #2563eb;
     outline: none;
+    background: white;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .staff-add-button {
     background: #2563eb;
     color: white;
+    min-height: var(--shop-input-height);
     padding: 10px 24px;
-    border-radius: 40px;
+    border-radius: 14px;
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
@@ -122,11 +125,12 @@
 
 /* Table Container */
 .staff-table-container {
-    background: white;
-    border-radius: 20px;
-    border: 1px solid #edf2f7;
+    background: var(--shop-surface);
+    border-radius: var(--shop-radius-xl);
+    border: 1px solid var(--shop-panel-border);
     overflow-x: auto;
     margin-bottom: 24px;
+    box-shadow: var(--shop-shadow-sm);
 }
 
 .staff-table {
@@ -155,7 +159,7 @@
 }
 
 .staff-table tr:hover {
-    background: #fafcff;
+    background: #f8fbff;
 }
 
 /* Staff Name Cell */
@@ -256,7 +260,7 @@
 }
 
 .staff-actions-trigger {
-    background: #f1f5f9;
+    background: #f8fafc;
     border: none;
     width: 32px;
     height: 32px;
@@ -417,6 +421,106 @@
     font-size: 1.2rem;
     cursor: pointer;
     color: inherit;
+}
+
+.staff-floating-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 2300;
+    min-width: 280px;
+    max-width: 360px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
+    transform: translateY(12px);
+    opacity: 0;
+    transition: all 0.18s ease;
+}
+
+.staff-floating-toast[hidden] {
+    display: none !important;
+}
+
+.staff-floating-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.staff-floating-toast.success {
+    background: #059669;
+}
+
+.staff-floating-toast.error {
+    background: #dc2626;
+}
+
+.staff-floating-toast.warning {
+    background: #d97706;
+}
+
+.staff-confirm-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 2200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.staff-confirm-modal[hidden] {
+    display: none !important;
+}
+
+.staff-confirm-card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e7edf5;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
+    padding: 28px;
+    text-align: center;
+}
+
+.staff-confirm-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 14px;
+    border-radius: 18px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.staff-confirm-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.staff-confirm-card p {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.55;
+    margin-bottom: 20px;
+}
+
+.staff-confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
 }
 
 /* Modal */

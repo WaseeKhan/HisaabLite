@@ -9,13 +9,14 @@
 }
 
 .sales-stat-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--shop-surface);
+    border-radius: var(--shop-radius-lg);
     padding: 12px 16px;
-    border: 1px solid #edf2f7;
+    border: 1px solid var(--shop-panel-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-shadow: var(--shop-shadow-sm);
 }
 
 .sales-stat-info h4 {
@@ -46,15 +47,16 @@
 
 /* Search & Filter Bar */
 .sales-search-filter {
-    background: white;
-    border-radius: 12px;
+    background: var(--shop-surface);
+    border-radius: var(--shop-radius-lg);
     padding: 12px 16px;
-    border: 1px solid #edf2f7;
+    border: 1px solid var(--shop-panel-border);
     margin-bottom: 20px;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
+    box-shadow: var(--shop-shadow-sm);
 }
 
 .sales-search-wrapper {
@@ -65,15 +67,19 @@
 
 .sales-search-input {
     width: 100%;
+    height: var(--shop-input-height);
     padding: 8px 12px 8px 36px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
     font-size: 13px;
+    background: var(--shop-surface-soft);
 }
 
 .sales-search-input:focus {
     outline: none;
     border-color: #2563eb;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .sales-search-icon {
@@ -102,11 +108,12 @@
 }
 
 .sales-filter-select {
+    min-height: var(--shop-input-height);
     padding: 7px 28px 7px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
     font-size: 12px;
-    background: white;
+    background: var(--shop-surface-soft);
     cursor: pointer;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -116,10 +123,10 @@
 }
 
 .sales-clear-filters {
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    padding: 6px 12px;
-    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #dbe2ea;
+    padding: 9px 14px;
+    border-radius: 12px;
     font-size: 12px;
     cursor: pointer;
     display: flex;
@@ -133,11 +140,12 @@
 
 /* Sales Card */
 .sales-card {
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #edf2f7;
+    background: var(--shop-surface);
+    border-radius: var(--shop-radius-xl);
+    border: 1px solid var(--shop-panel-border);
     padding: 16px;
     margin-bottom: 20px;
+    box-shadow: var(--shop-shadow-sm);
 }
 
 /* Table */
@@ -168,7 +176,7 @@
 }
 
 .sales-table tr:hover td {
-    background: #f8fafc;
+    background: #f8fbff;
 }
 
 .invoice-number {
@@ -209,13 +217,15 @@
     gap: 6px;
 }
 
-.sales-btn-view, .sales-btn-cancel, .sales-btn-cancelled {
-    width: 28px;
-    height: 28px;
+.sales-btn-view,
+.sales-btn-cancel,
+.sales-btn-cancelled {
+    width: 30px;
+    height: 30px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 12px;
 }
@@ -331,6 +341,7 @@
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -342,20 +353,20 @@
     .sales-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .sales-search-filter {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .sales-filters {
         justify-content: space-between;
     }
-    
+
     .sales-filter-select {
         flex: 1;
     }
-    
+
     .sales-table th:nth-child(2),
     .sales-table td:nth-child(2) {
         min-width: 140px;
@@ -366,158 +377,165 @@
 
 
 
-        /* Additional styles for action buttons */
-        .sales-action-buttons {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        
-        .sales-btn-pdf, .sales-btn-whatsapp {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: none;
-            background: #f1f5f9;
-            color: #475569;
-        }
-        
-        .sales-btn-pdf:hover {
-            background: #fee2e2;
-            color: #dc2626;
-            transform: translateY(-2px);
-        }
-        
-        .sales-btn-whatsapp:hover {
-            background: #d1fae5;
-            color: #25D366;
-            transform: translateY(-2px);
-        }
-        
-        /* WhatsApp Modal Styles */
-        .whatsapp-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 10000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .whatsapp-modal-content {
-            background: white;
-            width: 400px;
-            max-width: 90%;
-            border-radius: 24px;
-            padding: 28px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            animation: modalPop 0.2s ease-out;
-        }
-        
-        @keyframes modalPop {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        .whatsapp-modal-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .whatsapp-modal-header h3 {
-            margin: 0;
-            font-size: 18px;
-            color: #0f172a;
-        }
-        
-        .whatsapp-modal-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-bottom: 12px;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .whatsapp-modal-input:focus {
-            border-color: #25D366;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
-        }
-        
-        .whatsapp-modal-note {
-            font-size: 12px;
-            color: #64748b;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: center;
-        }
-        
-        .whatsapp-modal-actions {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .whatsapp-modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .whatsapp-modal-btn-cancel {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        
-        .whatsapp-modal-btn-cancel:hover {
-            background: #e2e8f0;
-        }
-        
-        .whatsapp-modal-btn-send {
-            background: #25D366;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .whatsapp-modal-btn-send:hover {
-            background: #1da15b;
-            transform: translateY(-2px);
-        }
-        
-        .sales-toast {
-            display: none;
-        }
+/* Additional styles for action buttons */
+.sales-action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.sales-btn-pdf,
+.sales-btn-whatsapp {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.sales-btn-pdf:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    transform: translateY(-2px);
+}
+
+.sales-btn-whatsapp:hover {
+    background: #d1fae5;
+    color: #25D366;
+    transform: translateY(-2px);
+}
+
+/* WhatsApp Modal Styles */
+.whatsapp-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.whatsapp-modal-content {
+    background: white;
+    width: 400px;
+    max-width: 90%;
+    border-radius: 24px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.whatsapp-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.whatsapp-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #0f172a;
+}
+
+.whatsapp-modal-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+.whatsapp-modal-input:focus {
+    border-color: #25D366;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+}
+
+.whatsapp-modal-note {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+.whatsapp-modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.whatsapp-modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.whatsapp-modal-btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.whatsapp-modal-btn-cancel:hover {
+    background: #e2e8f0;
+}
+
+.whatsapp-modal-btn-send {
+    background: #25D366;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.whatsapp-modal-btn-send:hover {
+    background: #1da15b;
+    transform: translateY(-2px);
+}
+
+.sales-toast {
+    display: none;
+}
+
+.sales-btn-print {
+    background: #f4f8f6;
+    color: rgb(100, 179, 130);
+}

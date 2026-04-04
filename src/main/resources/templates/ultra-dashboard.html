@@ -239,7 +239,7 @@
                             <a href="/products" class="view-all">View all →</a>
                         </div>
                         <div class="top-products-list">
-                            <div th:if="${not #lists.isEmpty(topProducts)}" th:each="product : ${topProducts}"
+                            <div th:if="${not #lists.isEmpty(topProducts)}" th:each="product, productStat : ${topProducts}"
                                 th:with="index=${productStat.index}" class="top-product-item">
                                 <div class="product-rank" th:text="${index + 1}">1</div>
                                 <div class="product-info">
@@ -426,7 +426,7 @@
                                     </div>
                                     <div class="detail-content">
                                         <div class="detail-label">GST Number</div>
-                                        <div class="detail-value" th:text="${shop.gstNumber} ?: 'Not Added'">27ABCDE1234F1Z5</div>
+                                        <div class="detail-value" th:text="${shop.gstNumber != null and !#strings.isEmpty(shop.gstNumber) ? shop.gstNumber : 'Not Added'}">27ABCDE1234F1Z5</div>
                                     </div>
                                 </div>
                             </div>

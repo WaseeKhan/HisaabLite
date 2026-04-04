@@ -7,9 +7,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
+import com.hisaablite.security.AuthAuditHelper;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,11 +26,31 @@ import lombok.extern.slf4j.Slf4j;
 @Order(1)
 public class AdminSecurityConfig {
 
+    private final AuthAuditHelper authAuditHelper;
+
     @Bean
     public AuthenticationSuccessHandler adminAuthenticationSuccessHandler() {
         return (request, response, authentication) -> {
             log.info("🔐 Admin logged in: {}", authentication.getName());
+            authAuditHelper.logLoginSuccess(authentication, request);
             response.sendRedirect("/admin/dashboard");
+        };
+    }
+
+    @Bean
+    public AuthenticationFailureHandler adminAuthenticationFailureHandler() {
+        return (request, response, exception) -> {
+            authAuditHelper.logLoginFailure(request.getParameter("username"), exception.getMessage(), request);
+            response.sendRedirect("/admin/login?error=true");
+        };
+    }
+
+    @Bean
+    public LogoutSuccessHandler adminLogoutSuccessHandler() {
+        return (request, response, authentication) -> {
+            authAuditHelper.logLogout(authentication, request, "ADMIN_LOGOUT");
+            response.setStatus(HttpServletResponse.SC_FOUND);
+            response.sendRedirect("/admin/login?logout=true");
         };
     }
 
@@ -37,6 +63,8 @@ public class AdminSecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(
                                 "/admin/login",
+                                "/admin/access-denied",
+                                "/admin/404",
                                 "/admin/css/**",
                                 "/admin/js/**",
                                 "/admin/images/**")
@@ -48,11 +76,16 @@ public class AdminSecurityConfig {
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(adminAuthenticationSuccessHandler())
-                        .failureUrl("/admin/login?error=true")
+                        .failureHandler(adminAuthenticationFailureHandler())
                         .permitAll())
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/admin/logout"))
-                        .logoutSuccessUrl("/admin/login?logout=true")
+                        .logoutUrl("/admin/logout")
+                        .logoutSuccessHandler(adminLogoutSuccessHandler())
+                        .addLogoutHandler(new HeaderWriterLogoutHandler(
+                                new ClearSiteDataHeaderWriter(
+                                        ClearSiteDataHeaderWriter.Directive.CACHE,
+                                        ClearSiteDataHeaderWriter.Directive.COOKIES,
+                                        ClearSiteDataHeaderWriter.Directive.STORAGE)))
                         .deleteCookies("JSESSIONID")
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)

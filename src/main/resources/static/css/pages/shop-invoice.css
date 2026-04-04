@@ -77,7 +77,12 @@ body {
 }
 
 .invoice-badge {
-    text-align: right;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 220px;
 }
 
 .invoice-badge .label {
@@ -93,9 +98,16 @@ body {
     font-weight: 700;
     color: #0f172a;
     background: #f1f5f9;
-    padding: 5px 14px;
+    padding: 7px 16px;
     border-radius: 40px;
     display: inline-block;
+    letter-spacing: -0.02em;
+}
+
+.invoice-date {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
 }
 
 /* ===== INFO GRID ===== */
@@ -464,6 +476,8 @@ body {
 .print-actions {
     display: flex;
     gap: 10px;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn {

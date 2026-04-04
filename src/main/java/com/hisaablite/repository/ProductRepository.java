@@ -3,9 +3,12 @@ package com.hisaablite.repository;
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Shop;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -35,6 +38,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByShopAndNameIgnoreCaseContaining(Shop shop, String name);
 
     Optional<Product> findByIdAndShop(Long id, Shop shop);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.id = :id AND p.shop = :shop")
+    Optional<Product> findByIdAndShopForUpdate(@Param("id") Long id, @Param("shop") Shop shop);
+
+    @Modifying
+    @Query("UPDATE Product p SET p.version = 0 WHERE p.id = :id AND p.version IS NULL")
+    int initializeVersionIfMissing(@Param("id") Long id);
 
       @Query("SELECT COUNT(p) FROM Product p WHERE p.shop = :shop")
     long countByShop(@Param("shop") Shop shop);

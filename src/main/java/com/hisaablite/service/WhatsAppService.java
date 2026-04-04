@@ -86,7 +86,7 @@ public class WhatsAppService {
     }
 
     /**
-     * Send invoice with PDF download link using shop's WhatsApp instance
+     * Send invoice as generated PDF attachment using shop's WhatsApp instance
      */
     public boolean sendInvoiceWithPdf(Sale sale, String customerPhone) {
         log.info("========== START sendInvoiceWithPdf ==========");
@@ -112,15 +112,32 @@ public class WhatsAppService {
 
         try {
             String formattedPhone = formatPhoneNumber(customerPhone);
+            String fileName = "invoice_" + sale.getId() + ".pdf";
+            String caption = String.format(
+                    "*HisaabLite Invoice*\n\n" +
+                            "Thank you for your purchase!\n\n" +
+                            "📄 *Invoice #%d*\n" +
+                            "🏪 *Shop:* %s\n" +
+                            "👤 *Customer:* %s\n" +
+                            "💰 *Total:* ₹%.2f\n\n" +
+                            "Please find your invoice attached.\n\n" +
+                            "_This is a system generated invoice._",
+                    sale.getId(),
+                    shop.getName(),
+                    sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in Customer",
+                    sale.getTotalAmount());
 
-            // Generate PDF (optional - for link)
-            log.info("Generating PDF for download link...");
+            log.info("Generating PDF attachment...");
             byte[] pdfBytes = pdfService.generateInvoicePdf(sale);
             log.info("PDF generated, size: {} bytes", pdfBytes.length);
 
-            String message = buildInvoiceMessage(sale);
-
-            boolean sent = sendMessage(instanceName, formattedPhone, message);
+            boolean sent = evolutionApiService.sendMediaMessage(
+                    instanceName,
+                    formattedPhone,
+                    caption,
+                    fileName,
+                    pdfBytes,
+                    "document");
 
             log.info("Message sent using instance {}: {}", instanceName, sent);
             log.info("========== END sendInvoiceWithPdf ==========");

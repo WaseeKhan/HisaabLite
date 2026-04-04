@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hisaablite;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+  mail:
+    host: localhost
+    port: 2525
+    username: test
+    password: test
+
+  task:
+    scheduling:
+      enabled: false
+
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    root: WARN
+
+management:
+  endpoints:
+    enabled-by-default: false
+
+admin:
+  email: admin@hisaablite.test
+  password: test-admin-password
+  name: Test Admin
+  phone: 9999999999
+
+app:
+  security:
+    enforce-single-session: false

@@ -9,7 +9,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Shop CSS -->
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
@@ -25,25 +24,55 @@
 <body class="shop-body">
 
     <div class="shop-layout">
-        <!-- Sidebar -->
         <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
         <div class="shop-main">
             <div class="shop-content-wrapper">
-
-                <!-- Header -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
-                <!-- Billing Layout -->
-                <div class="billing-container">
+                <div th:if="${error != null or whatsappSuccess != null or whatsappWarning != null or whatsappError != null}" class="billing-feedback-stack">
+                    <div th:if="${error != null}" class="billing-feedback billing-feedback-error" th:text="${error}">Billing error</div>
+                    <div th:if="${whatsappSuccess != null}" class="billing-feedback billing-feedback-success" th:text="${whatsappSuccess}">WhatsApp success</div>
+                    <div th:if="${whatsappWarning != null}" class="billing-feedback billing-feedback-warning" th:text="${whatsappWarning}">WhatsApp warning</div>
+                    <div th:if="${whatsappError != null}" class="billing-feedback billing-feedback-error" th:text="${whatsappError}">WhatsApp error</div>
+                </div>
 
-                    <!-- LEFT PANEL -->
+                <div id="lastInvoiceBar" class="last-invoice-bar" hidden>
+                    <div class="last-invoice-info">
+                        <div class="last-invoice-label">
+                            <i class="fas fa-receipt"></i>
+                            <span>Last Invoice Ready</span>
+                        </div>
+                        <div class="last-invoice-meta">
+                            <strong id="lastInvoiceNumber">Invoice</strong>
+                            <span id="lastInvoiceHint">Thermal print or send this invoice anytime from this billing screen.</span>
+                        </div>
+                    </div>
+                    <div class="last-invoice-actions">
+                        <a id="lastInvoiceViewBtn" href="#" target="_blank" class="last-invoice-btn last-invoice-btn-secondary">
+                            <i class="fas fa-file-invoice"></i> View
+                        </a>
+                        <button type="button" id="lastInvoicePrintBtn" class="last-invoice-btn last-invoice-btn-primary">
+                            <i class="fas fa-print"></i> Thermal Print
+                        </button>
+                        <button type="button" id="lastInvoiceWhatsappBtn" class="last-invoice-btn last-invoice-btn-success">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                    </div>
+                </div>
+
+                <div class="billing-container">
                     <div class="billing-left">
-                        <!-- Product Search Section -->
                         <div class="product-search-section">
                             <div class="search-header">
-                                <i class="fas fa-barcode"></i>
-                                <span>Add Items</span>
+                                <div class="section-heading">
+                                    <i class="fas fa-barcode"></i>
+                                    <div>
+                                        <span>Add Items</span>
+                                        <small>Search product or scan barcode</small>
+                                    </div>
+                                </div>
+                                <span class="section-chip">Counter Ready</span>
                             </div>
 
                             <div class="search-container">
@@ -51,11 +80,8 @@
                                     <i class="fas fa-search search-icon"></i>
                                     <input type="text" id="searchInput" class="search-input"
                                         placeholder="Search by name or scan barcode..." autocomplete="off">
-                                        
                                     <div id="searchResults" class="search-results-dropdown"></div>
                                 </div>
-
-                                
 
                                 <div class="quantity-section">
                                     <div class="quantity-field">
@@ -70,11 +96,17 @@
                         </div>
 
                         <form id="billingForm" th:action="@{/sales/complete}" method="post">
-                            <!-- Customer Section -->
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
                             <div class="customer-section">
                                 <div class="section-title">
-                                    <i class="fas fa-user-circle"></i>
-                                    <span>Customer Information</span>
+                                    <div class="section-heading">
+                                        <i class="fas fa-user-circle"></i>
+                                        <div>
+                                            <span>Customer Information</span>
+                                            <small>Optional, helpful for invoice sharing</small>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="customer-fields">
                                     <div class="field-group">
@@ -85,18 +117,20 @@
                                     <div class="field-group">
                                         <label>Phone</label>
                                         <input type="text" name="customerPhone" placeholder="9876543210"
-                                            class="customer-input">
+                                            inputmode="numeric" maxlength="10" class="customer-input">
                                     </div>
                                 </div>
                             </div>
-                            
-                            <br>
 
-                            <!-- Payment Section -->
                             <div class="payment-section">
                                 <div class="section-title">
-                                    <i class="fas fa-credit-card"></i>
-                                    <span>Payment Details</span>
+                                    <div class="section-heading">
+                                        <i class="fas fa-credit-card"></i>
+                                        <div>
+                                            <span>Payment Details</span>
+                                            <small>Complete the bill with full confidence</small>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="discount-row">
@@ -115,7 +149,7 @@
                                 <div class="payment-row">
                                     <div class="field-group">
                                         <label>Payment Mode</label>
-                                        <select name="paymentMode" class="payment-select">
+                                        <select id="paymentMode" name="paymentMode" class="payment-select">
                                             <option value="CASH">💵 Cash</option>
                                             <option value="UPI">📱 UPI</option>
                                             <option value="CARD">💳 Card</option>
@@ -131,7 +165,7 @@
                                 <input type="hidden" id="changeReturned" name="changeReturned">
 
                                 <div class="change-card">
-                                    <span><i class="fas fa-exchange-alt"></i> Change</span>
+                                    <span class="change-label"><i class="fas fa-exchange-alt"></i> Change</span>
                                     <span class="change-amount">₹ <span id="changeAmount">0.00</span></span>
                                 </div>
 
@@ -147,62 +181,66 @@
                         </form>
                     </div>
 
-                    
-<!-- RIGHT PANEL - Cart -->
-<div class="billing-right">
-    <div class="cart-header">
-        <div class="cart-title">
-            <i class="fas fa-shopping-cart"></i>
-            <h3>Current Cart</h3>
-        </div>
-        <span class="cart-badge" id="cartCount">0 items</span>
-    </div>
+                    <div class="billing-right">
+                        <div class="cart-header">
+                            <div class="cart-title">
+                                <div class="section-heading">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <div>
+                                        <h3>Current Cart</h3>
+                                        <small>Live bill items and totals</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="cart-badge" id="cartCount">0 items</span>
+                        </div>
 
-    <div class="cart-items-container" id="cartContainer">
-        <div class="empty-cart">
-            <i class="fas fa-shopping-basket"></i>
-            <p>Cart is empty</p>
-            <span>Add products to get started</span>
-        </div>
-    </div>
+                        <div class="cart-items-container" id="cartContainer">
+                            <div class="empty-cart">
+                                <i class="fas fa-shopping-basket"></i>
+                                <p>Cart is empty</p>
+                                <span>Add products to get started</span>
+                            </div>
+                        </div>
 
-    <div class="cart-summary">
-        <div class="summary-row">
-            <span>Base Amount</span>
-            <span>₹ <span id="subtotalAmount">0.00</span></span>
-        </div>
-        <div class="summary-row tax-row" id="cgstRow">
-            <span>CGST</span>
-            <span>₹ <span id="cgstAmount">0.00</span></span>
-        </div>
-        <div class="summary-row tax-row" id="sgstRow">
-            <span>SGST</span>
-            <span>₹ <span id="sgstAmount">0.00</span></span>
-        </div>
-        <div class="summary-row">
-            <span>Total Tax</span>
-            <span>₹ <span id="totalGstAmount">0.00</span></span>
-        </div>
-        <div class="summary-row discount-row" id="discountRow">
-            <span>Discount</span>
-            <span class="discount-value">- ₹ <span id="discountDisplay">0.00</span></span>
-        </div>
-        <div class="summary-row total-row">
-            <span>Total Payable Amount </span>
-            <span class="total-amount">₹ <span id="finalTotalAmount">0.00</span></span>
-        </div>
-    </div>
-</div>
+                        <div class="cart-summary">
+                            <div class="cart-summary-header">
+                                <span>Bill Summary</span>
+                                <small>Updated instantly as the cart changes</small>
+                            </div>
+                            <div class="summary-row">
+                                <span>Base Amount</span>
+                                <span>₹ <span id="subtotalAmount">0.00</span></span>
+                            </div>
+                            <div class="summary-row tax-row" id="cgstRow">
+                                <span>CGST</span>
+                                <span>₹ <span id="cgstAmount">0.00</span></span>
+                            </div>
+                            <div class="summary-row tax-row" id="sgstRow">
+                                <span>SGST</span>
+                                <span>₹ <span id="sgstAmount">0.00</span></span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Total Tax</span>
+                                <span>₹ <span id="totalGstAmount">0.00</span></span>
+                            </div>
+                            <div class="summary-row discount-row" id="discountRow">
+                                <span>Discount</span>
+                                <span class="discount-value">- ₹ <span id="discountDisplay">0.00</span></span>
+                            </div>
+                            <div class="summary-row total-row">
+                                <span>Total Payable Amount </span>
+                                <span class="total-amount">₹ <span id="finalTotalAmount">0.00</span></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
             </div>
 
-            <!-- Footer -->
             <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
-    <!-- Cancel Popup -->
     <div id="cancelPopup" class="popup-overlay">
         <div class="popup-card">
             <div class="popup-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -215,519 +253,37 @@
         </div>
     </div>
 
-    <!-- Success Toast -->
     <div id="successToast" class="toast">
         <div class="toast-content">
             <div class="toast-icon">✓</div>
             <div>
                 <strong>Sale completed!</strong><br>
-                <span>Redirecting to invoice...</span>
+                <span id="successToastMessage">Use F10 for thermal print or F9 to send on WhatsApp.</span>
             </div>
         </div>
-        <a id="invoiceBtn" href="#" target="_blank" class="invoice-link">View invoice →</a>
+        <div class="success-actions">
+            <a id="invoiceBtn" href="#" target="_blank" class="invoice-link">View invoice</a>
+            <button type="button" id="printInvoiceBtn" class="invoice-link invoice-link-button">Thermal print</button>
+            <button type="button" id="whatsappInvoiceBtn" class="invoice-link invoice-link-button">Send WhatsApp</button>
+        </div>
     </div>
 
-<script th:inline="javascript">
-    // ========== DOM Elements ==========
-    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
-    
-    const searchInput = document.getElementById("searchInput");
-    const qtyInput = document.getElementById("qtyInput");
-    const resultsBox = document.getElementById("searchResults");
-    const addBtn = document.getElementById("addBtn");
-    const cartContainer = document.getElementById("cartContainer");
-    
-    const amountReceived = document.getElementById("amountReceived");
-    const discountAmount = document.getElementById("discountAmount");
-    const discountPercent = document.getElementById("discountPercent");
-    
-    let suggestions = [];
-    let selectedIndex = -1;
-    let selectedProduct = null;
-    window.currentCart = [];
+    <div id="invoicePhoneModal" class="popup-overlay">
+        <div class="popup-card invoice-phone-card">
+            <div class="popup-icon"><i class="fab fa-whatsapp"></i></div>
+            <div class="popup-title">Send Invoice on WhatsApp</div>
+            <div class="popup-text">Enter the customer mobile number to send the latest invoice.</div>
+            <div class="invoice-phone-field">
+                <input type="text" id="invoicePhoneInput" inputmode="numeric" maxlength="10" placeholder="9876543210">
+            </div>
+            <div class="popup-actions">
+                <button class="popup-btn cancel" type="button" onclick="hideInvoicePhoneModal()">Cancel</button>
+                <button class="popup-btn confirm" type="button" id="invoicePhoneSendBtn">Send</button>
+            </div>
+        </div>
+    </div>
 
-    // ========== Helper Functions ==========
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function showTempToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = 'temp-toast';
-        toast.style.background = type === 'success' ? '#059669' : '#2563eb';
-        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i><span>${message}</span>`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
-    }
-
-    // ========== Popup Functions ==========
-    function showPopup() { 
-        const popup = document.getElementById('cancelPopup');
-        if (popup) popup.classList.add('show'); 
-    }
-    
-    function hidePopup() { 
-        const popup = document.getElementById('cancelPopup');
-        if (popup) popup.classList.remove('show'); 
-    }
-
-    function confirmCancel() {
-        hidePopup();
-        if (!csrfToken) { 
-            alert("CSRF token missing"); 
-            return; 
-        }
-        
-        const cancelBtn = document.querySelector('.btn-cancel');
-        if (!cancelBtn) {
-            alert("Cancel button not found");
-            return;
-        }
-        
-        const originalText = cancelBtn.innerHTML;
-        cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
-        cancelBtn.disabled = true;
-        
-        const formData = new URLSearchParams();
-        formData.append("_csrf", csrfToken);
-        
-        fetch("/sales/cancel", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
-        })
-        .then(res => { 
-            if (!res.ok) throw new Error("Cancel failed"); 
-            return res.json(); 
-        })
-        .then(cartData => {
-            if (typeof updateCartUI === 'function') {
-                updateCartUI(cartData);
-            }
-            
-            // Reset all form fields
-            const amountReceivedEl = document.getElementById('amountReceived');
-            if (amountReceivedEl) amountReceivedEl.value = '';
-            
-            const discountAmountEl = document.getElementById('discountAmount');
-            if (discountAmountEl) discountAmountEl.value = '0';
-            
-            const discountPercentEl = document.getElementById('discountPercent');
-            if (discountPercentEl) discountPercentEl.value = '0';
-            
-            const changeAmountEl = document.getElementById('changeAmount');
-            if (changeAmountEl) changeAmountEl.innerText = '0';
-            
-            const discountDisplayEl = document.getElementById('discountDisplay');
-            if (discountDisplayEl) discountDisplayEl.innerText = '0';
-            
-            const discountPercentDisplayEl = document.getElementById('discountPercentDisplay');
-            if (discountPercentDisplayEl) discountPercentDisplayEl.innerText = '0';
-            
-            const subtotalAmountEl = document.getElementById('subtotalAmount');
-            if (subtotalAmountEl) subtotalAmountEl.innerText = '0.00';
-            
-            const cgstAmountEl = document.getElementById('cgstAmount');
-            if (cgstAmountEl) cgstAmountEl.innerText = '0.00';
-            
-            const sgstAmountEl = document.getElementById('sgstAmount');
-            if (sgstAmountEl) sgstAmountEl.innerText = '0.00';
-            
-            const totalGstAmountEl = document.getElementById('totalGstAmount');
-            if (totalGstAmountEl) totalGstAmountEl.innerText = '0.00';
-            
-            const finalTotalAmountEl = document.getElementById('finalTotalAmount');
-            if (finalTotalAmountEl) finalTotalAmountEl.innerText = '0.00';
-            
-            const cartCountEl = document.getElementById('cartCount');
-            if (cartCountEl) cartCountEl.innerText = '0 items';
-            
-            const changeReturnedEl = document.getElementById('changeReturned');
-            if (changeReturnedEl) changeReturnedEl.value = '0';
-            
-            showTempToast('Sale cancelled successfully', 'info');
-        })
-        .catch(err => { 
-            console.error("Cancel error:", err); 
-            alert("Failed to cancel sale: " + err.message); 
-        })
-        .finally(() => { 
-            if (cancelBtn) {
-                cancelBtn.innerHTML = originalText; 
-                cancelBtn.disabled = false; 
-            }
-        });
-    }
-
-    // ========== Cart Calculations ==========
-    function calculateTotals() {
-        let subtotal = 0;
-        let totalCgst = 0;
-        let totalSgst = 0;
-        let totalGst = 0;
-        let totalWithTax = 0;
-        
-        const cart = window.currentCart || [];
-        
-        cart.forEach(item => {
-            const price = parseFloat(item.price || 0);
-            const quantity = parseInt(item.quantity || 0);
-            const productGstPercent = parseFloat(item.gstPercent || 0);
-            
-            const basePrice = price * quantity;
-            const productGstAmount = basePrice * (productGstPercent / 100);
-            const productCgst = productGstAmount / 2;
-            const productSgst = productGstAmount / 2;
-            
-            subtotal += basePrice;
-            totalCgst += productCgst;
-            totalSgst += productSgst;
-            totalGst += productGstAmount;
-            totalWithTax += basePrice + productGstAmount;
-        });
-        
-        // Update UI
-        const subtotalAmountEl = document.getElementById('subtotalAmount');
-        if (subtotalAmountEl) subtotalAmountEl.innerText = subtotal.toFixed(2);
-        
-        const cgstAmountEl = document.getElementById('cgstAmount');
-        if (cgstAmountEl) cgstAmountEl.innerText = totalCgst.toFixed(2);
-        
-        const sgstAmountEl = document.getElementById('sgstAmount');
-        if (sgstAmountEl) sgstAmountEl.innerText = totalSgst.toFixed(2);
-        
-        const totalGstAmountEl = document.getElementById('totalGstAmount');
-        if (totalGstAmountEl) totalGstAmountEl.innerText = totalGst.toFixed(2);
-        
-        return { subtotal, totalCgst, totalSgst, totalGst, totalWithTax };
-    }
-
-    function calculateChange() {
-        const { totalWithTax } = calculateTotals();
-        
-        const discAmt = parseFloat(discountAmount?.value) || 0;
-        const discPct = parseFloat(discountPercent?.value) || 0;
-        
-        let discount = discAmt;
-        if (discPct > 0) {
-            discount = (totalWithTax * discPct) / 100;
-        }
-        
-        const netPayable = totalWithTax - discount;
-        const received = parseFloat(amountReceived?.value) || 0;
-        const change = Math.max(0, received - netPayable);
-        
-        const changeAmountEl = document.getElementById('changeAmount');
-        if (changeAmountEl) changeAmountEl.innerText = change.toFixed(2);
-        
-        const changeReturnedEl = document.getElementById('changeReturned');
-        if (changeReturnedEl) changeReturnedEl.value = change.toFixed(2);
-        
-        const discountDisplayEl = document.getElementById('discountDisplay');
-        if (discountDisplayEl) discountDisplayEl.innerText = discount.toFixed(2);
-        
-        const discountPercentDisplayEl = document.getElementById('discountPercentDisplay');
-        if (discountPercentDisplayEl) discountPercentDisplayEl.innerText = discPct.toFixed(2);
-        
-        const finalTotalEl = document.getElementById('finalTotalAmount');
-        if (finalTotalEl) finalTotalEl.innerText = netPayable.toFixed(2);
-    }
-
-    // ========== Cart UI Update ==========
-    window.updateCartUI = function (cart) {
-        window.currentCart = cart || [];
-        if (!cartContainer) return;
-        
-        if (!cart || cart.length === 0) {
-            cartContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Cart is empty</p><span>Add products to get started</span></div>';
-            calculateTotals();
-            calculateChange();
-            const cartCountEl = document.getElementById('cartCount');
-            if (cartCountEl) cartCountEl.innerText = '0 items';
-            return;
-        }
-        
-        let html = '';
-        cart.forEach((item, idx) => {
-            const price = parseFloat(item.price || 0);
-            const quantity = parseInt(item.quantity || 0);
-            const productGstPercent = parseFloat(item.gstPercent || 0);
-            
-            const basePrice = price * quantity;
-            const productGstAmount = basePrice * (productGstPercent / 100);
-            const productCgst = productGstAmount / 2;
-            const productSgst = productGstAmount / 2;
-            const totalWithGst = basePrice + productGstAmount;
-            
-            let gstClass = 'gst-badge';
-            if (productGstPercent === 0) gstClass += ' gst-zero';
-            else if (productGstPercent <= 5) gstClass += ' gst-low';
-            else if (productGstPercent <= 12) gstClass += ' gst-medium';
-            else gstClass += ' gst-high';
-            
-            html += `
-                <div class="cart-item" data-index="${idx}">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">
-                            ${escapeHtml(item.productName)}
-                            <span class="${gstClass}">${productGstPercent}% GST</span>
-                        </div>
-                        <div class="cart-item-price">
-                            Base: ₹${price.toFixed(2)} × ${quantity} = ₹${basePrice.toFixed(2)}
-                        </div>
-                        <div class="cart-item-gst-breakdown">
-                            <span class="cgst"><i class="fas fa-building"></i> CGST: ₹${productCgst.toFixed(2)} (${(productGstPercent / 2).toFixed(1)}%)</span>
-                            <span class="sgst"><i class="fas fa-globe"></i> SGST: ₹${productSgst.toFixed(2)} (${(productGstPercent / 2).toFixed(1)}%)</span>
-                        </div>
-                    </div>
-                    <div class="cart-item-controls">
-                        <div class="cart-item-qty">
-                            <button class="qty-btn" onclick="window.changeQty(${idx}, -1)">-</button>
-                            <span>${quantity}</span>
-                            <button class="qty-btn" onclick="window.changeQty(${idx}, 1)">+</button>
-                        </div>
-                        <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
-                        <button class="cart-item-remove" onclick="window.removeItem(${idx})">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        
-        cartContainer.innerHTML = html;
-        const cartCountEl = document.getElementById('cartCount');
-        if (cartCountEl) cartCountEl.innerText = cart.length + ' items';
-        calculateTotals();
-        calculateChange();
-    };
-
-    // ========== Quantity Functions ==========
-    window.changeQty = function (index, change) {
-        if (!csrfToken) return;
-        
-        const currentItem = window.currentCart[index];
-        if (!currentItem) return;
-        
-        const newQuantity = (currentItem.quantity || 0) + change;
-        if (newQuantity < 1) return;
-        
-        const formData = new URLSearchParams();
-        formData.append("_csrf", csrfToken);
-        formData.append("index", index);
-        formData.append("change", change);
-        
-        fetch("/sales/update-qty", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
-        })
-        .then(async res => {
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text);
-            }
-            return res.json();
-        })
-        .then(cartData => {
-            updateCartUI(cartData);
-        })
-        .catch(err => {
-            console.error("Qty update error:", err);
-            alert("Failed to update quantity");
-        });
-    };
-
-    window.removeItem = function (index) {
-        if (!csrfToken) return;
-        
-        const formData = new URLSearchParams();
-        formData.append("_csrf", csrfToken);
-        formData.append("index", index);
-        formData.append("change", -9999);
-        
-        fetch("/sales/update-qty", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
-        })
-        .then(res => res.ok ? res.json() : Promise.reject())
-        .then(cartData => {
-            updateCartUI(cartData);
-        })
-        .catch(err => alert("Failed to remove item"));
-    };
-
-    // ========== Add Product ==========
-    function addProduct() {
-        if (!selectedProduct) { 
-            alert("Please select a product first"); 
-            return; 
-        }
-        if (!csrfToken) { 
-            alert("CSRF token missing - refresh the page"); 
-            return; 
-        }
-        
-        const quantity = parseInt(qtyInput?.value) || 1;
-        
-        const formData = new URLSearchParams();
-        formData.append("_csrf", csrfToken);
-        formData.append("productId", selectedProduct.id);
-        formData.append("quantity", quantity);
-        
-        fetch("/sales/add", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
-        })
-        .then(async res => {
-            if (!res.ok) { 
-                const text = await res.text(); 
-                throw new Error(text.substring(0, 100)); 
-            }
-            return res.json();
-        })
-        .then(cartData => {
-            updateCartUI(cartData);
-            if (searchInput) searchInput.value = "";
-            if (qtyInput) qtyInput.value = "1";
-            selectedProduct = null;
-            selectedIndex = -1;
-            if (searchInput) searchInput.focus();
-        })
-        .catch(err => { 
-            console.error("Add error:", err); 
-            alert("Failed to add product: " + err.message); 
-        });
-    }
-
-    // ========== Search Functionality with Improved Display ==========
-    if (searchInput) {
-        searchInput.addEventListener("input", function () {
-            const keyword = this.value.trim();
-            if (keyword.length < 1) { 
-                if (resultsBox) resultsBox.innerHTML = ""; 
-                return; 
-            }
-            
-            fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
-                headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
-            })
-            .then(res => res.ok ? res.json() : Promise.reject("Search failed"))
-            .then(data => {
-                suggestions = data;
-                selectedIndex = -1;
-                if (resultsBox) resultsBox.innerHTML = "";
-                
-                data.forEach((p, i) => {
-                    const div = document.createElement("div");
-                    div.className = "suggestion-item";
-                    
-                    // Get GST class based on percentage
-                    let gstClass = '';
-                    if (p.gstPercent === 0) gstClass = 'gst-zero';
-                    else if (p.gstPercent <= 5) gstClass = 'gst-low';
-                    else if (p.gstPercent <= 12) gstClass = 'gst-medium';
-                    else gstClass = 'gst-high';
-                    
-                    div.innerHTML = `
-                        <div class="suggestion-name"> ${escapeHtml(p.name)}</div>
-                        <div class="suggestion-details">
-                            <span class="suggestion-price">₹${p.price}</span> &nbsp;
-                            <span class="suggestion-stock"><i class="fas fa-box"></i> ${p.stockQuantity || 0}</span> &nbsp;
-                            <span class="suggestion-gst ${gstClass}"> ${p.gstPercent || 0}% GST</span>
-                        </div>
-                    `;
-                    
-                    div.onclick = () => {
-                        selectedIndex = i;
-                        selectedProduct = p;
-                        searchInput.value = p.name;
-                        if (resultsBox) resultsBox.innerHTML = "";
-                        if (qtyInput) { 
-                            qtyInput.focus(); 
-                            qtyInput.select(); 
-                        }
-                    };
-                    if (resultsBox) resultsBox.appendChild(div);
-                });
-            })
-            .catch(err => console.error("Search error:", err));
-        });
-
-        searchInput.addEventListener("keydown", function (e) {
-            const items = document.querySelectorAll(".suggestion-item");
-            if (e.key === "ArrowDown") {
-                e.preventDefault();
-                if (items.length) {
-                    selectedIndex = (selectedIndex + 1) % items.length;
-                    items.forEach((el, i) => el.classList.toggle("active", i === selectedIndex));
-                    items[selectedIndex]?.scrollIntoView({ block: "nearest" });
-                }
-            } else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                if (items.length) {
-                    selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                    items.forEach((el, i) => el.classList.toggle("active", i === selectedIndex));
-                    items[selectedIndex]?.scrollIntoView({ block: "nearest" });
-                }
-            } else if (e.key === "Enter" && selectedIndex >= 0 && suggestions[selectedIndex]) {
-                e.preventDefault();
-                selectedProduct = suggestions[selectedIndex];
-                searchInput.value = selectedProduct.name;
-                if (resultsBox) resultsBox.innerHTML = "";
-                if (qtyInput) { 
-                    qtyInput.focus(); 
-                    qtyInput.select(); 
-                }
-            }
-        });
-    }
-
-    // ========== Event Listeners ==========
-    if (amountReceived) amountReceived.addEventListener("input", calculateChange);
-    if (discountAmount) discountAmount.addEventListener("input", calculateChange);
-    if (discountPercent) discountPercent.addEventListener("input", calculateChange);
-    
-    if (addBtn) addBtn.addEventListener("click", addProduct);
-    if (qtyInput) {
-        qtyInput.addEventListener("keydown", e => { 
-            if (e.key === "Enter") { 
-                e.preventDefault(); 
-                addProduct(); 
-            } 
-        });
-    }
-
-    // ========== Initial Load ==========
-    const initialCart = /*[[${cart}]]*/[];
-    if (initialCart && initialCart.length) {
-        updateCartUI(initialCart);
-    } else {
-        updateCartUI([]);
-    }
-
-    // ========== Toast on Success ==========
-    window.onload = function () {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("saved") === "true") {
-            const toast = document.getElementById("successToast");
-            const invoiceId = params.get("invoiceId");
-            const btn = document.getElementById("invoiceBtn");
-            if (btn && invoiceId) btn.href = "/sales/invoice/" + invoiceId;
-            if (toast) { 
-                toast.classList.add("show"); 
-                setTimeout(() => toast.classList.remove("show"), 5000); 
-            }
-        }
-    };
-</script>
-
+    <script src="/js/billing.js"></script>
 </body>
 
 </html>

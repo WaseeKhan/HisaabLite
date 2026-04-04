@@ -37,13 +37,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-     @Column(nullable = false)
+    @Builder.Default
+    @Column(nullable = false)
     private boolean approved = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean active = false;
 
-     @Column(name = "created_at")
+    @Builder.Default
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
     
      @Column(name = "updated_at")

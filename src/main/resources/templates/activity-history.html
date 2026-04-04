@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Activity History • HisaabLite</title>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <style>
+        .activity-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .activity-hero,
+        .activity-panel,
+        .activity-stat {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .activity-hero {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hero-copy h1 {
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-copy p {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid #dbeafe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .activity-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .activity-stat {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.total {
+            background: #eef6ff;
+            color: #2563eb;
+        }
+
+        .stat-icon.failed {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .stat-icon.recent {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .activity-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2.2fr) minmax(280px, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .activity-panel {
+            padding: 18px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .panel-header h2 {
+            margin: 0 0 4px;
+            font-size: 17px;
+            color: #0f172a;
+        }
+
+        .panel-header p {
+            margin: 0;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .panel-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .filters select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dbe2ea;
+            border-radius: 12px;
+            background: #fff;
+            color: #0f172a;
+            font-size: 13px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #0f766e;
+            color: #fff;
+        }
+
+        .btn-light {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .table-shell {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eef2f7;
+            text-align: left;
+            vertical-align: top;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .meta-text {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-failed {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-muted {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .details-block {
+            max-width: 320px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .empty-state,
+        .error-box {
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            background: #f8fafc;
+            color: #475569;
+            text-align: center;
+            border: 1px dashed #dbe2ea;
+        }
+
+        .error-box {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .summary-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .summary-item {
+            padding: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+        }
+
+        .summary-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 8px 0;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            gap: 12px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pagination a {
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: #eef2ff;
+            color: #312e81;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1080px) {
+            .activity-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .activity-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .activity-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body class="shop-body">
+<div class="shop-layout">
+    <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+
+    <div class="shop-main">
+        <div class="shop-content-wrapper">
+            <div th:replace="~{fragments/shop-header :: header}"></div>
+
+            <div class="activity-grid">
+                <section class="activity-hero">
+                    <div class="hero-copy">
+                        <h1><i class="fas fa-clipboard-list"></i> Activity History</h1>
+                        <p>Review product, staff, profile, and billing changes for your shop in one place.</p>
+                    </div>
+                    <div class="hero-chip">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Auto-tracked shop activity</span>
+                    </div>
+                </section>
+
+                <div th:if="${error}" class="error-box" th:text="${error}">Could not load activity history.</div>
+
+                <div class="activity-stats">
+                    <div class="activity-stat">
+                        <div class="stat-icon total"><i class="fas fa-stream"></i></div>
+                        <div>
+                            <div class="stat-label">Total Events</div>
+                            <div class="stat-value" th:text="${totalAuditLogs}">0</div>
+                        </div>
+                    </div>
+                    <div class="activity-stat">
+                        <div class="stat-icon failed"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div>
+                            <div class="stat-label">Failed Events</div>
+                            <div class="stat-value" th:text="${failedAuditLogs}">0</div>
+                        </div>
+                    </div>
+                    <div class="activity-stat">
+                        <div class="stat-icon recent"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <div class="stat-label">Last 24 Hours</div>
+                            <div class="stat-value" th:text="${recentAuditLogs}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-layout">
+                    <section class="activity-panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>Shop Activity Feed</h2>
+                                <p>See who changed what and whether the action worked successfully.</p>
+                            </div>
+                            <div class="panel-badge"><i class="fas fa-filter"></i> Filter activity</div>
+                        </div>
+
+                        <form method="get" th:action="@{/activity}" class="filters">
+                            <select name="username">
+                                <option value="">All team members</option>
+                                <option th:each="userValue : ${availableUsers}"
+                                        th:value="${userValue}"
+                                        th:text="${userValue}"
+                                        th:selected="${userValue == username}"></option>
+                            </select>
+                            <select name="action">
+                                <option value="">All actions</option>
+                                <option th:each="actionValue : ${availableActions}"
+                                        th:value="${actionValue}"
+                                        th:text="${actionValue}"
+                                        th:selected="${actionValue == selectedAction}"></option>
+                            </select>
+                            <select name="status">
+                                <option value="">All statuses</option>
+                                <option value="SUCCESS" th:selected="${selectedStatus == 'SUCCESS'}">SUCCESS</option>
+                                <option value="FAILED" th:selected="${selectedStatus == 'FAILED'}">FAILED</option>
+                            </select>
+                            <div class="filter-actions">
+                                <input type="hidden" name="page" value="0">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                                <a th:href="@{/activity}" class="btn btn-light">Reset</a>
+                            </div>
+                        </form>
+
+                        <div th:if="${auditLogs.empty}" class="empty-state">
+                            No activity matched your filters.
+                        </div>
+
+                        <div th:unless="${auditLogs.empty}" class="table-shell">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>When</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Status</th>
+                                        <th>Entity</th>
+                                        <th>Details</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="logEntry : ${auditLogs.content}">
+                                        <td th:text="${#temporals.format(logEntry.timestamp, 'dd MMM yyyy, hh:mm a')}">01 Apr 2026, 02:30 PM</td>
+                                        <td>
+                                            <div th:text="${logEntry.username}">owner@example.com</div>
+                                            <div class="meta-text" th:text="${logEntry.userRole}">ROLE_OWNER</div>
+                                        </td>
+                                        <td><span class="badge badge-muted" th:text="${logEntry.action}">PRODUCT_UPDATED</span></td>
+                                        <td>
+                                            <span th:classappend="${logEntry.status == 'FAILED'} ? 'badge badge-failed' : 'badge badge-success'"
+                                                  th:text="${logEntry.status != null ? logEntry.status : 'SUCCESS'}">SUCCESS</span>
+                                        </td>
+                                        <td>
+                                            <div th:text="${logEntry.entityType != null ? logEntry.entityType : '-'}">Product</div>
+                                            <div class="meta-text"
+                                                 th:text="${logEntry.entityId != null ? 'ID: ' + logEntry.entityId : ''}"></div>
+                                        </td>
+                                        <td>
+                                            <div class="details-block" th:text="${logEntry.details != null ? logEntry.details : '-'}"></div>
+                                            <div class="details-block" th:if="${logEntry.newValue != null}" th:text="'New: ' + ${logEntry.newValue}"></div>
+                                            <div class="details-block" th:if="${logEntry.oldValue != null}" th:text="'Old: ' + ${logEntry.oldValue}"></div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div th:if="${auditLogs.totalPages > 1}" class="pagination">
+                            <div th:text="'Page ' + (${currentPageNumber} + 1) + ' of ' + ${totalPages}">Page 1 of 1</div>
+                            <div class="pagination-links">
+                                <a th:if="${currentPageNumber > 0}"
+                                   th:href="@{/activity(page=${currentPageNumber - 1},size=${pageSize},username=${username},action=${selectedAction},status=${selectedStatus})}">
+                                    Previous
+                                </a>
+                                <a th:if="${currentPageNumber < totalPages - 1}"
+                                   th:href="@{/activity(page=${currentPageNumber + 1},size=${pageSize},username=${username},action=${selectedAction},status=${selectedStatus})}">
+                                    Next
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside class="activity-panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>Quick Summary</h2>
+                                <p>Spot the most active actions and team members quickly.</p>
+                            </div>
+                        </div>
+
+                        <div class="summary-list">
+                            <div class="summary-item">
+                                <div class="summary-title">Top Actions</div>
+                                <div th:if="${#lists.isEmpty(actionSummary)}" style="color:#64748b; font-size:12px;">No action summary yet.</div>
+                                <div th:each="row : ${actionSummary}" class="summary-row">
+                                    <span th:text="${row[0]}">SALE_COMPLETED</span>
+                                    <strong th:text="${row[1]}">0</strong>
+                                </div>
+                            </div>
+
+                            <div class="summary-item">
+                                <div class="summary-title">Top Team Activity</div>
+                                <div th:if="${#lists.isEmpty(userActivitySummary)}" style="color:#64748b; font-size:12px;">No user activity yet.</div>
+                                <div th:each="row : ${userActivitySummary}" style="margin:10px 0;">
+                                    <div class="summary-row">
+                                        <span th:text="${row[0]}">owner@example.com</span>
+                                        <strong th:text="${row[1]}">0</strong>
+                                    </div>
+                                    <div class="meta-text"
+                                         th:text="'Last active: ' + ${#temporals.format(row[2], 'dd MMM, hh:mm a')}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/shop-footer :: footer}"></div>
+    </div>
+</div>
+</body>
+</html>

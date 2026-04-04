@@ -29,6 +29,12 @@ public class AuditLog {
     @Column(nullable = false)
     private String userRole;
 
+    @Column
+    private Long shopId;
+
+    @Column
+    private String shopName;
+
     @Column(nullable = false)
     private String action;
 

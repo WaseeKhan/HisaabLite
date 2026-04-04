@@ -479,7 +479,7 @@ public class PdfService {
 
         document.add(footer);
 
-        Paragraph website = new Paragraph("www.hisaablite.com")
+        Paragraph website = new Paragraph(getAppBaseUrl())
                 .setFontSize(6)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setFontColor(new DeviceRgb(148, 163, 184));
@@ -566,7 +566,7 @@ public class PdfService {
             return url;
         } catch (Exception e) {
             log.error("Could not get request URL", e);
-            return "www.hisaablite.com";
+            return "http://localhost:8080";
         }
     }
 }

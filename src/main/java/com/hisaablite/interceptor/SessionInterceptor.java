@@ -1,6 +1,7 @@
 package com.hisaablite.interceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
@@ -19,9 +20,16 @@ public class SessionInterceptor implements HandlerInterceptor {
     
     @Autowired
     private SessionRegistry sessionRegistry;
+
+    @Value("${app.security.enforce-single-session:true}")
+    private boolean enforceSingleSession;
     
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (!enforceSingleSession) {
+            return true;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication != null && authentication.isAuthenticated() 
@@ -31,6 +39,9 @@ public class SessionInterceptor implements HandlerInterceptor {
             Object principal = authentication.getPrincipal();
             
             java.util.List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+            if (sessions.isEmpty()) {
+                return true;
+            }
             
             boolean sessionValid = sessions.stream()
                 .anyMatch(s -> s.getSessionId().equals(currentSessionId) && !s.isExpired());
@@ -51,6 +62,10 @@ public class SessionInterceptor implements HandlerInterceptor {
     
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        if (!enforceSingleSession) {
+            return;
+        }
+
         // Add session info to model if view is being rendered
         if (modelAndView != null && !modelAndView.getViewName().startsWith("redirect:")) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

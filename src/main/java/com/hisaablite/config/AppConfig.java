@@ -10,10 +10,10 @@ public class AppConfig {
     @Value("${app.name:HisaabLite}")
     private String appName;
     
-    @Value("${app.version:2.0.0}")
+    @Value("${app.version:2.1.2}")
     private String appVersion;
     
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url:}")
     private String baseUrl;
     
     @Value("${app.env:development}")
@@ -23,7 +23,7 @@ public class AppConfig {
     @Value("${app.email.from:waseemk.aws@gmail.com}")
     private String fromEmail;
     
-    @Value("${app.email.support:waseemk.aws@gmail.com}")
+    @Value("${app.contact.supportEmail:${admin.email:admin@hisaablite.com}}")
     private String supportEmail;
     
     @Value("${app.email.admin:admin@hisaablite.com}")
@@ -104,7 +104,7 @@ public class AppConfig {
      * Build full URL with path
      */
     public String buildUrl(String path) {
-        return baseUrl + path;
+        return (baseUrl == null ? "" : baseUrl) + path;
     }
     
     /**

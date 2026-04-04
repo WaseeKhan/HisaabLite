@@ -488,6 +488,10 @@
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
             </a>
+            <a th:href="@{/admin/audit}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Audit Logs</span>
+            </a>
         </div>
 
         <div class="quick-actions">
@@ -507,6 +511,7 @@
         </div>
 
         <form th:action="@{/admin/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <button type="submit" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout

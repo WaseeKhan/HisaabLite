@@ -17,6 +17,9 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private String name;
 
@@ -29,9 +32,11 @@ public class Product {
     private Integer stockQuantity;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer minStock = 5;
 
     //GST Related 
+    @Builder.Default
     private Integer gstPercent = 0;
 
     @ManyToOne
@@ -39,6 +44,7 @@ public class Product {
     @JsonIgnore
     private Shop shop;
 
+    @Builder.Default
     private boolean active = true;
 
 }

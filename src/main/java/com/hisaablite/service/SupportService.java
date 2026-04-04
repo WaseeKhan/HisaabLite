@@ -190,13 +190,12 @@ public class SupportService {
 
 @Transactional
 public void resolveTicket(Long ticketId, User user, boolean isAdmin) {
-    log.info("=== RESOLVE TICKET METHOD CALLED ===");
-    log.info("Ticket ID: {}, User: {}, isAdmin: {}", ticketId, user.getUsername(), isAdmin);
+    log.info("Resolving ticket {} by {} (admin={})", ticketId, user.getUsername(), isAdmin);
     
     SupportTicket ticket = ticketRepository.findById(ticketId)
             .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
-    log.info("Ticket found: {}, Current status: {}", ticket.getTicketNumber(), ticket.getStatus());
+    log.debug("Ticket found: {}, current status: {}", ticket.getTicketNumber(), ticket.getStatus());
     
     // Check if ticket is already resolved or closed
     if (ticket.getStatus() == TicketStatus.RESOLVED) {
@@ -225,7 +224,7 @@ public void resolveTicket(Long ticketId, User user, boolean isAdmin) {
     ticket.setUpdatedAt(LocalDateTime.now());
     ticketRepository.save(ticket);
 
-    log.info("Ticket status updated to RESOLVED, about to send email");
+    log.debug("Ticket {} marked resolved, preparing notification", ticket.getTicketNumber());
     
   
    
@@ -239,7 +238,7 @@ public void resolveTicket(Long ticketId, User user, boolean isAdmin) {
  * Send email notification when ticket is resolved
  */
 private void sendTicketResolvedEmail(SupportTicket ticket) {
-    log.info("Preparing resolved email for ticket: {}", ticket.getTicketNumber());
+    log.debug("Preparing resolved email for ticket: {}", ticket.getTicketNumber());
     
     String subject = "Ticket #" + ticket.getTicketNumber() + " has been resolved";
     
@@ -277,13 +276,12 @@ private void sendTicketResolvedEmail(SupportTicket ticket) {
 
 @Transactional
 public void closeTicket(Long ticketId, User user, boolean isAdmin) {
-    log.info("=== CLOSE TICKET METHOD CALLED ===");
-    log.info("Ticket ID: {}, User: {}, isAdmin: {}", ticketId, user.getUsername(), isAdmin);
+    log.info("Closing ticket {} by {} (admin={})", ticketId, user.getUsername(), isAdmin);
     
     SupportTicket ticket = ticketRepository.findById(ticketId)
             .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
-    log.info("Ticket found: {}, Current status: {}", ticket.getTicketNumber(), ticket.getStatus());
+    log.debug("Ticket found: {}, current status: {}", ticket.getTicketNumber(), ticket.getStatus());
 
     // Only admin can close
     if (!isAdmin) {
@@ -299,7 +297,7 @@ public void closeTicket(Long ticketId, User user, boolean isAdmin) {
     ticket.setUpdatedAt(LocalDateTime.now());
     ticketRepository.save(ticket);
 
-    log.info("Ticket status updated to CLOSED, about to send email");
+    log.debug("Ticket {} marked closed, preparing notification", ticket.getTicketNumber());
 
     // Send email notification to owner
     sendTicketClosedEmail(ticket);
@@ -311,7 +309,7 @@ public void closeTicket(Long ticketId, User user, boolean isAdmin) {
  * Send email notification when ticket is closed
  */
 private void sendTicketClosedEmail(SupportTicket ticket) {
-    log.info("Preparing closed email for ticket: {}", ticket.getTicketNumber());
+    log.debug("Preparing closed email for ticket: {}", ticket.getTicketNumber());
     
     String subject = "Ticket #" + ticket.getTicketNumber() + " has been closed";
     

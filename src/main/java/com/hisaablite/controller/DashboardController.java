@@ -43,38 +43,27 @@ public class DashboardController {
     private final PlanLimitService planLimitService;
     private final DashboardService dashboardService;
 
-    // ROLE BASED REDIRECT
+    // CANONICAL DASHBOARD
     @GetMapping("/dashboard")
-    public String dashboardRedirect(Authentication auth) {
-        String role = auth.getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority();
-        if (role.equals("ROLE_OWNER")) {
-            return "redirect:/owner/dashboard";
-        } else if (role.equals("ROLE_MANAGER")) {
-            return "redirect:/manager/dashboard";
-        } else {
-            return "redirect:/cashier/dashboard";
-        }
+    public String dashboard(Model model, Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        return loadDashboard(model, authentication, user.getRole().name());
     }
 
-    // OWNER DASHBOARD
+    // LEGACY ROLE-SPECIFIC URLS
     @GetMapping("/owner/dashboard")
-    public String ownerDashboard(Model model, Authentication authentication) {
-        return loadDashboard(model, authentication, "OWNER");
+    public String ownerDashboard() {
+        return "redirect:/dashboard";
     }
 
-    // MANAGER DASHBOARD
     @GetMapping("/manager/dashboard")
-    public String managerDashboard(Model model, Authentication authentication) {
-        return loadDashboard(model, authentication, "MANAGER");
+    public String managerDashboard() {
+        return "redirect:/dashboard";
     }
 
-    // CASHIER DASHBOARD
     @GetMapping("/cashier/dashboard")
-    public String cashierDashboard(Model model, Authentication authentication) {
-        return loadDashboard(model, authentication, "CASHIER");
+    public String cashierDashboard() {
+        return "redirect:/dashboard";
     }
 
     // COMMON DASHBOARD LOGIC
@@ -122,11 +111,11 @@ public class DashboardController {
         model.addAttribute("todayItems", todayItems != null ? todayItems : 0);
 
         // Completed Revenue (Successful sales)
-        Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop);
+        Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop, startToday, endToday);
         model.addAttribute("completedRevenue", completedRevenue != null ? completedRevenue : 0);
 
         // Cancelled Amount
-        Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop);
+        Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop, startToday, endToday);
         model.addAttribute("cancelledAmount", cancelledAmount != null ? cancelledAmount : 0);
 
         // Net Revenue
@@ -134,7 +123,7 @@ public class DashboardController {
         model.addAttribute("netRevenue", netRevenue);
 
         // Returned Items
-        Long returnedItems = saleRepository.getTodayReturnedItems(shop);
+        Long returnedItems = saleRepository.getTodayReturnedItems(shop, startToday, endToday);
         model.addAttribute("returnedItems", returnedItems != null ? returnedItems : 0);
 
         // Total Staff
@@ -142,15 +131,15 @@ public class DashboardController {
         model.addAttribute("totalStaff", totalStaff);
 
         // Total Sales Count for today
-        Long totalSalesCount = saleRepository.getTodaySalesCount(shop);
+        Long totalSalesCount = saleRepository.getTodaySalesCount(shop, startToday, endToday);
         model.addAttribute("totalSales", totalSalesCount != null ? totalSalesCount : 0);
 
         // Completed Count for today
-        Long completedCount = saleRepository.getTodayCompletedCount(shop);
+        Long completedCount = saleRepository.getTodayCompletedCount(shop, startToday, endToday);
         model.addAttribute("completedCount", completedCount != null ? completedCount : 0);
 
         // Unique Customers today
-        Long uniqueCustomers = saleRepository.getTodayUniqueCustomers(shop);
+        Long uniqueCustomers = saleRepository.getTodayUniqueCustomers(shop, startToday, endToday);
         model.addAttribute("uniqueCustomers", uniqueCustomers != null ? uniqueCustomers : 0);
 
         // ===== LIFETIME BUSINESS DATA =====
@@ -228,28 +217,28 @@ public class DashboardController {
         Long todayItems = saleItemRepository.getTodayItemsSold(shop, startToday, endToday);
         data.put("todayItems", todayItems != null ? todayItems : 0);
         
-        Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop);
+        Double completedRevenue = saleRepository.getTodayCompletedRevenue(shop, startToday, endToday);
         data.put("completedRevenue", completedRevenue != null ? completedRevenue : 0);
 
-        Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop);
+        Double cancelledAmount = saleRepository.getTodayCancelledAmount(shop, startToday, endToday);
         data.put("cancelledAmount", cancelledAmount != null ? cancelledAmount : 0);
 
         Double netRevenue = Math.max(0, (completedRevenue != null ? completedRevenue : 0) - (cancelledAmount != null ? cancelledAmount : 0));
         data.put("netRevenue", netRevenue);
         
-        Long returnedItems = saleRepository.getTodayReturnedItems(shop);
+        Long returnedItems = saleRepository.getTodayReturnedItems(shop, startToday, endToday);
         data.put("returnedItems", returnedItems != null ? returnedItems : 0);
         
         Long totalStaff = userRepository.countByShop(shop);
         data.put("totalStaff", totalStaff);
         
-        Long totalSalesCount = saleRepository.getTodaySalesCount(shop);
+        Long totalSalesCount = saleRepository.getTodaySalesCount(shop, startToday, endToday);
         data.put("todaySalesCount", totalSalesCount != null ? totalSalesCount : 0);
         
-        Long completedCount = saleRepository.getTodayCompletedCount(shop);
+        Long completedCount = saleRepository.getTodayCompletedCount(shop, startToday, endToday);
         data.put("completedCount", completedCount != null ? completedCount : 0);
         
-        Long uniqueCustomers = saleRepository.getTodayUniqueCustomers(shop);
+        Long uniqueCustomers = saleRepository.getTodayUniqueCustomers(shop, startToday, endToday);
         data.put("uniqueCustomers", uniqueCustomers != null ? uniqueCustomers : 0);
 
         // ===== LIFETIME DATA =====

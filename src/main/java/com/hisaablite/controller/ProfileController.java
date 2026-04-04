@@ -110,33 +110,32 @@ public class ProfileController {
     }
     
     private int getMaxStaffLimit(PlanType planType) {
-        switch (planType) {
-            case FREE:
-                return 1; // Only owner
-            case BASIC:
-                return 1; // Only owner
-            case PREMIUM:
-                return 10; // 1 Owner + 9 Staff
-            case ENTERPRISE:
-                return -1; // Unlimited
-            default:
-                return 1;
+        if (planType == null || planType == PlanType.FREE || planType == PlanType.BASIC) {
+            return 1; // Only owner
         }
+        if (planType == PlanType.PREMIUM) {
+            return 10; // 1 Owner + 9 Staff
+        }
+        if (planType == PlanType.ENTERPRISE) {
+            return -1; // Unlimited
+        }
+        return 1;
     }
     
     private int getProductLimit(PlanType planType) {
-        switch (planType) {
-            case FREE:
-                return 10;
-            case BASIC:
-                return 50;
-            case PREMIUM:
-                return 1000;
-            case ENTERPRISE:
-                return -1; // Unlimited
-            default:
-                return 10;
+        if (planType == null || planType == PlanType.FREE) {
+            return 10;
         }
+        if (planType == PlanType.BASIC) {
+            return 50;
+        }
+        if (planType == PlanType.PREMIUM) {
+            return 1000;
+        }
+        if (planType == PlanType.ENTERPRISE) {
+            return -1; // Unlimited
+        }
+        return 10;
     }
 
     // ========== WHATSAPP METHODS ==========

@@ -17,6 +17,7 @@ import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.admin.service.AuditService;
 import com.hisaablite.service.ProductService;
 import com.hisaablite.service.PlanLimitService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class ProductController {
     private final UserRepository userRepository;
     private final ProductService productService;
     private final PlanLimitService planLimitService;
+    private final AuditService auditService;
 
     private static final int PAGE_SIZE = 20;
 
@@ -228,7 +230,18 @@ public class ProductController {
             duplicate.setShop(shop);
             duplicate.setActive(true);
 
-            productRepository.save(duplicate);
+            Product savedDuplicate = productRepository.save(duplicate);
+            auditService.logAction(
+                    user.getUsername(),
+                    user.getRole().name(),
+                    shop,
+                    "PRODUCT_DUPLICATED",
+                    "Product",
+                    savedDuplicate.getId(),
+                    "SUCCESS",
+                    snapshotProduct(original),
+                    snapshotProduct(savedDuplicate),
+                    "Product duplicated from existing product");
             
             return ResponseEntity.ok(Map.of("message", "Product duplicated successfully"));
             
@@ -252,8 +265,9 @@ public class ProductController {
             for (Long id : ids) {
                 Product product = productRepository.findById(id).orElse(null);
                 if (product != null && product.getShop().getId().equals(user.getShop().getId())) {
-                    product.setActive(false);
-                    productRepository.save(product);
+                    Product safeProduct = loadVersionSafeProduct(id);
+                    safeProduct.setActive(false);
+                    productRepository.save(safeProduct);
                     deletedCount++;
                 }
             }
@@ -324,6 +338,8 @@ public class ProductController {
         
         // Check if this is a new product (id is null)
         boolean isNewProduct = product.getId() == null;
+        Product productToSave = product;
+        Map<String, Object> oldProductState = null;
         
         if (isNewProduct) {
             int maxLimit = planLimitService.getProductLimit(shop);
@@ -340,16 +356,44 @@ public class ProductController {
                 
                 return "redirect:/products";
             }
+        } else {
+            Product existingProduct = loadVersionSafeProduct(product.getId());
+
+            if (!existingProduct.getShop().getId().equals(shop.getId())) {
+                throw new RuntimeException("Unauthorized access");
+            }
+
+            oldProductState = snapshotProduct(existingProduct);
+
+            existingProduct.setName(product.getName());
+            existingProduct.setDescription(product.getDescription());
+            existingProduct.setPrice(product.getPrice());
+            existingProduct.setStockQuantity(product.getStockQuantity());
+            existingProduct.setMinStock(product.getMinStock());
+            existingProduct.setGstPercent(product.getGstPercent());
+
+            productToSave = existingProduct;
         }
         
-        product.setShop(shop);
-        product.setActive(true);
+        productToSave.setShop(shop);
+        productToSave.setActive(true);
 
-        if (product.getMinStock() == null) {
-            product.setMinStock(5);
+        if (productToSave.getMinStock() == null) {
+            productToSave.setMinStock(5);
         }
 
-        productRepository.save(product);
+        Product savedProduct = productRepository.save(productToSave);
+        auditService.logAction(
+                user.getUsername(),
+                user.getRole().name(),
+                shop,
+                isNewProduct ? "PRODUCT_CREATED" : "PRODUCT_UPDATED",
+                "Product",
+                savedProduct.getId(),
+                "SUCCESS",
+                oldProductState,
+                snapshotProduct(savedProduct),
+                isNewProduct ? "Product created" : "Product updated");
         
         redirectAttributes.addFlashAttribute("success", 
             isNewProduct ? "Product added successfully!" : "Product updated successfully!");
@@ -367,8 +411,7 @@ public class ProductController {
         User user = getUser(authentication);
         Shop shop = user.getShop();
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = loadVersionSafeProduct(id);
 
         if (!product.getShop().getId().equals(user.getShop().getId())) {
             throw new RuntimeException("Unauthorized access");
@@ -403,20 +446,59 @@ public class ProductController {
 
         User user = getUser(authentication);
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = loadVersionSafeProduct(id);
 
         if (!product.getShop().getId().equals(user.getShop().getId())) {
             throw new RuntimeException("Unauthorized access");
         }
         
         String productName = product.getName();
+        Map<String, Object> oldProductState = snapshotProduct(product);
         product.setActive(false);
         productRepository.save(product);
+        auditService.logAction(
+                user.getUsername(),
+                user.getRole().name(),
+                user.getShop(),
+                "PRODUCT_DELETED",
+                "Product",
+                product.getId(),
+                "SUCCESS",
+                oldProductState,
+                snapshotProduct(product),
+                "Product soft deleted");
         
         redirectAttributes.addFlashAttribute("success", 
             "Product '" + productName + "' deleted successfully!");
 
         return "redirect:/products";
+    }
+
+    private Map<String, Object> snapshotProduct(Product product) {
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("id", product.getId());
+        snapshot.put("name", product.getName());
+        snapshot.put("description", product.getDescription());
+        snapshot.put("price", product.getPrice());
+        snapshot.put("stockQuantity", product.getStockQuantity());
+        snapshot.put("minStock", product.getMinStock());
+        snapshot.put("gstPercent", product.getGstPercent());
+        snapshot.put("active", product.isActive());
+        snapshot.put("shopId", product.getShop() != null ? product.getShop().getId() : null);
+        return snapshot;
+    }
+
+    private Product loadVersionSafeProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (product.getVersion() == null) {
+            productRepository.initializeVersionIfMissing(productId);
+            productRepository.flush();
+            product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+        }
+
+        return product;
     }
 }

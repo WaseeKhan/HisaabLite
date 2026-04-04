@@ -5,11 +5,13 @@ import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +26,13 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     // Fetch sale with shop to avoid lazy loading issues
     @Query("SELECT s FROM Sale s JOIN FETCH s.shop WHERE s.id = :id")
     Optional<Sale> findByIdWithShop(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT DISTINCT s FROM Sale s " +
+            "LEFT JOIN FETCH s.items i " +
+            "LEFT JOIN FETCH i.product " +
+            "WHERE s.id = :id")
+    Optional<Sale> findByIdForUpdate(@Param("id") Long id);
 
     Page<Sale> findByShop(Shop shop, Pageable pageable);
 
@@ -78,33 +87,41 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                     "FROM Sale s " +
                     "WHERE s.shop = :shop " +
                     "AND s.saleDate >= :start " +
-                    "GROUP BY DATE(s.saleDate) " +
-                    "ORDER BY DATE(s.saleDate)")
+                    "GROUP BY FUNCTION('DATE', s.saleDate) " +
+                    "ORDER BY FUNCTION('DATE', s.saleDate)")
     List<Object[]> getLast7DaysRevenue(Shop shop, LocalDateTime start);
 
     // cancellation related customs
     @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s " +
                     "WHERE s.shop = :shop " +
-                    "AND DATE(s.saleDate) = CURRENT_DATE " +
+                    "AND s.saleDate BETWEEN :start AND :end " +
                     "AND s.status = 'COMPLETED'")
-    Double getTodayCompletedRevenue(@Param("shop") Shop shop);
+    Double getTodayCompletedRevenue(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
 
     @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s " +
                     "WHERE s.shop = :shop " +
-                    "AND DATE(s.saleDate) = CURRENT_DATE " +
+                    "AND s.saleDate BETWEEN :start AND :end " +
                     "AND s.status = 'CANCELLED'")
-    Double getTodayCancelledAmount(@Param("shop") Shop shop);
+    Double getTodayCancelledAmount(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
 
     @Query("SELECT COALESCE(SUM(CASE WHEN s.status = 'COMPLETED' THEN s.totalAmount ELSE 0 END), 0) - " +
                     "COALESCE(SUM(CASE WHEN s.status = 'CANCELLED' THEN s.totalAmount ELSE 0 END), 0) " +
-                    "FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE")
-    Double getTodayNetRevenue(@Param("shop") Shop shop);
+                    "FROM Sale s WHERE s.shop = :shop AND s.saleDate BETWEEN :start AND :end")
+    Double getTodayNetRevenue(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
 
     @Query("SELECT COALESCE(SUM(si.quantity), 0) FROM SaleItem si " +
                     "WHERE si.sale.shop = :shop " +
-                    "AND DATE(si.sale.saleDate) = CURRENT_DATE " +
+                    "AND si.sale.saleDate BETWEEN :start AND :end " +
                     "AND si.sale.status = 'CANCELLED'")
-    Long getTodayReturnedItems(@Param("shop") Shop shop);
+    Long getTodayReturnedItems(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
 
     long countByShop(Shop shop);
 
@@ -131,23 +148,28 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
         WHERE s.shop = :shop AND s.status = 'COMPLETED'
         GROUP BY s.customerName
         ORDER BY total_spent DESC
-        LIMIT :limit
     """)
-    List<Object[]> findTopCustomersByShop(@Param("shop") Shop shop, @Param("limit") int limit);
+    List<Object[]> findTopCustomersByShop(@Param("shop") Shop shop, Pageable pageable);
 
     // ===== ADD THESE METHODS FOR DASHBOARD CARDS =====
     
     // Get today's total sales count (all sales including completed and cancelled)
-    @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE")
-    Long getTodaySalesCount(@Param("shop") Shop shop);
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND s.saleDate BETWEEN :start AND :end")
+    Long getTodaySalesCount(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
     
     // Get today's completed sales count
-    @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE AND s.status = 'COMPLETED'")
-    Long getTodayCompletedCount(@Param("shop") Shop shop);
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND s.saleDate BETWEEN :start AND :end AND s.status = 'COMPLETED'")
+    Long getTodayCompletedCount(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
     
     // Get today's unique customers count
-    @Query("SELECT COUNT(DISTINCT s.customerName) FROM Sale s WHERE s.shop = :shop AND DATE(s.saleDate) = CURRENT_DATE AND s.customerName IS NOT NULL AND s.customerName != ''")
-    Long getTodayUniqueCustomers(@Param("shop") Shop shop);
+    @Query("SELECT COUNT(DISTINCT s.customerName) FROM Sale s WHERE s.shop = :shop AND s.saleDate BETWEEN :start AND :end AND s.customerName IS NOT NULL AND s.customerName != ''")
+    Long getTodayUniqueCustomers(@Param("shop") Shop shop,
+                    @Param("start") LocalDateTime start,
+                    @Param("end") LocalDateTime end);
 
     // ===== LIFETIME BUSINESS DATA METHODS =====
 

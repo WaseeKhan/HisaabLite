@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Invoice • HisaabLite</title>
+    <title th:text="${'Invoice_' + sale.id + ' • HisaabLite'}">Invoice_123 • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,7 +36,8 @@
             </div>
             <div class="invoice-badge">
                 <div class="label">INVOICE</div>
-                <div class="number" th:text="${sale.id}">#12345</div>
+                <div class="number" th:text="${'Invoice_' + sale.id}">Invoice_12345</div>
+                <div class="invoice-date" th:text="${#temporals.format(sale.saleDate, 'dd MMM yyyy • hh:mm a')}">01 Jan 2026 • 10:30 AM</div>
             </div>
         </div>
 

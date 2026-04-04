@@ -209,3 +209,192 @@
     border-radius: 20px;
     margin-left: auto;
 }
+
+.shop-shortcut-hint {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    border: 1px solid #dbe3ea;
+    background: #f8fafc;
+    color: #334155;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.15s ease;
+}
+
+.shop-shortcut-hint:hover {
+    background: #eef4f8;
+    border-color: #cbd5e1;
+}
+
+.shop-shortcut-hint i {
+    color: #0f172a;
+}
+
+.shop-shortcut-hint-key {
+    margin-left: auto;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #dbe3ea;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.shop-shortcut-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.shop-shortcut-overlay.show {
+    display: flex;
+}
+
+.shop-shortcut-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.shop-shortcut-panel {
+    position: relative;
+    width: min(680px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    padding: 24px;
+}
+
+.shop-shortcut-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.shop-shortcut-eyebrow {
+    margin: 0 0 6px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.shop-shortcut-panel-header h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+}
+
+.shop-shortcut-close {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #334155;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.shop-shortcut-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.shop-shortcut-card-title {
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.shop-shortcut-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+    color: #334155;
+}
+
+.shop-shortcut-item:last-of-type {
+    border-bottom: none;
+}
+
+.shop-shortcut-item kbd {
+    min-width: 72px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    border: 1px solid #dbe3ea;
+    background: #ffffff;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.18);
+}
+
+.shop-shortcut-note {
+    margin: 10px 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.shop-shortcut-note-top {
+    margin: 0 0 14px;
+}
+
+@media (max-width: 768px) {
+    .shop-shortcut-hint {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .shop-shortcut-panel {
+        width: calc(100vw - 20px);
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .shop-shortcut-panel-header h3 {
+        font-size: 20px;
+    }
+
+    .shop-shortcut-grid {
+        grid-template-columns: 1fr;
+    }
+}

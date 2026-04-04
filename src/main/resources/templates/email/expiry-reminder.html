@@ -47,11 +47,11 @@
             
             <!-- CTA Buttons -->
             <div style="text-align: center; margin: 35px 0;">
-                <a href="https://hisaablite.com/renew" 
+                <a th:href="${renewUrl}" 
                    style="display: inline-block; background: #f59e0b; color: white; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px; margin-right: 10px; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
                     🔄 Renew Now
                 </a>
-                <a href="https://hisaablite.com/upgrade" 
+                <a th:href="${upgradeUrl}" 
                    style="display: inline-block; background: #f1f5f9; color: #475569; text-decoration: none; padding: 14px 40px; border-radius: 30px; font-weight: 600; font-size: 16px;">
                     📈 Upgrade Plan
                 </a>
@@ -64,7 +64,7 @@
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
             
             <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-                Questions about renewal? <a href="mailto:billing@hisaablite.com" style="color: #f59e0b;">Contact Billing</a>
+                Questions about renewal? <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}" style="color: #f59e0b;">Contact Billing</a>
             </p>
         </div>
     </div>

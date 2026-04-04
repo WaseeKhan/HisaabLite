@@ -7,24 +7,46 @@ spring:
   profiles:
     active: dev
   
-  web:
-    resources:
-      static-locations: classpath:/static/
-      add-mappings: true
-  mvc:
-    favicon:
-      enabled: true
-
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  web:
+    resources:
+      static-locations: classpath:/static/
+      add-mappings: true
+      cache:
+        period: 3600
+
+  mvc:
+    static-path-pattern: /**
+    favicon:
+      enabled: true
+    throw-exception-if-no-handler-found: false
+  jpa:
+    open-in-view: true
+
 
 server:
+  forward-headers-strategy: framework
   servlet:
     session:
       timeout: 1h
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,logfile
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
 
 # Evolution API
 evolution:
@@ -32,18 +54,10 @@ evolution:
     url: http://localhost:8081
     key: ${EVOLUTION_API_KEY:hisaablite-local-key}
 
- # ===== STATIC RESOURCES CONFIGURATION =====
-  web:
-    resources:
-      static-locations: classpath:/static/
-      add-mappings: true
-      cache:
-        period: 3600 
-  # ===== MVC CONFIGURATION =====
-  mvc:
-    static-path-pattern: /**
-    favicon:
-      enabled: true
-    throw-exception-if-no-handler-found: false
+app:
+  security:
+    enforce-single-session: true
 
-
+logging:
+  file:
+    name: logs/hisaablite.log

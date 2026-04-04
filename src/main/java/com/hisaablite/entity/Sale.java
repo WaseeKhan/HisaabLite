@@ -55,7 +55,9 @@ public class Sale {
     // billiing page end here
 
     // discount logic
+    @Builder.Default
     private BigDecimal discountAmount = BigDecimal.ZERO;
+    @Builder.Default
     private BigDecimal discountPercent = BigDecimal.ZERO;
     // private BigDecimal taxableAmount = BigDecimal.ZERO;
 

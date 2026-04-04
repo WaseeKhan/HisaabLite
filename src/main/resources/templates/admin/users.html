@@ -639,8 +639,12 @@
                 <span>Subscriptions</span>
             </a>
             <a th:href="@{/admin/support}">
-                
-               <i class="fas fa-headset"></i>  <span> Support </span>
+
+                <i class="fas fa-headset"></i> <span> Support </span>
+            </a>
+            <a th:href="@{/admin/audit}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Audit Logs</span>
             </a>
         </div>
 
@@ -652,8 +656,8 @@
             </a>
 
             <a th:href="@{/admin/users/pending-approvals}" class="quick-action-item">
-                <i class="fas fa-user-plus"></i>
-                <span>Pending Approvls</span>
+                <i class="fas fa-user-check"></i> <!-- Changed icon to user-check -->
+                <span>Pending Approvals</span> <!-- Fixed spelling -->
             </a>
 
             <a th:href="@{/admin/shops/new}" class="quick-action-item">
@@ -667,6 +671,7 @@
         </div>
 
         <form th:action="@{/admin/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <button type="submit" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
                 Logout
@@ -688,6 +693,58 @@
             </div>
         </div>
 
+        <!-- Add this section after the admin-header div -->
+        <!-- Flash Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert"
+            style="margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-check-circle" style="font-size: 14px;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 12px;">Success!</strong>
+                    <span style="font-size: 11px;" th:text="${success}"></span>
+                </div>
+                <button type="button" class="close-btn" onclick="this.parentElement.parentElement.remove()"
+                    style="background: none; border: none; color: #065f46; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert"
+            style="margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; background: #fee2e2; border: 1px solid #fecaca; color: #991b1b;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-exclamation-circle" style="font-size: 14px;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 12px;">Error!</strong>
+                    <span style="font-size: 11px;" th:text="${error}"></span>
+                </div>
+                <button type="button" class="close-btn" onclick="this.parentElement.parentElement.remove()"
+                    style="background: none; border: none; color: #991b1b; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Optional: Show detailed approval info if available -->
+        <div th:if="${userName}" class="alert alert-info alert-dismissible fade show" role="alert"
+            style="margin-bottom: 12px; padding: 10px 12px; border-radius: 6px; background: #e0f2fe; border: 1px solid #bae6fd; color: #075985;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-info-circle" style="font-size: 14px;"></i>
+                <div style="flex: 1;">
+                    <strong style="font-size: 12px;">Approval Details:</strong><br />
+                    <span style="font-size: 11px;">
+                        User: <strong th:text="${userName}"></strong> (<span th:text="${userEmail}"></span>)<br />
+                        Plan: <strong th:text="${planName}"></strong><br />
+                        Expiry: <strong th:text="${expiryDate}"></strong><br />
+                        Email Sent: <strong th:text="${emailSent} ? 'Yes' : 'No'"></strong>
+                    </span>
+                </div>
+                <button type="button" class="close-btn" onclick="this.parentElement.parentElement.remove()"
+                    style="background: none; border: none; color: #075985; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -733,16 +790,16 @@
                 <i class="fas fa-plus"></i> Add New User
             </a>
 
-        
+
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" placeholder="Type to search (3 chars min)..." id="liveSearchInput"
-                           th:value="${param.search != null ? param.search[0] : ''}" autocomplete="off">
+                        th:value="${param.search != null ? param.search[0] : ''}" autocomplete="off">
                 </div>
                 <span class="search-info" id="searchStats"></span>
-                <a th:href="@{/admin/users(page=0, size=20)}" class="clear-btn" id="clearSearch" 
-                   th:if="${param.search != null}">
+                <a th:href="@{/admin/users(page=0, size=20)}" class="clear-btn" id="clearSearch"
+                    th:if="${param.search != null}">
                     <i class="fas fa-times"></i> Clear
                 </a>
             </div>
@@ -798,6 +855,8 @@
                                 class="btn-icon approve" title="Approve" onclick="return confirm('Approve this user?')">
                                 <i class="fas fa-check-circle"></i>
                             </a>
+                            
+
                             <a th:if="${user.active}" th:href="@{'/admin/users/suspend/' + ${user.id}}"
                                 class="btn-icon suspend" title="Suspend" onclick="return confirm('Suspend this user?')">
                                 <i class="fas fa-ban"></i>
@@ -824,7 +883,8 @@
         <div class="pagination" th:if="${totalPages > 0}">
             <div class="pagination-info">
                 Showing <span th:text="${(currentPage * pageSize) + 1}">1</span>
-                to <span th:text="${(currentPage * pageSize) + pageSize <= totalItems ? (currentPage * pageSize) + pageSize : totalItems}">20</span>
+                to <span
+                    th:text="${(currentPage * pageSize) + pageSize <= totalItems ? (currentPage * pageSize) + pageSize : totalItems}">20</span>
                 of <span th:text="${totalItems}">100</span> users
                 <span th:if="${param.search != null}" style="margin-left: 8px; color: #2563eb;">
                     (filtered by: "<span th:text="${param.search[0]}">search</span>")
@@ -832,7 +892,8 @@
             </div>
             <div class="pagination-controls">
                 <!-- First Page -->
-                <a th:if="${currentPage > 0}" th:href="@{/admin/users(page=0, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                <a th:if="${currentPage > 0}"
+                    th:href="@{/admin/users(page=0, size=20, search=${param.search != null ? param.search[0] : ''})}"
                     title="First Page">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
@@ -853,9 +914,8 @@
                 <!-- Page Numbers -->
                 <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                     <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                        th:href="@{/admin/users(page=${i}, size=20, search=${param.search != null ? param.search[0] : ''})}" 
-                        th:text="${i + 1}"
-                        th:classappend="${i == currentPage} ? 'active' : ''">1</a>
+                        th:href="@{/admin/users(page=${i}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                        th:text="${i + 1}" th:classappend="${i == currentPage} ? 'active' : ''">1</a>
                     <span th:if="${i == currentPage + 3 and i < totalPages - 1}" class="disabled">...</span>
                 </th:block>
 
@@ -912,7 +972,7 @@
             // Get current search from URL
             const urlParams = new URLSearchParams(window.location.search);
             const currentSearch = urlParams.get('search');
-            
+
             if (currentSearch && searchStats) {
                 searchStats.textContent = `Showing results for "${currentSearch}"`;
             }
@@ -922,7 +982,7 @@
                 searchInput.addEventListener('input', function () {
                     clearTimeout(timeoutId);
                     const searchTerm = this.value.trim();
-                    
+
                     // Don't search if it's the same as previous
                     if (searchTerm === previousSearch) {
                         return;
@@ -936,7 +996,7 @@
                         } else {
                             searchStats.textContent = `Searching for "${searchTerm}"...`;
                             tableContainer.classList.add('loading');
-                            
+
                             timeoutId = setTimeout(() => {
                                 performSearch(searchTerm);
                                 previousSearch = searchTerm;
@@ -991,7 +1051,7 @@
                 if (searchTerm && searchTerm.trim()) {
                     const term = searchTerm.toLowerCase().trim();
                     const rows = document.querySelectorAll('#usersTable tbody tr');
-                    
+
                     rows.forEach(row => {
                         if (row.cells && row.cells.length > 1) {
                             for (let i = 0; i < row.cells.length - 1; i++) { // Skip actions column
@@ -1005,7 +1065,7 @@
                             }
                         }
                     });
-                    
+
                     if (searchStats) {
                         const visibleRows = document.querySelectorAll('#usersTable tbody tr:not([style*="display: none"])').length;
                         if (visibleRows > 0) {
@@ -1020,6 +1080,26 @@
             // Run highlighting after page load
             highlightSearchTerms();
         });
+
+        // Auto-dismiss flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (alert && alert.parentElement) {
+                        alert.style.transition = 'opacity 0.5s';
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                            if (alert && alert.parentElement) {
+                                alert.remove();
+                            }
+                        }, 500);
+                    }
+                }, 5000);
+            });
+        });
+
     </script>
 </body>
 

@@ -38,13 +38,16 @@ public class Shop {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "plan_type")
+    @Builder.Default
     private PlanType planType = PlanType.FREE;
 
     private String upiId;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
 
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "shop")
@@ -61,6 +64,7 @@ public class Shop {
     private String whatsappQrCode; // Base64 QR code
 
     @Column(name = "whatsapp_connected")
+    @Builder.Default
     private boolean whatsappConnected = false; // Connection status
 
     @Column(name = "whatsapp_connected_at")

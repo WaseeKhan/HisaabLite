@@ -4,7 +4,9 @@
 <head>
     <title>Sales History • HisaabLite</title>
     <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Shop CSS -->
@@ -78,31 +80,31 @@
                 <div class="sales-search-filter">
                     <div class="sales-search-wrapper">
                         <i class="fas fa-search sales-search-icon"></i>
-                        <input type="text" id="searchInput" class="sales-search-input" 
-                               placeholder="Search by invoice, customer..." autocomplete="off">
+                        <input type="text" id="searchInput" class="sales-search-input"
+                            placeholder="Search by invoice, customer..." autocomplete="off">
                         <i class="fas fa-spinner fa-pulse sales-search-loading" id="searchLoading"></i>
                     </div>
-                    
+
                     <div class="sales-filters">
                         <select id="statusFilter" class="sales-filter-select">
                             <option value="">All Status</option>
                             <option value="COMPLETED">Completed</option>
                             <option value="CANCELLED">Cancelled</option>
                         </select>
-                        
+
                         <select id="dateRangeFilter" class="sales-filter-select">
                             <option value="">All Time</option>
                             <option value="today">Today</option>
                             <option value="week">Last 7 Days</option>
                             <option value="month">Last 30 Days</option>
                         </select>
-                        
+
                         <select id="sortFilter" class="sales-filter-select">
                             <option value="saleDate_desc">Latest</option>
                             <option value="totalAmount_desc">Highest</option>
                             <option value="totalAmount_asc">Lowest</option>
                         </select>
-                        
+
                         <button id="clearFilters" class="sales-clear-filters">
                             <i class="fas fa-times"></i>
                         </button>
@@ -154,12 +156,14 @@
                 <i class="fab fa-whatsapp" style="color: #25D366; font-size: 24px;"></i>
                 <h3>Send Invoice via WhatsApp</h3>
             </div>
-            <input type="text" id="whatsappPhone" class="whatsapp-modal-input" placeholder="Enter 10-digit phone number">
+            <input type="text" id="whatsappPhone" class="whatsapp-modal-input"
+                placeholder="Enter 10-digit phone number">
             <div class="whatsapp-modal-note">
                 <i class="fas fa-info-circle"></i> PDF will be sent as attachment via WhatsApp
             </div>
             <div class="whatsapp-modal-actions">
-                <button class="whatsapp-modal-btn whatsapp-modal-btn-cancel" onclick="closeWhatsAppModal()">Cancel</button>
+                <button class="whatsapp-modal-btn whatsapp-modal-btn-cancel"
+                    onclick="closeWhatsAppModal()">Cancel</button>
                 <button class="whatsapp-modal-btn whatsapp-modal-btn-send" onclick="sendWhatsAppPDF()">
                     <i class="fab fa-whatsapp"></i> Send PDF
                 </button>
@@ -186,47 +190,47 @@
         const completedCount = /*[[${completedCount}]]*/ 0;
         const cancelledCount = /*[[${cancelledCount}]]*/ 0;
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Update stats cards
             $('#totalSales').text(totalSales);
             $('#totalRevenue').text('₹' + formatNumber(totalRevenue));
             $('#completedCount').text(completedCount);
             $('#cancelledCount').text(cancelledCount);
-            
+
             // Load initial sales
             loadSales();
-            
+
             // Live search with debounce
-            $('#searchInput').on('input', function() {
+            $('#searchInput').on('input', function () {
                 clearTimeout(searchTimeout);
                 currentKeyword = $(this).val();
                 currentPage = 0;
                 $('#searchLoading').show();
-                searchTimeout = setTimeout(function() { 
-                    loadSales(); 
+                searchTimeout = setTimeout(function () {
+                    loadSales();
                 }, 400);
             });
-            
+
             // Filter changes
-            $('#statusFilter').change(function() {
+            $('#statusFilter').change(function () {
                 currentStatus = $(this).val();
                 currentPage = 0;
                 loadSales();
             });
-            
-            $('#dateRangeFilter').change(function() {
+
+            $('#dateRangeFilter').change(function () {
                 currentDateRange = $(this).val();
                 currentPage = 0;
                 loadSales();
             });
-            
-            $('#sortFilter').change(function() {
+
+            $('#sortFilter').change(function () {
                 currentSort = $(this).val();
                 currentPage = 0;
                 loadSales();
             });
-            
-            $('#clearFilters').click(function() {
+
+            $('#clearFilters').click(function () {
                 $('#searchInput').val('');
                 $('#statusFilter').val('');
                 $('#dateRangeFilter').val('');
@@ -239,10 +243,10 @@
                 loadSales();
             });
         });
-        
+
         function loadSales() {
             const [sortBy, sortDir] = currentSort.split('_');
-            
+
             $.ajax({
                 url: '/sales/history/search',
                 method: 'GET',
@@ -254,23 +258,23 @@
                     sortBy: sortBy,
                     sortDir: sortDir || 'desc'
                 },
-                success: function(response) {
+                success: function (response) {
                     renderSales(response.sales);
                     renderPagination(response);
                     $('#searchLoading').hide();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                     $('#searchLoading').hide();
                     showToast('Failed to load sales', 'error');
                 }
             });
         }
-        
+
         function renderSales(sales) {
             const tbody = $('#salesTableBody');
             tbody.empty();
-            
+
             if (!sales || sales.length === 0) {
                 tbody.html(`
                     <tr>
@@ -283,11 +287,11 @@
                 `);
                 return;
             }
-            
-            sales.forEach(function(sale) {
+
+            sales.forEach(function (sale) {
                 const statusClass = sale.status === 'COMPLETED' ? 'status-completed' : 'status-cancelled';
                 const statusIcon = sale.status === 'COMPLETED' ? 'fa-check-circle' : 'fa-times-circle';
-                
+
                 const row = `
                     <tr>
                         <td><span class="invoice-number">#${sale.id}</span></td>
@@ -305,6 +309,10 @@
                                 <a href="/sales/invoice/${sale.id}" target="_blank" class="sales-btn-view" title="View Invoice">
                                     <i class="fas fa-file-invoice"></i>
                                 </a>
+
+<button onclick="openThermalPrint(${sale.id})" class="sales-btn-view sales-btn-print" title="Print Thermal Invoice">
+    <i class="fas fa-print"></i>
+</button>                 
                                 <button onclick="downloadPDF(${sale.id})" class="sales-btn-pdf" title="Download PDF">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
@@ -312,10 +320,10 @@
                                     <i class="fab fa-whatsapp"></i>
                                 </button>
                                 ${sale.status === 'COMPLETED' ? `
-                                    <a href="/sales/cancel/${sale.id}" class="sales-btn-cancel" 
-                                       onclick="return confirm('Cancel this sale?')" title="Cancel Sale">
+                                    <button type="button" class="sales-btn-cancel"
+                                       onclick="cancelSale(${sale.id})" title="Cancel Sale">
                                         <i class="fas fa-ban"></i>
-                                    </a>
+                                    </button>
                                 ` : `
                                     <span class="sales-btn-cancelled disabled" title="Already cancelled">
                                         <i class="fas fa-ban"></i>
@@ -328,44 +336,44 @@
                 tbody.append(row);
             });
         }
-        
+
         function renderPagination(data) {
             const container = $('#paginationContainer');
             container.empty();
-            
+
             if (data.totalPages <= 1) return;
-            
+
             let paginationHtml = '<div class="sales-pagination">';
-            
+
             paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(${data.currentPage - 1})" ${!data.hasPrevious ? 'disabled' : ''}>
                 <i class="fas fa-chevron-left"></i>
             </button>`;
-            
+
             const startPage = Math.max(0, data.currentPage - 2);
             const endPage = Math.min(data.totalPages - 1, data.currentPage + 2);
-            
+
             if (startPage > 0) {
                 paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(0)">1</button>`;
                 if (startPage > 1) paginationHtml += `<span class="pagination-dots">...</span>`;
             }
-            
+
             for (let i = startPage; i <= endPage; i++) {
                 const activeClass = i === data.currentPage ? 'active' : '';
                 paginationHtml += `<button class="sales-pagination-btn ${activeClass}" onclick="changePage(${i})">${i + 1}</button>`;
             }
-            
+
             if (endPage < data.totalPages - 1) {
                 if (endPage < data.totalPages - 2) paginationHtml += `<span class="pagination-dots">...</span>`;
                 paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(${data.totalPages - 1})">${data.totalPages}</button>`;
             }
-            
+
             paginationHtml += `<button class="sales-pagination-btn" onclick="changePage(${data.currentPage + 1})" ${!data.hasNext ? 'disabled' : ''}>
                 <i class="fas fa-chevron-right"></i>
             </button>`;
-            
+
             paginationHtml += '</div>';
             container.html(paginationHtml);
-            
+
             const startItem = data.currentPage * data.pageSize + 1;
             const endItem = Math.min((data.currentPage + 1) * data.pageSize, data.totalItems);
             $('#paginationInfo').html(`
@@ -375,104 +383,155 @@
                 ${currentDateRange ? ' · ' + currentDateRange : ''}
             `);
         }
-        
+
         function changePage(page) {
             if (page === currentPage) return;
             currentPage = page;
             loadSales();
             $('.sales-card')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        
+
         function downloadPDF(saleId) {
             showToast('Downloading PDF...', 'info');
             window.location.href = '/sales/invoice/' + saleId + '/pdf';
         }
-        
+
+        function openThermalPrint(saleId) {
+            const thermalUrl = '/sales/invoice/' + saleId + '/thermal?autoprint=true';
+            const thermalWindow = window.open(
+                thermalUrl,
+                '_blank',
+                'noopener,noreferrer,width=420,height=800'
+            );
+
+            if (!thermalWindow) {
+                showToast('Popup blocked. Please allow popups for thermal printing.', 'error');
+                return;
+            }
+
+            thermalWindow.focus();
+        }
+
         function openWhatsAppModal(saleId, phone) {
             currentSaleId = saleId;
-            document.getElementById('whatsappPhone').value = phone;
+            const phoneInput = document.getElementById('whatsappPhone');
+            phoneInput.value = phone;
             document.getElementById('whatsappModal').style.display = 'flex';
+            phoneInput.focus();
+            phoneInput.select();
         }
-        
+
+        function cancelSale(saleId) {
+            if (!window.confirm('Cancel this sale?')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector("meta[name='_csrf']").content;
+            const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+
+            fetch('/sales/cancel/' + saleId, {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken }
+            }).then(() => {
+                window.location.reload();
+            }).catch(() => {
+                showToast('Could not cancel sale', 'error');
+            });
+        }
+
         function closeWhatsAppModal() {
             document.getElementById('whatsappModal').style.display = 'none';
             currentSaleId = null;
         }
-        
+
+        function getTopVisibleSaleAction(selector) {
+            return document.querySelector('#salesTableBody .sales-action-buttons ' + selector);
+        }
+
+        function runTopVisibleSaleAction(selector, emptyMessage) {
+            const action = getTopVisibleSaleAction(selector);
+            if (!action) {
+                showToast(emptyMessage, 'error');
+                return;
+            }
+
+            action.click();
+        }
+
         async function sendWhatsAppPDF() {
             const phone = document.getElementById('whatsappPhone').value;
             if (!phone) {
                 showToast('Please enter phone number', 'error');
                 return;
             }
-            
+
             const phoneRegex = /^[0-9]{10}$/;
             if (!phoneRegex.test(phone.replace(/[^0-9]/g, ''))) {
                 showToast('Please enter valid 10-digit phone number', 'error');
                 return;
             }
-            
+
             showToast('Generating PDF...', 'info');
-            
+
             try {
                 const saleId = currentSaleId;
-                
+
                 // Fetch PDF from backend
                 const pdfResponse = await fetch('/sales/invoice/' + saleId + '/pdf');
-                
+
                 if (!pdfResponse.ok) {
                     throw new Error('Failed to generate PDF');
                 }
-                
+
                 const pdfBlob = await pdfResponse.blob();
-                
+
                 showToast('Sending PDF...', 'info');
-                
+
                 const formData = new FormData();
                 formData.append('file', pdfBlob, 'invoice_' + saleId + '.pdf');
                 formData.append('phoneNumber', phone);
-                
+
                 const token = document.querySelector('meta[name="_csrf"]').content;
                 const header = document.querySelector('meta[name="_csrf_header"]').content;
-                
+
                 const sendResponse = await fetch('/sales/invoice/' + saleId + '/send-whatsapp-pdf', {
                     method: 'POST',
                     headers: { [header]: token },
                     body: formData
                 });
-                
+
                 const data = await sendResponse.json();
-                
+
                 if (data.success) {
                     showToast('✓ Invoice sent via WhatsApp!', 'success');
                     closeWhatsAppModal();
                 } else {
                     showToast('❌ Failed: ' + (data.error || 'Unknown error'), 'error');
                 }
-                
+
             } catch (error) {
                 console.error('Error:', error);
                 showToast('❌ Failed to send invoice', 'error');
             }
         }
-        
+
         function formatDate(dateStr) {
             if (!dateStr) return 'N/A';
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
-        
+
         function formatNumber(value) {
             if (!value) return '0';
             return parseFloat(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
-        
+
         function escapeHtml(text) {
             if (!text) return '';
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
-        
+
         function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.style.display = 'block';
@@ -488,16 +547,127 @@
             toast.style.fontWeight = '500';
             toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
             toast.textContent = message;
-            setTimeout(function() { toast.style.display = 'none'; }, 5000);
+            setTimeout(function () { toast.style.display = 'none'; }, 5000);
         }
-        
-        window.onclick = function(event) { 
-            const modal = document.getElementById('whatsappModal'); 
-            if (event.target == modal) { closeWhatsAppModal(); } 
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('whatsappModal');
+            if (event.target == modal) { closeWhatsAppModal(); }
         }
+
+        document.getElementById('whatsappPhone').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendWhatsAppPDF();
+            }
+        });
+
+        document.addEventListener('hisaab:collect-commands', function (event) {
+            const tableBody = document.getElementById('salesTableBody');
+            if (!tableBody) {
+                return;
+            }
+
+            event.detail.commands.push(
+                {
+                    id: 'sales-history:focus-search',
+                    title: 'Sales History: Focus search',
+                    description: 'Jump to invoice and customer search',
+                    keywords: 'sales history search filter invoice customer',
+                    run: function () {
+                        document.getElementById('searchInput').focus();
+                    }
+                },
+                {
+                    id: 'sales-history:clear-filters',
+                    title: 'Sales History: Clear filters',
+                    description: 'Reset search, status, date, and sorting',
+                    keywords: 'sales history clear reset filters',
+                    run: function () {
+                        document.getElementById('clearFilters').click();
+                    }
+                },
+                {
+                    id: 'sales-history:view-invoice',
+                    title: 'Sales History: View latest visible invoice',
+                    description: 'Open the invoice from the first visible sale row',
+                    keywords: 'sales history invoice view latest top row',
+                    run: function () {
+                        runTopVisibleSaleAction('.sales-btn-view:not(.sales-btn-print)', 'No visible invoice found');
+                    }
+                },
+                {
+                    id: 'sales-history:view-thermal',
+                    title: 'Sales History: Open latest thermal print',
+                    description: 'Open thermal invoice from the first visible sale row',
+                    keywords: 'sales history thermal print latest top row',
+                    run: function () {
+                        runTopVisibleSaleAction('.sales-btn-print', 'No visible thermal invoice found');
+                    }
+                },
+                {
+                    id: 'sales-history:download-pdf',
+                    title: 'Sales History: Download latest visible PDF',
+                    description: 'Download PDF from the first visible sale row',
+                    keywords: 'sales history pdf download latest top row',
+                    run: function () {
+                        runTopVisibleSaleAction('.sales-btn-pdf', 'No visible PDF action found');
+                    }
+                },
+                {
+                    id: 'sales-history:send-whatsapp',
+                    title: 'Sales History: Send latest visible invoice on WhatsApp',
+                    description: 'Open WhatsApp send action for the first visible sale row',
+                    keywords: 'sales history whatsapp send latest top row',
+                    run: function () {
+                        runTopVisibleSaleAction('.sales-btn-whatsapp', 'No visible WhatsApp action found');
+                    }
+                },
+                {
+                    id: 'sales-history:cancel-sale',
+                    title: 'Sales History: Cancel latest completed sale',
+                    description: 'Run cancel on the first visible completed sale row',
+                    keywords: 'sales history cancel latest top row completed',
+                    run: function () {
+                        runTopVisibleSaleAction('.sales-btn-cancel', 'No cancellable sale found in the visible rows');
+                    }
+                }
+            );
+        });
+
+        document.addEventListener('keydown', function (event) {
+            const modalOpen = document.getElementById('whatsappModal').style.display === 'flex';
+
+            if (event.key === 'Escape' && modalOpen) {
+                event.preventDefault();
+                closeWhatsAppModal();
+                return;
+            }
+
+            if (event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            if (event.key === 'F6') {
+                event.preventDefault();
+                document.getElementById('searchInput').focus();
+            } else if (event.key === 'F7') {
+                event.preventDefault();
+                runTopVisibleSaleAction('.sales-btn-view:not(.sales-btn-print)', 'No visible invoice found');
+            } else if (event.key === 'F8') {
+                event.preventDefault();
+                runTopVisibleSaleAction('.sales-btn-print', 'No visible thermal invoice found');
+            } else if (event.key === 'F9') {
+                event.preventDefault();
+                runTopVisibleSaleAction('.sales-btn-whatsapp', 'No visible WhatsApp action found');
+            } else if (event.key === 'F10') {
+                event.preventDefault();
+                runTopVisibleSaleAction('.sales-btn-cancel', 'No cancellable sale found in the visible rows');
+            }
+        });
     </script>
-    
-  
+
+
 </body>
 
 </html>

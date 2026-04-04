@@ -2,6 +2,7 @@
     --shop-primary: #0f172a;
     --shop-primary-dark: #1e293b;
     --shop-secondary: #2563eb;
+    --shop-secondary-soft: #eff6ff;
     --shop-success: #10b981;
     --shop-danger: #ef4444;
     --shop-danger-light: #fee2e2;
@@ -12,4 +13,14 @@
     --shop-white: #ffffff;
     --shop-border: #e9eef2;
     --shop-border-light: #f1f5f9;
+    --shop-surface: #ffffff;
+    --shop-surface-soft: #fafcff;
+    --shop-panel-border: rgba(226, 232, 240, 0.78);
+    --shop-shadow-sm: 0 6px 14px rgba(15, 23, 42, 0.04);
+    --shop-shadow-md: 0 12px 28px rgba(15, 23, 42, 0.06);
+    --shop-radius-lg: 16px;
+    --shop-radius-xl: 20px;
+    --shop-radius-pill: 999px;
+    --shop-input-height: 40px;
+    --shop-panel-padding: 18px;
 }

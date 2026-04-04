@@ -350,9 +350,11 @@
             <a th:href="@{/admin/users}" class="active"><i class="fas fa-users"></i> Users</a>
             <a th:href="@{/admin/shops}"><i class="fas fa-store"></i> Shops</a>
             <a th:href="@{/admin/subscriptions}"><i class="fas fa-credit-card"></i> Plans</a>
+            <a th:href="@{/admin/audit}"><i class="fas fa-clipboard-list"></i> Audit Logs</a>
         </div>
         
         <form th:action="@{/admin/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </form>
     </div>

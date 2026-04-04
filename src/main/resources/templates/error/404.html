@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>400 • Bad Request • HisaabLite</title>
+    <title>404 • Not Found • HisaabLite</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -322,12 +322,12 @@
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
             
-            <div class="error-code">400</div>
+            <div class="error-code">404</div>
             
-            <h1 class="error-title">Bad Request</h1>
+            <h1 class="error-title">Page Not Found</h1>
             
-            <p class="error-message" th:text="${message} ?: 'The request could not be understood by the server.'">
-                The request could not be understood by the server.
+            <p class="error-message" th:text="${message != null ? message : 'The page you are looking for does not exist or may have moved.'}">
+                The page you are looking for does not exist or may have moved.
             </p>
             
             <div class="error-actions">
@@ -345,8 +345,8 @@
                 </div>
                 <ul class="suggestion-list">
                     <li><i class="fas fa-check"></i> Check the URL for typos</li>
-                    <li><i class="fas fa-check"></i> Clear your browser cache</li>
-                    <li><i class="fas fa-check"></i> Remove special characters from the request</li>
+                    <li><i class="fas fa-check"></i> Go back to the previous page</li>
+                    <li><i class="fas fa-check"></i> Open the dashboard or home page</li>
                     <li><i class="fas fa-check"></i> Try refreshing the page</li>
                 </ul>
             </div>
@@ -356,13 +356,13 @@
                     <i class="fas fa-headset"></i> Need Help?
                 </div>
                 <div class="support-buttons">
-                    <a href="https://wa.me/919876543210" class="support-btn whatsapp" target="_blank">
+                    <a th:href="'https://wa.me/' + ${whatsappNumber}" class="support-btn whatsapp" target="_blank">
                         <i class="fab fa-whatsapp"></i> WhatsApp Support
                     </a>
-                    <a href="mailto:support@hisaablite.com" class="support-btn email">
+                    <a th:href="'mailto:' + ${supportEmail}" class="support-btn email">
                         <i class="fas fa-envelope"></i> Email Support
                     </a>
-                    <a href="tel:+919876543210" class="support-btn phone">
+                    <a th:href="'tel:' + ${supportPhone}" class="support-btn phone">
                         <i class="fas fa-phone"></i> Call Support
                     </a>
                 </div>

@@ -7,7 +7,7 @@
 # Maven / Gradle
 target/
 build/
-Notes/
+
 
 # Eclipse / IntelliJ / VSCode
 .idea/
@@ -18,10 +18,12 @@ Notes/
 
 # Logs
 *.log
+logs/
 
 # OS generated files
 .DS_Store
 Thumbs.db
+.mvn
 
 # Spring Boot sensitive files
 application.properties
@@ -31,9 +33,19 @@ application.yml
 # Generated files by Spring Boot Devtools
 spring-boot-devtools.properties
 
-# Temporary files
+# Temporary files and local backup
 *.tmp
 *.bak
+*BKP*
+*bkp*
+*.html_bkp
+*.css_bkp.css
+
 
 # Secrets
 application-secrets.yml
+
+
+# Local docs / working notes
+docs/
+Notes/

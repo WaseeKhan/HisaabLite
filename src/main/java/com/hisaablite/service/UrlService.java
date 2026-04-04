@@ -1,12 +1,19 @@
 package com.hisaablite.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 public class UrlService {
+
+    @Value("${app.base-url:}")
+    private String configuredBaseUrl;
+
+    @Value("${app.contact.supportEmail:${admin.email:admin@hisaablite.com}}")
+    private String supportEmail;
     
     /**
      * Get base URL from current request (dynamic)
@@ -15,12 +22,30 @@ public class UrlService {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
-            String url = request.getRequestURL().toString();
-            String path = request.getServletPath();
-            return url.replace(path, "");
+            String forwardedProto = firstHeaderValue(request.getHeader("X-Forwarded-Proto"));
+            String forwardedHost = firstHeaderValue(request.getHeader("X-Forwarded-Host"));
+            String forwardedPort = firstHeaderValue(request.getHeader("X-Forwarded-Port"));
+
+            String scheme = hasText(forwardedProto) ? forwardedProto : request.getScheme();
+            String host = hasText(forwardedHost) ? forwardedHost : request.getServerName();
+            int port = hasText(forwardedPort) ? Integer.parseInt(forwardedPort) : request.getServerPort();
+
+            if (host.contains(":")) {
+                return scheme + "://" + host;
+            }
+
+            boolean defaultPort = ("http".equalsIgnoreCase(scheme) && port == 80)
+                    || ("https".equalsIgnoreCase(scheme) && port == 443);
+
+            return defaultPort ? scheme + "://" + host : scheme + "://" + host + ":" + port;
         }
-        // Fallback for non-web contexts (like scheduled tasks)
-        return "https://hisaablite.com";
+
+        if (hasText(configuredBaseUrl)) {
+            return configuredBaseUrl.endsWith("/") ? configuredBaseUrl.substring(0, configuredBaseUrl.length() - 1)
+                    : configuredBaseUrl;
+        }
+
+        return "http://localhost:8080";
     }
     
     /**
@@ -57,13 +82,24 @@ public class UrlService {
     public String getResetPasswordUrl(String token) {
         return buildUrl("/reset-password?token=" + token);
     }
+
+    public String getRenewUrl() {
+        return buildUrl("/renew");
+    }
+
+    public String getPlansUrl() {
+        return buildUrl("/plans");
+    }
+
+    public String getUpgradeUrl() {
+        return buildUrl("/upgrade");
+    }
     
     /**
     
      */
     public String getSupportEmail() {
-        // You can either get this from properties or return a default
-        return "support@hisaablite.com";
+        return supportEmail;
     }
     
     /**
@@ -85,5 +121,16 @@ public class UrlService {
      */
     public String getLoginUrl() {
         return buildUrl("/login");
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private String firstHeaderValue(String value) {
+        if (!hasText(value)) {
+            return null;
+        }
+        return value.split(",")[0].trim();
     }
 }

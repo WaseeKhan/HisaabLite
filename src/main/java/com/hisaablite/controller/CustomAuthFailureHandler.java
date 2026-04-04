@@ -6,10 +6,18 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+
+import com.hisaablite.security.AuthAuditHelper;
+
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
+
+    private final AuthAuditHelper authAuditHelper;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -24,6 +32,8 @@ public class CustomAuthFailureHandler implements AuthenticationFailureHandler {
         } else {
             message = "bad"; // keyword for wrong credentials
         }
+
+        authAuditHelper.logLoginFailure(request.getParameter("username"), exception.getMessage(), request);
 
         message = java.net.URLEncoder.encode(message, "UTF-8");
         response.sendRedirect("/login?error=" + message);

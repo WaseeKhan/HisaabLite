@@ -300,7 +300,7 @@
             
             <h1 class="error-title">Server Error</h1>
             
-            <p class="error-message" th:text="${message} ?: 'Something went wrong on our end. Please try again.'">
+            <p class="error-message" th:text="${message != null ? message : 'Something went wrong on our end. Please try again.'}">
                 Something went wrong on our end. Please try again.
             </p>
             
@@ -318,13 +318,13 @@
                     <i class="fas fa-headset"></i> Need Help?
                 </div>
                 <div class="support-buttons">
-                    <a href="https://wa.me/919876543210" class="support-btn whatsapp" target="_blank">
+                    <a th:href="'https://wa.me/' + ${whatsappNumber}" class="support-btn whatsapp" target="_blank">
                         <i class="fab fa-whatsapp"></i> WhatsApp Support
                     </a>
-                    <a href="mailto:support@hisaablite.com" class="support-btn email">
+                    <a th:href="'mailto:' + ${supportEmail}" class="support-btn email">
                         <i class="fas fa-envelope"></i> Email Support
                     </a>
-                    <a href="tel:+919876543210" class="support-btn phone">
+                    <a th:href="'tel:' + ${supportPhone}" class="support-btn phone">
                         <i class="fas fa-phone"></i> Call Support
                     </a>
                 </div>

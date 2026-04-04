@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<title th:text="${'Invoice_' + sale.id + ' • Thermal Print'}">Invoice_123 • Thermal Print</title>
+
+<style>
+
+@page {
+    size: 80mm auto;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    background: #ffffff;
+}
+
+body{
+    font-family: monospace;
+    margin:0;
+    padding:0;
+    font-size:11px;
+    background:#ffffff;
+    color:#000;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+}
+
+.thermal-invoice {
+    width:80mm;
+    background:#fff;
+    padding:3mm 3mm 4mm;
+    margin:0 auto;
+}
+
+.center{
+    text-align:center;
+}
+
+.separator{
+    border-top:1px dashed #000;
+    margin:4px 0;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+}
+
+.bold{
+    font-weight:bold;
+}
+
+.total{
+    font-size:13px;
+    font-weight:bold;
+}
+
+.small{
+    font-size:10px;
+}
+
+@media print{
+    @page {
+        size: 80mm auto;
+        margin: 0;
+    }
+
+    html,
+    body{
+        width:80mm;
+        min-width:80mm;
+        max-width:80mm;
+        min-height:auto;
+        padding:0;
+        background:#fff;
+        display:block;
+    }
+
+    .thermal-invoice {
+        width:80mm;
+        padding:0;
+        margin:0;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+<div class="thermal-invoice">
+
+<!-- SHOP DETAILS -->
+<div class="center">
+    <div class="bold" th:text="${sale.shop.name}">Shop Name</div>
+    <div th:text="${sale.shop.address}">Shop Address</div>
+    <div class="small">
+        GST: <span th:text="${sale.shop.gstNumber ?: 'N/A'}"></span>
+    </div>
+</div>
+
+<div class="separator"></div>
+
+<!-- INVOICE INFO -->
+
+<div>
+    Invoice: <span th:text="${sale.id}">12345</span><br>
+    Date: 
+    <span th:text="${#temporals.format(sale.saleDate,'dd MMM yyyy')}"></span>
+    <span th:text="${#temporals.format(sale.saleDate,'hh:mm a')}"></span>
+</div>
+
+<div>
+    Customer: <span th:text="${sale.customerName ?: 'Walk-in'}"></span><br>
+    Phone: <span th:text="${sale.customerPhone ?: '-'}"></span>
+</div>
+
+<div class="separator"></div>
+
+<!-- ITEMS HEADER -->
+
+
+<div class="row bold">
+    <span>Item</span>
+    <span>Qty</span>
+    <span>Amt</span>
+</div>
+
+<div class="separator"></div>
+
+<!-- ITEMS -->
+
+<div th:each="item : ${items}">
+
+    <div class="row">
+        <span th:text="${item.product.name}">Product</span>
+        <span th:text="${item.quantity}">1</span>
+        <span th:text="${#numbers.formatDecimal(item.totalWithGst,0,2)}">0.00</span>
+    </div>
+
+    <div class="small">
+        ₹<span th:text="${#numbers.formatDecimal(item.product.price,0,2)}"></span>
+        GST <span th:text="${item.gstPercent}"></span>%
+    </div>
+
+</div>
+
+<div class="separator"></div>
+
+<!-- SUMMARY -->
+
+<div class="row">
+    <span>Subtotal</span>
+    <span>
+        ₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![product.price * quantity]),0,2)}"></span>
+    </span>
+</div>
+
+<div class="row">
+    <span>CGST</span>
+    <span>
+        ₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount/2,0,2)}"></span>
+    </span>
+</div>
+
+<div class="row">
+    <span>SGST</span>
+    <span>
+        ₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount/2,0,2)}"></span>
+    </span>
+</div>
+
+<div class="separator"></div>
+
+<div class="row total">
+    <span>Total</span>
+    <span>
+        ₹<span th:text="${#numbers.formatDecimal(sale.totalAmount,0,2)}"></span>
+    </span>
+</div>
+
+<!-- DISCOUNT -->
+
+<div class="row" th:if="${sale.discountAmount != null and sale.discountAmount > 0}">
+    <span>Discount</span>
+    <span>
+        - ₹<span th:text="${#numbers.formatDecimal(sale.discountAmount,0,2)}"></span>
+    </span>
+</div>
+
+<div class="separator"></div>
+
+<!-- PAYMENT -->
+
+<div>
+    Payment: <span th:text="${sale.paymentMode}">Cash</span><br>
+    Received: ₹<span th:text="${#numbers.formatDecimal(sale.amountReceived,0,2)}"></span><br>
+    Change: ₹<span th:text="${#numbers.formatDecimal(sale.changeReturned,0,2)}"></span>
+</div>
+
+<div class="separator"></div>
+
+<!-- FOOTER -->
+
+<div class="center small">
+    Thank you for your business<br>
+    Visit Again
+</div>
+
+<div class="center small">
+    Powered by HisaabLite
+</div>
+
+</div>
+
+</body>
+
+<script>
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('autoprint') !== 'true') {
+            return;
+        }
+
+        window.addEventListener('load', function () {
+            window.setTimeout(function () {
+                window.print();
+            }, 250);
+        });
+
+        window.addEventListener('afterprint', function () {
+            window.close();
+        });
+    })();
+</script>
+
+</html>

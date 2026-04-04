@@ -221,7 +221,7 @@
                         <i class="fab fa-whatsapp"></i>
                         <h3>WhatsApp Support</h3>
                         <p>Quickest way to get help</p>
-                        <a href="https://wa.me/919876543210" class="contact-btn whatsapp" target="_blank">
+                        <a th:href="'https://wa.me/' + ${whatsappNumber}" class="contact-btn whatsapp" target="_blank">
                             <i class="fab fa-whatsapp"></i> Chat Now
                         </a>
                     </div>
@@ -229,7 +229,7 @@
                         <i class="fas fa-envelope"></i>
                         <h3>Email Support</h3>
                         <p>Response within 24 hours</p>
-                        <a href="mailto:support@hisaablite.com" class="contact-btn email">
+                        <a th:href="'mailto:' + ${supportEmail}" class="contact-btn email">
                             <i class="fas fa-envelope"></i> Send Email
                         </a>
                     </div>
@@ -237,7 +237,7 @@
                         <i class="fas fa-phone"></i>
                         <h3>Call Us</h3>
                         <p>Speak directly with our team</p>
-                        <a href="tel:+919876543210" class="contact-btn phone">
+                        <a th:href="'tel:' + ${supportPhone}" class="contact-btn phone">
                             <i class="fas fa-phone"></i> Call Now
                         </a>
                     </div>

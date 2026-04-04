@@ -207,8 +207,62 @@
         </div>
     </div>
 
+    <div id="profileNotice" class="profile-notice" hidden></div>
+
+    <div id="profileConfirmModal" class="whatsapp-modal profile-confirm-modal" hidden>
+        <div class="whatsapp-modal-content profile-confirm-content">
+            <div class="modal-header">
+                <i class="fas fa-circle-question" style="color:#f59e0b"></i>
+                <h3 id="profileConfirmTitle">Confirm Action</h3>
+                <button class="modal-close" type="button" onclick="closeProfileConfirm()">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="profileConfirmMessage" class="profile-confirm-message">Are you sure?</p>
+                <div class="profile-confirm-actions">
+                    <button type="button" class="btn-cancel" onclick="closeProfileConfirm()">Cancel</button>
+                    <button type="button" class="btn-save" id="profileConfirmApprove">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script th:inline="javascript">
+        let profileConfirmAction = null;
+
+        function showProfileNotice(message, type = 'info') {
+            const notice = document.getElementById('profileNotice');
+            notice.textContent = message;
+            notice.className = 'profile-notice show ' + type;
+            notice.hidden = false;
+
+            window.clearTimeout(showProfileNotice.timeoutId);
+            showProfileNotice.timeoutId = window.setTimeout(() => {
+                notice.classList.remove('show');
+                notice.hidden = true;
+            }, 3200);
+        }
+
+        function openProfileConfirm(message, onConfirm, title = 'Confirm Action') {
+            profileConfirmAction = onConfirm;
+            document.getElementById('profileConfirmTitle').textContent = title;
+            document.getElementById('profileConfirmMessage').textContent = message;
+            document.getElementById('profileConfirmModal').hidden = false;
+        }
+
+        function closeProfileConfirm() {
+            profileConfirmAction = null;
+            document.getElementById('profileConfirmModal').hidden = true;
+        }
+
+        document.getElementById('profileConfirmApprove').addEventListener('click', function () {
+            const action = profileConfirmAction;
+            closeProfileConfirm();
+            if (typeof action === 'function') {
+                action();
+            }
+        });
+
         function renderWhatsAppQR(qrData) {
             const qrContainer = document.getElementById("qrCodeImage");
             if (!qrContainer) return;
@@ -228,7 +282,7 @@
         }
         window.saveWhatsAppNumber = function () {
             const number = document.getElementById('whatsappNumber').value;
-            if (!number || number.length !== 10) { alert('Enter valid 10-digit WhatsApp number'); return; }
+            if (!number || number.length !== 10) { showProfileNotice('Enter valid 10-digit WhatsApp number', 'error'); return; }
             const csrfToken = document.querySelector("meta[name='_csrf']").content;
             const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
             const btn = document.querySelector('button[onclick="saveWhatsAppNumber()"]');
@@ -246,18 +300,33 @@
                         setTimeout(() => renderWhatsAppQR(qrData), 200);
                         openWhatsAppModal();
                         startConnectionPolling(instanceName);
-                    } else { alert('Error: ' + (data.error || 'Failed')); }
+                    } else {
+                        showProfileNotice(data.error || 'Failed to start WhatsApp setup', 'error');
+                    }
                     btn.innerHTML = originalText;
                     btn.disabled = false;
-                }).catch(error => { alert('Error: ' + error.message); btn.innerHTML = originalText; btn.disabled = false; });
+                }).catch(error => {
+                    showProfileNotice(error.message || 'Failed to start WhatsApp setup', 'error');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
         };
         window.disconnectWhatsApp = function () {
-            if (!confirm('Disconnect WhatsApp?')) return;
-            const csrfToken = document.querySelector("meta[name='_csrf']").content;
-            const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
-            fetch('/profile/whatsapp/reset', { method: 'POST', headers: { [csrfHeader]: csrfToken } })
-                .then(response => response.json())
-                .then(data => { if (data.success) location.reload(); });
+            openProfileConfirm('Disconnect WhatsApp from this shop?', () => {
+                const csrfToken = document.querySelector("meta[name='_csrf']").content;
+                const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+                fetch('/profile/whatsapp/reset', { method: 'POST', headers: { [csrfHeader]: csrfToken } })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showProfileNotice('WhatsApp disconnected', 'success');
+                            setTimeout(() => location.reload(), 500);
+                        } else {
+                            showProfileNotice(data.error || 'Failed to disconnect WhatsApp', 'error');
+                        }
+                    })
+                    .catch(() => showProfileNotice('Failed to disconnect WhatsApp', 'error'));
+            }, 'Disconnect WhatsApp');
         };
         window.reconnectWhatsApp = window.disconnectWhatsApp;
     </script>

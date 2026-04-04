@@ -43,8 +43,6 @@ public class AdminInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         log.info("Command Line Runner Started");
-
-        String adminEmail = "admin@hisaablite.com";
         
         // Check if admin already exists
         if (userRepository.findByUsername(adminEmail).isEmpty()) {
@@ -71,10 +69,10 @@ public class AdminInitializer implements CommandLineRunner {
             
             // Create admin with this shop
             User admin = User.builder()
-                .name("Super Admin")
+                .name(adminName)
                 .username(adminEmail)
-                .phone("9999999999")
-                .password(passwordEncoder.encode("admin@123"))
+                .phone(adminPhone)
+                .password(passwordEncoder.encode(adminPassword))
                 .role(Role.ADMIN)
                 .approved(true)
                 .active(true)

@@ -70,11 +70,11 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
 
     
     // ===== STATISTICS BY DATE =====
-    @Query("SELECT DATE(u.createdAt) as date, COUNT(u) as count " +
+    @Query("SELECT FUNCTION('DATE', u.createdAt) as date, COUNT(u) as count " +
            "FROM User u " +
            "WHERE u.createdAt BETWEEN :start AND :end " +
-           "GROUP BY DATE(u.createdAt) " +
-           "ORDER BY DATE(u.createdAt)")
+           "GROUP BY FUNCTION('DATE', u.createdAt) " +
+           "ORDER BY FUNCTION('DATE', u.createdAt)")
     List<Object[]> getUserStatsByDate(
         @Param("start") LocalDateTime start, 
         @Param("end") LocalDateTime end

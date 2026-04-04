@@ -2,7 +2,10 @@ package com.hisaablite.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -10,12 +13,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import com.hisaablite.controller.CustomAuthFailureHandler;
 import com.hisaablite.security.CustomUserDetailsService;
+import com.hisaablite.security.AuthAuditHelper;
 
 import java.io.IOException;
 
@@ -25,15 +32,18 @@ public class SecurityConfig {
 
         private final CustomUserDetailsService userDetailsService;
         private final CustomAuthFailureHandler failureHandler;
+        private final AuthAuditHelper authAuditHelper;
+        @Value("${app.security.enforce-single-session:true}")
+        private boolean enforceSingleSession;
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http)
                         throws Exception {
 
                 http
+                        .authenticationProvider(authenticationProvider())
                         .csrf(csrf -> csrf
                                 .ignoringRequestMatchers(
-                                        "/sales/invoice/*/pdf",
                                         "/admin/users/approve/*",
                                         "/admin/users/bulk-approve"
                                 )
@@ -42,11 +52,11 @@ public class SecurityConfig {
                                 .requestMatchers("/", "/login", "/register", "/forgot-password",
                                                 "/reset-password", "/verify",
                                                 "/favicon.png", "/favicon.ico", "/css/**", "/js/**",
-                                                "/sales/whatsapp/test", "/support/**",
-                                                "/sales/invoice/*/pdf", "/about", "/careers", "/blog",
+                                                "/sales/whatsapp/test", "/about", "/careers", "/blog",
                                         "/pricing", "/features", "/images/**", "/blog", "/contact", "/privacy", "/terms",
                                 "/how-it-works","/features", "/help")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/support").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/owner/**").hasRole("OWNER")
                                 .requestMatchers("/manager/**").hasAnyRole("OWNER", "MANAGER")
@@ -54,12 +64,14 @@ public class SecurityConfig {
                                 .requestMatchers("/products/**").hasAnyRole("OWNER", "MANAGER")
                                 .requestMatchers("/profile/**").hasRole("OWNER")
                                 .requestMatchers("/staff/**").hasRole("OWNER")
+                                .requestMatchers("/activity/**").hasRole("OWNER")
                                 .requestMatchers("/app/**").authenticated()
                                 .requestMatchers("/upgrade/**").authenticated()
                                 .anyRequest().authenticated())
                         
                         .headers(headers -> headers
                                 .addHeaderWriter(new XXssProtectionHeaderWriter())
+                                .cacheControl(Customizer.withDefaults())
                                 .contentSecurityPolicy(csp -> csp
                                         .policyDirectives(
                                             "default-src 'self'; " +
@@ -74,15 +86,9 @@ public class SecurityConfig {
                                 )
                         )
 
-                        // ===== ADDED: Session Management =====
-                        .sessionManagement(session -> session
-                                .maximumSessions(1) // Only ONE session per user
-                                .maxSessionsPreventsLogin(false) // Don't prevent, expire old session
-                                .expiredSessionStrategy(sessionInformationExpiredStrategy())
-                                .sessionRegistry(sessionRegistry())
-                        )
                         .sessionManagement(session -> session
                                 .sessionFixation().migrateSession()
+                                .invalidSessionUrl("/login?expired")
                         )
 
                         .formLogin(form -> form
@@ -92,11 +98,24 @@ public class SecurityConfig {
                                         .permitAll())
                         .logout(logout -> logout
                                         .logoutUrl("/logout")
-                                        .logoutSuccessUrl("/login?logout")
+                                        .logoutSuccessHandler(logoutSuccessHandler())
+                                        .addLogoutHandler(new HeaderWriterLogoutHandler(
+                                                        new ClearSiteDataHeaderWriter(
+                                                                        ClearSiteDataHeaderWriter.Directive.CACHE,
+                                                                        ClearSiteDataHeaderWriter.Directive.COOKIES,
+                                                                        ClearSiteDataHeaderWriter.Directive.STORAGE)))
                                         .invalidateHttpSession(true)
                                         .clearAuthentication(true)
                                         .deleteCookies("JSESSIONID")
                                         .permitAll());
+
+                if (enforceSingleSession) {
+                        http.sessionManagement(session -> session
+                                .maximumSessions(1)
+                                .maxSessionsPreventsLogin(false)
+                                .expiredSessionStrategy(sessionInformationExpiredStrategy())
+                                .sessionRegistry(sessionRegistry()));
+                }
 
                 return http.build();
         }
@@ -116,16 +135,17 @@ public class SecurityConfig {
                 return (request, response, authentication) -> {
                         // Register new session
                         sessionRegistry().registerNewSession(request.getSession().getId(), authentication.getPrincipal());
-                        
-                        // Redirect based on role
-                        String role = authentication.getAuthorities().iterator().next().getAuthority();
-                        if (role.equals("ROLE_OWNER")) {
-                                response.sendRedirect("/owner/dashboard");
-                        } else if (role.equals("ROLE_MANAGER")) {
-                                response.sendRedirect("/manager/dashboard");
-                        } else {
-                                response.sendRedirect("/cashier/dashboard");
-                        }
+                        authAuditHelper.logLoginSuccess(authentication, request);
+
+                        response.sendRedirect("/dashboard");
+                };
+        }
+
+        @Bean
+        public LogoutSuccessHandler logoutSuccessHandler() {
+                return (request, response, authentication) -> {
+                        authAuditHelper.logLogout(authentication, request, "LOGOUT");
+                        response.sendRedirect("/login?logout");
                 };
         }
 
@@ -146,8 +166,7 @@ public class SecurityConfig {
                 return new BCryptPasswordEncoder();
         }
 
-        @Bean
-        public DaoAuthenticationProvider authenticationProvider() {
+        private DaoAuthenticationProvider authenticationProvider() {
                 DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
                 auth.setUserDetailsService(userDetailsService);
                 auth.setPasswordEncoder(passwordEncoder());

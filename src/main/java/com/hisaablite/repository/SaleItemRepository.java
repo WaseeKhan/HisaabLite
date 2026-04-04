@@ -5,6 +5,7 @@ import com.hisaablite.entity.SaleItem;
 import com.hisaablite.entity.Shop;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,9 +32,8 @@ public interface SaleItemRepository extends JpaRepository<SaleItem, Long> {
         AND s.status = 'COMPLETED'
         GROUP BY p.id, p.name
         ORDER BY total_quantity DESC
-        LIMIT :limit
     """)
-    List<Object[]> findTopSellingProductsByShop(@Param("shop") Shop shop, @Param("limit") int limit);
+    List<Object[]> findTopSellingProductsByShop(@Param("shop") Shop shop, Pageable pageable);
 
 
     // ===== LIFETIME BUSINESS DATA METHODS =====

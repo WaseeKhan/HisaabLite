@@ -52,7 +52,7 @@ public class SupportController {
                 }
             }
         }
-        PlanType planType = shop.getPlanType();
+        PlanType planType = shop != null ? shop.getPlanType() : null;
         String planTypeDisplay = planType != null ? planType.name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
         // Add all attributes with null safety

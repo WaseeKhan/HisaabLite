@@ -35,9 +35,10 @@
 
 /* Panels */
 .info-panel, .edit-panel, .whatsapp-panel, .faq-panel {
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #eef2f6;
+    background: var(--shop-surface);
+    border-radius: var(--shop-radius-xl);
+    border: 1px solid var(--shop-panel-border);
+    box-shadow: var(--shop-shadow-sm);
     overflow: hidden;
 }
 .panel-header {
@@ -46,7 +47,7 @@
     gap: 8px;
     padding: 12px 20px;
     border-bottom: 1px solid #eef2f6;
-    background: #fafcff;
+    background: var(--shop-surface-soft);
 }
 .panel-header i { font-size: 16px; color: #2563eb; }
 .panel-header h2 { font-size: 14px; font-weight: 600; color: #0f172a; margin: 0; }
@@ -109,16 +110,19 @@
 }
 .form-field label i { font-size: 10px; color: #94a3b8; }
 .form-field input {
+    min-height: var(--shop-input-height);
     padding: 8px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
     font-size: 12px;
     font-family: 'Inter', sans-serif;
+    background: var(--shop-surface-soft);
 }
 .form-field input:focus {
     outline: none;
     border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37,99,235,0.08);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
 }
 .form-actions {
     display: flex;
@@ -129,8 +133,9 @@
 }
 .btn-save, .btn-cancel {
     flex: 1;
-    padding: 8px;
-    border-radius: 30px;
+    min-height: var(--shop-input-height);
+    padding: 8px 14px;
+    border-radius: 14px;
     font-size: 12px;
     font-weight: 600;
     display: inline-flex;
@@ -174,7 +179,7 @@
 .badge.success { background: #dcfce7; color: #15803d; }
 .badge.warning { background: #fef3c7; color: #b45309; }
 .whatsapp-number {
-    background: #f8fafc;
+    background: var(--shop-surface-soft);
     padding: 4px 12px;
     border-radius: 30px;
     font-size: 12px;
@@ -186,9 +191,9 @@
 .btn-disconnect {
     background: #fee2e2;
     color: #dc2626;
-    padding: 4px 12px;
+    padding: 8px 14px;
     border: none;
-    border-radius: 30px;
+    border-radius: 14px;
     font-size: 11px;
     font-weight: 500;
     cursor: pointer;
@@ -207,10 +212,10 @@
 }
 .whatsapp-footer { margin-top: 8px; }
 .btn-outline {
-    background: #f1f5f9;
-    padding: 6px 16px;
+    background: #f8fafc;
+    padding: 8px 16px;
     border: none;
-    border-radius: 30px;
+    border-radius: 14px;
     font-size: 11px;
     font-weight: 500;
     cursor: pointer;
@@ -225,17 +230,19 @@
 }
 .whatsapp-input {
     flex: 1;
+    min-height: var(--shop-input-height);
     padding: 8px 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 30px;
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
     font-size: 12px;
+    background: var(--shop-surface-soft);
 }
 .btn-connect {
     background: #25D366;
     color: white;
     padding: 8px 18px;
     border: none;
-    border-radius: 30px;
+    border-radius: 14px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -305,6 +312,11 @@
     justify-content: center;
     align-items: center;
 }
+
+.whatsapp-modal[hidden] {
+    display: none !important;
+}
+
 .whatsapp-modal-content {
     background: white;
     width: 380px;
@@ -499,8 +511,66 @@
     transform: translateY(-2px);
 }
 
+.profile-notice {
+    position: fixed;
+    top: 92px;
+    right: 24px;
+    z-index: 10020;
+    min-width: 260px;
+    max-width: 360px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+}
+
+.profile-notice.success {
+    background: #065f46;
+    border-color: #10b981;
+}
+
+.profile-notice.error {
+    background: #7f1d1d;
+    border-color: #ef4444;
+}
+
+.profile-confirm-modal[hidden] {
+    display: none !important;
+}
+
+.profile-confirm-content {
+    width: 420px;
+    max-width: 92%;
+}
+
+.profile-confirm-message {
+    margin: 0;
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.5;
+}
+
+.profile-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
+    .profile-notice {
+        top: 76px;
+        right: 14px;
+        left: 14px;
+        min-width: 0;
+        max-width: none;
+    }
+
     .upgrade-message {
         flex-direction: column;
         text-align: center;

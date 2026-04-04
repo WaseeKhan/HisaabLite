@@ -17,6 +17,7 @@ public class SaleHistoryDTO {
     private LocalDateTime saleDate;
     private BigDecimal totalAmount;
     private String customerName;
+    private String customerPhone;
     private String cashierName;
     private String status;
 }
