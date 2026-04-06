@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
         d: '/dashboard',
         b: '/sales/new',
         p: '/products',
+        i: '/purchases',
         h: '/sales/history',
         s: '/staff',
         r: '/profile',

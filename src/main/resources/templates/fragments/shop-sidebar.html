@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<div th:fragment="sidebar" class="shop-sidebar">
-    <div class="shop-logo">
-        <div class="shop-logo-icon">HL</div>
-        <div class="shop-logo-text">HisaabLite</div>
+<div th:fragment="sidebar" class="shop-sidebar-shell">
+    <button type="button" class="shop-sidebar-overlay" id="shopSidebarOverlay" aria-label="Close navigation"></button>
+
+    <div class="shop-sidebar" id="shopSidebarNav">
+    <div class="shop-page-title" th:switch="${currentPageName != null ? currentPageName : currentPage}">
+        <span th:case="'dashboard'">Dashboard</span>
+        <span th:case="'billing'">Billing</span>
+        <span th:case="'products'">Products</span>
+        <span th:case="'purchases'">Purchases</span>
+        <span th:case="'sales-history'">Sales History</span>
+        <span th:case="'staff'">Staff</span>
+        <span th:case="'profile'">Profile</span>
+        <span th:case="'activity'">Activity</span>
+        <span th:case="'support'">Support</span>
+        <span th:case="'upgrade'">Upgrade Plan</span>
+        <span th:case="*">Workspace</span>
     </div>
 
     <div class="shop-nav-links">
@@ -26,6 +38,14 @@
            th:classappend="${currentPage == 'products'} ? 'active' : ''">
             <i class="fas fa-box"></i>
             <span>Products</span>
+        </a>
+        <a th:if="${role == 'OWNER' or role == 'MANAGER'}"
+           th:href="@{/purchases}"
+           class="shop-nav-link"
+           data-shortcut="Alt + I"
+           th:classappend="${currentPage == 'purchases'} ? 'active' : ''">
+            <i class="fas fa-truck-loading"></i>
+            <span>Purchases</span>
         </a>
         <a th:href="@{/sales/history}" class="shop-nav-link" data-shortcut="Alt + H" th:classappend="${currentPage == 'sales-history'} ? 'active' : ''">
             <i class="fas fa-clock"></i>
@@ -111,6 +131,7 @@
                     <div class="shop-shortcut-item"><span>Dashboard</span><kbd>Alt/Ctrl + D</kbd></div>
                     <div class="shop-shortcut-item"><span>Billing</span><kbd>Alt/Ctrl + B</kbd></div>
                     <div class="shop-shortcut-item"><span>Products</span><kbd>Alt/Ctrl + P</kbd></div>
+                    <div class="shop-shortcut-item"><span>Purchases</span><kbd>Alt/Ctrl + I</kbd></div>
                     <div class="shop-shortcut-item"><span>Sales History</span><kbd>Alt/Ctrl + H</kbd></div>
                     <div class="shop-shortcut-item"><span>Staff</span><kbd>Alt/Ctrl + S</kbd></div>
                     <div class="shop-shortcut-item"><span>Profile</span><kbd>Alt/Ctrl + R</kbd></div>
@@ -149,7 +170,41 @@
             </div>
         </div>
     </div>
-
     <script th:src="@{/js/shop-shortcuts.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var overlay = document.getElementById('shopSidebarOverlay');
+            var sidebar = document.getElementById('shopSidebarNav');
+            var toggle = document.getElementById('shopNavToggle');
+
+            var closeNav = function() {
+                document.body.classList.remove('shop-shell-nav-open');
+                if (toggle) {
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            };
+
+            if (overlay) {
+                overlay.addEventListener('click', closeNav);
+            }
+
+            if (sidebar) {
+                sidebar.querySelectorAll('.shop-nav-link, .upgrade-link').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 960) {
+                            closeNav();
+                        }
+                    });
+                });
+            }
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeNav();
+                }
+            });
+        });
+    </script>
+    </div>
 </div>
 </html>

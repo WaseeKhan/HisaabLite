@@ -25,8 +25,20 @@ public class Product {
 
     private String description;
 
+    private String barcode;
+
+    private String genericName;
+
+    private String manufacturer;
+
+    private String packSize;
+
     @Column(nullable = false)
     private BigDecimal price;
+
+    private BigDecimal mrp;
+
+    private BigDecimal purchasePrice;
 
     @Column(nullable = false)
     private Integer stockQuantity;
@@ -38,6 +50,9 @@ public class Product {
     //GST Related 
     @Builder.Default
     private Integer gstPercent = 0;
+
+    @Builder.Default
+    private boolean prescriptionRequired = false;
 
     @ManyToOne
     @JoinColumn(name = "shop_id", nullable = false)

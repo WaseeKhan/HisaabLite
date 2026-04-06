@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${product.id != null} ? 'Edit Product • HisaabLite' : 'Add Product • HisaabLite'">
-        Add Product • HisaabLite
+    <title th:text="${product.id != null} ? 'Edit Medicine • RxArogya' : 'Add Medicine • RxArogya'">
+        Add Medicine • RxArogya
     </title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
@@ -38,88 +38,228 @@
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
 
-                <!-- Product Form Card - Centered -->
-                <div style="display: flex; justify-content: center;">
-                    <div class="form-card">
+                <div class="product-form-shell">
+                    <div class="product-form-intro">
+                        <div class="product-form-copy">
+                            <span class="product-form-kicker">Medicine Entry Desk</span>
+                            <h2 th:text="${product.id != null} ? 'Update Medicine Master' : 'Add a New Medicine'">Add a New Medicine</h2>
+                            <p>Capture the medicine identity first, then pricing, tax, stock, and compliance details so your team can search and bill confidently.</p>
+                            <div class="product-form-pills">
+                                <span><i class="fas fa-barcode"></i> Barcode-ready record</span>
+                                <span><i class="fas fa-capsules"></i> Salt search support</span>
+                                <span><i class="fas fa-file-prescription"></i> Rx medicine tagging</span>
+                            </div>
+                        </div>
+                        <a th:href="@{/products}" class="product-form-back">
+                            <i class="fas fa-arrow-left"></i> Back to Catalogue
+                        </a>
+                    </div>
 
-                        <!-- Form Title -->
-                        <div class="form-title">
-                            <i class="fas" th:class="${product.id != null} ? 'fa-edit' : 'fa-plus-circle'"></i>
-                            <span th:text="${product.id != null} ? 'Update Product Details' : 'Add New Product '">
-                                Enter Product Details
-                            </span>
+                    <div class="product-form-layout">
+                        <div class="form-card">
+
+                            <div class="form-title-block">
+                                <div class="form-title">
+                                    <i class="fas" th:class="${product.id != null} ? 'fa-edit' : 'fa-plus-circle'"></i>
+                                    <div>
+                                        <h3 th:text="${product.id != null} ? 'Medicine Details' : 'Create Medicine Record'">Create Medicine Record</h3>
+                                        <p th:text="${product.id != null} ? 'Update the medicine identity, pricing, and stock configuration.' : 'Complete the medicine identity, pricing, and stock configuration.'">Complete the medicine identity, pricing, and stock configuration.</p>
+                                    </div>
+                                </div>
+                                <div class="form-status-chip" th:text="${product.id != null} ? 'Editing Existing Record' : 'New Medicine Record'">New Medicine Record</div>
+                            </div>
+
+                            <form th:action="@{/products/save}" th:object="${product}" method="post">
+                                <input type="hidden" th:field="*{id}" />
+
+                                <section class="form-section">
+                                    <div class="form-section-head">
+                                        <h4>Medicine Identity</h4>
+                                        <p>Brand, salt, company, and barcode details that help staff search quickly.</p>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group full-width">
+                                            <label><i class="fas fa-capsules"></i> Medicine Name</label>
+                                            <input type="text" th:field="*{name}" placeholder="Enter brand / medicine name" required />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-prescription-bottle"></i> Generic / Salt Name</label>
+                                            <input type="text" th:field="*{genericName}" placeholder="Paracetamol, Azithromycin..." />
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Helps staff search medicines by salt
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-industry"></i> Manufacturer</label>
+                                            <input type="text" th:field="*{manufacturer}" placeholder="Cipla, Sun Pharma..." />
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Company or manufacturer name
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-barcode"></i> Barcode</label>
+                                            <input type="text" th:field="*{barcode}" placeholder="Scan or enter barcode" />
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Unique barcode for scanner billing
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-box-open"></i> Pack Size</label>
+                                            <input type="text" th:field="*{packSize}" placeholder="10 tabs, 100 ml, 1 vial" />
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Strip, bottle, box, or vial size
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="form-section">
+                                    <div class="form-section-head">
+                                        <h4>Pricing & Tax</h4>
+                                        <p>Record selling value, MRP, purchase price, and GST in one place.</p>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-rupee-sign"></i> Sale Price (₹)</label>
+                                            <div class="price-input-wrapper">
+                                                <span class="currency-symbol">₹</span>
+                                                <input type="number" step="0.01" th:field="*{price}" placeholder="0.00" required />
+                                            </div>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Final selling price per unit
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-file-invoice-dollar"></i> MRP (₹)</label>
+                                            <div class="price-input-wrapper">
+                                                <span class="currency-symbol">₹</span>
+                                                <input type="number" step="0.01" th:field="*{mrp}" placeholder="0.00" />
+                                            </div>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Printed retail price for reference
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-truck-loading"></i> Purchase Price (₹)</label>
+                                            <div class="price-input-wrapper">
+                                                <span class="currency-symbol">₹</span>
+                                                <input type="number" step="0.01" th:field="*{purchasePrice}" placeholder="0.00" />
+                                            </div>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Useful for margin and purchase reporting
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-percent"></i> GST (%)</label>
+                                            <select th:field="*{gstPercent}">
+                                                <option value="0">0% (No GST)</option>
+                                                <option value="5">5%</option>
+                                                <option value="12">12%</option>
+                                                <option value="18">18%</option>
+                                                <option value="28">28%</option>
+                                            </select>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Applicable tax slab for this medicine
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="form-section">
+                                    <div class="form-section-head">
+                                        <h4>Stock & Compliance</h4>
+                                        <p>Set available quantity, stock alerts, and whether the medicine is prescription-only.</p>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-boxes"></i> Opening / Manual Stock</label>
+                                            <input type="number" th:field="*{stockQuantity}" placeholder="0" required />
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Use Purchases for batch-managed stock. Keep this for opening balance or manual adjustment.
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-exclamation-triangle"></i> Min Stock Alert</label>
+                                            <input type="number" th:field="*{minStock}" placeholder="5" />
+                                            <div class="hint-text">
+                                                <i class="fas fa-bell"></i> Alert staff when stock falls below this level
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-file-medical"></i> Prescription</label>
+                                            <select th:field="*{prescriptionRequired}">
+                                                <option value="false">OTC / No prescription</option>
+                                                <option value="true">Prescription required</option>
+                                            </select>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Mark Rx medicines clearly for staff
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="form-section">
+                                    <div class="form-section-head">
+                                        <h4>Notes & Composition</h4>
+                                        <p>Optional description that helps staff identify the medicine quickly.</p>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group full-width">
+                                            <label><i class="fas fa-align-left"></i> Notes / Composition</label>
+                                            <textarea th:field="*{description}" rows="4" placeholder="Optional notes, composition, dosage help"></textarea>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Useful for staff search and recall
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-save"></i>
+                                        <span th:text="${product.id != null} ? 'Update Medicine' : 'Save Medicine'">Save Medicine</span>
+                                    </button>
+                                    <a th:href="@{/products}" class="btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
                         </div>
 
-                        <!-- Product Form -->
-                        <form th:action="@{/products/save}" th:object="${product}" method="post">
-                            <!-- Hidden ID for Update -->
-                            <input type="hidden" th:field="*{id}" />
-
-                            <div class="form-grid">
-
-                                <!-- Product Name - Full Width -->
-                                <div class="form-group full-width">
-                                    <label><i class="fas fa-tag"></i> Product Name</label>
-                                    <input type="text" th:field="*{name}" placeholder="Enter product name" required />
-                                </div>
-
-                                <!-- Price & GST in One Row -->
-                                <div class="form-group">
-                                    <label><i class="fas fa-rupee-sign"></i> Price (₹)</label>
-                                    <div class="price-input-wrapper">
-                                        <input type="number" step="0.01" th:field="*{price}" placeholder="0.00" required />
-                                    </div>
-                                     <div class="hint-text">
-                                        <i class="fas fa-info-circle"></i> Price per quentity
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label><i class="fas fa-percent"></i> GST (%)</label>
-                                    <select th:field="*{gstPercent}">
-                                        <option value="0">0% (No GST)</option>
-                                        <option value="5">5%</option>
-                                        <option value="12">12%</option>
-                                        <option value="18">18%</option>
-                                        <option value="28">28%</option>
-                                    </select>
-                                    <div class="hint-text">
-                                        <i class="fas fa-info-circle"></i> Applicable GST rate
-                                    </div>
-                                </div>
-
-                                <!-- Stock & Minimum Stock - In One Line -->
-                                <div class="stock-row">
-                                    <div class="form-group">
-                                        <label><i class="fas fa-boxes"></i> Stock Quantity</label>
-                                        <input type="number" th:field="*{stockQuantity}" placeholder="0" required />
-                                        <div class="hint-text">
-                                            <i class="fas fa-info-circle"></i> Current available stock
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label><i class="fas fa-exclamation-triangle"></i> Min Stock Alert</label>
-                                        <input type="number" th:field="*{minStock}" placeholder="5" />
-                                        <div class="hint-text">
-                                            <i class="fas fa-bell"></i> Alert when below this
-                                        </div>
-                                    </div>
-                                </div>
-
+                        <aside class="product-side-panel">
+                            <div class="product-side-card">
+                                <h4>What makes a good medicine record?</h4>
+                                <ul>
+                                    <li>Use the brand name exactly as staff and customers ask for it.</li>
+                                    <li>Always fill salt, company, and pack size for faster search results.</li>
+                                    <li>Add barcode and MRP wherever possible to prepare for scanner billing.</li>
+                                </ul>
                             </div>
-
-                            <!-- Action Buttons - Centered -->
-                            <div class="action-buttons">
-                                <button type="submit" class="btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    <span th:text="${product.id != null} ? 'Update Product' : 'Save Product'">Save Product</span>
-                                </button>
-                                <a th:href="@{/products}" class="btn-secondary">
-                                    <i class="fas fa-times"></i> Cancel
-                                </a>
+                            <div class="product-side-card">
+                                <h4>Recommended setup</h4>
+                                <div class="side-metric">
+                                    <span>Barcode</span>
+                                    <strong>Enable direct scan-to-bill flow</strong>
+                                </div>
+                                <div class="side-metric">
+                                    <span>Min Stock</span>
+                                    <strong>Keep low-stock alerts realistic for daily sales</strong>
+                                </div>
+                                <div class="side-metric">
+                                    <span>Rx Tag</span>
+                                    <strong>Separate prescription medicines for safer billing</strong>
+                                </div>
                             </div>
-                        </form>
+                        </aside>
                     </div>
                 </div>
 
@@ -139,15 +279,14 @@
             }
         });
         
-        // Format number inputs on blur
-        const priceInput = document.querySelector('input[name="price"]');
-        if (priceInput) {
-            priceInput.addEventListener('blur', function() {
+        // Format all money inputs on blur
+        document.querySelectorAll('input[name="price"], input[name="mrp"], input[name="purchasePrice"]').forEach((field) => {
+            field.addEventListener('blur', function() {
                 if (this.value) {
                     this.value = parseFloat(this.value).toFixed(2);
                 }
             });
-        }
+        });
     </script>
 
 </body>

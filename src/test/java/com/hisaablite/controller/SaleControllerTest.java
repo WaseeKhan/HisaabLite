@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -30,11 +31,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import com.hisaablite.dto.CartItem;
+import com.hisaablite.dto.ProductLookupResult;
+import com.hisaablite.dto.SaleBatchTraceSummaryDTO;
 import com.hisaablite.dto.SaleHistoryDTO;
+import com.hisaablite.dto.SoldBatchTraceDTO;
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Sale;
+import com.hisaablite.entity.SaleItem;
 import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
@@ -43,6 +48,7 @@ import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.PdfService;
 import com.hisaablite.service.ProductService;
+import com.hisaablite.service.SaleBatchTraceService;
 import com.hisaablite.service.SaleService;
 import com.hisaablite.service.WhatsAppService;
 
@@ -71,6 +77,9 @@ class SaleControllerTest {
 
     @Mock
     private PdfService pdfService;
+
+    @Mock
+    private SaleBatchTraceService saleBatchTraceService;
 
     @Mock
     private Authentication authentication;
@@ -153,12 +162,23 @@ class SaleControllerTest {
         when(saleRepository.getTotalRevenueByShop(shop)).thenReturn(new BigDecimal("120.00"));
         when(saleRepository.countByShopAndStatus(shop, SaleStatus.COMPLETED)).thenReturn(1L);
         when(saleRepository.countByShopAndStatus(shop, SaleStatus.CANCELLED)).thenReturn(0L);
+        when(saleBatchTraceService.summarizeSales(List.of(sale))).thenReturn(Map.of(
+                sale.getId(),
+                SaleBatchTraceSummaryDTO.builder()
+                        .batchManaged(true)
+                        .tracedBatchCount(2)
+                        .tracedUnits(5)
+                        .nextExpiryDate(LocalDate.now().plusDays(21))
+                        .expiredBatchCount(0)
+                        .build()));
 
         String view = saleController.salesHistory(model, authentication, 0, null, null, null, null);
 
         assertEquals("sales-history", view);
         SaleHistoryDTO firstSale = (SaleHistoryDTO) ((List<?>) model.getAttribute("sales")).get(0);
         assertEquals("9999999999", firstSale.getCustomerPhone());
+        assertTrue(firstSale.isBatchManaged());
+        assertEquals(2, firstSale.getTracedBatchCount());
     }
 
     @Test
@@ -179,6 +199,15 @@ class SaleControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(saleRepository.findByShop(any(), any())).thenReturn(new PageImpl<>(List.of(sale)));
+        when(saleBatchTraceService.summarizeSales(List.of(sale))).thenReturn(Map.of(
+                sale.getId(),
+                SaleBatchTraceSummaryDTO.builder()
+                        .batchManaged(true)
+                        .tracedBatchCount(1)
+                        .tracedUnits(2)
+                        .nextExpiryDate(LocalDate.now().plusDays(14))
+                        .expiredBatchCount(0)
+                        .build()));
 
         ResponseEntity<Map<String, Object>> response = saleController.searchSalesHistory(
                 authentication,
@@ -193,6 +222,55 @@ class SaleControllerTest {
         Object firstSale = ((List<?>) response.getBody().get("sales")).get(0);
         assertInstanceOf(SaleHistoryDTO.class, firstSale);
         assertEquals("8888888888", ((SaleHistoryDTO) firstSale).getCustomerPhone());
+        assertTrue(((SaleHistoryDTO) firstSale).isBatchManaged());
+        assertEquals(1, ((SaleHistoryDTO) firstSale).getTracedBatchCount());
+    }
+
+    @Test
+    void viewInvoiceAddsSoldBatchTraceToModel() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Sale sale = Sale.builder()
+                .shop(shop)
+                .createdBy(owner)
+                .status(SaleStatus.COMPLETED)
+                .saleDate(LocalDateTime.now())
+                .build();
+        sale.setId(31L);
+
+        SaleItem item = SaleItem.builder()
+                .sale(sale)
+                .product(Product.builder().name("Paracetamol").build())
+                .quantity(2)
+                .priceAtSale(new BigDecimal("25.00"))
+                .subtotal(new BigDecimal("50.00"))
+                .gstPercent(12)
+                .gstAmount(new BigDecimal("6.00"))
+                .totalWithGst(new BigDecimal("56.00"))
+                .build();
+        item.setId(91L);
+
+        Model model = new ExtendedModelMap();
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(saleRepository.findByIdWithShop(sale.getId())).thenReturn(Optional.of(sale));
+        when(saleItemRepository.findBySale(sale)).thenReturn(List.of(item));
+        when(saleBatchTraceService.getBatchTraceBySaleItem(List.of(item))).thenReturn(Map.of(
+                item.getId(),
+                List.of(SoldBatchTraceDTO.builder()
+                        .batchNumber("BATCH-01")
+                        .quantity(2)
+                        .expiryDate(LocalDate.now().plusDays(30))
+                        .expired(false)
+                        .build())));
+
+        String view = saleController.viewInvoice(sale.getId(), model, authentication);
+
+        assertEquals("invoice", view);
+        assertEquals(List.of(item), model.getAttribute("items"));
+        Map<?, ?> batchTrace = (Map<?, ?>) model.getAttribute("batchTraceBySaleItemId");
+        assertTrue(batchTrace.containsKey(item.getId()));
     }
 
     @Test
@@ -224,6 +302,76 @@ class SaleControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(productService.getProductByIdAndShop(5L, shop)).thenReturn(Optional.of(product));
+        when(saleService.getSellableStockForProduct(product)).thenReturn(3);
+
+        ResponseEntity<?> response = saleController.updateQuantity(0, 1, session, authentication);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertTrue(response.getBody().toString().contains("Only 3 items available"));
+    }
+
+    @Test
+    void searchProductsReturnsSellableStockForScannerLookup() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .id(9L)
+                .name("Paracetamol 500")
+                .barcode("8901234567890")
+                .genericName("Paracetamol")
+                .manufacturer("ABC Pharma")
+                .packSize("10 Tablets")
+                .price(new BigDecimal("42.00"))
+                .stockQuantity(25)
+                .gstPercent(12)
+                .prescriptionRequired(false)
+                .shop(shop)
+                .active(true)
+                .build();
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productService.searchProducts("8901234567890", shop)).thenReturn(List.of(product));
+        when(saleService.getSellableStockForProduct(product)).thenReturn(7);
+
+        List<ProductLookupResult> results = saleController.searchProducts("8901234567890", authentication);
+
+        assertEquals(1, results.size());
+        assertEquals("Paracetamol 500", results.get(0).getName());
+        assertEquals(7, results.get(0).getSellableStock());
+        assertEquals("8901234567890", results.get(0).getBarcode());
+    }
+
+    @Test
+    void updateQuantityRejectsWhenRequestedQtyExceedsSellableBatchStock() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .name("Cough Syrup")
+                .price(new BigDecimal("85.00"))
+                .stockQuantity(20)
+                .gstPercent(12)
+                .shop(shop)
+                .active(true)
+                .build();
+        product.setId(15L);
+
+        CartItem cartItem = CartItem.builder()
+                .productId(15L)
+                .productName("Cough Syrup")
+                .price(new BigDecimal("85.00"))
+                .quantity(3)
+                .subtotal(new BigDecimal("255.00"))
+                .gstPercent(12)
+                .gstAmount(new BigDecimal("30.60"))
+                .totalWithGst(new BigDecimal("285.60"))
+                .build();
+
+        when(session.getAttribute("cart")).thenReturn(Collections.singletonList(cartItem));
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productService.getProductByIdAndShop(15L, shop)).thenReturn(Optional.of(product));
+        when(saleService.getSellableStockForProduct(product)).thenReturn(3);
 
         ResponseEntity<?> response = saleController.updateQuantity(0, 1, session, authentication);
 

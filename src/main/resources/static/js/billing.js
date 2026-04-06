@@ -1,5 +1,5 @@
 // =========================
-// HisaabLite Billing JS
+// RxArogya Billing JS
 // Keyboard-first billing flow
 // =========================
 
@@ -7,9 +7,15 @@ const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
 const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
 const searchInput = document.getElementById("searchInput");
+const searchIcon = document.querySelector(".search-icon");
 const qtyInput = document.getElementById("qtyInput");
 const resultsBox = document.getElementById("searchResults");
 const addBtn = document.getElementById("addBtn");
+const searchModeBtn = document.getElementById("searchModeBtn");
+const scanModeBtn = document.getElementById("scanModeBtn");
+const scanStatusCard = document.getElementById("scanStatusCard");
+const scanStatusTitle = document.getElementById("scanStatusTitle");
+const scanStatusText = document.getElementById("scanStatusText");
 const cartContainer = document.getElementById("cartContainer");
 const billingForm = document.getElementById("billingForm");
 const completeBtn = document.querySelector(".btn-complete");
@@ -35,12 +41,15 @@ const invoicePhoneModal = document.getElementById("invoicePhoneModal");
 const invoicePhoneInput = document.getElementById("invoicePhoneInput");
 const invoicePhoneSendBtn = document.getElementById("invoicePhoneSendBtn");
 
+const BILLING_ENTRY_MODE_KEY = "rxarogya-billing-entry-mode";
+
 let suggestions = [];
 let selectedIndex = -1;
 let selectedProduct = null;
 let lastSavedInvoiceId = null;
 let lastSavedPhone = null;
 let audioContext = null;
+let entryMode = "search";
 window.currentCart = [];
 
 function persistLastInvoiceContext() {
@@ -107,6 +116,16 @@ function escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+}
+
+function getProductSellableStock(product) {
+    const sellableStock = Number.parseInt(product?.sellableStock ?? product?.stockQuantity ?? 0, 10);
+    return Number.isFinite(sellableStock) ? Math.max(0, sellableStock) : 0;
+}
+
+function looksLikeBarcode(keyword) {
+    const value = (keyword || "").trim();
+    return value.length >= 4 && /^[A-Za-z0-9._/-]+$/.test(value);
 }
 
 function showTempToast(message, type = "success") {
@@ -203,6 +222,185 @@ function focusSearch() {
     focusAndSelect(searchInput);
 }
 
+function persistEntryMode(mode) {
+    try {
+        window.localStorage?.setItem(BILLING_ENTRY_MODE_KEY, mode);
+    } catch (_) {
+        // Ignore storage failures.
+    }
+}
+
+function restoreEntryMode() {
+    try {
+        const storedMode = window.localStorage?.getItem(BILLING_ENTRY_MODE_KEY);
+        if (storedMode === "search" || storedMode === "scan") {
+            return storedMode;
+        }
+    } catch (_) {
+        // Ignore storage failures.
+    }
+    return "search";
+}
+
+function setScanStatus(type, title, message) {
+    if (!scanStatusCard) return;
+    scanStatusCard.classList.remove("scan-status-info", "scan-status-success", "scan-status-warning", "scan-status-error");
+    scanStatusCard.classList.add(`scan-status-${type}`);
+    if (scanStatusTitle) {
+        scanStatusTitle.textContent = title;
+    }
+    if (scanStatusText) {
+        scanStatusText.textContent = message;
+    }
+}
+
+function refreshAddButton() {
+    if (!addBtn) return;
+    addBtn.innerHTML = entryMode === "scan"
+        ? '<i class="fas fa-barcode"></i> Scan Add'
+        : '<i class="fas fa-cart-plus"></i> Add';
+}
+
+function updateModePresentation() {
+    searchModeBtn?.classList.toggle("is-active", entryMode === "search");
+    scanModeBtn?.classList.toggle("is-active", entryMode === "scan");
+
+    if (searchInput) {
+        searchInput.placeholder = entryMode === "scan"
+            ? "Scan or type exact barcode and press Enter..."
+            : "Search medicine, salt or scan barcode...";
+    }
+
+    if (searchIcon) {
+        searchIcon.className = entryMode === "scan"
+            ? "fas fa-barcode search-icon"
+            : "fas fa-search search-icon";
+    }
+
+    refreshAddButton();
+}
+
+function setEntryMode(mode, options = {}) {
+    const { persist = true, focus = false } = options;
+    entryMode = mode === "scan" ? "scan" : "search";
+    updateModePresentation();
+
+    if (persist) {
+        persistEntryMode(entryMode);
+    }
+
+    if (!searchInput?.value?.trim()) {
+        if (entryMode === "scan") {
+            setScanStatus("info", "Scanner Ready", "Use Scan mode, type the exact barcode, and press Enter. A USB scanner will work in the same field later.");
+        } else {
+            setScanStatus("info", "Search Ready", "Search by medicine, salt, or manufacturer. Switch to Scan mode for exact barcode billing.");
+        }
+    }
+
+    if (focus) {
+        focusSearch();
+    }
+}
+
+function findExactBarcodeProduct(keyword, products = suggestions) {
+    return (products || []).find(product => isExactBarcodeMatch(product, keyword)) || null;
+}
+
+async function fetchLookupResults(keyword) {
+    const response = await fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
+        headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
+    });
+    if (!response.ok) {
+        throw new Error("Search failed");
+    }
+    return response.json();
+}
+
+function updateLookupStatus(keyword, products = suggestions) {
+    const value = (keyword || "").trim();
+    if (!value) {
+        setEntryMode(entryMode, { persist: false });
+        return;
+    }
+
+    const exactMatch = findExactBarcodeProduct(value, products);
+    if (entryMode === "scan") {
+        if (exactMatch) {
+            const sellableStock = getProductSellableStock(exactMatch);
+            if (sellableStock > 0) {
+                setScanStatus("success", "Exact Barcode Ready", `${exactMatch.name} matched. Press Enter to add ${sellableStock} sellable unit${sellableStock === 1 ? "" : "s"} to the bill.`);
+            } else {
+                setScanStatus("warning", "Barcode Found, Stock Locked", `${exactMatch.name} matched, but there is no sellable batch stock available right now.`);
+            }
+            return;
+        }
+
+        if (products.length > 0) {
+            setScanStatus("info", "Closest Matches Found", "Switch to Search mode if you want to pick by medicine name, salt, or manufacturer.");
+        } else {
+            setScanStatus("warning", "Barcode Not Found", "No sellable medicine matched this barcode. Check the code or switch to Search mode.");
+        }
+        return;
+    }
+
+    if (exactMatch && getProductSellableStock(exactMatch) > 0) {
+        setScanStatus("success", "Exact Barcode Available", `${exactMatch.name} matched exactly. Press Enter to add it instantly or keep searching.`);
+        return;
+    }
+
+    if (products.length > 0) {
+        setScanStatus("info", "Search Results Ready", "Use arrow keys to move, Enter to select, or switch to Scan mode for exact barcode billing.");
+    } else {
+        setScanStatus("warning", "No Matching Medicine", "Try a brand name, salt, manufacturer, or switch to Scan mode for exact barcode lookup.");
+    }
+}
+
+async function resolveExactBarcodeProduct(keyword) {
+    const existingMatch = findExactBarcodeProduct(keyword);
+    if (existingMatch) {
+        return existingMatch;
+    }
+
+    if (!looksLikeBarcode(keyword)) {
+        return null;
+    }
+
+    const products = await fetchLookupResults(keyword);
+    renderSuggestions(products, keyword);
+    return findExactBarcodeProduct(keyword, products);
+}
+
+async function handleBarcodeEntry(keyword) {
+    const value = (keyword || "").trim();
+    if (!value) {
+        return;
+    }
+
+    setScanStatus("info", "Matching Barcode", "Checking the exact barcode against sellable pharmacy stock...");
+
+    try {
+        const exactMatch = await resolveExactBarcodeProduct(value);
+        if (!exactMatch) {
+            setScanStatus("warning", "Barcode Not Found", "No sellable medicine matched this barcode. Check the code or use Search mode.");
+            showTempToast("No exact barcode match found", "warning");
+            return;
+        }
+
+        const sellableStock = getProductSellableStock(exactMatch);
+        if (sellableStock <= 0) {
+            setScanStatus("warning", "Barcode Found, Stock Locked", `${exactMatch.name} matched, but there is no sellable batch stock available right now.`);
+            showTempToast("Matched medicine has no sellable stock", "warning");
+            return;
+        }
+
+        autoAddScannedProduct(exactMatch);
+    } catch (error) {
+        console.error(error);
+        setScanStatus("error", "Scan Failed", "Barcode lookup failed. Please retry or switch to Search mode.");
+        showTempToast("Barcode lookup failed. Please try again.", "error");
+    }
+}
+
 function closeSuggestions() {
     if (resultsBox) {
         resultsBox.innerHTML = "";
@@ -212,6 +410,12 @@ function closeSuggestions() {
 }
 
 function selectSuggestion(product) {
+    if (getProductSellableStock(product) <= 0) {
+        setScanStatus("warning", "Medicine Not Sellable", "This medicine has no sellable stock right now. Check live batches or stock before billing.");
+        showTempToast("This medicine has no sellable stock right now", "warning");
+        focusSearch();
+        return;
+    }
     selectedProduct = product;
     if (searchInput) {
         searchInput.value = product.name;
@@ -316,11 +520,14 @@ function resetBillingFields() {
         ["changeAmount", "0.00"],
         ["discountDisplay", "0.00"],
         ["finalTotalAmount", "0.00"],
+        ["cartTotalSpotlight", "0.00"],
+        ["cartTaxSpotlight", "0.00"],
         ["subtotalAmount", "0.00"],
         ["cgstAmount", "0.00"],
         ["sgstAmount", "0.00"],
         ["totalGstAmount", "0.00"],
         ["cartCount", "0 items"],
+        ["cartItemCountValue", "0"],
         ["changeReturned", "0.00"]
     ];
     ids.forEach(([id, value]) => {
@@ -364,6 +571,10 @@ function calculateTotals() {
     document.getElementById("cgstAmount").innerText = totalCgst.toFixed(2);
     document.getElementById("sgstAmount").innerText = totalSgst.toFixed(2);
     document.getElementById("totalGstAmount").innerText = totalGst.toFixed(2);
+    const cartTaxSpotlight = document.getElementById("cartTaxSpotlight");
+    if (cartTaxSpotlight) {
+        cartTaxSpotlight.innerText = totalGst.toFixed(2);
+    }
 
     return { subtotal, totalWithTax };
 }
@@ -385,6 +596,10 @@ function calculateChange() {
     document.getElementById("changeReturned").value = change.toFixed(2);
     document.getElementById("discountDisplay").innerText = discount.toFixed(2);
     document.getElementById("finalTotalAmount").innerText = netPayable.toFixed(2);
+    const cartTotalSpotlight = document.getElementById("cartTotalSpotlight");
+    if (cartTotalSpotlight) {
+        cartTotalSpotlight.innerText = netPayable.toFixed(2);
+    }
 
     return { totalWithTax, discount, netPayable, received, change };
 }
@@ -394,8 +609,12 @@ window.updateCartUI = function updateCartUI(cart) {
     if (!cartContainer) return;
 
     if (!window.currentCart.length) {
-        cartContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket"></i><p>Cart is empty</p><span>Add products to get started</span></div>';
+        cartContainer.innerHTML = '<div class="empty-cart"><div class="empty-cart-graphic"><i class="fas fa-prescription-bottle-medical"></i></div><p>Counter cart is empty</p><span>Search a medicine or scan a barcode to begin billing.</span></div>';
         document.getElementById("cartCount").innerText = "0 items";
+        const cartItemCountValue = document.getElementById("cartItemCountValue");
+        if (cartItemCountValue) {
+            cartItemCountValue.innerText = "0";
+        }
         calculateChange();
         return;
     }
@@ -412,28 +631,39 @@ window.updateCartUI = function updateCartUI(cart) {
 
         html += `
         <div class="cart-item" data-index="${index}">
-            <div class="cart-item-info">
-                <div class="cart-item-name">${escapeHtml(item.productName)} <span class="${gstClass}">${gst}% GST</span></div>
+            <div class="cart-item-main">
+                <div class="cart-item-head">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${escapeHtml(item.productName)}</div>
+                        <div class="cart-item-tags">
+                            <span class="gst-badge ${gstClass}">${gst}% GST</span>
+                        </div>
+                    </div>
+                    <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
+                </div>
                 <div class="cart-item-price">Base: ₹${price.toFixed(2)} × ${qty} = ₹${basePrice.toFixed(2)}</div>
                 <div class="cart-item-gst-breakdown">
                     <span class="cgst">CGST: ₹${(gstAmount / 2).toFixed(2)} (${(gst / 2).toFixed(1)}%)</span>
                     <span class="sgst">SGST: ₹${(gstAmount / 2).toFixed(2)} (${(gst / 2).toFixed(1)}%)</span>
                 </div>
-            </div>
-            <div class="cart-item-controls">
-                <div class="cart-item-qty">
-                    <button class="qty-btn" onclick="window.changeQty(${index}, -1)" tabindex="-1">-</button>
-                    <span>${qty}</span>
-                    <button class="qty-btn" onclick="window.changeQty(${index}, 1)" tabindex="-1">+</button>
+                <div class="cart-item-controls">
+                    <div class="cart-item-qty">
+                        <button class="qty-btn" onclick="window.changeQty(${index}, -1)" tabindex="-1">-</button>
+                        <span>${qty}</span>
+                        <button class="qty-btn" onclick="window.changeQty(${index}, 1)" tabindex="-1">+</button>
+                    </div>
+                    <button class="cart-item-remove" onclick="window.removeItem(${index})" tabindex="-1"><i class="fas fa-trash-alt"></i></button>
                 </div>
-                <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
-                <button class="cart-item-remove" onclick="window.removeItem(${index})" tabindex="-1"><i class="fas fa-trash-alt"></i></button>
             </div>
         </div>`;
     });
 
     cartContainer.innerHTML = html;
     document.getElementById("cartCount").innerText = `${window.currentCart.length} items`;
+    const cartItemCountValue = document.getElementById("cartItemCountValue");
+    if (cartItemCountValue) {
+        cartItemCountValue.innerText = String(window.currentCart.length);
+    }
     calculateChange();
 };
 
@@ -480,6 +710,13 @@ function addProduct() {
         return;
     }
 
+    if (getProductSellableStock(selectedProduct) <= 0) {
+        setScanStatus("warning", "Medicine Not Sellable", "This medicine has no sellable stock right now. Check live batches or stock before billing.");
+        showTempToast("This medicine has no sellable stock right now", "warning");
+        focusSearch();
+        return;
+    }
+
     const addedProductName = selectedProduct.name || "Product";
     const qty = parseInt(qtyInput?.value || "1", 10);
     if (qty < 1) {
@@ -506,38 +743,73 @@ function addProduct() {
             if (qtyInput) qtyInput.value = "1";
             playCartAddedSound();
             showTempToast(`${addedProductName} added to cart`, "success");
+            setEntryMode(entryMode, { persist: false });
             focusSearch();
         })
         .catch(error => showTempToast(`Failed to add product: ${error}`, "error"));
 }
 
-function renderSuggestions(products) {
+function isExactBarcodeMatch(product, keyword) {
+    const normalizedKeyword = (keyword || "").trim().toLowerCase();
+    const barcode = (product?.barcode || "").trim().toLowerCase();
+    return !!normalizedKeyword && !!barcode && barcode === normalizedKeyword;
+}
+
+function autoAddScannedProduct(product) {
+    if (!product) return;
+    selectSuggestion(product);
+    if (qtyInput) {
+        qtyInput.value = "1";
+    }
+    addProduct();
+}
+
+function renderSuggestions(products, keyword = searchInput?.value || "") {
     if (!resultsBox) return;
     closeSuggestions();
 
     if (!Array.isArray(products) || products.length === 0) {
-        resultsBox.innerHTML = '<div class="suggestion-item empty">No matching product found</div>';
+        resultsBox.innerHTML = `<div class="suggestion-item empty">${entryMode === "scan" ? "No exact barcode match found" : "No matching product found"}</div>`;
+        updateLookupStatus(keyword, []);
         return;
     }
 
     suggestions = products;
     products.forEach((product, index) => {
         const div = document.createElement("div");
-        const gstClass = product.gstPercent === 0 ? "gst-zero" : product.gstPercent <= 5 ? "gst-low" : product.gstPercent <= 12 ? "gst-medium" : "gst-high";
-        div.className = "suggestion-item";
+        const gstPercent = Number(product.gstPercent || 0);
+        const gstClass = gstPercent === 0 ? "gst-zero" : gstPercent <= 5 ? "gst-low" : gstPercent <= 12 ? "gst-medium" : "gst-high";
+        const metadata = [product.genericName, product.manufacturer].filter(Boolean).map(escapeHtml).join(" • ");
+        const chips = [];
+        const sellableStock = getProductSellableStock(product);
+        const exactMatch = isExactBarcodeMatch(product, keyword);
+        const stockClass = sellableStock > 0 ? "suggestion-stock-available" : "suggestion-stock-empty";
+        if (product.barcode) chips.push(`<span class="suggestion-tag"><i class="fas fa-barcode"></i> ${escapeHtml(product.barcode)}</span>`);
+        if (product.packSize) chips.push(`<span class="suggestion-tag"><i class="fas fa-box-open"></i> ${escapeHtml(product.packSize)}</span>`);
+        if (product.prescriptionRequired) chips.push('<span class="suggestion-tag suggestion-tag-rx"><i class="fas fa-file-medical"></i> Rx</span>');
+        if (exactMatch) chips.unshift('<span class="suggestion-tag suggestion-tag-scan"><i class="fas fa-bolt"></i> Exact barcode</span>');
+        div.className = `suggestion-item${exactMatch ? " suggestion-item-exact" : ""}${sellableStock <= 0 ? " suggestion-item-disabled" : ""}`;
         div.innerHTML = `
             <div class="suggestion-name">${escapeHtml(product.name)}</div>
+            ${metadata ? `<div class="suggestion-meta">${metadata}</div>` : ""}
             <div class="suggestion-details">
                 <span class="suggestion-price">₹${product.price}</span>
-                <span class="suggestion-stock"><i class="fas fa-box"></i> ${product.stockQuantity || 0}</span>
-                <span class="suggestion-gst ${gstClass}">${product.gstPercent || 0}% GST</span>
-            </div>`;
+                <span class="suggestion-stock ${stockClass}"><i class="fas fa-box"></i> ${sellableStock} sellable</span>
+                <span class="suggestion-gst ${gstClass}">${gstPercent}% GST</span>
+            </div>
+            ${chips.length ? `<div class="suggestion-tags">${chips.join("")}</div>` : ""}`;
         div.addEventListener("click", () => {
+            if (sellableStock <= 0) {
+                setScanStatus("warning", "Medicine Not Sellable", `${product.name} matched, but there is no sellable batch stock available right now.`);
+                showTempToast("This medicine has no sellable stock right now", "warning");
+                return;
+            }
             selectedIndex = index;
             selectSuggestion(product);
         });
         resultsBox.appendChild(div);
     });
+    updateLookupStatus(keyword, products);
 }
 
 function highlight(items) {
@@ -551,21 +823,25 @@ if (searchInput) {
         selectedProduct = null;
         if (!keyword) {
             closeSuggestions();
+            setEntryMode(entryMode, { persist: false });
             return;
         }
 
-        fetch(`/sales/search?keyword=${encodeURIComponent(keyword)}`, {
-            headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
-        })
-            .then(response => response.ok ? response.json() : Promise.reject("Search failed"))
-            .then(renderSuggestions)
+        fetchLookupResults(keyword)
+            .then(products => {
+                if (searchInput.value.trim() !== keyword) {
+                    return;
+                }
+                renderSuggestions(products, keyword);
+            })
             .catch(error => {
                 console.error(error);
+                setScanStatus("error", "Lookup Failed", "Medicine lookup failed. Please try again.");
                 showTempToast("Product search failed. Please try again.", "error");
             });
     });
 
-    searchInput.addEventListener("keydown", event => {
+    searchInput.addEventListener("keydown", async event => {
         const items = document.querySelectorAll(".suggestion-item:not(.empty)");
 
         if (event.key === "ArrowDown" && items.length) {
@@ -578,10 +854,27 @@ if (searchInput) {
             highlight(items);
         } else if (event.key === "Enter") {
             event.preventDefault();
+            const keyword = searchInput.value.trim();
+            const exactMatch = findExactBarcodeProduct(keyword);
+
+            if (entryMode === "scan") {
+                await handleBarcodeEntry(keyword);
+                return;
+            }
+
             if (selectedIndex >= 0 && items[selectedIndex]) {
                 items[selectedIndex].click();
+            } else if (exactMatch) {
+                if (getProductSellableStock(exactMatch) > 0) {
+                    autoAddScannedProduct(exactMatch);
+                } else {
+                    setScanStatus("warning", "Medicine Not Sellable", `${exactMatch.name} matched, but there is no sellable batch stock available right now.`);
+                    showTempToast("Matched medicine has no sellable stock", "warning");
+                }
             } else if (suggestions.length === 1) {
                 selectSuggestion(suggestions[0]);
+            } else if (looksLikeBarcode(keyword)) {
+                await handleBarcodeEntry(keyword);
             }
         } else if (event.key === "Escape") {
             closeSuggestions();
@@ -590,6 +883,9 @@ if (searchInput) {
 }
 
 if (addBtn) addBtn.addEventListener("click", addProduct);
+searchModeBtn?.addEventListener("click", () => setEntryMode("search", { focus: true }));
+scanModeBtn?.addEventListener("click", () => setEntryMode("scan", { focus: true }));
+
 if (qtyInput) {
     qtyInput.addEventListener("keydown", event => {
         if (event.key === "Enter") {
@@ -937,5 +1233,6 @@ window.onload = () => {
         setTimeout(() => successToast?.classList.remove("show"), 5000);
     }
     refreshLastInvoiceBar();
+    setEntryMode(restoreEntryMode(), { persist: false });
     focusSearch();
 };

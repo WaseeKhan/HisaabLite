@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="120" viewBox="0 0 320 120">
+  <g transform="translate(8,12) scale(0.8)">
+    <circle cx="24" cy="88" r="15" fill="#2563EB"/>
+    <circle cx="120" cy="24" r="15" fill="#2563EB"/>
+    <rect x="38" y="10" width="34" height="98" rx="17" fill="#F59E0B" transform="rotate(-31 55 59)"/>
+    <rect x="80" y="10" width="34" height="98" rx="17" fill="#FFFFFF" transform="rotate(-31 97 59)"/>
+  </g>
+  <text x="130" y="72"
+        font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="42"
+        font-weight="600"
+        fill="#FFFFFF">expygen</text>
+</svg>

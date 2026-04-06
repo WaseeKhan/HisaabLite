@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" role="img" aria-labelledby="title desc">
+  <title id="title">RxArogya enterprise logo light</title>
+  <desc id="desc">Enterprise pharmacy logo for dark backgrounds using the same charcoal, orange, and blue family.</desc>
+
+  <g transform="translate(16 14)">
+    <rect x="36" y="8" width="28" height="30" rx="14" fill="#f39a39"/>
+    <rect x="8" y="36" width="30" height="28" rx="14" fill="#72a8ff"/>
+    <rect x="62" y="36" width="30" height="28" rx="14" fill="#f8fafc"/>
+    <rect x="36" y="62" width="28" height="30" rx="14" fill="#f39a39"/>
+    <rect x="36" y="36" width="28" height="28" rx="14" fill="none" stroke="#cbd5e1" stroke-width="2.2"/>
+    <rect x="44" y="44" width="12" height="12" rx="6" fill="#f8fafc"/>
+  </g>
+
+  <text x="130" y="56" fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="44" font-weight="800" letter-spacing="-1.2">RxArogya</text>
+  <path d="M130 70h210" stroke="#94a3b8" stroke-opacity=".45" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M130 70h84" stroke="#f39a39" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="130" y="92" fill="#cbd5e1" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13.6" font-weight="700" letter-spacing="2.2">SIMPLIFY PHARMACY</text>
+</svg>

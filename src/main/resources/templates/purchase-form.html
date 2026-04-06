@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Add Purchase • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-purchase-form.css}">
+</head>
+
+<body class="shop-body">
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='purchases')}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+                <div class="purchase-form-shell">
+                    <div class="purchase-form-intro">
+                        <div class="purchase-form-copy">
+                            <span class="purchase-form-kicker">Batch Inward Entry</span>
+                            <h2>Record a supplier purchase and create live medicine batches</h2>
+                            <p>Save invoice details once, then capture each batch with expiry, purchase rate, and sellable quantity so billing can use it safely.</p>
+                            <div class="purchase-form-pills">
+                                <span><i class="fas fa-boxes-stacked"></i> Batch-managed stock</span>
+                                <span><i class="fas fa-calendar-day"></i> Expiry date control</span>
+                                <span><i class="fas fa-receipt"></i> Supplier invoice history</span>
+                            </div>
+                        </div>
+                        <div class="purchase-form-top-actions">
+                            <a th:href="@{/purchases/suppliers}" class="purchase-form-back purchase-form-back-secondary">
+                                <i class="fas fa-building"></i> Suppliers
+                            </a>
+                            <a th:href="@{/purchases}" class="purchase-form-back">
+                                <i class="fas fa-arrow-left"></i> Back to Purchases
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:if="${error}" class="shop-alert shop-alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:text="${error}">Error</span>
+                        <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+                    </div>
+
+                    <div class="purchase-form-layout">
+                        <div class="purchase-form-card">
+                            <div class="purchase-form-title">
+                                <div>
+                                    <h3>Purchase Header</h3>
+                                    <p>Who supplied the stock, when it came in, and which invoice it belongs to.</p>
+                                </div>
+                                <div class="purchase-form-badge">Pharmacy Purchase</div>
+                            </div>
+
+                            <form th:action="@{/purchases/save}" th:object="${purchaseForm}" method="post" id="purchaseEntryForm">
+                                <div class="purchase-form-grid">
+                                    <div class="form-group">
+                                        <label>Supplier Name</label>
+                                        <input type="text" th:field="*{supplierName}" list="knownSuppliers" placeholder="ABC Pharma, Medlife Distributors..." required>
+                                        <datalist id="knownSuppliers">
+                                            <option th:each="supplier : ${suppliers}" th:value="${supplier.name}"></option>
+                                        </datalist>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Purchase Date</label>
+                                        <input type="date" th:field="*{purchaseDate}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Invoice Number</label>
+                                        <input type="text" th:field="*{supplierInvoiceNumber}" placeholder="INV-2026-0042">
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Notes</label>
+                                        <textarea th:field="*{notes}" rows="3" placeholder="Optional supplier or inward notes"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="line-items-head">
+                                    <div>
+                                        <h4>Batch Line Items</h4>
+                                        <p>Every line creates sellable stock against a medicine batch.</p>
+                                    </div>
+                                    <button type="button" class="line-add-btn" id="addPurchaseLine">
+                                        <i class="fas fa-plus"></i> Add Line
+                                    </button>
+                                </div>
+
+                                <div class="line-items-wrap">
+                                    <table class="line-items-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Medicine</th>
+                                                <th>Batch No.</th>
+                                                <th>Expiry</th>
+                                                <th>Qty</th>
+                                                <th>Purchase ₹</th>
+                                                <th>Sale ₹</th>
+                                                <th>MRP ₹</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="purchaseLineTable">
+                                            <tr class="purchase-line-row" th:each="item, iter : *{items}">
+                                                <td>
+                                                    <select class="line-field" data-field="productId" th:name="${'items[' + iter.index + '].productId'}" required>
+                                                        <option value="">Select medicine</option>
+                                                        <option th:each="product : ${products}"
+                                                                th:value="${product.id}"
+                                                                th:selected="${item.productId != null and item.productId == product.id}"
+                                                                th:text="${product.name + (product.packSize != null ? ' • ' + product.packSize : '')}">
+                                                            Medicine
+                                                        </option>
+                                                    </select>
+                                                </td>
+                                                <td><input type="text" class="line-field" data-field="batchNumber" th:name="${'items[' + iter.index + '].batchNumber'}" th:value="${item.batchNumber}" placeholder="BATCH-01" required></td>
+                                                <td><input type="date" class="line-field" data-field="expiryDate" th:name="${'items[' + iter.index + '].expiryDate'}" th:value="${item.expiryDate}"></td>
+                                                <td><input type="number" min="1" class="line-field" data-field="quantity" th:name="${'items[' + iter.index + '].quantity'}" th:value="${item.quantity}" placeholder="0" required></td>
+                                                <td><input type="number" min="0.01" step="0.01" class="line-field line-money" data-field="purchasePrice" th:name="${'items[' + iter.index + '].purchasePrice'}" th:value="${item.purchasePrice}" placeholder="0.00" required></td>
+                                                <td><input type="number" min="0" step="0.01" class="line-field line-money" data-field="salePrice" th:name="${'items[' + iter.index + '].salePrice'}" th:value="${item.salePrice}" placeholder="0.00"></td>
+                                                <td><input type="number" min="0" step="0.01" class="line-field line-money" data-field="mrp" th:name="${'items[' + iter.index + '].mrp'}" th:value="${item.mrp}" placeholder="0.00"></td>
+                                                <td>
+                                                    <button type="button" class="line-remove-btn" th:disabled="${#lists.size(purchaseForm.items) == 1}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="purchase-total-bar">
+                                    <div>
+                                        <span>Estimated purchase total</span>
+                                        <strong id="purchaseGrandTotal">₹0.00</strong>
+                                    </div>
+                                    <div class="purchase-total-note">This total is calculated from purchase price × quantity for all lines.</div>
+                                </div>
+
+                                <div class="purchase-form-actions">
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-save"></i> Save Purchase Entry
+                                    </button>
+                                    <a th:href="@{/purchases}" class="btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <aside class="purchase-form-side">
+                            <div class="purchase-side-card">
+                                <h4>Good pharmacy purchase data</h4>
+                                <ul>
+                                    <li>Always record real batch numbers from the supplier invoice.</li>
+                                    <li>Keep expiry date and MRP accurate so unsafe stock is visible before billing.</li>
+                                    <li>Use purchase price and sale price together to keep margin reporting useful.</li>
+                                </ul>
+                            </div>
+                            <div class="purchase-side-card">
+                                <h4>What happens after save?</h4>
+                                <div class="side-step"><span>1</span><strong>Medicine stock increases immediately</strong></div>
+                                <div class="side-step"><span>2</span><strong>Each line becomes a live batch in the ledger</strong></div>
+                                <div class="side-step"><span>3</span><strong>Billing can start consuming those batches in expiry order</strong></div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/shop-footer :: footer}"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const tableBody = document.getElementById('purchaseLineTable');
+            const addButton = document.getElementById('addPurchaseLine');
+            const totalNode = document.getElementById('purchaseGrandTotal');
+
+            if (!tableBody || !addButton || !totalNode) {
+                return;
+            }
+
+            function buildProductOptions() {
+                const options = ['<option value="">Select medicine</option>'];
+                document.querySelectorAll('#purchaseLineTable select option').forEach((option, index) => {
+                    if (index === 0) {
+                        return;
+                    }
+                    options.push(option.outerHTML.replace(' selected=""', '').replace(' selected', ''));
+                });
+                return options.join('');
+            }
+
+            function reindexRows() {
+                tableBody.querySelectorAll('.purchase-line-row').forEach((row, index) => {
+                    row.querySelectorAll('.line-field').forEach((field) => {
+                        field.name = `items[${index}].${field.dataset.field}`;
+                    });
+                    const removeButton = row.querySelector('.line-remove-btn');
+                    if (removeButton) {
+                        removeButton.disabled = tableBody.querySelectorAll('.purchase-line-row').length === 1;
+                    }
+                });
+            }
+
+            function updateTotal() {
+                let total = 0;
+                tableBody.querySelectorAll('.purchase-line-row').forEach((row) => {
+                    const quantity = Number(row.querySelector('[data-field="quantity"]').value || 0);
+                    const price = Number(row.querySelector('[data-field="purchasePrice"]').value || 0);
+                    total += quantity * price;
+                });
+                totalNode.textContent = `₹${total.toFixed(2)}`;
+            }
+
+            function addRow() {
+                const row = document.createElement('tr');
+                row.className = 'purchase-line-row';
+                row.innerHTML = `
+                    <td>
+                        <select class="line-field" data-field="productId" required>
+                            ${buildProductOptions()}
+                        </select>
+                    </td>
+                    <td><input type="text" class="line-field" data-field="batchNumber" placeholder="BATCH-01" required></td>
+                    <td><input type="date" class="line-field" data-field="expiryDate"></td>
+                    <td><input type="number" min="1" class="line-field" data-field="quantity" placeholder="0" required></td>
+                    <td><input type="number" min="0.01" step="0.01" class="line-field line-money" data-field="purchasePrice" placeholder="0.00" required></td>
+                    <td><input type="number" min="0" step="0.01" class="line-field line-money" data-field="salePrice" placeholder="0.00"></td>
+                    <td><input type="number" min="0" step="0.01" class="line-field line-money" data-field="mrp" placeholder="0.00"></td>
+                    <td>
+                        <button type="button" class="line-remove-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                reindexRows();
+                updateTotal();
+            }
+
+            tableBody.addEventListener('click', function(event) {
+                const removeButton = event.target.closest('.line-remove-btn');
+                if (!removeButton) {
+                    return;
+                }
+                const rows = tableBody.querySelectorAll('.purchase-line-row');
+                if (rows.length === 1) {
+                    return;
+                }
+                removeButton.closest('.purchase-line-row').remove();
+                reindexRows();
+                updateTotal();
+            });
+
+            tableBody.addEventListener('input', function(event) {
+                if (event.target.classList.contains('line-field')) {
+                    updateTotal();
+                }
+            });
+
+            addButton.addEventListener('click', addRow);
+            reindexRows();
+            updateTotal();
+        })();
+    </script>
+</body>
+
+</html>

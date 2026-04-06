@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Products • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>Products • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -43,8 +43,8 @@
                     <div class="shop-limit-banner-content">
                         <i class="fas fa-exclamation-triangle"></i>
                         <div class="shop-limit-banner-text">
-                            <strong>Product Limit Reached!</strong> You've reached the maximum of
-                            <strong th:text="${productLimit}">50</strong> products on your
+                            <strong>Medicine Limit Reached!</strong> You've reached the maximum of
+                            <strong th:text="${productLimit}">50</strong> medicines on your
                             <strong th:text="${planType}">FREE</strong> plan.
                         </div>
                         <a th:href="@{/upgrade}" class="shop-upgrade-btn"><i class="fas fa-arrow-up"></i> Upgrade</a>
@@ -58,7 +58,7 @@
                     <div class="shop-usage-info">
                         <div>
                             <i class="fas fa-box"></i>
-                            <span>Products: </span>
+                            <span>Medicines: </span>
                             <strong th:text="${currentProductCount}">0</strong>
                             <span>/</span>
                             <strong th:text="${productLimit}">50</strong>
@@ -93,7 +93,7 @@
                         th:if="${currentProductCount * 100 / productLimitRaw < 80 and currentProductCount > 0}">
                         <i class="fas fa-check-circle"></i>
                         <span>You have <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots available
-                            for new products.</span>
+                            for new medicines.</span>
                     </div>
                 </div>
 
@@ -109,83 +109,140 @@
                     <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
                 </div>
 
+                <div class="products-workspace-strip">
+                    <div class="products-workspace-copy">
+                        <span class="products-workspace-kicker">Medicine Master</span>
+                        <h2>Build a pharmacy-ready medicine catalogue</h2>
+                        <p>Keep every brand, salt, manufacturer, barcode, and pricing detail in one place so billing, search, and stock decisions stay fast at the counter.</p>
+                        <div class="products-workspace-pills">
+                            <span><i class="fas fa-capsules"></i> Brand + salt search</span>
+                            <span><i class="fas fa-barcode"></i> Barcode-ready records</span>
+                            <span><i class="fas fa-file-prescription"></i> Rx-aware medicine tags</span>
+                        </div>
+                    </div>
+                    <div class="products-workspace-panel">
+                        <div class="workspace-panel-row">
+                            <span class="workspace-panel-label">Best Use</span>
+                            <strong>Search by brand, generic, manufacturer, barcode, or pack size</strong>
+                        </div>
+                        <div class="workspace-panel-row">
+                            <span class="workspace-panel-label">Catalog Health</span>
+                            <strong>Use Min Stock + Rx tags to keep counter-ready products visible</strong>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Stats Cards -->
                 <div class="shop-stats-grid">
                     <div class="shop-stat-card">
                         <div class="shop-stat-info">
-                            <h4>Total Products</h4>
+                            <h4>Total Medicines</h4>
                             <div class="shop-stat-number" id="totalProducts">0</div>
                         </div>
                         <div class="shop-stat-icon"><i class="fas fa-box"></i></div>
                     </div>
                     <div class="shop-stat-card">
                         <div class="shop-stat-info">
+                            <h4>Batch Managed</h4>
+                            <div class="shop-stat-number" id="batchManagedCount">0</div>
+                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-layer-group"></i></div>
+                    </div>
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
+                            <h4>Near Expiry</h4>
+                            <div class="shop-stat-number" id="nearExpiryCount">0</div>
+                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                    </div>
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
+                            <h4>Expired Risk</h4>
+                            <div class="shop-stat-number" id="expiredRiskCount">0</div>
+                        </div>
+                        <div class="shop-stat-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    </div>
+                    <div class="shop-stat-card">
+                        <div class="shop-stat-info">
                             <h4>Low Stock</h4>
                             <div class="shop-stat-number" id="lowStockCount">0</div>
                         </div>
-                        <div class="shop-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    </div>
-                    <div class="shop-stat-card">
-                        <div class="shop-stat-info">
-                            <h4>Total Value</h4>
-                            <div class="shop-stat-number" id="totalValue">₹0</div>
-                        </div>
-                        <div class="shop-stat-icon"><i class="fas fa-rupee-sign"></i></div>
-                    </div>
-                    <div class="shop-stat-card">
-                        <div class="shop-stat-info">
-                            <h4>Categories</h4>
-                            <div class="shop-stat-number" id="categoryCount">0</div>
-                        </div>
-                        <div class="shop-stat-icon"><i class="fas fa-tags"></i></div>
+                        <div class="shop-stat-icon"><i class="fas fa-box-open"></i></div>
                     </div>
                 </div>
 
-                <!-- Filter Bar -->
-                <!-- Filter Bar -->
+                <div class="products-command-card">
+                    <div class="products-command-head">
+                        <div>
+                            <h3>Medicine Search & Actions</h3>
+                            <p>Search live across brand, salt, company, barcode, or pack size, then take action immediately.</p>
+                        </div>
+                        <div class="products-command-badges">
+                            <span><i class="fas fa-bolt"></i> Live Search</span>
+                            <span><i class="fas fa-layer-group"></i> Bulk Actions</span>
+                        </div>
+                    </div>
+
 <div class="shop-filter-actions">
     <div class="shop-filter-bar">
-        <span class="shop-filter-chip active" data-filter="all">All</span>
+        <span class="shop-filter-chip active" data-filter="all">All Medicines</span>
+        <span class="shop-filter-chip" data-filter="batch-managed">Batch Managed</span>
+        <span class="shop-filter-chip" data-filter="near-expiry">Near Expiry</span>
+        <span class="shop-filter-chip" data-filter="expired-risk">Expired Risk</span>
+        <span class="shop-filter-chip" data-filter="rx-only">Rx Only</span>
+        <span class="shop-filter-chip" data-filter="barcode-ready">Barcode Ready</span>
         <span class="shop-filter-chip" data-filter="low-stock">Low Stock</span>
         <span class="shop-filter-chip" data-filter="in-stock">In Stock</span>
     </div>
-    <div class="shop-actions-right">
+        <div class="shop-actions-right">
         <div class="shop-search">
             <i class="fas fa-search shop-search-icon"></i>
-            <input type="text" id="searchInput" class="shop-search-input" placeholder="Search...">
+            <input type="text" id="searchInput" class="shop-search-input" placeholder="Search medicine, salt, company, barcode...">
             <i class="fas fa-spinner fa-pulse shop-search-loading" id="searchLoading"></i>
         </div>
-        <button onclick="exportProducts()" class="shop-btn-icon"><i class="fas fa-download"></i> Export</button>
+        <button onclick="exportProducts()" class="shop-btn-icon"><i class="fas fa-download"></i> Export CSV</button>
         
         <!-- Add Button with Unlimited Badge Inside -->
         <a th:href="@{/products/new}" class="shop-btn-primary shop-btn-with-badge"
             th:classappend="${productLimitRaw != -1 and currentProductCount >= productLimitRaw} ? 'disabled' : ''"
-            th:title="${productLimitRaw != -1 and currentProductCount >= productLimitRaw} ? 'Product limit reached. Upgrade to add more.' : 'Add new product'">
-            <i class="fas fa-plus"></i> Add
+            th:title="${productLimitRaw != -1 and currentProductCount >= productLimitRaw} ? 'Medicine limit reached. Upgrade to add more.' : 'Add new medicine'">
+            <i class="fas fa-plus"></i> Add Medicine
             <span th:if="${productLimitRaw == -1 or planType == 'ENTERPRISE'}" class="btn-unlimited-badge">
                 ∞ Unlimited
             </span>
         </a>
     </div>
 </div>
+                </div>
                 <!-- Products Table -->
                 <div class="shop-products-card">
+                    <div class="products-card-head">
+                        <div>
+                            <h3>Medicine Catalogue</h3>
+                            <p id="catalogSummary">Search by brand, generic name, manufacturer, barcode, or pack size.</p>
+                        </div>
+                        <div class="products-card-count" id="catalogCount">0 listed</div>
+                    </div>
                     <div class="shop-table-responsive">
                         <table class="shop-table" id="productsTable">
                             <thead>
-                                
+                                <tr>
                                     <th><input type="checkbox" id="selectAllCheckbox"></th>
-                                    <th style="width: 220px;">Product</th>
-                                    <th>Price</th>
+                                    <th style="width: 260px;">Medicine</th>
+                                    <th style="width: 210px;">Company & Pack</th>
+                                    <th>Pricing</th>
+                                    <th style="width: 210px;">Batch & Expiry</th>
                                     <th>GST</th>
                                     <th>Stock</th>
                                     <th>Actions</th>
-                                </thead>
+                                </tr>
+                            </thead>
                             <tbody id="productsTableBody">
-                                
-                                    <td colspan="6" class="shop-empty-state"><i class="fas fa-spinner fa-pulse"></i>
+                                <tr>
+                                    <td colspan="8" class="shop-empty-state"><i class="fas fa-spinner fa-pulse"></i>
                                         <p>Loading...</p>
-                                    
+                                    </td>
+                                </tr>
                             </tbody>
                           </table>
                     </div>
@@ -250,7 +307,7 @@
             const addButton = $('.shop-btn-primary');
             if (!canAdd) {
                 addButton.addClass('disabled');
-                addButton.attr('title', 'Product limit reached');
+                addButton.attr('title', 'Medicine limit reached');
             } else {
                 addButton.removeClass('disabled');
                 addButton.removeAttr('title');
@@ -274,8 +331,9 @@
                     allProductsData = res.products;
                     let filtered = filterProducts(allProductsData);
                     
-                    // Update current product count
-                    currentProductCount = allProductsData.length;
+                    if (!currentKeyword && currentFilter === 'all') {
+                        currentProductCount = res.totalItems;
+                    }
                     
                     renderProducts({ ...res, products: filtered, totalItems: filtered.length });
                     renderPagination({ ...res, products: filtered, totalItems: filtered.length });
@@ -290,35 +348,101 @@
         }
 
         function filterProducts(products) {
-            if (currentFilter === 'low-stock') return products.filter(p => p.stockQuantity <= p.minStock);
-            if (currentFilter === 'in-stock') return products.filter(p => p.stockQuantity > p.minStock);
+            if (currentFilter === 'batch-managed') return products.filter(p => p.batchManaged);
+            if (currentFilter === 'near-expiry') return products.filter(p => (p.nearExpiryBatchCount || 0) > 0);
+            if (currentFilter === 'expired-risk') return products.filter(p => (p.expiredBatchCount || 0) > 0);
+            if (currentFilter === 'rx-only') return products.filter(p => p.prescriptionRequired);
+            if (currentFilter === 'barcode-ready') return products.filter(p => p.barcode);
+            if (currentFilter === 'low-stock') return products.filter(p => (p.sellableStock ?? p.stockQuantity) <= p.minStock);
+            if (currentFilter === 'in-stock') return products.filter(p => (p.sellableStock ?? p.stockQuantity) > p.minStock);
             return products;
         }
 
         function updateStats(products) {
             $('#totalProducts').text(products.length);
-            $('#lowStockCount').text(products.filter(p => p.stockQuantity <= p.minStock).length);
-            $('#totalValue').text('₹' + products.reduce((s, p) => s + (p.price * p.stockQuantity), 0).toLocaleString('en-IN'));
-            $('#categoryCount').text(new Set(products.map(p => p.category || 'Uncategorized')).size);
+            $('#batchManagedCount').text(products.filter(p => p.batchManaged).length);
+            $('#nearExpiryCount').text(products.filter(p => (p.nearExpiryBatchCount || 0) > 0).length);
+            $('#expiredRiskCount').text(products.filter(p => (p.expiredBatchCount || 0) > 0).length);
+            $('#lowStockCount').text(products.filter(p => (p.sellableStock ?? p.stockQuantity) <= p.minStock).length);
+            $('#catalogCount').text(`${products.length} listed`);
+
+            let summary = 'Search by brand, generic name, manufacturer, barcode, or pack size.';
+            if (currentKeyword) {
+                summary = `Showing matches for "${currentKeyword}"`;
+            } else if (currentFilter === 'batch-managed') {
+                summary = 'Showing medicines already running on live batch stock.';
+            } else if (currentFilter === 'near-expiry') {
+                summary = 'Showing medicines with at least one live batch expiring in the next 30 days.';
+            } else if (currentFilter === 'expired-risk') {
+                summary = 'Showing medicines holding expired live batches that need action.';
+            } else if (currentFilter === 'rx-only') {
+                summary = 'Showing prescription-only medicines currently in your catalogue.';
+            } else if (currentFilter === 'barcode-ready') {
+                summary = 'Showing medicines that are ready for barcode scanner billing.';
+            } else if (currentFilter === 'low-stock') {
+                summary = 'Showing medicines that are already at or below the sellable stock alert.';
+            } else if (currentFilter === 'in-stock') {
+                summary = 'Showing medicines that are currently above their minimum stock alert.';
+            }
+            $('#catalogSummary').text(summary);
         }
 
         function renderProducts(data) {
             const tbody = $('#productsTableBody');
             tbody.empty();
             if (!data.products?.length) {
-                let msg = currentKeyword ? `No matches for "${escapeHtml(currentKeyword)}"` : (currentProductCount >= productLimitRaw && !isUnlimited ? `Limit reached (${productLimitDisplay})` : 'No products');
-                tbody.html(`<tr><td colspan="6" class="shop-empty-state"><i class="fas fa-box-open"></i><p>${msg}</p>${!currentKeyword && (!isUnlimited && currentProductCount < productLimitRaw) ? '<a href="/products/new" class="shop-add-link">Add Product</a>' : ''}${!currentKeyword && (!isUnlimited && currentProductCount >= productLimitRaw) ? '<a href="/upgrade" class="shop-add-link shop-upgrade-link">Upgrade</a>' : ''}</td></tr>`);
+                let msg = currentKeyword ? `No matches for "${escapeHtml(currentKeyword)}"` : (currentProductCount >= productLimitRaw && !isUnlimited ? `Limit reached (${productLimitDisplay})` : 'No medicines yet');
+                tbody.html(`<tr><td colspan="8" class="shop-empty-state"><i class="fas fa-box-open"></i><p>${msg}</p>${!currentKeyword && (!isUnlimited && currentProductCount < productLimitRaw) ? '<a href="/products/new" class="shop-add-link">Add Medicine</a>' : ''}${!currentKeyword && (!isUnlimited && currentProductCount >= productLimitRaw) ? '<a href="/upgrade" class="shop-add-link shop-upgrade-link">Upgrade</a>' : ''}</td></tr>`);
                 return;
             }
             data.products.forEach(p => {
-                const isLowStock = p.stockQuantity <= p.minStock;
+                const sellableStock = p.sellableStock ?? p.stockQuantity;
+                const isLowStock = sellableStock <= p.minStock;
+                const detailParts = [p.genericName].filter(Boolean).map(escapeHtml);
+                const metaChips = [];
+                if (p.barcode) metaChips.push(`<span class="shop-product-chip"><i class="fas fa-barcode"></i> ${escapeHtml(p.barcode)}</span>`);
+                if (p.prescriptionRequired) metaChips.push(`<span class="shop-product-chip shop-product-chip-rx"><i class="fas fa-file-medical"></i> Rx</span>`);
+                if (p.batchManaged) metaChips.push(`<span class="shop-product-chip shop-product-chip-batch"><i class="fas fa-layer-group"></i> ${p.activeBatchCount} batch${p.activeBatchCount === 1 ? '' : 'es'}</span>`);
+                if ((p.nearExpiryBatchCount || 0) > 0) metaChips.push(`<span class="shop-product-chip shop-product-chip-expiry"><i class="fas fa-hourglass-half"></i> ${p.nearExpiryBatchCount} near expiry</span>`);
+                if ((p.expiredBatchCount || 0) > 0) metaChips.push(`<span class="shop-product-chip shop-product-chip-expired"><i class="fas fa-triangle-exclamation"></i> ${p.expiredBatchCount} expired</span>`);
+
+                let batchCell = '<div class="shop-batch-cell-muted">Opening or manual stock only</div>';
+                if (p.batchManaged) {
+                    const nextExpiryText = p.nextSellableExpiryDate
+                        ? formatDate(p.nextSellableExpiryDate)
+                        : 'No active expiry date';
+                    batchCell = `
+                        <div class="shop-batch-stack">
+                            <div class="shop-batch-line"><strong>${p.activeBatchCount}</strong> live batch${p.activeBatchCount === 1 ? '' : 'es'}</div>
+                            <div class="shop-batch-line">Batch units: <strong>${p.liveBatchStock}</strong></div>
+                            <div class="shop-batch-line">Next expiry: <strong>${nextExpiryText}</strong></div>
+                        </div>`;
+                }
+
                 tbody.append(`
                     <tr>
                         <td><input type="checkbox" class="product-checkbox" data-id="${p.id}" ${selectedProducts.has(p.id) ? 'checked' : ''}></td>
-                        <td><div class="shop-product-name">${escapeHtml(p.name)}</div>${p.description ? `<div class="shop-product-description">${escapeHtml(p.description.substring(0, 60))}</div>` : ''}</td>
-                        <td><span class="shop-price">₹${formatPrice(p.price)}</span></td>
+                        <td>
+                            <div class="shop-product-name">${escapeHtml(p.name)}</div>
+                            ${detailParts.length ? `<div class="shop-product-meta">${detailParts.join(' • ')}</div>` : '<div class="shop-product-meta shop-product-meta-muted">No generic / salt recorded</div>'}
+                            ${p.description ? `<div class="shop-product-description">${escapeHtml(p.description.substring(0, 60))}</div>` : ''}
+                            ${metaChips.length ? `<div class="shop-product-chips">${metaChips.join('')}</div>` : ''}
+                        </td>
+                        <td>
+                            <div class="shop-company-name">${p.manufacturer ? escapeHtml(p.manufacturer) : 'Manufacturer not set'}</div>
+                            <div class="shop-company-meta">${p.packSize ? `<i class="fas fa-box-open"></i> ${escapeHtml(p.packSize)}` : '<i class="fas fa-box-open"></i> Pack size not set'}</div>
+                            ${p.barcode ? `<div class="shop-company-meta shop-company-meta-code"><i class="fas fa-barcode"></i> ${escapeHtml(p.barcode)}</div>` : ''}
+                        </td>
+                        <td>
+                            <div class="shop-price-stack">
+                                <span class="shop-price">Sale ₹${formatPrice(p.price)}</span>
+                                ${p.mrp ? `<div class="shop-price-meta">MRP ₹${formatPrice(p.mrp)}</div>` : '<div class="shop-price-meta">MRP not set</div>'}
+                                ${p.purchasePrice ? `<div class="shop-price-meta">Purchase ₹${formatPrice(p.purchasePrice)}</div>` : '<div class="shop-price-meta">Purchase not set</div>'}
+                            </div>
+                        </td>
+                        <td>${batchCell}</td>
                         <td><span class="shop-gst-badge ${p.gstPercent === 0 ? 'shop-gst-badge-zero' : ''}">${p.gstPercent || 0}%</span></td>
-                        <td><div class="shop-stock-cell"><span class="shop-stock-quantity">${p.stockQuantity}</span><span class="${isLowStock ? 'shop-low-stock-badge' : 'shop-in-stock-badge'}"><i class="fas ${isLowStock ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${isLowStock ? 'Low' : 'In Stock'}</span></div></td>
+                        <td><div class="shop-stock-cell"><span class="shop-stock-quantity">${sellableStock}</span><span class="${isLowStock ? 'shop-low-stock-badge' : 'shop-in-stock-badge'}"><i class="fas ${isLowStock ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${isLowStock ? 'Low' : 'Healthy'}</span></div><div class="shop-stock-note">Sellable stock • Min alert ${p.minStock}</div>${p.batchManaged ? `<div class="shop-stock-note">Raw total ${p.stockQuantity}</div>` : ''}</td>
                         <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${(!isUnlimited && currentProductCount >= productLimitRaw) ? 'disabled' : ''}><i class="fas fa-copy"></i></button><form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form></div></td>
                     </tr>
                 `);
@@ -387,11 +511,12 @@
             if (end < data.totalPages - 1) { if (end < data.totalPages - 2) html += `<button disabled>...</button>`; html += `<button onclick="changePage(${data.totalPages - 1})">${data.totalPages}</button>`; }
             html += `<button onclick="changePage(${data.currentPage + 1})" ${!data.hasNext ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button></div>`;
             container.html(html);
-            $('#paginationInfo').html(`Showing ${data.currentPage * data.pageSize + 1} to ${Math.min((data.currentPage + 1) * data.pageSize, data.totalItems)} of ${data.totalItems} products`);
+            $('#paginationInfo').html(`Showing ${data.currentPage * data.pageSize + 1} to ${Math.min((data.currentPage + 1) * data.pageSize, data.totalItems)} of ${data.totalItems} medicines`);
         }
         
         function changePage(page) { if (page === currentPage) return; currentPage = page; selectedProducts.clear(); updateBulkActions(); loadProducts(); $('.shop-main').scrollTop(0); }
         function formatPrice(p) { return parseFloat(p).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function formatDate(value) { if (!value) return 'N/A'; return new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
         function escapeHtml(t) { if (!t) return ''; return t.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
         function getCsrfToken() { return $('meta[name="_csrf"]').attr('content'); }
         function showError(m) { let d = $('<div>', { class: 'shop-toast-error', text: m }).appendTo('body'); setTimeout(() => d.fadeOut(300, () => d.remove()), 3000); }

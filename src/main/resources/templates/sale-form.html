@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>HisaabLite • Billing</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>RxArogya • Billing</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -61,25 +61,62 @@
                     </div>
                 </div>
 
-                <div class="billing-container">
-                    <div class="billing-left">
-                        <div class="product-search-section">
-                            <div class="search-header">
-                                <div class="section-heading">
-                                    <i class="fas fa-barcode"></i>
+                <section class="billing-command-strip">
+                    <div class="billing-command-brand">
+                        <div class="billing-brand-logo">
+                            <img th:src="@{/images/rxarogya-logo-dark.svg}" alt="RxArogya" class="billing-brand-logo-dark">
+                            <img th:src="@{/images/rxarogya-logo-light.svg}" alt="RxArogya" class="billing-brand-logo-light">
+                        </div>
+                        <div class="billing-command-copy">
+                            <span class="billing-command-kicker">Medical Counter Console</span>
+                            <h2>Pharmacy billing, barcode entry, and live invoice control</h2>
+                            <p>A market-style medicine billing workspace with fast scan-to-cart flow, patient details, tax-ready totals, thermal print, and WhatsApp invoice handoff.</p>
+                        </div>
+                    </div>
+                    <div class="billing-command-side">
+                        <div class="billing-command-card">
+                            <span>Shift Flow</span>
+                            <strong>Search, bill, print, send</strong>
+                            <small>Compact counter flow for owner, manager, and cashier desks</small>
+                        </div>
+                        <div class="billing-command-card">
+                            <span>Quick Keys</span>
+                            <div class="billing-command-shortcuts">
+                                <span>F2 Search</span>
+                                <span>F4 Mode</span>
+                                <span>F6 Receive</span>
+                                <span>Ctrl + Enter Save</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="billing-stage-grid">
+                    <div class="billing-stage-left">
+                        <section class="billing-search-shell">
+                            <div class="billing-block-head">
+                                <div class="billing-block-title">
+                                    <div class="billing-block-icon"><i class="fas fa-barcode"></i></div>
                                     <div>
-                                        <span>Add Items</span>
-                                        <small>Search product or scan barcode</small>
+                                        <span>Medicine Search Desk</span>
+                                        <small>Brand, salt, manufacturer, or exact barcode entry</small>
                                     </div>
                                 </div>
-                                <span class="section-chip">Counter Ready</span>
+                                <div class="search-mode-switch" role="group" aria-label="Billing input mode">
+                                    <button type="button" id="searchModeBtn" class="search-mode-btn is-active">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                    <button type="button" id="scanModeBtn" class="search-mode-btn">
+                                        <i class="fas fa-barcode"></i> Scan
+                                    </button>
+                                </div>
                             </div>
 
-                            <div class="search-container">
+                            <div class="billing-search-station">
                                 <div class="search-input-wrapper">
                                     <i class="fas fa-search search-icon"></i>
                                     <input type="text" id="searchInput" class="search-input"
-                                        placeholder="Search by name or scan barcode..." autocomplete="off">
+                                        placeholder="Search medicine, salt or scan barcode..." autocomplete="off">
                                     <div id="searchResults" class="search-results-dropdown"></div>
                                 </div>
 
@@ -89,151 +126,185 @@
                                         <input type="number" id="qtyInput" value="1" min="1" class="quantity-input">
                                     </div>
                                     <button id="addBtn" class="add-to-cart-btn">
-                                        <i class="fas fa-cart-plus"></i> Add
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
                                     </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <form id="billingForm" th:action="@{/sales/complete}" method="post">
+                            <div class="billing-counter-notes">
+                                <span><i class="fas fa-layer-group"></i> Only sellable batch stock is billed</span>
+                                <span><i class="fas fa-prescription-bottle-medical"></i> Medicines, salts, and manufacturer lookup supported</span>
+                                <span><i class="fas fa-bolt"></i> Exact barcode match can auto-add instantly</span>
+                            </div>
+                        </section>
+
+                        <form id="billingForm" th:action="@{/sales/complete}" method="post" class="billing-console-form">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-                            <div class="customer-section">
-                                <div class="section-title">
-                                    <div class="section-heading">
-                                        <i class="fas fa-user-circle"></i>
-                                        <div>
-                                            <span>Customer Information</span>
-                                            <small>Optional, helpful for invoice sharing</small>
+                            <div class="billing-console-grid">
+                                <section class="customer-section">
+                                    <div class="billing-block-head">
+                                        <div class="billing-block-title">
+                                            <div class="billing-block-icon"><i class="fas fa-user-circle"></i></div>
+                                            <div>
+                                                <span>Patient / Customer</span>
+                                                <small>Optional details for invoice handoff and WhatsApp delivery</small>
+                                            </div>
+                                        </div>
+                                        <span class="billing-pill">Optional</span>
+                                    </div>
+
+                                    <div class="customer-fields">
+                                        <div class="field-group">
+                                            <label>Name</label>
+                                            <input type="text" name="customerName" placeholder="Walk-in customer"
+                                                class="customer-input">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Phone</label>
+                                            <input type="text" name="customerPhone" placeholder="9876543210"
+                                                inputmode="numeric" maxlength="10" class="customer-input">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="customer-fields">
-                                    <div class="field-group">
-                                        <label>Name</label>
-                                        <input type="text" name="customerName" placeholder="Walk-in customer"
-                                            class="customer-input">
-                                    </div>
-                                    <div class="field-group">
-                                        <label>Phone</label>
-                                        <input type="text" name="customerPhone" placeholder="9876543210"
-                                            inputmode="numeric" maxlength="10" class="customer-input">
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="payment-section">
-                                <div class="section-title">
-                                    <div class="section-heading">
-                                        <i class="fas fa-credit-card"></i>
-                                        <div>
-                                            <span>Payment Details</span>
-                                            <small>Complete the bill with full confidence</small>
+                                    <div class="billing-side-tip">
+                                        <i class="fas fa-circle-info"></i>
+                                        <span>Phone number helps for invoice sharing and repeat customer tracking later.</span>
+                                    </div>
+                                </section>
+
+                                <section class="payment-section">
+                                    <div class="billing-block-head">
+                                        <div class="billing-block-title">
+                                            <div class="billing-block-icon"><i class="fas fa-credit-card"></i></div>
+                                            <div>
+                                                <span>Payment Console</span>
+                                                <small>Mode, discount, received amount, and live change</small>
+                                            </div>
+                                        </div>
+                                        <span class="billing-pill billing-pill-accent">Ready to save</span>
+                                    </div>
+
+                                    <div class="discount-row">
+                                        <div class="field-group">
+                                            <label>Discount (₹)</label>
+                                            <input type="number" id="discountAmount" name="discountAmount" value="0" min="0"
+                                                class="discount-input">
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Discount (%)</label>
+                                            <input type="number" id="discountPercent" name="discountPercent" value="0"
+                                                min="0" max="100" class="discount-input">
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="discount-row">
-                                    <div class="field-group">
-                                        <label>Discount (₹)</label>
-                                        <input type="number" id="discountAmount" name="discountAmount" value="0" min="0"
-                                            class="discount-input">
+                                    <div class="payment-row">
+                                        <div class="field-group">
+                                            <label>Payment Mode</label>
+                                            <select id="paymentMode" name="paymentMode" class="payment-select">
+                                                <option value="CASH">Cash</option>
+                                                <option value="UPI">UPI</option>
+                                                <option value="CARD">Card</option>
+                                            </select>
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Received</label>
+                                            <input type="number" id="amountReceived" name="amountReceived" placeholder="0"
+                                                class="amount-input">
+                                        </div>
                                     </div>
-                                    <div class="field-group">
-                                        <label>Discount (%)</label>
-                                        <input type="number" id="discountPercent" name="discountPercent" value="0"
-                                            min="0" max="100" class="discount-input">
+
+                                    <input type="hidden" id="changeReturned" name="changeReturned">
+
+                                    <div class="change-card">
+                                        <div class="change-copy">
+                                            <span class="change-label"><i class="fas fa-exchange-alt"></i> Change to return</span>
+                                            <small>Live calculation from payable vs received amount</small>
+                                        </div>
+                                        <span class="change-amount">₹ <span id="changeAmount">0.00</span></span>
                                     </div>
-                                </div>
 
-                                <div class="payment-row">
-                                    <div class="field-group">
-                                        <label>Payment Mode</label>
-                                        <select id="paymentMode" name="paymentMode" class="payment-select">
-                                            <option value="CASH">💵 Cash</option>
-                                            <option value="UPI">📱 UPI</option>
-                                            <option value="CARD">💳 Card</option>
-                                        </select>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-cancel" onclick="showPopup()">
+                                            <i class="fas fa-trash-alt"></i> Cancel
+                                        </button>
+                                        <button type="submit" class="btn-complete">
+                                            <i class="fas fa-check-circle"></i> Complete Sale
+                                        </button>
                                     </div>
-                                    <div class="field-group">
-                                        <label>Received</label>
-                                        <input type="number" id="amountReceived" name="amountReceived" placeholder="0"
-                                            class="amount-input">
-                                    </div>
-                                </div>
-
-                                <input type="hidden" id="changeReturned" name="changeReturned">
-
-                                <div class="change-card">
-                                    <span class="change-label"><i class="fas fa-exchange-alt"></i> Change</span>
-                                    <span class="change-amount">₹ <span id="changeAmount">0.00</span></span>
-                                </div>
-
-                                <div class="action-buttons">
-                                    <button type="button" class="btn-cancel" onclick="showPopup()">
-                                        <i class="fas fa-trash-alt"></i> Cancel
-                                    </button>
-                                    <button type="submit" class="btn-complete">
-                                        <i class="fas fa-check-circle"></i> Complete
-                                    </button>
-                                </div>
+                                </section>
                             </div>
                         </form>
                     </div>
 
-                    <div class="billing-right">
-                        <div class="cart-header">
-                            <div class="cart-title">
-                                <div class="section-heading">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <div>
-                                        <h3>Current Cart</h3>
-                                        <small>Live bill items and totals</small>
-                                    </div>
+                    <aside class="billing-stage-right">
+                        <section class="invoice-shell">
+                            <div class="invoice-shell-head">
+                                <div>
+                                    <span class="invoice-shell-kicker">Live Invoice Monitor</span>
+                                    <h3>Current Cart & Payable</h3>
+                                </div>
+                                <span class="cart-badge" id="cartCount">0 items</span>
+                            </div>
+
+                            <div class="invoice-snapshot">
+                                <div class="invoice-snapshot-card">
+                                    <span>Line Items</span>
+                                    <strong id="cartItemCountValue">0</strong>
+                                    <small>current bill items</small>
+                                </div>
+                                <div class="invoice-snapshot-card">
+                                    <span>Total Tax</span>
+                                    <strong>₹ <span id="cartTaxSpotlight">0.00</span></strong>
+                                    <small>CGST + SGST</small>
+                                </div>
+                                <div class="invoice-snapshot-card highlight">
+                                    <span>Payable</span>
+                                    <strong>₹ <span id="cartTotalSpotlight">0.00</span></strong>
+                                    <small>after discount</small>
                                 </div>
                             </div>
-                            <span class="cart-badge" id="cartCount">0 items</span>
-                        </div>
 
-                        <div class="cart-items-container" id="cartContainer">
-                            <div class="empty-cart">
-                                <i class="fas fa-shopping-basket"></i>
-                                <p>Cart is empty</p>
-                                <span>Add products to get started</span>
+                            <div class="invoice-board" id="cartContainer">
+                                <div class="empty-cart">
+                                    <div class="empty-cart-graphic"><i class="fas fa-prescription-bottle-medical"></i></div>
+                                    <p>Counter cart is empty</p>
+                                    <span>Search a medicine or scan a barcode to begin billing.</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="cart-summary">
-                            <div class="cart-summary-header">
-                                <span>Bill Summary</span>
-                                <small>Updated instantly as the cart changes</small>
+                            <div class="invoice-summary-panel">
+                                <div class="cart-summary-header">
+                                    <span>Bill Summary</span>
+                                    <small>Live GST and payable totals from the invoice board</small>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Base Amount</span>
+                                    <span>₹ <span id="subtotalAmount">0.00</span></span>
+                                </div>
+                                <div class="summary-row tax-row" id="cgstRow">
+                                    <span>CGST</span>
+                                    <span>₹ <span id="cgstAmount">0.00</span></span>
+                                </div>
+                                <div class="summary-row tax-row" id="sgstRow">
+                                    <span>SGST</span>
+                                    <span>₹ <span id="sgstAmount">0.00</span></span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Total Tax</span>
+                                    <span>₹ <span id="totalGstAmount">0.00</span></span>
+                                </div>
+                                <div class="summary-row discount-row" id="discountRow">
+                                    <span>Discount</span>
+                                    <span class="discount-value">- ₹ <span id="discountDisplay">0.00</span></span>
+                                </div>
+                                <div class="summary-row total-row">
+                                    <span>Total Payable Amount</span>
+                                    <span class="total-amount">₹ <span id="finalTotalAmount">0.00</span></span>
+                                </div>
                             </div>
-                            <div class="summary-row">
-                                <span>Base Amount</span>
-                                <span>₹ <span id="subtotalAmount">0.00</span></span>
-                            </div>
-                            <div class="summary-row tax-row" id="cgstRow">
-                                <span>CGST</span>
-                                <span>₹ <span id="cgstAmount">0.00</span></span>
-                            </div>
-                            <div class="summary-row tax-row" id="sgstRow">
-                                <span>SGST</span>
-                                <span>₹ <span id="sgstAmount">0.00</span></span>
-                            </div>
-                            <div class="summary-row">
-                                <span>Total Tax</span>
-                                <span>₹ <span id="totalGstAmount">0.00</span></span>
-                            </div>
-                            <div class="summary-row discount-row" id="discountRow">
-                                <span>Discount</span>
-                                <span class="discount-value">- ₹ <span id="discountDisplay">0.00</span></span>
-                            </div>
-                            <div class="summary-row total-row">
-                                <span>Total Payable Amount </span>
-                                <span class="total-amount">₹ <span id="finalTotalAmount">0.00</span></span>
-                            </div>
-                        </div>
-                    </div>
+                        </section>
+                    </aside>
                 </div>
             </div>
 

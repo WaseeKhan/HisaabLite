@@ -1,60 +1,60 @@
 /* ===== SHOP LAYOUT ===== */
 
-/* Reset body */
+:root {
+    --shop-header-height: 64px;
+}
+
 .shop-body {
     margin: 0;
     padding: 0;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
+    background: var(--shop-bg);
 }
 
-/* Main Layout Container */
 .shop-layout {
     display: flex;
     width: 100%;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
-/* Sidebar - Fixed */
 .shop-sidebar {
     width: 240px;
-    background: #ffffff;
-    border-right: 1px solid #e9eef2;
-    padding: 32px 20px;
+    background: var(--shop-primary);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 18px 20px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100dvh - var(--shop-header-height));
     position: fixed;
     left: 0;
-    top: 0;
+    top: var(--shop-header-height);
     bottom: 0;
     overflow-y: auto;
     z-index: 100;
 }
 
-/* Main Content - Scrollable */
 .shop-main {
     flex: 1;
     margin-left: 240px;
-    height: 100vh;
+    margin-top: var(--shop-header-height);
+    height: calc(100dvh - var(--shop-header-height));
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    background: #f3f4f6;
+    background: var(--shop-main-bg);
 }
 
-/* Content Wrapper - Takes remaining space */
 .shop-content-wrapper {
     flex: 1;
-    padding: 20px 24px;
+    padding: 18px 24px 20px;
 }
 
-/* Footer - Stays at bottom */
 .shop-footer {
     background: white;
-    border-top: 1px solid #e9eef2;
+    border-top: 1px solid var(--shop-border);
     padding: 12px 24px;
     display: flex;
     justify-content: space-between;
@@ -72,7 +72,7 @@
 }
 
 .shop-footer-left i {
-    color: #2563eb;
+    color: var(--shop-secondary);
     font-size: 13px;
 }
 
@@ -93,68 +93,74 @@
 }
 
 .shop-footer-right a:hover {
-    color: #2563eb;
+    color: var(--shop-secondary);
 }
 
 .shop-footer-right .version {
-    background: #f1f5f9;
+    background: var(--shop-accent-soft);
     padding: 3px 8px;
     border-radius: 30px;
     font-size: 10px;
+    color: #9a5a17;
 }
 
-/* Scrollbar */
 .shop-main::-webkit-scrollbar {
     width: 6px;
 }
 
 .shop-main::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #edf1f5;
 }
 
 .shop-main::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: #c7d0db;
     border-radius: 10px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .shop-sidebar {
         width: 200px;
+        padding: 14px 14px 18px;
     }
+
     .shop-main {
         margin-left: 200px;
+        margin-top: var(--shop-header-height);
+        height: calc(100dvh - var(--shop-header-height));
     }
+
     .shop-content-wrapper {
-        padding: 16px 20px;
+        padding: 16px 20px 18px;
     }
+
     .shop-footer {
         flex-direction: column;
         gap: 8px;
         text-align: center;
         padding: 10px 16px;
     }
-    .shop-footer-left, .shop-footer-right {
+
+    .shop-footer-left,
+    .shop-footer-right {
         flex-wrap: wrap;
         justify-content: center;
         gap: 8px;
     }
 }
 
-/* Main Content */
-.shop-main {
-    flex: 1;
-    margin-left: 240px;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    background: #f3f4f6;
+@media (max-width: 960px) {
+    .shop-main {
+        margin-left: 0;
+        height: calc(100dvh - var(--shop-header-height));
+    }
+
+    .shop-content-wrapper {
+        padding: 16px 16px 18px;
+    }
 }
 
-/* Content Wrapper - Remove padding to let header go full width */
-.shop-content-wrapper {
-    flex: 1;
-    padding: 0 24px 20px 24px;
+@media (max-width: 600px) {
+    .shop-content-wrapper {
+        padding: 12px 12px 16px;
+    }
 }

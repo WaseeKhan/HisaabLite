@@ -6,9 +6,9 @@
 
 .shop-body {
     font-family: 'Inter', sans-serif;
-    background: #f3f4f6;
-    color: #1e293b;
-    height: 100vh;
+    background: var(--shop-page-bg);
+    color: var(--shop-page-text);
+    height: 100dvh;
     overflow: hidden;
 }
 

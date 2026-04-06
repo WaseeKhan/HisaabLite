@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>New Purchase Return • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-purchase-form.css}">
+</head>
+
+<body class="shop-body">
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPage='purchases')}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+                <div class="purchase-form-shell">
+                    <div class="purchase-form-intro">
+                        <div class="purchase-form-copy">
+                            <span class="purchase-form-kicker">Supplier Return Entry</span>
+                            <h2>Record a supplier return against live batch stock</h2>
+                            <p>Select the exact batch, the quantity going back, and the reason so inventory, expiry watch, and audit all stay correct.</p>
+                            <div class="purchase-form-pills">
+                                <span><i class="fas fa-layer-group"></i> Batch-linked return</span>
+                                <span><i class="fas fa-file-waveform"></i> Audited stock change</span>
+                                <span><i class="fas fa-arrow-rotate-left"></i> Unsold stock only</span>
+                            </div>
+                        </div>
+                        <a th:href="@{/purchases/returns}" class="purchase-form-back">
+                            <i class="fas fa-arrow-left"></i> Back to Returns
+                        </a>
+                    </div>
+
+                    <div th:if="${error}" class="shop-alert shop-alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:text="${error}">Error</span>
+                        <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+                    </div>
+
+                    <div class="purchase-form-layout">
+                        <div class="purchase-form-card">
+                            <div class="purchase-form-title">
+                                <div>
+                                    <h3>Return Header</h3>
+                                    <p>The supplier is derived from the chosen batch, so you only need the date, notes, and return lines.</p>
+                                </div>
+                                <div class="purchase-form-badge">Purchase Return</div>
+                            </div>
+
+                            <form th:action="@{/purchases/returns/save}" th:object="${purchaseReturnForm}" method="post" id="purchaseReturnForm">
+                                <div class="purchase-form-grid">
+                                    <div class="form-group">
+                                        <label>Return Date</label>
+                                        <input type="date" th:field="*{returnDate}" required>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Notes</label>
+                                        <textarea th:field="*{notes}" rows="3" placeholder="Optional supplier return note"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="line-items-head">
+                                    <div>
+                                        <h4>Return Lines</h4>
+                                        <p>Every line reduces only available batch quantity, never sold quantity.</p>
+                                    </div>
+                                    <button type="button" class="line-add-btn" id="addReturnLine">
+                                        <i class="fas fa-plus"></i> Add Line
+                                    </button>
+                                </div>
+
+                                <div class="line-items-wrap">
+                                    <table class="line-items-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Batch</th>
+                                                <th>Return Qty</th>
+                                                <th>Reason</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="returnLineTable">
+                                            <tr class="purchase-line-row" th:each="item, iter : *{items}">
+                                                <td>
+                                                    <select class="line-field return-batch-select" data-field="purchaseBatchId" th:name="${'items[' + iter.index + '].purchaseBatchId'}" required>
+                                                        <option value="">Select batch</option>
+                                                        <option th:each="batch : ${batches}"
+                                                                th:value="${batch.id}"
+                                                                th:selected="${item.purchaseBatchId != null and item.purchaseBatchId == batch.id}"
+                                                                th:attr="data-price=${batch.purchasePrice},data-available=${batch.availableQuantity}"
+                                                                th:text="${batch.product.name + ' • ' + batch.batchNumber + ' • ' + batch.availableQuantity + ' available' + (batch.expiryDate != null ? ' • Exp ' + #temporals.format(batch.expiryDate, 'dd MMM yyyy') : '')}">
+                                                            Batch
+                                                        </option>
+                                                    </select>
+                                                </td>
+                                                <td><input type="number" min="1" class="line-field return-qty" data-field="quantity" th:name="${'items[' + iter.index + '].quantity'}" th:value="${item.quantity}" placeholder="0" required></td>
+                                                <td><input type="text" class="line-field" data-field="reason" th:name="${'items[' + iter.index + '].reason'}" th:value="${item.reason}" placeholder="Expired, damaged, supplier recall..." required></td>
+                                                <td>
+                                                    <button type="button" class="line-remove-btn" th:disabled="${#lists.size(purchaseReturnForm.items) == 1}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="purchase-total-bar">
+                                    <div>
+                                        <span>Estimated return value</span>
+                                        <strong id="purchaseReturnTotal">₹0.00</strong>
+                                    </div>
+                                    <div class="purchase-total-note">Calculated from purchase price × return quantity for selected batches.</div>
+                                </div>
+
+                                <div class="purchase-form-actions">
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-save"></i> Save Purchase Return
+                                    </button>
+                                    <a th:href="@{/purchases/returns}" class="btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <aside class="purchase-form-side">
+                            <div class="purchase-side-card">
+                                <h4>Return rules</h4>
+                                <ul>
+                                    <li>Only unsold available batch units can be returned.</li>
+                                    <li>Returns are supplier-linked and fully audited.</li>
+                                    <li>If quantity is already sold, use a separate replacement flow later.</li>
+                                </ul>
+                            </div>
+                            <div class="purchase-side-card">
+                                <h4>What happens after save?</h4>
+                                <div class="side-step"><span>1</span><strong>Batch available stock goes down</strong></div>
+                                <div class="side-step"><span>2</span><strong>Medicine total stock updates immediately</strong></div>
+                                <div class="side-step"><span>3</span><strong>Dashboard and product visibility refresh on next load</strong></div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/shop-footer :: footer}"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const tableBody = document.getElementById('returnLineTable');
+            const addButton = document.getElementById('addReturnLine');
+            const totalNode = document.getElementById('purchaseReturnTotal');
+
+            if (!tableBody || !addButton || !totalNode) {
+                return;
+            }
+
+            function buildBatchOptions() {
+                const options = ['<option value="">Select batch</option>'];
+                document.querySelectorAll('#returnLineTable select option').forEach((option, index) => {
+                    if (index === 0) return;
+                    options.push(option.outerHTML.replace(' selected=""', '').replace(' selected', ''));
+                });
+                return options.join('');
+            }
+
+            function reindexRows() {
+                tableBody.querySelectorAll('.purchase-line-row').forEach((row, index) => {
+                    row.querySelectorAll('.line-field').forEach((field) => {
+                        field.name = `items[${index}].${field.dataset.field}`;
+                    });
+                    const removeButton = row.querySelector('.line-remove-btn');
+                    if (removeButton) {
+                        removeButton.disabled = tableBody.querySelectorAll('.purchase-line-row').length === 1;
+                    }
+                });
+            }
+
+            function updateTotal() {
+                let total = 0;
+                tableBody.querySelectorAll('.purchase-line-row').forEach((row) => {
+                    const batchSelect = row.querySelector('.return-batch-select');
+                    const quantity = Number(row.querySelector('.return-qty').value || 0);
+                    const selected = batchSelect ? batchSelect.options[batchSelect.selectedIndex] : null;
+                    const price = selected ? Number(selected.dataset.price || 0) : 0;
+                    total += quantity * price;
+                });
+                totalNode.textContent = `₹${total.toFixed(2)}`;
+            }
+
+            function addRow() {
+                const row = document.createElement('tr');
+                row.className = 'purchase-line-row';
+                row.innerHTML = `
+                    <td>
+                        <select class="line-field return-batch-select" data-field="purchaseBatchId" required>
+                            ${buildBatchOptions()}
+                        </select>
+                    </td>
+                    <td><input type="number" min="1" class="line-field return-qty" data-field="quantity" placeholder="0" required></td>
+                    <td><input type="text" class="line-field" data-field="reason" placeholder="Expired, damaged, supplier recall..." required></td>
+                    <td>
+                        <button type="button" class="line-remove-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                reindexRows();
+                updateTotal();
+            }
+
+            tableBody.addEventListener('click', function(event) {
+                const removeButton = event.target.closest('.line-remove-btn');
+                if (!removeButton) return;
+                const rows = tableBody.querySelectorAll('.purchase-line-row');
+                if (rows.length === 1) return;
+                removeButton.closest('.purchase-line-row').remove();
+                reindexRows();
+                updateTotal();
+            });
+
+            tableBody.addEventListener('input', updateTotal);
+            tableBody.addEventListener('change', updateTotal);
+            addButton.addEventListener('click', addRow);
+
+            reindexRows();
+            updateTotal();
+        })();
+    </script>
+</body>
+
+</html>

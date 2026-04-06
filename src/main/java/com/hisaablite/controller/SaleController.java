@@ -34,6 +34,8 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.hisaablite.dto.CartItem;
+import com.hisaablite.dto.ProductLookupResult;
+import com.hisaablite.dto.SaleBatchTraceSummaryDTO;
 import com.hisaablite.dto.SaleHistoryDTO;
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Product;
@@ -46,6 +48,7 @@ import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.service.PdfService;
 import com.hisaablite.service.ProductService;
+import com.hisaablite.service.SaleBatchTraceService;
 import com.hisaablite.service.SaleService;
 import com.hisaablite.service.WhatsAppService;
 
@@ -66,6 +69,7 @@ public class SaleController {
     private final SaleItemRepository saleItemRepository;
     private final WhatsAppService whatsAppService;
     private final PdfService pdfService;
+    private final SaleBatchTraceService saleBatchTraceService;
 
     private User getAuthenticatedUser(Authentication authentication) {
         return userRepository.findByUsername(authentication.getName())
@@ -134,12 +138,14 @@ public class SaleController {
                 .getProductByIdAndShop(productId, user.getShop())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (product.getStockQuantity() <= 0) {
+        int sellableStock = saleService.getSellableStockForProduct(product);
+
+        if (sellableStock <= 0) {
             throw new RuntimeException("Product is out of stock");
         }
 
-        if (quantity > product.getStockQuantity()) {
-            throw new RuntimeException("Only " + product.getStockQuantity() + " items available");
+        if (quantity > sellableStock) {
+            throw new RuntimeException("Only " + sellableStock + " items available");
         }
 
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
@@ -156,7 +162,7 @@ public class SaleController {
 
                 int newQty = item.getQuantity() + quantity;
 
-                if (newQty > product.getStockQuantity()) {
+                if (newQty > sellableStock) {
                     throw new RuntimeException("Not enough stock available");
                 }
 
@@ -299,6 +305,7 @@ public class SaleController {
 
         model.addAttribute("sale", sale);
         model.addAttribute("items", items);
+        model.addAttribute("batchTraceBySaleItemId", saleBatchTraceService.getBatchTraceBySaleItem(items));
 
         return "invoice";
     }
@@ -314,6 +321,7 @@ public class SaleController {
 
         model.addAttribute("sale", sale);
         model.addAttribute("items", items);
+        model.addAttribute("batchTraceBySaleItemId", saleBatchTraceService.getBatchTraceBySaleItem(items));
 
         return "invoice-thermal";
     }
@@ -363,19 +371,7 @@ public class SaleController {
         }
 
         // Convert to DTO for display
-        List<SaleHistoryDTO> saleDTOs = new ArrayList<>();
-        for (Sale sale : salesPage.getContent()) {
-            SaleHistoryDTO dto = SaleHistoryDTO.builder()
-                    .id(sale.getId())
-                    .saleDate(sale.getSaleDate())
-                    .totalAmount(sale.getTotalAmount())
-                    .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
-                    .customerPhone(sale.getCustomerPhone())
-                    .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
-                    .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
-                    .build();
-            saleDTOs.add(dto);
-        }
+        List<SaleHistoryDTO> saleDTOs = mapSaleHistoryDtos(salesPage.getContent());
 
         // Add filter attributes to model
         model.addAttribute("sales", saleDTOs);
@@ -442,19 +438,7 @@ public class SaleController {
             }
 
             // Convert to DTO to avoid circular reference
-            List<SaleHistoryDTO> saleDTOs = new ArrayList<>();
-            for (Sale sale : salesPage.getContent()) {
-                SaleHistoryDTO dto = SaleHistoryDTO.builder()
-                        .id(sale.getId())
-                        .saleDate(sale.getSaleDate())
-                        .totalAmount(sale.getTotalAmount())
-                        .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
-                        .customerPhone(sale.getCustomerPhone())
-                        .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
-                        .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
-                        .build();
-                saleDTOs.add(dto);
-            }
+            List<SaleHistoryDTO> saleDTOs = mapSaleHistoryDtos(salesPage.getContent());
 
             Map<String, Object> response = new HashMap<>();
             response.put("sales", saleDTOs);
@@ -496,6 +480,32 @@ public class SaleController {
         }
     }
 
+    private List<SaleHistoryDTO> mapSaleHistoryDtos(List<Sale> sales) {
+        Map<Long, SaleBatchTraceSummaryDTO> batchSummaryBySaleId = saleBatchTraceService.summarizeSales(sales);
+        List<SaleHistoryDTO> saleDTOs = new ArrayList<>();
+
+        for (Sale sale : sales) {
+            SaleBatchTraceSummaryDTO batchSummary = batchSummaryBySaleId.get(sale.getId());
+            SaleHistoryDTO dto = SaleHistoryDTO.builder()
+                    .id(sale.getId())
+                    .saleDate(sale.getSaleDate())
+                    .totalAmount(sale.getTotalAmount())
+                    .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
+                    .customerPhone(sale.getCustomerPhone())
+                    .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
+                    .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
+                    .batchManaged(batchSummary != null && batchSummary.isBatchManaged())
+                    .tracedBatchCount(batchSummary != null ? batchSummary.getTracedBatchCount() : 0)
+                    .tracedUnits(batchSummary != null ? batchSummary.getTracedUnits() : 0)
+                    .nextExpiryDate(batchSummary != null ? batchSummary.getNextExpiryDate() : null)
+                    .expiredBatchCount(batchSummary != null ? batchSummary.getExpiredBatchCount() : 0)
+                    .build();
+            saleDTOs.add(dto);
+        }
+
+        return saleDTOs;
+    }
+
     @PostMapping("/cancel/{id}")
     public String cancelSale(@PathVariable Long id,
             Authentication authentication,
@@ -514,14 +524,27 @@ public class SaleController {
 
     @GetMapping("/search")
     @ResponseBody
-    public List<Product> searchProducts(
+    public List<ProductLookupResult> searchProducts(
             @RequestParam String keyword,
             Authentication authentication) {
 
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow();
 
-        return productService.searchProducts(keyword, user.getShop());
+        return productService.searchProducts(keyword, user.getShop()).stream()
+                .map(product -> ProductLookupResult.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .barcode(product.getBarcode())
+                        .genericName(product.getGenericName())
+                        .manufacturer(product.getManufacturer())
+                        .packSize(product.getPackSize())
+                        .price(product.getPrice())
+                        .gstPercent(product.getGstPercent())
+                        .sellableStock(saleService.getSellableStockForProduct(product))
+                        .prescriptionRequired(product.isPrescriptionRequired())
+                        .build())
+                .toList();
     }
 
     @RequestMapping("/cart")
@@ -576,9 +599,11 @@ public class SaleController {
                 .getProductByIdAndShop(item.getProductId(), user.getShop())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (newQty > product.getStockQuantity()) {
+        int sellableStock = saleService.getSellableStockForProduct(product);
+
+        if (newQty > sellableStock) {
             return ResponseEntity.badRequest()
-                    .body("Only " + product.getStockQuantity() + " items available");
+                    .body("Only " + sellableStock + " items available");
         }
 
         BigDecimal price = product.getPrice();

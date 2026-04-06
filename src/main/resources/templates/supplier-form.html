@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Supplier Form • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-purchase-form.css}">
+</head>
+<body class="shop-body">
+<div class="shop-layout">
+    <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='purchases')}"></div>
+    <div class="shop-main">
+        <div class="shop-content-wrapper">
+            <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+            <div class="purchase-form-shell">
+                <div class="purchase-form-intro">
+                    <div class="purchase-form-copy">
+                        <span class="purchase-form-kicker">Supplier Master</span>
+                        <h2 th:text="${supplierForm.id != null ? 'Edit supplier profile' : 'Create a supplier profile'}">Create a supplier profile</h2>
+                        <p>Keep supplier identity, GST, and contact details ready so purchases, returns, and future dues all trace back cleanly.</p>
+                    </div>
+                    <a th:href="@{/purchases/suppliers}" class="purchase-form-back"><i class="fas fa-arrow-left"></i> Back to Suppliers</a>
+                </div>
+
+                <div th:if="${error}" class="shop-alert shop-alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error</span>
+                    <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+                </div>
+
+                <div class="purchase-form-layout">
+                    <div class="purchase-form-card">
+                        <div class="purchase-form-title">
+                            <div>
+                                <h3>Supplier Profile</h3>
+                                <p>These details are reused across purchase history, returns, and supplier-wise reporting.</p>
+                            </div>
+                            <div class="purchase-form-badge">Master Record</div>
+                        </div>
+
+                        <form th:action="@{/purchases/suppliers/save}" th:object="${supplierForm}" method="post">
+                            <input type="hidden" th:field="*{id}">
+                            <div class="purchase-form-grid">
+                                <div class="form-group">
+                                    <label>Supplier Name</label>
+                                    <input type="text" th:field="*{name}" placeholder="ABC Pharma" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Person</label>
+                                    <input type="text" th:field="*{contactPerson}" placeholder="Rahul Sharma">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="text" th:field="*{phone}" placeholder="9876543210">
+                                </div>
+                                <div class="form-group">
+                                    <label>GST Number</label>
+                                    <input type="text" th:field="*{gstNumber}" placeholder="29ABCDE1234F1Z5">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Address</label>
+                                    <textarea th:field="*{address}" rows="3" placeholder="Supplier address"></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Notes</label>
+                                    <textarea th:field="*{notes}" rows="3" placeholder="Delivery timings, payment terms, account notes"></textarea>
+                                </div>
+                            </div>
+                            <div class="purchase-form-actions">
+                                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Supplier</button>
+                                <a th:href="@{/purchases/suppliers}" class="btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

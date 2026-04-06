@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Suppliers • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-purchases.css}">
+</head>
+<body class="shop-body">
+<div class="shop-layout">
+    <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='purchases')}"></div>
+    <div class="shop-main">
+        <div class="shop-content-wrapper">
+            <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+            <div th:if="${success}" class="shop-alert shop-alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}">Success</span>
+                <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+            </div>
+
+            <section class="purchase-hero">
+                <div class="purchase-hero-copy">
+                    <span class="purchase-kicker">Supplier Master</span>
+                    <h2>Manage the supplier network behind purchases and returns</h2>
+                    <p>Every supplier now ties into inward stock, return value, and expiry-linked risk across the pharmacy workspace.</p>
+                </div>
+                <div class="purchase-hero-actions">
+                    <a th:href="@{/purchases}" class="purchase-cta purchase-cta-secondary"><i class="fas fa-arrow-left"></i> Purchases</a>
+                    <a th:href="@{/purchases/suppliers/new}" class="purchase-cta"><i class="fas fa-plus"></i> Add Supplier</a>
+                </div>
+            </section>
+
+            <section class="purchase-card">
+                <div class="purchase-card-head">
+                    <div>
+                        <h3>Supplier Directory</h3>
+                        <p>Open a supplier to review purchase totals, return history, live batch units, and expiry pressure.</p>
+                    </div>
+                    <span class="purchase-card-badge" th:text="${supplierCount + ' suppliers'}">0 suppliers</span>
+                </div>
+                <div class="purchase-table-wrap" th:if="${!#lists.isEmpty(suppliers)}">
+                    <table class="purchase-table">
+                        <thead>
+                        <tr>
+                            <th>Supplier</th>
+                            <th>Contact</th>
+                            <th>Purchases</th>
+                            <th>Returns</th>
+                            <th>Live Units</th>
+                            <th>Near Expiry</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="supplier : ${suppliers}">
+                            <td>
+                                <strong th:text="${supplier.name}">Supplier</strong>
+                                <div class="purchase-subtext" th:text="${supplier.contactPerson != null ? supplier.contactPerson : 'No contact person'}">No contact person</div>
+                            </td>
+                            <td>
+                                <div th:text="${supplier.phone != null ? supplier.phone : 'No phone'}">No phone</div>
+                                <div class="purchase-subtext" th:text="${supplier.gstNumber != null ? supplier.gstNumber : 'No GST'}">No GST</div>
+                            </td>
+                            <td>
+                                <strong th:text="${purchaseCounts[supplier.id]}">0</strong>
+                                <div class="purchase-subtext" th:text="${'₹' + #numbers.formatDecimal(purchaseValues[supplier.id], 1, 'COMMA', 2, 'POINT')}">₹0.00</div>
+                            </td>
+                            <td>
+                                <strong th:text="${returnCounts[supplier.id]}">0</strong>
+                                <div class="purchase-subtext" th:text="${'₹' + #numbers.formatDecimal(returnValues[supplier.id], 1, 'COMMA', 2, 'POINT')}">₹0.00</div>
+                            </td>
+                            <td th:text="${liveUnits[supplier.id]}">0</td>
+                            <td th:text="${nearExpiryCounts[supplier.id]}">0</td>
+                            <td>
+                                <div class="purchase-row-actions">
+                                    <a th:href="@{/purchases/suppliers/{id}(id=${supplier.id})}" class="purchase-row-link">Open</a>
+                                    <a th:href="@{/purchases/suppliers/{id}/edit(id=${supplier.id})}" class="purchase-row-link">Edit</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="purchase-empty" th:if="${#lists.isEmpty(suppliers)}">
+                    <i class="fas fa-building"></i>
+                    <p>No suppliers yet. Save a purchase or add a supplier manually to start the directory.</p>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="header" class="topbar">
-    <div class="shop-info">
-        <div class="shop-brand">
-    <div class="brand-icon">
-        <i class="fas fa-store"></i>
+    <div class="topbar-left">
+        <button type="button" class="shop-nav-toggle" id="shopNavToggle" aria-label="Toggle navigation" aria-controls="shopSidebarNav" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <a th:href="@{/dashboard}" class="app-brand-line" aria-label="Open dashboard">
+            <img th:src="@{/images/expygen-mark-light.svg}" th:alt="${@appConfig.appName}" class="app-brand-image app-brand-image-dark">
+            <img th:src="@{/images/expygen-mark-dark.svg}" th:alt="${@appConfig.appName}" class="app-brand-image app-brand-image-light">
+        </a>
+
+        <span class="topbar-divider-line"></span>
+
+        <strong class="shop-title-inline" th:text="${shop != null and shop.name != null ? shop.name : 'NA'}">Shop Name</strong>
+
+        <div class="shop-info">
+            <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop?.panNumber != null ? shop.panNumber : 'NA'}">PAN123</span></div>
+            <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop?.gstNumber != null ? shop.gstNumber : 'N/A'}">GST123</span></div>
+            <div class="info-tag"><i class="fas fa-calendar-alt"></i> <span th:text="${#temporals.format(shop.createdAt, 'MMM yyyy')}">Jan 2024</span></div>
+        </div>
     </div>
-    <div class="shop-name" th:text="${shop != null and shop.name != null ? shop.name : 'NA'}">Shop Name</div>
-</div>
-        <div class="info-tag"><i class="fas fa-file-invoice"></i> <span th:text="${shop?.panNumber != null ? shop.panNumber : 'NA'}">PAN123</span> </div>
-        <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop?.gstNumber != null ? shop.gstNumber : 'N/A'}">GST123</span></div>
-        <div class="info-tag"><i class="fas fa-calendar-alt"></i> <span th:text="${#temporals.format(shop.createdAt, 'MMM yyyy')}">Jan 2024</span></div>
-    </div>
+
     <div class="user-info">
+        <button type="button" class="shop-theme-toggle" data-theme-toggle onclick="window.toggleAppTheme && window.toggleAppTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <i class="fas fa-moon" data-theme-icon></i>
+            <span data-theme-label data-theme-label-mode="compact">Dark</span>
+        </button>
         <div class="role-badge" th:classappend="${role == 'OWNER' ? 'role-owner' : (role == 'MANAGER' ? 'role-manager' : 'role-cashier')}">
             <i class="fas fa-circle"></i>
             <span th:text="${role}">OWNER</span>
         </div>
         <span class="divider"></span>
-        <span class="shop-id"><i class="far fa-building"></i><span th:text="'HL' + ${shop.id}"></span></span>
+        <span class="shop-id" th:text="'RX' + ${shop.id}">RX</span>
         <span class="divider"></span>
         <div class="plan-wrapper">
             <div class="plan-badge" th:classappend="${planType == 'FREE' ? 'plan-free' : (planType == 'BASIC' ? 'plan-basic' : (planType == 'PREMIUM' ? 'plan-premium' : 'plan-enterprise'))}">
@@ -28,9 +44,7 @@
                 <i th:if="${planType == 'ENTERPRISE'}" class="fas fa-building"></i>
                 <span th:text="${planType}">FREE</span>
             </div>
-            <a th:if="${planType != 'PREMIUM' and planType != 'ENTERPRISE'}" 
-               th:href="@{/upgrade}" 
-               class="upgrade-badge">
+            <a th:if="${planType != 'PREMIUM' and planType != 'ENTERPRISE'}" th:href="@{/upgrade}" class="upgrade-badge">
                 <i class="fas fa-arrow-up"></i> Upgrade
             </a>
         </div>
@@ -42,7 +56,7 @@
         </div>
         <div id="userMenu" class="dropdown-menu">
             <a th:href="@{/profile}"><i class="fas fa-user"></i> My Profile</a>
-             <a th:href="@{/forgot-password}"><i class="fas fa-key"></i> Change Password</a>
+            <a th:href="@{/forgot-password}"><i class="fas fa-key"></i> Change Password</a>
             <a th:href="@{/settings}"><i class="fas fa-cog"></i> Settings</a>
             <div class="dropdown-divider"></div>
             <form th:action="@{/logout}" method="post">
@@ -51,19 +65,41 @@
             </form>
         </div>
     </div>
-</div>
-
-<script>
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        var dropdown = document.querySelector('.user-dropdown');
-        var menu = document.getElementById('userMenu');
-        if (dropdown && menu) {
-            if (!dropdown.contains(event.target) && !menu.contains(event.target)) {
-                menu.classList.remove('show');
-                dropdown.classList.remove('open');
+    <script>
+        document.addEventListener('click', function(event) {
+            var dropdown = document.querySelector('.user-dropdown');
+            var menu = document.getElementById('userMenu');
+            if (dropdown && menu) {
+                if (!dropdown.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.remove('show');
+                    dropdown.classList.remove('open');
+                }
             }
-        }
-    });
-</script>
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var navToggle = document.getElementById('shopNavToggle');
+            if (!navToggle) return;
+
+            var syncExpanded = function() {
+                navToggle.setAttribute('aria-expanded', document.body.classList.contains('shop-shell-nav-open') ? 'true' : 'false');
+            };
+
+            navToggle.addEventListener('click', function() {
+                document.body.classList.toggle('shop-shell-nav-open');
+                syncExpanded();
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 960 && document.body.classList.contains('shop-shell-nav-open')) {
+                    document.body.classList.remove('shop-shell-nav-open');
+                    syncExpanded();
+                }
+            });
+
+            syncExpanded();
+        });
+    </script>
+    <script th:src="@{/js/theme-toggle.js}"></script>
+</div>
 </html>

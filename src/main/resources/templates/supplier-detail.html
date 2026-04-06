@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Supplier Detail • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-purchases.css}">
+</head>
+<body class="shop-body">
+<div class="shop-layout">
+    <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='purchases')}"></div>
+    <div class="shop-main">
+        <div class="shop-content-wrapper">
+            <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+            <section class="purchase-hero">
+                <div class="purchase-hero-copy">
+                    <span class="purchase-kicker">Supplier Detail</span>
+                    <h2 th:text="${supplier.name}">Supplier</h2>
+                    <p>Supplier-wide view of purchase value, return history, live stock on hand, and batches that need expiry action soon.</p>
+                    <div class="purchase-pills">
+                        <span><i class="fas fa-user"></i> <span th:text="${supplier.contactPerson != null ? supplier.contactPerson : 'No contact person'}">No contact person</span></span>
+                        <span><i class="fas fa-phone"></i> <span th:text="${supplier.phone != null ? supplier.phone : 'No phone'}">No phone</span></span>
+                        <span><i class="fas fa-file-lines"></i> <span th:text="${supplier.gstNumber != null ? supplier.gstNumber : 'No GST'}">No GST</span></span>
+                    </div>
+                </div>
+                <div class="purchase-hero-actions">
+                    <a th:href="@{/purchases/suppliers/{id}/edit(id=${supplier.id})}" class="purchase-cta purchase-cta-secondary"><i class="fas fa-pen"></i> Edit</a>
+                    <a th:href="@{/purchases/suppliers}" class="purchase-cta purchase-cta-secondary"><i class="fas fa-arrow-left"></i> Suppliers</a>
+                </div>
+            </section>
+
+            <section class="purchase-stats-grid">
+                <article class="purchase-stat-card">
+                    <div><span>Purchases</span><strong th:text="${purchaseCount}">0</strong></div>
+                    <i class="fas fa-file-invoice"></i>
+                </article>
+                <article class="purchase-stat-card">
+                    <div><span>Purchase Value</span><strong th:text="${'₹' + #numbers.formatDecimal(purchaseValue, 1, 'COMMA', 2, 'POINT')}">₹0.00</strong></div>
+                    <i class="fas fa-indian-rupee-sign"></i>
+                </article>
+                <article class="purchase-stat-card">
+                    <div><span>Live Batch Units</span><strong th:text="${liveBatchUnits}">0</strong></div>
+                    <i class="fas fa-boxes-stacked"></i>
+                </article>
+                <article class="purchase-stat-card">
+                    <div><span>Near Expiry</span><strong th:text="${nearExpiryCount}">0</strong></div>
+                    <i class="fas fa-hourglass-half"></i>
+                </article>
+            </section>
+
+            <section class="purchase-layout-grid">
+                <div class="purchase-card">
+                    <div class="purchase-card-head">
+                        <div>
+                            <h3>Recent Purchases</h3>
+                            <p>Most recent inward entries recorded against this supplier.</p>
+                        </div>
+                        <span class="purchase-card-badge" th:text="${purchaseCount + ' entries'}">0 entries</span>
+                    </div>
+                    <div class="purchase-table-wrap" th:if="${!#lists.isEmpty(purchases)}">
+                        <table class="purchase-table">
+                            <thead><tr><th>Date</th><th>Invoice</th><th>Batches</th><th>Total</th><th></th></tr></thead>
+                            <tbody>
+                            <tr th:each="purchase : ${purchases}">
+                                <td th:text="${#temporals.format(purchase.purchaseDate, 'dd MMM yyyy')}">05 Apr 2026</td>
+                                <td th:text="${purchase.supplierInvoiceNumber != null ? purchase.supplierInvoiceNumber : 'No invoice'}">INV-1</td>
+                                <td th:text="${#lists.size(purchase.batches)}">0</td>
+                                <td th:text="${'₹' + #numbers.formatDecimal(purchase.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹0.00</td>
+                                <td><a th:href="@{/purchases/view/{id}(id=${purchase.id})}" class="purchase-row-link">View</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="purchase-empty compact" th:if="${#lists.isEmpty(purchases)}">
+                        <i class="fas fa-receipt"></i>
+                        <p>No purchases linked to this supplier yet.</p>
+                    </div>
+                </div>
+
+                <aside class="purchase-side-column">
+                    <div class="purchase-card">
+                        <div class="purchase-card-head">
+                            <div>
+                                <h3>Return Summary</h3>
+                                <p>Unsold stock sent back to this supplier.</p>
+                            </div>
+                            <span class="purchase-card-badge" th:text="${returnCount + ' returns'}">0 returns</span>
+                        </div>
+                        <div class="purchase-side-meta"><span><strong th:text="${'₹' + #numbers.formatDecimal(returnValue, 1, 'COMMA', 2, 'POINT')}">₹0.00</strong> total return value</span></div>
+                        <div class="purchase-side-meta"><span><strong th:text="${expiredBatchCount}">0</strong> expired batches still on hand</span></div>
+                    </div>
+
+                    <div class="purchase-card">
+                        <div class="purchase-card-head">
+                            <div>
+                                <h3>Supplier Expiry Watch</h3>
+                                <p>Batches from this supplier nearing expiry.</p>
+                            </div>
+                            <span class="purchase-card-badge danger" th:text="${nearExpiryCount + ' near expiry'}">0 near expiry</span>
+                        </div>
+                        <div class="expiry-list" th:if="${!#lists.isEmpty(nearExpiryBatches)}">
+                            <div class="expiry-item" th:each="batch : ${nearExpiryBatches}">
+                                <div>
+                                    <strong th:text="${batch.product.name}">Medicine</strong>
+                                    <p><span th:text="${batch.batchNumber}">BATCH-01</span> • <span th:text="${batch.availableQuantity + ' units left'}">0 units left</span></p>
+                                </div>
+                                <span class="expiry-chip" th:text="${#temporals.format(batch.expiryDate, 'dd MMM yyyy')}">30 Apr 2026</span>
+                            </div>
+                        </div>
+                        <div class="purchase-empty compact" th:if="${#lists.isEmpty(nearExpiryBatches)}">
+                            <i class="fas fa-circle-check"></i>
+                            <p>No near-expiry supplier batches right now.</p>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+
+            <section class="purchase-card" th:if="${!#lists.isEmpty(purchaseReturns)}">
+                <div class="purchase-card-head">
+                    <div><h3>Recent Returns</h3><p>Supplier-linked return history for audit and stock tracking.</p></div>
+                    <span class="purchase-card-badge" th:text="${returnCount + ' return entries'}">0 return entries</span>
+                </div>
+                <div class="purchase-table-wrap">
+                    <table class="purchase-table">
+                        <thead><tr><th>Date</th><th>Reference</th><th>Lines</th><th>Value</th></tr></thead>
+                        <tbody>
+                        <tr th:each="entry : ${purchaseReturns}">
+                            <td th:text="${#temporals.format(entry.returnDate, 'dd MMM yyyy')}">05 Apr 2026</td>
+                            <td th:text="${entry.referenceInvoiceNumber != null ? entry.referenceInvoiceNumber : 'Mixed invoices'}">INV-1</td>
+                            <td th:text="${#lists.size(entry.lines)}">0</td>
+                            <td th:text="${'₹' + #numbers.formatDecimal(entry.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹0.00</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

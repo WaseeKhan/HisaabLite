@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Login - HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title th:text="'Login • ' + ${@appConfig.appName}">Login • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
 
       <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -18,122 +18,246 @@
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
     <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/login.css}">
-    
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <style>
-        /* Additional styles for session expired message */
-        .message.warning {
-            background-color: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            color: #92400e;
-        }
-        
-        .message.warning i {
-            color: #f59e0b;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .message {
-            animation: slideIn 0.3s ease-out;
-        }
-    </style>
-
 </head>
 
-<body>
- <div th:replace="~{fragments/public-header :: header}"></div>
-    
+<body class="login-page">
+    <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- ===== MAIN CONTENT (COMPACT) ===== -->
-    <div class="main-content">
-        <div class="login-wrapper">
-            <div class="login-card">
-                
-                <div class="login-header">
-                    <h2>🔐 Welcome Back</h2>
-                    <p>Login to your business account</p>
-                </div>
-
-                <!-- SESSION EXPIRED MESSAGE (NEW) -->
-                <div th:if="${param.expired}" class="message warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>⚠️ Session expired! You logged in from another device. Please login again.</span>
-                </div>
-
-                <!-- VERIFIED MESSAGE -->
-                <div th:if="${param.verified}" class="message success">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Account verified. Please login.</span>
-                </div>
-
-                <!-- LOGOUT MESSAGE -->
-                <div th:if="${param.logout}" class="message info">
-                    <span>✅ Logged out successfully.</span>
-                </div>
-
-                <!-- ERROR MESSAGE -->
-                <div th:if="${param.error}" class="message error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span th:if="${param.error[0] == 'bad'}">
-                        ❌ Invalid username or password.
-                    </span>
-                    <span th:if="${param.error[0] != 'bad'}" th:text="${param.error[0]}"></span>
-                </div>
-
-                <!-- LOGIN FORM -->
-                <form method="post" th:action="@{/login}">
-                    
-                    <div class="form-group">
-                        <label>Username <span style="color: #dc2626;">*</span></label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text" name="username" placeholder="Enter username" required />
+    <main class="login-main">
+        <div class="login-shell">
+            <section class="login-showcase">
+            <div class="showcase-visual" aria-hidden="true">
+                <div class="workspace-frame">
+                    <div class="workspace-toolbar">
+                        <div class="workspace-toolbar-left">
+                            <span class="workspace-dot is-orange"></span>
+                            <span class="workspace-dot is-blue"></span>
+                            <span class="workspace-dot"></span>
+                            <span class="workspace-title">RxArogya Web Workspace</span>
+                        </div>
+                        <div class="workspace-badge">
+                            <i class="fas fa-prescription-bottle-medical"></i>
+                            Medical Store Login
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Password <span style="color: #dc2626;">*</span></label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" name="password" placeholder="••••••••" required />
+                    <div class="workspace-body">
+                        <div class="workspace-sidebar">
+                            <div class="workspace-side-item is-active">
+                                <i class="fas fa-chart-pie"></i>
+                                Dashboard
+                            </div>
+                            <div class="workspace-side-item">
+                                <i class="fas fa-capsules"></i>
+                                Medicines
+                            </div>
+                            <div class="workspace-side-item">
+                                <i class="fas fa-receipt"></i>
+                                Billing
+                            </div>
+                            <div class="workspace-side-item">
+                                <i class="fas fa-bell"></i>
+                                Alerts
+                            </div>
+                        </div>
+
+                        <div class="workspace-content">
+                            <div class="workspace-grid">
+                                <div class="workspace-panel">
+                                    <div class="workspace-panel-head">
+                                        <div class="workspace-panel-title">
+                                            <i class="fas fa-list-check"></i>
+                                            Counter Queue
+                                        </div>
+                                        <span class="workspace-refresh"><i class="fas fa-rotate-right"></i></span>
+                                    </div>
+                                    <div class="workspace-list">
+                                        <div class="workspace-list-item">
+                                            <span>Prescription billing ready</span>
+                                            <strong>12</strong>
+                                        </div>
+                                        <div class="workspace-list-item">
+                                            <span>WhatsApp invoices sent</span>
+                                            <strong>28</strong>
+                                        </div>
+                                        <div class="workspace-list-item">
+                                            <span>Thermal prints completed</span>
+                                            <strong>41</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="workspace-panel">
+                                    <div class="workspace-panel-head">
+                                        <div class="workspace-panel-title">
+                                            <i class="fas fa-chart-column"></i>
+                                            Today Snapshot
+                                        </div>
+                                        <span class="workspace-refresh"><i class="fas fa-rotate-right"></i></span>
+                                    </div>
+                                    <div class="workspace-chart">
+                                        <div class="workspace-chart-insights">
+                                            <div class="workspace-chart-insight">
+                                                <span>Bills</span>
+                                                <strong>48</strong>
+                                            </div>
+                                            <div class="workspace-chart-insight">
+                                                <span>Sales</span>
+                                                <strong>₹18k</strong>
+                                            </div>
+                                            <div class="workspace-chart-insight">
+                                                <span>Alerts</span>
+                                                <strong>06</strong>
+                                            </div>
+                                        </div>
+                                        <div class="workspace-chart-graphic">
+                                            <svg viewBox="0 0 240 120" class="workspace-chart-svg" aria-hidden="true">
+                                                <path d="M12 96H228" class="workspace-chart-axis"/>
+                                                <path d="M20 20V96" class="workspace-chart-axis"/>
+                                                <path d="M20 32H228" class="workspace-chart-grid"/>
+                                                <path d="M20 56H228" class="workspace-chart-grid"/>
+                                                <path d="M20 80H228" class="workspace-chart-grid"/>
+                                                <polyline points="28,76 74,52 118,58 164,34 212,44" class="workspace-chart-line"/>
+                                                <circle cx="28" cy="76" r="4" class="workspace-chart-point is-blue"/>
+                                                <circle cx="74" cy="52" r="4" class="workspace-chart-point is-orange"/>
+                                                <circle cx="118" cy="58" r="4" class="workspace-chart-point is-blue"/>
+                                                <circle cx="164" cy="34" r="4" class="workspace-chart-point is-orange"/>
+                                                <circle cx="212" cy="44" r="4" class="workspace-chart-point is-blue"/>
+                                                <rect x="40" y="66" width="18" height="30" rx="5" class="workspace-chart-column is-soft"/>
+                                                <rect x="86" y="44" width="18" height="52" rx="5" class="workspace-chart-column is-strong"/>
+                                                <rect x="132" y="54" width="18" height="42" rx="5" class="workspace-chart-column is-soft"/>
+                                                <rect x="178" y="36" width="18" height="60" rx="5" class="workspace-chart-column is-strong"/>
+                                            </svg>
+                                            <div class="workspace-chart-labels">
+                                                <span>9 AM</span>
+                                                <span>11 AM</span>
+                                                <span>1 PM</span>
+                                                <span>3 PM</span>
+                                                <span>5 PM</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="workspace-panel is-wide">
+                                    <div class="workspace-panel-head">
+                                        <div class="workspace-panel-title">
+                                            <i class="fas fa-briefcase-medical"></i>
+                                            Daily Operations
+                                        </div>
+                                        <span class="workspace-refresh"><i class="fas fa-shield-heart"></i></span>
+                                    </div>
+                                    <div class="workspace-summary">
+                                        <div class="workspace-metric">
+                                            <span>Low Stock</span>
+                                            <strong>14</strong>
+                                        </div>
+                                        <div class="workspace-metric">
+                                            <span>Near Expiry</span>
+                                            <strong>09</strong>
+                                        </div>
+                                        <div class="workspace-metric">
+                                            <span>Net Sales</span>
+                                            <strong>₹48,250</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn-login">
-                        <i class="fas fa-arrow-right-to-bracket"></i> Login
-                    </button>
-                </form>
-
-                <!-- LINKS SECTION -->
-                <div class="links">
-                    <a th:href="@{/register}" class="register-link">
-                        <i class="fas fa-plus-circle"></i> Onboard Business
-                    </a>
-                    <span class="separator">|</span>
-                    <a th:href="@{/forgot-password}" class="forgot-link">
-                        <i class="fas fa-key"></i> Forgot Password?
-                    </a>
                 </div>
-
             </div>
-        </div>
-    </div>
 
-   <div th:replace="~{fragments/public-footer :: footer}"></div>
-   
-   <script>
+            <div class="showcase-footer">
+                <div class="showcase-pill"><i class="fas fa-bolt"></i> Keyboard-first counter billing</div>
+                <div class="showcase-pill"><i class="fas fa-qrcode"></i> Barcode-ready medicine search</div>
+                <div class="showcase-pill"><i class="fab fa-whatsapp"></i> WhatsApp invoice workflow</div>
+            </div>
+            </section>
+
+            <section class="login-panel">
+                <div class="login-panel-card">
+                    <div class="panel-brand">
+                        <img th:src="@{/images/rxarogya-logo-dark.svg}" th:alt="${@appConfig.appName}">
+                        <div class="panel-workspace">
+                            <i class="fas fa-user-shield"></i>&nbsp; Shop Workspace Login
+                        </div>
+                    </div>
+
+                    <div class="login-header">
+                        <h2>Welcome Back</h2>
+                        <p>Sign in to continue with your pharmacy operations workspace.</p>
+                    </div>
+
+                    <div th:if="${param.expired}" class="message warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Session expired. You logged in from another device. Please sign in again.</span>
+                    </div>
+
+                    <div th:if="${param.verified}" class="message success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Account verified. Please login.</span>
+                    </div>
+
+                    <div th:if="${param.logout}" class="message info">
+                        <i class="fas fa-circle-check"></i>
+                        <span>Logged out successfully.</span>
+                    </div>
+
+                    <div th:if="${param.error}" class="message error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:if="${param.error[0] == 'bad'}">Invalid username or password.</span>
+                        <span th:if="${param.error[0] != 'bad'}" th:text="${param.error[0]}"></span>
+                    </div>
+
+                    <form method="post" th:action="@{/login}" class="login-form">
+                        <div class="form-group">
+                            <label for="username">Username <span class="required-mark">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-user input-icon"></i>
+                                <input id="username" type="text" name="username" placeholder="Enter username" autocomplete="username" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password <span class="required-mark">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input id="password" type="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
+                            </div>
+                        </div>
+
+                        <div class="form-row-meta">
+                            <label class="password-toggle">
+                                <input type="checkbox" id="showPasswordToggle">
+                                <span>Show password</span>
+                            </label>
+                            <a th:href="@{/forgot-password}" class="forgot-inline">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="btn-login">Login</button>
+                    </form>
+
+                    <div class="links">
+                        New to <span th:text="${@appConfig.appName}">RxArogya</span>?
+                        <a th:href="@{/register}">Create medical store account</a>
+                    </div>
+
+                    <div class="login-note">
+                        <strong th:text="${@appConfig.appTagline}">Simplify Pharmacy</strong><br>
+                        Secure access for owners, managers, and cashier workflows.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+
+    <script>
         // Clear expired parameter from URL after 5 seconds to prevent showing on refresh
         setTimeout(() => {
             const url = new URL(window.location.href);
@@ -142,7 +266,16 @@
                 window.history.replaceState({}, document.title, url.pathname);
             }
         }, 5000);
-   </script>
+
+        const passwordInput = document.getElementById('password');
+        const showPasswordToggle = document.getElementById('showPasswordToggle');
+
+        if (passwordInput && showPasswordToggle) {
+            showPasswordToggle.addEventListener('change', () => {
+                passwordInput.type = showPasswordToggle.checked ? 'text' : 'password';
+            });
+        }
+    </script>
 </body>
 
 </html>

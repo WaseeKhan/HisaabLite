@@ -5,9 +5,11 @@ import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
+import com.hisaablite.repository.PurchaseReturnRepository;
 import com.hisaablite.repository.SaleItemRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.UserRepository;
+import com.hisaablite.service.BatchInventoryVisibilityService;
 import com.hisaablite.service.PlanLimitService;
 import com.hisaablite.service.SaleService;
 
@@ -39,9 +41,11 @@ public class DashboardController {
     private final SaleRepository saleRepository;
     private final SaleItemRepository saleItemRepository;
     private final ProductRepository productRepository;
+    private final PurchaseReturnRepository purchaseReturnRepository;
     private final SaleService saleService;
     private final PlanLimitService planLimitService;
     private final DashboardService dashboardService;
+    private final BatchInventoryVisibilityService batchInventoryVisibilityService;
 
     // CANONICAL DASHBOARD
     @GetMapping("/dashboard")
@@ -123,8 +127,11 @@ public class DashboardController {
         model.addAttribute("netRevenue", netRevenue);
 
         // Returned Items
-        Long returnedItems = saleRepository.getTodayReturnedItems(shop, startToday, endToday);
-        model.addAttribute("returnedItems", returnedItems != null ? returnedItems : 0);
+        Long cancelledSaleItems = saleRepository.getTodayReturnedItems(shop, startToday, endToday);
+        Long purchaseReturnedItems = purchaseReturnRepository.sumReturnedUnitsByShopAndDateBetween(shop, today, today);
+        long returnedItems = (cancelledSaleItems != null ? cancelledSaleItems : 0L)
+                + (purchaseReturnedItems != null ? purchaseReturnedItems : 0L);
+        model.addAttribute("returnedItems", returnedItems);
 
         // Total Staff
         Long totalStaff = userRepository.countByShop(shop);
@@ -164,9 +171,18 @@ public class DashboardController {
         model.addAttribute("labels", chartData.get("labels"));
         model.addAttribute("revenues", chartData.get("revenues"));
 
-        // LOW STOCK
-        List<Product> lowStockProducts = productRepository.findLowStockProducts(shop);
+        // LOW STOCK (sellable batch-aware)
+        List<Product> activeProducts = productRepository.findByShopAndActiveTrue(shop);
+        Map<Long, com.hisaablite.dto.ProductBatchVisibility> productVisibility = batchInventoryVisibilityService
+                .summarizeProducts(shop, activeProducts);
+        List<Product> lowStockProducts = activeProducts.stream()
+                .filter(product -> {
+                    var visibility = productVisibility.get(product.getId());
+                    return visibility != null && visibility.isLowStock();
+                })
+                .toList();
         model.addAttribute("lowStockProducts", lowStockProducts);
+        model.addAttribute("lowStockVisibility", productVisibility);
 
         model.addAttribute("currentPage", "dashboard");
 
@@ -185,6 +201,7 @@ public class DashboardController {
             log.info("First activity: {}", recentActivities.get(0));
         }
         model.addAttribute("recentActivities", recentActivities);
+        model.addAttribute("batchDashboard", batchInventoryVisibilityService.buildDashboardSummary(shop, 5));
 
         return "ultra-dashboard";
     }
@@ -226,8 +243,11 @@ public class DashboardController {
         Double netRevenue = Math.max(0, (completedRevenue != null ? completedRevenue : 0) - (cancelledAmount != null ? cancelledAmount : 0));
         data.put("netRevenue", netRevenue);
         
-        Long returnedItems = saleRepository.getTodayReturnedItems(shop, startToday, endToday);
-        data.put("returnedItems", returnedItems != null ? returnedItems : 0);
+        Long cancelledSaleItems = saleRepository.getTodayReturnedItems(shop, startToday, endToday);
+        Long purchaseReturnedItems = purchaseReturnRepository.sumReturnedUnitsByShopAndDateBetween(shop, today, today);
+        long returnedItems = (cancelledSaleItems != null ? cancelledSaleItems : 0L)
+                + (purchaseReturnedItems != null ? purchaseReturnedItems : 0L);
+        data.put("returnedItems", returnedItems);
         
         Long totalStaff = userRepository.countByShop(shop);
         data.put("totalStaff", totalStaff);
@@ -255,6 +275,15 @@ public class DashboardController {
         data.put("totalCustomers", totalCustomers != null ? totalCustomers : 0);
 
         data.put("planType", shop.getPlanType() != null ? shop.getPlanType().name() : "FREE");
+
+        var batchSummary = batchInventoryVisibilityService.buildDashboardSummary(shop, 5);
+        data.put("batchManagedMedicines", batchSummary.getBatchManagedMedicines());
+        data.put("liveBatchCount", batchSummary.getLiveBatchCount());
+        data.put("sellableBatchUnits", batchSummary.getSellableBatchUnits());
+        data.put("nearExpiryBatchCount", batchSummary.getNearExpiryBatchCount());
+        data.put("expiredBatchCount", batchSummary.getExpiredBatchCount());
+        data.put("criticalExpiryBatchCount", batchSummary.getCriticalExpiryBatchCount());
+        data.put("criticalExpiryUnits", batchSummary.getCriticalExpiryUnits());
 
         return data;
     }

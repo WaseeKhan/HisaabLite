@@ -16,12 +16,16 @@ import com.hisaablite.entity.Product;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
+import com.hisaablite.repository.PurchaseBatchRepository;
 import com.hisaablite.repository.UserRepository;
 import com.hisaablite.admin.service.AuditService;
+import com.hisaablite.dto.ProductBatchVisibility;
+import com.hisaablite.service.BatchInventoryVisibilityService;
 import com.hisaablite.service.ProductService;
 import com.hisaablite.service.PlanLimitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -40,6 +44,8 @@ public class ProductController {
     private final ProductService productService;
     private final PlanLimitService planLimitService;
     private final AuditService auditService;
+    private final PurchaseBatchRepository purchaseBatchRepository;
+    private final BatchInventoryVisibilityService batchInventoryVisibilityService;
 
     private static final int PAGE_SIZE = 20;
 
@@ -122,8 +128,14 @@ public class ProductController {
                 productPage = productRepository.findByShopAndActiveTrue(user.getShop(), pageable);
             }
 
+            Map<Long, ProductBatchVisibility> batchVisibility = batchInventoryVisibilityService
+                    .summarizeProducts(user.getShop(), productPage.getContent());
+            List<Map<String, Object>> productSnapshots = productPage.getContent().stream()
+                    .map(product -> snapshotProduct(product, batchVisibility.get(product.getId())))
+                    .toList();
+
             Map<String, Object> response = new HashMap<>();
-            response.put("products", productPage.getContent());
+            response.put("products", productSnapshots);
             response.put("currentPage", productPage.getNumber());
             response.put("totalPages", productPage.getTotalPages());
             response.put("totalItems", productPage.getTotalElements());
@@ -151,18 +163,25 @@ public class ProductController {
             PrintWriter writer = new PrintWriter(out);
             
             // CSV Header
-            writer.println("ID,Product Name,Description,Price,Stock Quantity,Min Stock,GST %,Status");
+            writer.println("ID,Medicine Name,Generic Name,Manufacturer,Barcode,Pack Size,Sale Price,MRP,Purchase Price,Stock Quantity,Min Stock,GST %,Prescription Required,Notes,Status");
             
             // CSV Data
             for (Product p : products) {
-                writer.printf("%d,\"%s\",\"%s\",%.2f,%d,%d,%d,%s\n",
+                writer.printf("%d,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",%.2f,%s,%s,%d,%d,%d,%s,\"%s\",%s\n",
                     p.getId(),
                     escapeCsv(p.getName()),
-                    escapeCsv(p.getDescription() != null ? p.getDescription() : ""),
+                    escapeCsv(p.getGenericName() != null ? p.getGenericName() : ""),
+                    escapeCsv(p.getManufacturer() != null ? p.getManufacturer() : ""),
+                    escapeCsv(p.getBarcode() != null ? p.getBarcode() : ""),
+                    escapeCsv(p.getPackSize() != null ? p.getPackSize() : ""),
                     p.getPrice(),
+                    p.getMrp() != null ? p.getMrp().toPlainString() : "",
+                    p.getPurchasePrice() != null ? p.getPurchasePrice().toPlainString() : "",
                     p.getStockQuantity(),
                     p.getMinStock(),
                     p.getGstPercent() != null ? p.getGstPercent() : 0,
+                    p.isPrescriptionRequired() ? "Yes" : "No",
+                    escapeCsv(p.getDescription() != null ? p.getDescription() : ""),
                     p.getStockQuantity() <= p.getMinStock() ? "Low Stock" : "In Stock"
                 );
             }
@@ -223,10 +242,17 @@ public class ProductController {
             Product duplicate = new Product();
             duplicate.setName(original.getName() + " (Copy)");
             duplicate.setDescription(original.getDescription());
+            duplicate.setBarcode(null);
+            duplicate.setGenericName(original.getGenericName());
+            duplicate.setManufacturer(original.getManufacturer());
+            duplicate.setPackSize(original.getPackSize());
             duplicate.setPrice(original.getPrice());
+            duplicate.setMrp(original.getMrp());
+            duplicate.setPurchasePrice(original.getPurchasePrice());
             duplicate.setStockQuantity(0);
             duplicate.setMinStock(original.getMinStock());
             duplicate.setGstPercent(original.getGstPercent());
+            duplicate.setPrescriptionRequired(original.isPrescriptionRequired());
             duplicate.setShop(shop);
             duplicate.setActive(true);
 
@@ -356,6 +382,13 @@ public class ProductController {
                 
                 return "redirect:/products";
             }
+
+            applyEditableFields(product, product);
+            if (hasDuplicateBarcode(product, shop)) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Barcode already exists for another medicine in your shop.");
+                return "redirect:/products/new";
+            }
         } else {
             Product existingProduct = loadVersionSafeProduct(product.getId());
 
@@ -364,13 +397,20 @@ public class ProductController {
             }
 
             oldProductState = snapshotProduct(existingProduct);
-
-            existingProduct.setName(product.getName());
-            existingProduct.setDescription(product.getDescription());
-            existingProduct.setPrice(product.getPrice());
-            existingProduct.setStockQuantity(product.getStockQuantity());
-            existingProduct.setMinStock(product.getMinStock());
-            existingProduct.setGstPercent(product.getGstPercent());
+            applyEditableFields(product, existingProduct);
+            int liveBatchStock = safeBatchStock(existingProduct);
+            if (existingProduct.getStockQuantity() < liveBatchStock) {
+                redirectAttributes.addFlashAttribute(
+                        "error",
+                        "Stock quantity cannot be lower than live batch stock (" + liveBatchStock
+                                + "). Use Purchases to manage batch inventory.");
+                return "redirect:/products/edit/" + existingProduct.getId();
+            }
+            if (hasDuplicateBarcode(existingProduct, shop)) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Barcode already exists for another medicine in your shop.");
+                return "redirect:/products/edit/" + existingProduct.getId();
+            }
 
             productToSave = existingProduct;
         }
@@ -380,6 +420,9 @@ public class ProductController {
 
         if (productToSave.getMinStock() == null) {
             productToSave.setMinStock(5);
+        }
+        if (productToSave.getGstPercent() == null) {
+            productToSave.setGstPercent(0);
         }
 
         Product savedProduct = productRepository.save(productToSave);
@@ -475,17 +518,89 @@ public class ProductController {
     }
 
     private Map<String, Object> snapshotProduct(Product product) {
+        return snapshotProduct(product, null);
+    }
+
+    private Map<String, Object> snapshotProduct(Product product, ProductBatchVisibility batchVisibility) {
         Map<String, Object> snapshot = new HashMap<>();
         snapshot.put("id", product.getId());
         snapshot.put("name", product.getName());
         snapshot.put("description", product.getDescription());
+        snapshot.put("barcode", product.getBarcode());
+        snapshot.put("genericName", product.getGenericName());
+        snapshot.put("manufacturer", product.getManufacturer());
+        snapshot.put("packSize", product.getPackSize());
         snapshot.put("price", product.getPrice());
+        snapshot.put("mrp", product.getMrp());
+        snapshot.put("purchasePrice", product.getPurchasePrice());
         snapshot.put("stockQuantity", product.getStockQuantity());
         snapshot.put("minStock", product.getMinStock());
         snapshot.put("gstPercent", product.getGstPercent());
+        snapshot.put("prescriptionRequired", product.isPrescriptionRequired());
         snapshot.put("active", product.isActive());
         snapshot.put("shopId", product.getShop() != null ? product.getShop().getId() : null);
+        if (batchVisibility != null) {
+            snapshot.put("batchManaged", batchVisibility.isBatchManaged());
+            snapshot.put("activeBatchCount", batchVisibility.getActiveBatchCount());
+            snapshot.put("liveBatchStock", batchVisibility.getLiveBatchStock());
+            snapshot.put("sellableStock", batchVisibility.getSellableStock());
+            snapshot.put("nearExpiryBatchCount", batchVisibility.getNearExpiryBatchCount());
+            snapshot.put("expiredBatchCount", batchVisibility.getExpiredBatchCount());
+            snapshot.put("nextSellableExpiryDate", batchVisibility.getNextSellableExpiryDate());
+            snapshot.put("lowStock", batchVisibility.isLowStock());
+        } else {
+            snapshot.put("batchManaged", false);
+            snapshot.put("activeBatchCount", 0);
+            snapshot.put("liveBatchStock", 0);
+            snapshot.put("sellableStock", product.getStockQuantity());
+            snapshot.put("nearExpiryBatchCount", 0);
+            snapshot.put("expiredBatchCount", 0);
+            snapshot.put("nextSellableExpiryDate", null);
+            snapshot.put("lowStock", product.getStockQuantity() <= product.getMinStock());
+        }
         return snapshot;
+    }
+
+    private void applyEditableFields(Product source, Product target) {
+        target.setName(normalizeText(source.getName()));
+        target.setDescription(normalizeText(source.getDescription()));
+        target.setBarcode(normalizeBarcode(source.getBarcode()));
+        target.setGenericName(normalizeText(source.getGenericName()));
+        target.setManufacturer(normalizeText(source.getManufacturer()));
+        target.setPackSize(normalizeText(source.getPackSize()));
+        target.setPrice(source.getPrice());
+        target.setMrp(source.getMrp());
+        target.setPurchasePrice(source.getPurchasePrice());
+        target.setStockQuantity(source.getStockQuantity());
+        target.setMinStock(source.getMinStock());
+        target.setGstPercent(source.getGstPercent());
+        target.setPrescriptionRequired(source.isPrescriptionRequired());
+    }
+
+    private boolean hasDuplicateBarcode(Product product, Shop shop) {
+        if (!StringUtils.hasText(product.getBarcode())) {
+            return false;
+        }
+        if (product.getId() == null) {
+            return productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrue(shop, product.getBarcode());
+        }
+        return productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrueAndIdNot(
+                shop,
+                product.getBarcode(),
+                product.getId());
+    }
+
+    private String normalizeText(String value) {
+        return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String normalizeBarcode(String value) {
+        return StringUtils.hasText(value) ? value.replaceAll("\\s+", "").trim() : null;
+    }
+
+    private int safeBatchStock(Product product) {
+        Integer batchStock = purchaseBatchRepository.sumAvailableQuantityByProduct(product);
+        return batchStock != null ? batchStock : 0;
     }
 
     private Product loadVersionSafeProduct(Long productId) {

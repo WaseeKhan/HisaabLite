@@ -1,0 +1,522 @@
+.purchase-hero,
+.purchase-card,
+.purchase-stat-card {
+    background: #ffffff;
+    border: 1px solid #dce5ef;
+    border-radius: 22px;
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.04);
+}
+
+.purchase-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+}
+
+.purchase-hero-copy {
+    max-width: 760px;
+}
+
+.purchase-kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(47, 116, 218, 0.08);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.purchase-hero h2 {
+    margin: 12px 0 6px;
+    font-size: 29px;
+    letter-spacing: -0.04em;
+    color: #182235;
+}
+
+.purchase-hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #5f6e82;
+}
+
+.purchase-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.purchase-pills span,
+.purchase-card-badge,
+.expiry-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f4f8fd;
+    border: 1px solid #e2eaf3;
+    color: #435266;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.purchase-pills i {
+    color: var(--primary);
+}
+
+.purchase-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(180deg, #2f74da 0%, #225ab2 100%);
+    box-shadow: 0 16px 24px rgba(47, 116, 218, 0.18);
+}
+
+.purchase-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.purchase-cta-secondary {
+    color: #38506d;
+    background: #ffffff;
+    border: 1px solid #dce5ef;
+    box-shadow: none;
+}
+
+.purchase-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.purchase-stat-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px;
+}
+
+.purchase-stat-card span {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #68768b;
+}
+
+.purchase-stat-card strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 26px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: #182235;
+}
+
+.purchase-stat-card i {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #edf5ff 0%, #dfeefe 100%);
+    color: var(--primary);
+    font-size: 18px;
+}
+
+.purchase-layout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.72fr);
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 18px;
+}
+
+.purchase-side-column {
+    display: grid;
+    gap: 18px;
+}
+
+.expiry-report-layout {
+    align-items: stretch;
+}
+
+.purchase-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.purchase-row-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid #dce5ef;
+    background: #f8fbff;
+    color: #37506c;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.purchase-inline-link {
+    color: #1f4f92;
+    text-decoration: none;
+}
+
+.purchase-inline-link:hover {
+    text-decoration: underline;
+}
+
+.purchase-card {
+    padding: 20px;
+}
+
+.purchase-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.purchase-card-head h3 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    color: #182235;
+    letter-spacing: -0.03em;
+}
+
+.purchase-card-head p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #67758a;
+}
+
+.purchase-card-head-tight {
+    margin-bottom: 12px;
+}
+
+.purchase-card-badge.danger,
+.expiry-chip {
+    background: #fff6ec;
+    border-color: #ffe0bc;
+    color: #c96b12;
+}
+
+.purchase-table-wrap {
+    overflow-x: auto;
+}
+
+.purchase-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.purchase-table th,
+.purchase-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e9eef5;
+    text-align: left;
+    font-size: 13px;
+    vertical-align: top;
+    color: #314156;
+}
+
+.purchase-table th {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #68768b;
+}
+
+.purchase-subtext {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #7d8ba0;
+}
+
+.purchase-empty {
+    display: grid;
+    place-items: center;
+    gap: 10px;
+    min-height: 180px;
+    border: 1px dashed #d9e3ee;
+    border-radius: 18px;
+    text-align: center;
+    color: #6c7b90;
+}
+
+.purchase-empty.compact {
+    min-height: 140px;
+}
+
+.purchase-empty i {
+    font-size: 28px;
+    color: var(--primary);
+}
+
+.purchase-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.purchase-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid #dce5ef;
+    background: #f8fbff;
+    color: #48617c;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.purchase-filter-pill.active {
+    color: #ffffff;
+    background: linear-gradient(180deg, #2f74da 0%, #225ab2 100%);
+    border-color: transparent;
+    box-shadow: 0 12px 20px rgba(47, 116, 218, 0.18);
+}
+
+.expiry-table td {
+    min-width: 120px;
+}
+
+.expiry-days {
+    margin-bottom: 8px;
+}
+
+.expiry-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #dce5ef;
+    background: #f4f8fd;
+    color: #4b5e76;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.expiry-status-pill.expired {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #be123c;
+}
+
+.expiry-status-pill.critical {
+    background: #fff6ec;
+    border-color: #ffd7ad;
+    color: #c96b12;
+}
+
+.expiry-status-pill.warning {
+    background: #fff9e8;
+    border-color: #f6df96;
+    color: #a56a00;
+}
+
+.expiry-status-pill.stable {
+    background: #eef7ff;
+    border-color: #d3e7ff;
+    color: #255caa;
+}
+
+.expiry-side-status {
+    display: grid;
+    justify-items: end;
+    gap: 8px;
+}
+
+.expiry-list {
+    display: grid;
+    gap: 12px;
+}
+
+.expiry-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #f8fbff;
+    border: 1px solid #e2eaf3;
+}
+
+.expiry-item strong {
+    color: #1c2a3d;
+}
+
+.expiry-item p,
+.purchase-side-meta {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #6f7f95;
+}
+
+.batch-card {
+    margin-bottom: 24px;
+}
+
+@media (max-width: 1180px) {
+    .purchase-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .purchase-layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 820px) {
+    .purchase-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .purchase-hero-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 640px) {
+    .purchase-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .purchase-card,
+    .purchase-hero {
+        padding: 16px;
+    }
+}
+
+:root[data-theme="dark"] .purchase-hero,
+:root[data-theme="dark"] .purchase-card,
+:root[data-theme="dark"] .purchase-stat-card {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 22px 36px rgba(2, 6, 23, 0.26);
+}
+
+:root[data-theme="dark"] .purchase-hero h2,
+:root[data-theme="dark"] .purchase-stat-card strong,
+:root[data-theme="dark"] .purchase-card-head h3,
+:root[data-theme="dark"] .expiry-item strong,
+:root[data-theme="dark"] .purchase-table td strong {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .purchase-hero p,
+:root[data-theme="dark"] .purchase-card-head p,
+:root[data-theme="dark"] .purchase-stat-card span,
+:root[data-theme="dark"] .purchase-table th,
+:root[data-theme="dark"] .purchase-table td,
+:root[data-theme="dark"] .purchase-subtext,
+:root[data-theme="dark"] .purchase-side-meta,
+:root[data-theme="dark"] .expiry-item p,
+:root[data-theme="dark"] .purchase-empty {
+    color: #94a3b8;
+}
+
+:root[data-theme="dark"] .purchase-pills span,
+:root[data-theme="dark"] .purchase-card-badge,
+:root[data-theme="dark"] .expiry-item {
+    background: #172033;
+    border-color: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .purchase-card-badge.danger,
+:root[data-theme="dark"] .expiry-chip {
+    background: rgba(242, 140, 40, 0.14);
+    border-color: rgba(242, 140, 40, 0.24);
+    color: #f8c177;
+}
+
+:root[data-theme="dark"] .purchase-table th,
+:root[data-theme="dark"] .purchase-table td {
+    border-color: rgba(148, 163, 184, 0.12);
+}
+
+:root[data-theme="dark"] .purchase-empty {
+    border-color: rgba(148, 163, 184, 0.16);
+}
+
+:root[data-theme="dark"] .purchase-cta-secondary,
+:root[data-theme="dark"] .purchase-row-link,
+:root[data-theme="dark"] .purchase-filter-pill {
+    background: #172033;
+    border-color: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .purchase-filter-pill.active {
+    color: #eff6ff;
+    border-color: transparent;
+}
+
+:root[data-theme="dark"] .expiry-status-pill {
+    background: #172033;
+    border-color: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .expiry-status-pill.expired {
+    background: rgba(244, 63, 94, 0.14);
+    border-color: rgba(244, 63, 94, 0.24);
+    color: #fda4af;
+}
+
+:root[data-theme="dark"] .expiry-status-pill.critical {
+    background: rgba(242, 140, 40, 0.14);
+    border-color: rgba(242, 140, 40, 0.24);
+    color: #f8c177;
+}
+
+:root[data-theme="dark"] .expiry-status-pill.warning {
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.24);
+    color: #fcd34d;
+}
+
+:root[data-theme="dark"] .expiry-status-pill.stable {
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.24);
+    color: #93c5fd;
+}

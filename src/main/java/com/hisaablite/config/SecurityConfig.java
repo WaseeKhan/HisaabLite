@@ -62,6 +62,7 @@ public class SecurityConfig {
                                 .requestMatchers("/manager/**").hasAnyRole("OWNER", "MANAGER")
                                 .requestMatchers("/cashier/**").hasAnyRole("OWNER", "CASHIER")
                                 .requestMatchers("/products/**").hasAnyRole("OWNER", "MANAGER")
+                                .requestMatchers("/purchases/**").hasAnyRole("OWNER", "MANAGER")
                                 .requestMatchers("/profile/**").hasRole("OWNER")
                                 .requestMatchers("/staff/**").hasRole("OWNER")
                                 .requestMatchers("/activity/**").hasRole("OWNER")

@@ -55,6 +55,9 @@ evolution:
     key: ${EVOLUTION_API_KEY:hisaablite-local-key}
 
 app:
+  name: RxArogya
+  tagline: Simplify Pharmacy
+  short-code: RXA
   security:
     enforce-single-session: true
 

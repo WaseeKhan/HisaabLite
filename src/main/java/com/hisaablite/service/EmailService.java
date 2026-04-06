@@ -31,7 +31,7 @@ public class EmailService {
             String htmlContent = String.format(
                     """
                             <div style="font-family: Arial, sans-serif; padding:20px;">
-                                <h2 style="color:#2c3e50;">HisaabLite Password Reset</h2>
+                                <h2 style="color:#2c3e50;">%s Password Reset</h2>
                                 <p>Hello,</p>
                                 <p>You requested to reset your password. Click the button below:</p>
                                 <a href="%s"
@@ -41,12 +41,12 @@ public class EmailService {
                                 <p>This link is valid for 15 minutes.</p>
                                 <p style="color:#888;">If you did not request this, please ignore this email.</p>
                                 <hr/>
-                                <p style="font-size:12px; color:#aaa;">© 2026 HisaabLite. All rights reserved.</p>
+                                <p style="font-size:12px; color:#aaa;">© 2026 %s. All rights reserved.</p>
                             </div>
                             """,
-                    resetLink);
+                    appConfig.getAppName(), resetLink, appConfig.getAppName());
 
-            sendHtmlEmail(to, "Reset Your Password - HisaabLite", htmlContent);
+            sendHtmlEmail(to, "Reset Your Password - " + appConfig.getAppName(), htmlContent);
             log.info("Password reset email sent to: {}", to);
         } catch (Exception e) {
             log.error("Failed to send reset email to {}: {}", to, e.getMessage());
@@ -59,7 +59,7 @@ public class EmailService {
     public void sendVerificationEmail(User user, String verificationLink, SubscriptionPlan plan) {
         try {
             String to = user.getUsername();
-            String subject = "Verify Your Email - HisaabLite";
+            String subject = "Verify Your Email - " + appConfig.getAppName();
 
             String htmlContent;
             try {
@@ -90,7 +90,7 @@ public class EmailService {
     public void sendWelcomeEmail(User user, SubscriptionPlan plan) {
         try {
             String to = user.getUsername();
-            String subject = "🎉 Welcome to HisaabLite " + plan.getPlanName() + " Plan!";
+            String subject = "🎉 Welcome to " + appConfig.getAppName() + " " + plan.getPlanName() + " Plan!";
 
             String htmlContent;
             try {
@@ -126,7 +126,7 @@ public class EmailService {
     public void sendApprovalEmail(User user, SubscriptionPlan plan) {
         try {
             String to = user.getUsername();
-            String subject = "✅ Your HisaabLite Account Has Been Approved!";
+            String subject = "✅ Your " + appConfig.getAppName() + " Account Has Been Approved!";
 
             String htmlContent;
             try {
@@ -203,7 +203,7 @@ public class EmailService {
     public void sendSubscriptionExpiredEmail(User user, SubscriptionPlan oldPlan) {
         try {
             String to = user.getUsername();
-            String subject = "❌ Your HisaabLite Subscription Has Expired";
+            String subject = "❌ Your " + appConfig.getAppName() + " Subscription Has Expired";
 
             String htmlContent;
             try {
@@ -318,7 +318,7 @@ public class EmailService {
 
                                     <!-- Header -->
                                     <div style="background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); padding: 30px; text-align: center;">
-                                        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🔧 HisaabLite Support</h1>
+                                        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🔧 %s</h1>
                                     </div>
 
                                     <!-- Content -->
@@ -330,15 +330,18 @@ public class EmailService {
                                         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
 
                                         <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-                                            This is an automated message from HisaabLite Support.<br>
-                                            © 2026 HisaabLite. All rights reserved.
+                                            This is an automated message from %s.<br>
+                                            © 2026 %s. All rights reserved.
                                         </p>
                                     </div>
                                 </div>
                             </body>
                             </html>
                             """,
-                    content.replace("\n", "<br>"));
+                    appConfig.getSupportTeamName(),
+                    content.replace("\n", "<br>"),
+                    appConfig.getSupportTeamName(),
+                    appConfig.getAppName());
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -364,11 +367,11 @@ public class EmailService {
                 """
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                             <div style="background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                                <h1 style="color: white; margin: 0;">Welcome to HisaabLite!</h1>
+                                <h1 style="color: white; margin: 0;">Welcome to %s!</h1>
                             </div>
                             <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px;">
                                 <h2 style="color: #1e293b;">Hello %s!</h2>
-                                <p style="color: #475569;">Thank you for registering with HisaabLite. Please verify your email address to activate your account.</p>
+                                <p style="color: #475569;">Thank you for registering with %s. Please verify your email address to activate your account.</p>
 
                                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
                                     <p><strong>Plan:</strong> %s</p>
@@ -383,11 +386,11 @@ public class EmailService {
 
                                 <p style="color: #64748b; font-size: 14px;">This verification link will expire in 24 hours.</p>
                                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 HisaabLite. All rights reserved.</p>
+                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 %s. All rights reserved.</p>
                             </div>
                         </div>
                         """,
-                user.getName(), plan.getPlanName(), user.getShop().getName(), verificationLink);
+                appConfig.getAppName(), user.getName(), appConfig.getAppName(), plan.getPlanName(), user.getShop().getName(), verificationLink, appConfig.getAppName());
     }
 
     private String generateFallbackWelcomeEmail(User user, SubscriptionPlan plan) {
@@ -423,7 +426,7 @@ public class EmailService {
 
                                 <p style="color: #64748b; font-size: 14px;">Login with your email: <strong>%s</strong></p>
                                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 HisaabLite. All rights reserved.</p>
+                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 %s. All rights reserved.</p>
                             </div>
                         </div>
                         """,
@@ -433,7 +436,8 @@ public class EmailService {
                 plan.getMaxProducts() == -1 ? "Unlimited" : plan.getMaxProducts(),
                 expiryText,
                 loginUrl,
-                user.getUsername());
+                user.getUsername(),
+                appConfig.getAppName());
     }
 
     private String generateFallbackApprovalEmail(User user, SubscriptionPlan plan) {
@@ -452,7 +456,7 @@ public class EmailService {
                             </div>
                             <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px;">
                                 <h2 style="color: #1e293b;">Hello %s!</h2>
-                                <p style="color: #475569;">Great news! Your HisaabLite account has been approved.</p>
+                                <p style="color: #475569;">Great news! Your %s account has been approved.</p>
 
                                 <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
                                     <h3 style="color: #1e293b; margin-top: 0;">Your %s Plan</h3>
@@ -471,11 +475,12 @@ public class EmailService {
                                 </div>
 
                                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 HisaabLite. All rights reserved.</p>
+                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 %s. All rights reserved.</p>
                             </div>
                         </div>
                         """,
                 user.getName(),
+                appConfig.getAppName(),
                 plan.getPlanName(),
                 plan.getPrice(),
                 plan.getDurationInDays() != null ? plan.getDurationInDays() : 0,
@@ -483,7 +488,8 @@ public class EmailService {
                 plan.getMaxProducts() == -1 ? "Unlimited" : plan.getMaxProducts(),
                 expiryInfo,
                 plan.getDescription() != null ? plan.getDescription() : "No description",
-                loginUrl);
+                loginUrl,
+                appConfig.getAppName());
     }
 
     private String generateFallbackExpiryReminderEmail(User user, long daysLeft) {
@@ -496,7 +502,7 @@ public class EmailService {
                             </div>
                             <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px;">
                                 <h2 style="color: #1e293b;">Dear %s,</h2>
-                                <p style="color: #475569;">Your HisaabLite subscription will expire in <strong>%d days</strong> on <strong>%s</strong>.</p>
+                                <p style="color: #475569;">Your %s subscription will expire in <strong>%d days</strong> on <strong>%s</strong>.</p>
 
                                 <div style="text-align: center; margin: 30px 0;">
                                     <a href="%s" style="background: #f59e0b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
@@ -506,14 +512,16 @@ public class EmailService {
 
                                 <p style="color: #64748b; font-size: 14px;">Don't lose access to premium features. Renew today!</p>
                                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 HisaabLite. All rights reserved.</p>
+                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 %s. All rights reserved.</p>
                             </div>
                         </div>
                         """,
                 user.getName(),
+                appConfig.getAppName(),
                 daysLeft,
                 user.getSubscriptionEndDate() != null ? user.getSubscriptionEndDate().toLocalDate() : "Unknown",
-                renewUrl);
+                renewUrl,
+                appConfig.getAppName());
     }
 
     private String generateFallbackExpiredEmail(User user) {
@@ -526,7 +534,7 @@ public class EmailService {
                             </div>
                             <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px;">
                                 <h2 style="color: #1e293b;">Dear %s,</h2>
-                                <p style="color: #475569;">Your HisaabLite subscription has expired. You've been downgraded to the FREE plan.</p>
+                                <p style="color: #475569;">Your %s subscription has expired. You've been downgraded to the FREE plan.</p>
 
                                 <div style="text-align: center; margin: 30px 0;">
                                     <a href="%s" style="background: #ef4444; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
@@ -535,11 +543,13 @@ public class EmailService {
                                 </div>
 
                                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 HisaabLite. All rights reserved.</p>
+                                <p style="color: #94a3b8; font-size: 12px; text-align: center;">© 2026 %s. All rights reserved.</p>
                             </div>
                         </div>
                         """,
                 user.getName(),
-                plansUrl);
+                appConfig.getAppName(),
+                plansUrl,
+                appConfig.getAppName());
     }
 }

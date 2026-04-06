@@ -16,13 +16,17 @@ import org.springframework.stereotype.Service;
 import com.hisaablite.admin.service.AuditService;
 import com.hisaablite.dto.CartItem;
 import com.hisaablite.entity.Product;
+import com.hisaablite.entity.PurchaseBatch;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
+import com.hisaablite.entity.SaleItemBatchAllocation;
 import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
+import com.hisaablite.repository.PurchaseBatchRepository;
 import com.hisaablite.repository.SaleItemRepository;
+import com.hisaablite.repository.SaleItemBatchAllocationRepository;
 import com.hisaablite.repository.SaleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -35,6 +39,8 @@ public class SaleService {
     private final SaleRepository saleRepository;
     private final SaleItemRepository saleItemRepository;
     private final ProductRepository productRepository;
+    private final PurchaseBatchRepository purchaseBatchRepository;
+    private final SaleItemBatchAllocationRepository saleItemBatchAllocationRepository;
     private final AuditService auditService;
     private final EntityManager entityManager;
 
@@ -100,7 +106,9 @@ public class SaleService {
                         .gstAmount(gstAmount)
                         .totalWithGst(totalWithGst)
                         .build();
-                savedItems.add(saleItemRepository.save(saleItem));
+                SaleItem savedSaleItem = saleItemRepository.save(saleItem);
+                allocateBatchInventory(savedSaleItem, product, shop, quantity);
+                savedItems.add(savedSaleItem);
                 
                 totalAmount = totalAmount.add(totalWithGst);
                 totalGstAmount = totalGstAmount.add(gstAmount);
@@ -157,6 +165,12 @@ public class SaleService {
                 Product product = loadVersionSafeProduct(item.getProduct().getId(), sale.getShop());
                 product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
                 productRepository.save(product);
+
+                for (SaleItemBatchAllocation allocation : saleItemBatchAllocationRepository.findBySaleItem(item)) {
+                    PurchaseBatch batch = allocation.getPurchaseBatch();
+                    batch.setAvailableQuantity(batch.getAvailableQuantity() + allocation.getQuantity());
+                    purchaseBatchRepository.save(batch);
+                }
             }
 
             sale.setStatus(SaleStatus.CANCELLED);
@@ -215,8 +229,8 @@ public class SaleService {
         for (CartItem cartItem : cartItems) {
             Product product = loadVersionSafeProduct(cartItem.getProductId(), shop);
 
-            if (product.getStockQuantity() < cartItem.getQuantity()) {
-                throw new RuntimeException("Not enough stock for product: " + product.getName());
+            if (getSellableStockForProduct(product) < cartItem.getQuantity()) {
+                throw new RuntimeException("Not enough sellable stock for product: " + product.getName());
             }
 
             lockedProducts.add(new LockedProductQuantity(product, cartItem.getQuantity()));
@@ -249,6 +263,50 @@ public class SaleService {
         }
 
         return product;
+    }
+
+    public int getSellableStockForProduct(Product product) {
+        int batchQuantity = defaultQuantity(purchaseBatchRepository.sumAvailableQuantityByProduct(product));
+        int sellableBatchQuantity = defaultQuantity(
+                purchaseBatchRepository.sumSellableQuantityByProduct(product, LocalDate.now()));
+        int legacyQuantity = Math.max(product.getStockQuantity() - batchQuantity, 0);
+        return legacyQuantity + sellableBatchQuantity;
+    }
+
+    private int defaultQuantity(Integer quantity) {
+        return quantity != null ? quantity : 0;
+    }
+
+    private void allocateBatchInventory(SaleItem saleItem, Product product, Shop shop, Integer quantity) {
+        int remaining = quantity != null ? quantity : 0;
+        if (remaining <= 0) {
+            return;
+        }
+
+        List<PurchaseBatch> batches = purchaseBatchRepository.findAllocatableBatchesForUpdate(
+                product.getId(),
+                shop,
+                LocalDate.now());
+
+        for (PurchaseBatch batch : batches) {
+            if (remaining <= 0) {
+                break;
+            }
+
+            int allocatable = Math.min(batch.getAvailableQuantity(), remaining);
+            if (allocatable <= 0) {
+                continue;
+            }
+
+            batch.setAvailableQuantity(batch.getAvailableQuantity() - allocatable);
+            purchaseBatchRepository.save(batch);
+            saleItemBatchAllocationRepository.save(SaleItemBatchAllocation.builder()
+                    .saleItem(saleItem)
+                    .purchaseBatch(batch)
+                    .quantity(allocatable)
+                    .build());
+            remaining -= allocatable;
+        }
     }
 
     private void applySaleFinalization(

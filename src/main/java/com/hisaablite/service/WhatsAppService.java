@@ -21,6 +21,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.hisaablite.config.AppConfig;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.repository.SaleItemRepository;
@@ -36,6 +37,7 @@ public class WhatsAppService {
 
     private final SaleItemRepository saleItemRepository;
     private final PdfService pdfService;
+    private final AppConfig appConfig;
     private final EvolutionApiService evolutionApiService; // Added this dependency
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -114,7 +116,7 @@ public class WhatsAppService {
             String formattedPhone = formatPhoneNumber(customerPhone);
             String fileName = "invoice_" + sale.getId() + ".pdf";
             String caption = String.format(
-                    "*HisaabLite Invoice*\n\n" +
+                    "*" + appConfig.getAppName() + " Invoice*\n\n" +
                             "Thank you for your purchase!\n\n" +
                             "📄 *Invoice #%d*\n" +
                             "🏪 *Shop:* %s\n" +
@@ -175,7 +177,7 @@ public class WhatsAppService {
             }
 
             String message = String.format(
-                    "*HisaabLite Invoice*\n\n" +
+                    "*" + appConfig.getAppName() + " Invoice*\n\n" +
                             "Thank you for your purchase!\n\n" +
                             "📄 *Invoice #%d*\n" +
                             "🏪 *Shop:* %s\n" +
@@ -241,7 +243,7 @@ public class WhatsAppService {
 
             FileSystemResource fileResource = new FileSystemResource(pdfFile);
             body.add("document", fileResource);
-            body.add("caption", "HisaabLite Invoice #" +
+            body.add("caption", appConfig.getAppName() + " Invoice #" +
                     pdfFile.getName().replaceAll("[^0-9]", ""));
 
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
@@ -276,7 +278,7 @@ public class WhatsAppService {
             body.put("mediatype", "document");
             body.put("fileName", fileName);
             body.put("document", base64Pdf);
-            body.put("caption", "HisaabLite Invoice");
+            body.put("caption", appConfig.getAppName() + " Invoice");
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Register • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title th:text="'Register • ' + ${@appConfig.appName}">Register • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
 
     <!-- Fonts & Icons -->
     <link
@@ -34,8 +34,8 @@
         <div class="onboarding-wrapper">
             <div class="onboarding-card">
                 <div class="card-header">
-                    <h2>🚀 Onboard Your Business</h2>
-                    <p><span class="highlight">10+ businesses</span> Trust HisaabLite</p>
+                    <h2>🚀 Onboard Your Pharmacy</h2>
+                    <p><span class="highlight">Medical-first workflow</span> powered by <span th:text="${@appConfig.appName}">RxArogya</span></p>
                 </div>
                 <br>
 

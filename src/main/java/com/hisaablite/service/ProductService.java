@@ -39,9 +39,7 @@ public class ProductService {
         if (!StringUtils.hasText(keyword)) {
             return productRepository.findByShopAndActiveTrue(shop, pageable);
         }
-        return productRepository.findByShopAndNameContainingIgnoreCaseAndActiveTrue(
-            shop, keyword.trim(), pageable
-        );
+        return productRepository.searchProductsWithPagination(shop, keyword.trim(), pageable);
     }
     
     public Optional<Product> getProductByIdAndShop(Long id, Shop shop) {

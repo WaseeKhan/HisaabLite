@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,4 +21,9 @@ public class SaleHistoryDTO {
     private String customerPhone;
     private String cashierName;
     private String status;
+    private boolean batchManaged;
+    private int tracedBatchCount;
+    private int tracedUnits;
+    private LocalDate nextExpiryDate;
+    private int expiredBatchCount;
 }

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Support Center • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>Support Center • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@
                                     <div th:each="ticket : ${tickets.content}" class="ticket-item"
                                         th:attr="data-ticket-number=${ticket.ticketNumber}" onclick="viewTicket(this)">
                                         <div class="ticket-header">
-                                            <span class="ticket-id" th:text="${ticket.ticketNumber}">HL2024031300011234</span>
+                                            <span class="ticket-id" th:text="${ticket.ticketNumber}">RXA2026031300011234</span>
                                             <span class="ticket-status" 
                                                 th:classappend="'status-' + ${ticket.status.name()}"
                                                 th:text="${ticket.status.getDisplayName()}">OPEN</span>
@@ -113,7 +113,7 @@
                                 <h3><i class="fas fa-phone-alt"></i> Contact Support</h3>
                                 <div class="contact-item">
                                     <i class="fas fa-envelope"></i>
-                                    <div><div>Email</div><div th:text="${supportEmail}">support@hisaablite.com</div></div>
+                                    <div><div>Email</div><div th:text="${supportEmail}">support@rxarogya.com</div></div>
                                 </div>
                                 <div class="contact-item">
                                     <i class="fas fa-phone"></i>

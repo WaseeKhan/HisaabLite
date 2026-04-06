@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title th:text="${@appConfig.appName} + ' • ' + ${@appConfig.appTagline}">RxArogya • Simplify Pharmacy</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
 
     <!-- Fonts & Icons -->
     <link
@@ -27,70 +28,108 @@
 <body>
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- HERO SECTION - Moving Background -->
     <div class="landing-hero">
-        <h1>Run Your Retail Business <span>Smartly</span> 🚀</h1>
-        <!-- TAGLINE -->
-        <p class="hero-tagline">
-            Keep Your Hisaab Simple.
-        </p>
-        <p>Inventory • Sales • WhatsApp Integration • 24x7 Support</p>
-        <div class="hero-buttons">
-            <a href="/register" class="btn-primary">Start Onboarding</a>
-            <a href="/login" class="btn-outline">Login</a>
+        <div class="landing-hero-copy">
+            <span class="hero-kicker">Enterprise Pharmacy Desk</span>
+            <h1>Medical billing and batch stock control in one <span>compact workspace</span></h1>
+            <p class="hero-tagline" th:text="${@appConfig.appTagline}">Simplify Pharmacy</p>
+            <p class="hero-description">Fast counter billing, medicine search, staff control, invoices, and pharmacy-ready workflow for modern medical stores.</p>
+            <div class="hero-buttons">
+                <a href="/register" class="btn-primary">Book Onboarding</a>
+                <a href="/login" class="btn-outline">Open Workspace</a>
+            </div>
+
+            <div class="landing-stats">
+                <div>
+                    <span class="landing-stat-number">Counter</span>
+                    <span class="landing-stat-label">Keyboard-first billing</span>
+                </div>
+                <div>
+                    <span class="landing-stat-number">Stock</span>
+                    <span class="landing-stat-label">Medicine and batch-ready search</span>
+                </div>
+                <div>
+                    <span class="landing-stat-number">Control</span>
+                    <span class="landing-stat-label">Roles, audit, and WhatsApp invoices</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Glassy Stats -->
-        <div class="landing-stats">
-            <div>
-                <span class="landing-stat-number">5+</span>
-                <span class="landing-stat-label">Businesses</span>
+        <div class="landing-hero-shell">
+            <div class="shell-topbar">
+                <div class="shell-brand">
+                    <img th:src="@{/images/rxarogya-mark.svg}" th:alt="${@appConfig.appName}" class="shell-mark">
+                    <div>
+                        <strong th:text="${@appConfig.appName}">RxArogya</strong>
+                        <span th:text="${@appConfig.appTagline}">Simplify Pharmacy</span>
+                    </div>
+                </div>
+                <div class="shell-status">Medical workspace</div>
             </div>
-            <div>
-                <span class="landing-stat-number">2000+</span>
-                <span class="landing-stat-label">Invoices</span>
-            </div>
-            <div>
-                <span class="landing-stat-number">24x7</span>
-                <span class="landing-stat-label">Support</span>
+
+            <div class="shell-grid">
+                <div class="shell-card">
+                    <div class="shell-card-title">Billing Queue</div>
+                    <ul>
+                        <li><span>Walk-in medicine bill</span><strong>04</strong></li>
+                        <li><span>Thermal invoice print</span><strong>18</strong></li>
+                        <li><span>WhatsApp invoices</span><strong>12</strong></li>
+                    </ul>
+                </div>
+                <div class="shell-card shell-card-accent">
+                    <div class="shell-card-title">Batch Watch</div>
+                    <ul>
+                        <li><span>Near expiry</span><strong>09</strong></li>
+                        <li><span>Low stock</span><strong>14</strong></li>
+                        <li><span>Reorder ready</span><strong>06</strong></li>
+                    </ul>
+                </div>
+                <div class="shell-card shell-card-wide">
+                    <div class="shell-card-title">Today at Counter</div>
+                    <div class="shell-metrics">
+                        <div><span>Bills</span><strong>126</strong></div>
+                        <div><span>Net Sales</span><strong>₹48,250</strong></div>
+                        <div><span>Customers</span><strong>91</strong></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- FEATURES SECTION - Glassy Cards -->
     <div class="features">
-        <h2>Why HisaabLite?</h2>
-        <div class="features-subtitle">Everything you need to manage your retail business</div>
+        <h2>Why <span th:text="${@appConfig.appName}">RxArogya</span>?</h2>
+        <div class="features-subtitle">Everything a modern medical store needs in one compact, controlled workspace</div>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-box"></i></div>
-                <h3>📦 Inventory Management</h3>
-                <p>Smart stock alerts, never run out of bestsellers</p>
+                <h3>📦 Medicine Stock Control</h3>
+                <p>Track products, manufacturers, pack size, pricing, and low-stock signals</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-cash-register"></i></div>
-                <h3>💰 Sales & Billing</h3>
-                <p>Track revenue, generate invoices, manage discounts</p>
+                <h3>💰 Counter Billing</h3>
+                <p>Fast keyboard billing, thermal print, WhatsApp invoice, and GST-ready totals</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                <h3>📊 Analytics</h3>
-                <p>Growth insights with dashboard reports</p>
+                <h3>📊 Owner Visibility</h3>
+                <p>Monitor sales, products, and staff activity from one compact dashboard</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-bell"></i></div>
-                <h3>⚡ Low Stock Alerts</h3>
-                <p>Get notified when products are running low</p>
+                <h3>⚡ Pharmacy Alerts</h3>
+                <p>Act on low stock, invoice activity, and support tasks before the counter slows down</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-users"></i></div>
-                <h3>👥 Staff Management</h3>
-                <p>Roles and permissions for your team</p>
+                <h3>👥 Staff Control</h3>
+                <p>Owner, manager, and cashier access stay clearly separated and audited</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-cloud"></i></div>
-                <h3>☁️ Cloud Backup</h3>
-                <p>Automatic backups, secure storage</p>
+                <div class="feature-icon"><i class="fas fa-qrcode"></i></div>
+                <h3>🔎 Barcode Ready</h3>
+                <p>Search medicines by brand, manufacturer, generic name, or barcode at billing time</p>
             </div>
         </div>
     </div>
@@ -279,31 +318,31 @@
 
     <!-- TESTIMONIALS SECTION -->
     <div class="testimonials-section">
-        <h2>❤️ Trusted by 10,000+ Businesses</h2>
+        <h2>❤️ Trusted by Growing Medical Stores</h2>
 
         <div class="testimonials-grid">
             <div class="testimonial-card">
                 <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">"HisaabLite transformed how we manage our retail store. WhatsApp invoicing
+                <p class="testimonial-text">"RxArogya transformed how we manage our pharmacy counter. WhatsApp invoicing
                     is a game-changer!"</p>
                 <div class="testimonial-author">
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div class="author-info">
                         <h4>Rajesh Sharma</h4>
-                        <p>Rajesh Electronics, Mumbai</p>
+                        <p>Rajesh Medical, Mumbai</p>
                     </div>
                 </div>
             </div>
 
             <div class="testimonial-card">
                 <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">"Low stock alerts saved us from losing customers. Best investment for our
-                    business!"</p>
+                <p class="testimonial-text">"Low stock alerts saved us from missing repeat medicine orders. Best investment for our
+                    store!"</p>
                 <div class="testimonial-author">
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div class="author-info">
                         <h4>Priya Singh</h4>
-                        <p>Priya Fashions, Delhi</p>
+                        <p>Priya Medico, Delhi</p>
                     </div>
                 </div>
             </div>
@@ -316,7 +355,7 @@
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div class="author-info">
                         <h4>Kumar & Co.</h4>
-                        <p>Kumar General Store, Chennai</p>
+                        <p>Kumar Pharmacy, Chennai</p>
                     </div>
                 </div>
             </div>
@@ -327,7 +366,7 @@
     <div class="newsletter-section">
         <div class="newsletter-card">
             <h2>🚀 Get Latest Updates & Offers</h2>
-            <p>Join 5,000+ retailers getting weekly tips and product updates</p>
+            <p>Join medical-store owners getting weekly workflow tips and product updates</p>
 
             <div class="newsletter-form">
                 <input type="email" placeholder="Enter your email address">

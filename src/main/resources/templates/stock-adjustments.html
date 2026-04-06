@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Stock Adjustments • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/shop-purchases.css}">
+</head>
+
+<body class="shop-body">
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPage='purchases')}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+                <div th:if="${success}" class="shop-alert shop-alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span th:text="${success}">Success</span>
+                    <button onclick="this.parentElement.remove()" class="shop-alert-close">×</button>
+                </div>
+
+                <section class="purchase-hero">
+                    <div class="purchase-hero-copy">
+                        <span class="purchase-kicker">Inventory Adjustment Desk</span>
+                        <h2>Correct batch or opening stock with an audit trail</h2>
+                        <p>Use adjustments for damage, count mismatch, or opening-stock correction when the live stock on screen does not match physical stock.</p>
+                        <div class="purchase-pills">
+                            <span><i class="fas fa-scale-balanced"></i> Count mismatch control</span>
+                            <span><i class="fas fa-boxes-stacked"></i> Batch-level correction</span>
+                            <span><i class="fas fa-clipboard-check"></i> Reason-based audit</span>
+                        </div>
+                    </div>
+                    <div class="purchase-hero-actions">
+                        <a th:href="@{/purchases}" class="purchase-cta purchase-cta-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Purchases
+                        </a>
+                        <a th:href="@{/purchases/adjustments/new}" class="purchase-cta">
+                            <i class="fas fa-plus"></i>
+                            New Adjustment
+                        </a>
+                    </div>
+                </section>
+
+                <section class="purchase-stats-grid">
+                    <article class="purchase-stat-card">
+                        <div>
+                            <span>Adjustments</span>
+                            <strong th:text="${adjustmentCount}">0</strong>
+                        </div>
+                        <i class="fas fa-sliders"></i>
+                    </article>
+                    <article class="purchase-stat-card">
+                        <div>
+                            <span>Net Units Changed</span>
+                            <strong th:text="${netAdjustedUnits}">0</strong>
+                        </div>
+                        <i class="fas fa-arrow-right-arrow-left"></i>
+                    </article>
+                    <article class="purchase-stat-card">
+                        <div>
+                            <span>Negative Adjustments</span>
+                            <strong th:text="${negativeAdjustments}">0</strong>
+                        </div>
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </article>
+                    <article class="purchase-stat-card">
+                        <div>
+                            <span>Recent Records</span>
+                            <strong th:text="${#lists.size(stockAdjustments)}">0</strong>
+                        </div>
+                        <i class="fas fa-history"></i>
+                    </article>
+                </section>
+
+                <section class="purchase-card">
+                    <div class="purchase-card-head">
+                        <div>
+                            <h3>Stock Adjustment Ledger</h3>
+                            <p>Positive values add stock, negative values reduce stock. Batch-linked adjustments never touch sold quantity.</p>
+                        </div>
+                        <span class="purchase-card-badge" th:text="${adjustmentCount + ' adjustments'}">0 adjustments</span>
+                    </div>
+
+                    <div class="purchase-table-wrap" th:if="${!#lists.isEmpty(stockAdjustments)}">
+                        <table class="purchase-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Medicine</th>
+                                    <th>Scope</th>
+                                    <th>Delta</th>
+                                    <th>After</th>
+                                    <th>Reason</th>
+                                    <th>By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="adjustment : ${stockAdjustments}">
+                                    <td th:text="${#temporals.format(adjustment.adjustmentDate, 'dd MMM yyyy')}">05 Apr 2026</td>
+                                    <td>
+                                        <strong th:text="${adjustment.product.name}">Medicine</strong>
+                                        <div class="purchase-subtext" th:text="${adjustment.notes != null ? adjustment.notes : 'Stock adjustment'}">Note</div>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${adjustment.purchaseBatch != null ? adjustment.purchaseBatch.batchNumber : 'Opening/manual stock'}">BATCH-01</strong>
+                                        <div class="purchase-subtext" th:text="${adjustment.purchaseBatch != null ? 'Batch-linked' : 'Product-only'}">Batch-linked</div>
+                                    </td>
+                                    <td th:text="${adjustment.quantityDelta > 0 ? '+' + adjustment.quantityDelta : adjustment.quantityDelta}">+3</td>
+                                    <td>
+                                        <strong th:text="${adjustment.newProductStock}">0</strong>
+                                        <div class="purchase-subtext" th:if="${adjustment.newBatchQuantity != null}" th:text="'Batch now ' + ${adjustment.newBatchQuantity}">Batch now 0</div>
+                                    </td>
+                                    <td th:text="${adjustment.reason}">Damage</td>
+                                    <td th:text="${adjustment.createdBy != null ? adjustment.createdBy.name : 'System'}">Owner</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="purchase-empty" th:if="${#lists.isEmpty(stockAdjustments)}">
+                        <i class="fas fa-sliders"></i>
+                        <p>No stock adjustment yet. Use this only when physical stock and recorded stock do not match.</p>
+                    </div>
+                </section>
+
+                <div th:replace="~{fragments/shop-footer :: footer}"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

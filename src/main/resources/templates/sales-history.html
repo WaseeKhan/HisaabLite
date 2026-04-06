@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Sales History • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>Sales History • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -120,6 +120,7 @@
                                     <th style="width: 80px;">Invoice</th>
                                     <th style="width: 220px;">Date & Time</th>
                                     <th style="width: 200px;">Customer</th>
+                                    <th style="width: 190px;">Batch Trace</th>
                                     <th style="width: 100px;">Cashier</th>
                                     <th style="width: 100px;">Amount</th>
                                     <th style="width: 100px;">Status</th>
@@ -128,7 +129,7 @@
                             </thead>
                             <tbody id="salesTableBody">
                                 <tr>
-                                    <td colspan="7" class="sales-empty-state">
+                                    <td colspan="8" class="sales-empty-state">
                                         <i class="fas fa-spinner fa-pulse"></i>
                                         <p>Loading sales...</p>
                                     </td>
@@ -278,7 +279,7 @@
             if (!sales || sales.length === 0) {
                 tbody.html(`
                     <tr>
-                        <td colspan="7" class="sales-empty-state">
+                        <td colspan="8" class="sales-empty-state">
                             <i class="fas fa-receipt"></i>
                             <p>No sales found</p>
                             <span>${currentKeyword ? 'No results for "' + escapeHtml(currentKeyword) + '"' : 'Start billing to see sales'}</span>
@@ -297,6 +298,7 @@
                         <td><span class="invoice-number">#${sale.id}</span></td>
                         <td><i class="far fa-calendar"></i> ${formatDate(sale.saleDate)}</td>
                         <td><i class="fas fa-user"></i> ${escapeHtml(sale.customerName || 'Walk-in')}</td>
+                        <td>${renderBatchTrace(sale)}</td>
                         <td><i class="far fa-user-circle"></i> ${escapeHtml(sale.cashierName || 'N/A')}</td>
                         <td><span class="sale-amount">₹${formatNumber(sale.totalAmount)}</span></td>
                         <td>
@@ -335,6 +337,36 @@
                 `;
                 tbody.append(row);
             });
+        }
+
+        function renderBatchTrace(sale) {
+            if (!sale.batchManaged) {
+                return `
+                    <div class="sales-batch-summary sales-batch-summary-empty">
+                        <div class="sales-batch-muted">Opening/manual stock</div>
+                        <div class="sales-batch-meta">No recorded purchase batch on this sale</div>
+                    </div>
+                `;
+            }
+
+            const nextExpiryLine = sale.nextExpiryDate
+                ? `<div class="sales-batch-meta"><i class="fas fa-calendar-alt"></i> Next expiry ${formatShortDate(sale.nextExpiryDate)}</div>`
+                : `<div class="sales-batch-meta"><i class="fas fa-layer-group"></i> Batch trace available</div>`;
+
+            const expiredLine = sale.expiredBatchCount > 0
+                ? `<div class="sales-batch-warning"><i class="fas fa-triangle-exclamation"></i> ${sale.expiredBatchCount} sold batch now expired</div>`
+                : '';
+
+            return `
+                <div class="sales-batch-summary">
+                    <div class="sales-batch-chip-row">
+                        <span class="sales-batch-chip">${sale.tracedBatchCount} ${sale.tracedBatchCount === 1 ? 'batch' : 'batches'}</span>
+                        <span class="sales-batch-chip sales-batch-chip-soft">${sale.tracedUnits} units traced</span>
+                    </div>
+                    ${nextExpiryLine}
+                    ${expiredLine}
+                </div>
+            `;
         }
 
         function renderPagination(data) {
@@ -519,6 +551,12 @@
             if (!dateStr) return 'N/A';
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatShortDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
         function formatNumber(value) {

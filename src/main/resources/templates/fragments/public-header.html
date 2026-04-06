@@ -2,102 +2,102 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <!-- Public Header - Relevant Pages for Billing SaaS -->
-<header th:fragment="public-header" class="hl-public-header">
+<header th:fragment="header" class="hl-public-header">
     <div class="hl-header-container">
-        <!-- Logo -->
         <a href="/" class="hl-logo">
-            <div class="hl-logo-icon">HL</div>
-            <span class="hl-logo-text">HisaabLite</span>
+            <img th:src="@{/images/expygen-mark-word-light.svg}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-dark">
+            <img th:src="@{/images/expygen-mark-word-dark.svg}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-light">
         </a>
-        
-        <!-- Navigation - Relevant Pages -->
+
         <nav class="hl-nav">
             <a href="/features" class="hl-nav-link">
-                <i class="fas fa-star"></i> Features
+                <i class="fas fa-capsules"></i> Modules
             </a>
             <a href="/how-it-works" class="hl-nav-link">
-                <i class="fas fa-play-circle"></i> How It Works
+                <i class="fas fa-wave-square"></i> Workflow
             </a>
             <a href="/pricing" class="hl-nav-link">
-                <i class="fas fa-tag"></i> Pricing
+                <i class="fas fa-layer-group"></i> Pricing
             </a>
             <a href="/blog" class="hl-nav-link">
-                <i class="fas fa-newspaper"></i> Blog
+                <i class="fas fa-notes-medical"></i> Insights
             </a>
             <a href="/help" class="hl-nav-link">
-                <i class="fas fa-headset"></i> Help
+                <i class="fas fa-headset"></i> Support
             </a>
         </nav>
-        
-        <!-- Actions -->
+
         <div class="hl-actions">
+            <button type="button" class="hl-theme-toggle" data-theme-toggle onclick="window.toggleAppTheme && window.toggleAppTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <i class="fas fa-moon" data-theme-icon></i>
+                <span data-theme-label>Dark Mode</span>
+            </button>
             <a href="/login" class="hl-btn-login">Login</a>
-            <a href="/register" class="hl-btn-register">Start Free</a>
+            <a href="/register" class="hl-btn-register">Book Onboarding</a>
         </div>
-        
-        <!-- Mobile Toggle -->
+
         <button class="hl-mobile-toggle" id="hlMenuToggle">
             <span></span>
             <span></span>
             <span></span>
         </button>
     </div>
-    
-    <!-- Mobile Menu -->
+
     <div class="hl-mobile-menu" id="hlMobileMenu">
         <div class="hl-mobile-inner">
             <a href="/features" class="hl-mobile-link">
-                <i class="fas fa-star"></i> Features
+                <i class="fas fa-capsules"></i> Modules
             </a>
             <a href="/how-it-works" class="hl-mobile-link">
-                <i class="fas fa-play-circle"></i> How It Works
+                <i class="fas fa-wave-square"></i> Workflow
             </a>
             <a href="/pricing" class="hl-mobile-link">
-                <i class="fas fa-tag"></i> Pricing
+                <i class="fas fa-layer-group"></i> Pricing
             </a>
             <a href="/blog" class="hl-mobile-link">
-                <i class="fas fa-newspaper"></i> Blog
+                <i class="fas fa-notes-medical"></i> Insights
             </a>
             <a href="/help" class="hl-mobile-link">
-                <i class="fas fa-headset"></i> Help
+                <i class="fas fa-headset"></i> Support
             </a>
             <div class="hl-mobile-actions">
                 <a href="/login" class="hl-mobile-login">Login</a>
-                <a href="/register" class="hl-mobile-register">Start Free</a>
+                <a href="/register" class="hl-mobile-register">Book Onboarding</a>
             </div>
         </div>
     </div>
-</header>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const toggle = document.getElementById('hlMenuToggle');
-    const menu = document.getElementById('hlMobileMenu');
-    
-    if (toggle && menu) {
-        toggle.addEventListener('click', function() {
-            toggle.classList.toggle('hl-active');
-            menu.classList.toggle('hl-active');
-            document.body.style.overflow = menu.classList.contains('hl-active') ? 'hidden' : '';
-        });
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('hlMenuToggle');
+        const menu = document.getElementById('hlMobileMenu');
         
-        document.addEventListener('click', function(e) {
-            if (menu.classList.contains('hl-active') && 
-                !toggle.contains(e.target) && 
-                !menu.contains(e.target)) {
-                toggle.classList.remove('hl-active');
-                menu.classList.remove('hl-active');
-                document.body.style.overflow = '';
-            }
-        });
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && menu.classList.contains('hl-active')) {
-                toggle.classList.remove('hl-active');
-                menu.classList.remove('hl-active');
-                document.body.style.overflow = '';
-            }
-        });
-    }
-});
-</script>
+        if (toggle && menu) {
+            toggle.addEventListener('click', function() {
+                toggle.classList.toggle('hl-active');
+                menu.classList.toggle('hl-active');
+                document.body.style.overflow = menu.classList.contains('hl-active') ? 'hidden' : '';
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (menu.classList.contains('hl-active') && 
+                    !toggle.contains(e.target) && 
+                    !menu.contains(e.target)) {
+                    toggle.classList.remove('hl-active');
+                    menu.classList.remove('hl-active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && menu.classList.contains('hl-active')) {
+                    toggle.classList.remove('hl-active');
+                    menu.classList.remove('hl-active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    });
+    </script>
+    <script th:src="@{/js/theme-toggle.js}"></script>
+</header>

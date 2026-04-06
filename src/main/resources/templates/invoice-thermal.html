@@ -68,6 +68,15 @@ body{
     font-size:10px;
 }
 
+.batch-trace-line{
+    margin-top:1px;
+    color:#1d4ed8;
+}
+
+.batch-trace-empty{
+    color:#6b7280;
+}
+
 @media print{
     @page {
         size: 80mm auto;
@@ -148,8 +157,23 @@ body{
     </div>
 
     <div class="small">
-        ₹<span th:text="${#numbers.formatDecimal(item.product.price,0,2)}"></span>
+        ₹<span th:text="${#numbers.formatDecimal(item.priceAtSale,0,2)}"></span>
         GST <span th:text="${item.gstPercent}"></span>%
+    </div>
+
+    <div class="small batch-trace-line" th:with="batchTrace=${batchTraceBySaleItemId[item.id]}" th:if="${batchTrace != null and !#lists.isEmpty(batchTrace)}">
+        Batch:
+        <span th:each="batch, stat : ${batchTrace}">
+            <span th:text="${batch.batchNumber}">BATCH-01</span>
+            x<span th:text="${batch.quantity}">1</span>
+            <span th:if="${batch.expiryDate != null}">
+                (Exp <span th:text="${#temporals.format(batch.expiryDate,'dd MMM yy')}">20 Apr 26</span>)
+            </span><span th:if="${!stat.last}">, </span>
+        </span>
+    </div>
+
+    <div class="small batch-trace-line batch-trace-empty" th:with="batchTrace=${batchTraceBySaleItemId[item.id]}" th:if="${batchTrace == null or #lists.isEmpty(batchTrace)}">
+        Stock: Opening/manual stock
     </div>
 
 </div>
@@ -161,7 +185,7 @@ body{
 <div class="row">
     <span>Subtotal</span>
     <span>
-        ₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![product.price * quantity]),0,2)}"></span>
+        ₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![subtotal]),0,2)}"></span>
     </span>
 </div>
 
@@ -217,7 +241,7 @@ body{
 </div>
 
 <div class="center small">
-    Powered by HisaabLite
+    Powered by RxArogya
 </div>
 
 </div>

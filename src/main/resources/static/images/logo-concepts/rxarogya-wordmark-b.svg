@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" role="img" aria-labelledby="title desc">
+  <title id="title">RxArogya wordmark option B</title>
+  <desc id="desc">Wordmark-only logo with compact dark name and orange pharmacy tagline accent.</desc>
+
+  <text x="24" y="58" fill="#23262b" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="47" font-weight="800" letter-spacing="-1.4">RxArogya</text>
+  <path d="M27 68h224" stroke="#f28c28" stroke-width="3" stroke-linecap="round"/>
+  <text x="27" y="94" fill="#7a818c" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2.3">SIMPLIFY PHARMACY</text>
+</svg>

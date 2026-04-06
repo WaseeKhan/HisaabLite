@@ -51,10 +51,10 @@ public class SupportService {
                     "Access Denied: Only shop owners can create support tickets. Your role: " + user.getRole());
         }
 
-        // Generate ticket number: HL + YYYYMMDDHHMM + random 4 digits
+        // Generate ticket number: app short code + timestamp + random 4 digits
         String timestamp = LocalDateTime.now().format(TICKET_FORMAT);
         String random = String.format("%04d", (int) (Math.random() * 10000));
-        String ticketNumber = "HL" + timestamp + random;
+        String ticketNumber = appConfig.getAppShortCode() + timestamp + random;
 
         SupportTicket ticket = new SupportTicket();
         ticket.setTicketNumber(ticketNumber);
@@ -257,7 +257,7 @@ private void sendTicketResolvedEmail(SupportTicket ticket) {
         "If you still need assistance, you can reply to reopen the ticket.\n\n" +
         "View your ticket: %s\n\n" +
         "Thanks,\n" +
-        "HisaabLite Support Team",
+        appConfig.getSupportTeamName(),
         ticket.getUser().getName() != null ? ticket.getUser().getName() : ticket.getUser().getUsername(),
         ticket.getTicketNumber(),
         ticket.getSubject(),
@@ -326,7 +326,7 @@ private void sendTicketClosedEmail(SupportTicket ticket) {
         "If you have any further questions or need additional assistance, please create a new ticket.\n\n" +
         "View your closed ticket: %s\n\n" +
         "Thanks,\n" +
-        "HisaabLite Support Team",
+        appConfig.getSupportTeamName(),
         ticket.getUser().getName() != null ? ticket.getUser().getName() : ticket.getUser().getUsername(),
         ticket.getTicketNumber(),
         ticket.getSubject(),
@@ -367,7 +367,7 @@ private void sendTicketClosedEmail(SupportTicket ticket) {
      * Send email when ticket is created - TO THE OWNER ONLY
      */
     private void sendTicketCreatedEmail(User owner, SupportTicket ticket) {
-        String subject = "[HisaabLite Support] Ticket Created #" + ticket.getTicketNumber();
+        String subject = "[" + appConfig.getAppName() + " Support] Ticket Created #" + ticket.getTicketNumber();
 
         String ticketUrl = urlService.getTicketUrl(ticket.getTicketNumber());
 
@@ -382,7 +382,7 @@ private void sendTicketClosedEmail(SupportTicket ticket) {
                         "═══════════════════════════════════════\n\n" +
                         "We will get back to you shortly.\n\n" +
                         "Track your ticket: %s\n\n" +
-                        "Thanks,\nHisaabLite Support Team",
+                        "Thanks,\n" + appConfig.getSupportTeamName(),
                 owner.getName() != null ? owner.getName() : owner.getUsername(),
                 ticket.getTicketNumber(),
                 ticket.getSubject(),
@@ -413,7 +413,7 @@ private void sendTicketClosedEmail(SupportTicket ticket) {
                             "Reply: %s\n" +
                             "═══════════════════════════════════════\n\n" +
                             "View your ticket: %s\n\n" +
-                            "Thanks,\nHisaabLite Support Team",
+                            "Thanks,\n" + appConfig.getSupportTeamName(),
                     ticket.getUser().getName() != null ? ticket.getUser().getName() : ticket.getUser().getUsername(),
                     ticket.getSubject(),
                     reply.getMessage(),

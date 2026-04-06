@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -26,14 +28,20 @@ import com.hisaablite.dto.CartItem;
 import com.hisaablite.entity.AuditLog;
 import com.hisaablite.entity.PlanType;
 import com.hisaablite.entity.Product;
+import com.hisaablite.entity.PurchaseBatch;
+import com.hisaablite.entity.PurchaseEntry;
 import com.hisaablite.entity.Role;
 import com.hisaablite.entity.Sale;
 import com.hisaablite.entity.SaleItem;
+import com.hisaablite.entity.SaleItemBatchAllocation;
 import com.hisaablite.entity.SaleStatus;
 import com.hisaablite.entity.Shop;
 import com.hisaablite.entity.User;
 import com.hisaablite.repository.ProductRepository;
+import com.hisaablite.repository.PurchaseBatchRepository;
+import com.hisaablite.repository.PurchaseEntryRepository;
 import com.hisaablite.repository.SaleItemRepository;
+import com.hisaablite.repository.SaleItemBatchAllocationRepository;
 import com.hisaablite.repository.SaleRepository;
 import com.hisaablite.repository.ShopRepository;
 import com.hisaablite.repository.UserRepository;
@@ -63,6 +71,15 @@ class SaleServiceTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private PurchaseEntryRepository purchaseEntryRepository;
+
+    @Autowired
+    private PurchaseBatchRepository purchaseBatchRepository;
+
+    @Autowired
+    private SaleItemBatchAllocationRepository saleItemBatchAllocationRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -173,7 +190,7 @@ class SaleServiceTest {
                         shop,
                         owner));
 
-        assertEquals("Not enough stock for product: Butter", exception.getMessage());
+        assertEquals("Not enough sellable stock for product: Butter", exception.getMessage());
         assertEquals(5, productRepository.findById(enoughStock.getId()).orElseThrow().getStockQuantity());
         assertEquals(1, productRepository.findById(lowStock.getId()).orElseThrow().getStockQuantity());
         assertEquals(0, saleRepository.findByShop(shop, org.springframework.data.domain.PageRequest.of(0, 10)).getTotalElements());
@@ -259,6 +276,69 @@ class SaleServiceTest {
     }
 
     @Test
+    void completeSaleConsumesBatchesInExpiryOrder() {
+        Shop shop = createShop("BAT");
+        User owner = createOwner(shop, "BAT");
+        Product product = createProduct(shop, "Cough Syrup", "90.00", 0, 12);
+
+        PurchaseBatch firstBatch = createBatch(product, shop, owner, "BATCH-A", LocalDate.now().plusDays(15), 4, "55.00", "90.00");
+        PurchaseBatch secondBatch = createBatch(product, shop, owner, "BATCH-B", LocalDate.now().plusDays(45), 6, "56.00", "90.00");
+
+        Sale sale = saleService.completeSale(
+                List.of(CartItem.builder().productId(product.getId()).quantity(5).build()),
+                shop,
+                owner);
+
+        PurchaseBatch updatedFirst = purchaseBatchRepository.findById(firstBatch.getId()).orElseThrow();
+        PurchaseBatch updatedSecond = purchaseBatchRepository.findById(secondBatch.getId()).orElseThrow();
+        List<SaleItem> items = saleItemRepository.findBySale(sale);
+        List<SaleItemBatchAllocation> allocations = saleItemBatchAllocationRepository.findBySaleItem(items.get(0));
+
+        assertEquals(0, updatedFirst.getAvailableQuantity());
+        assertEquals(5, updatedSecond.getAvailableQuantity());
+        assertEquals(2, allocations.size());
+        assertEquals(5, allocations.stream().mapToInt(SaleItemBatchAllocation::getQuantity).sum());
+        assertEquals(5, productRepository.findById(product.getId()).orElseThrow().getStockQuantity());
+    }
+
+    @Test
+    void cancelSaleRestoresAllocatedBatchStock() {
+        Shop shop = createShop("REST");
+        User owner = createOwner(shop, "REST");
+        Product product = createProduct(shop, "Antibiotic", "120.00", 0, 12);
+
+        PurchaseBatch batch = createBatch(product, shop, owner, "REST-01", LocalDate.now().plusDays(30), 5, "82.00", "120.00");
+        Sale sale = saleService.completeSale(
+                List.of(CartItem.builder().productId(product.getId()).quantity(3).build()),
+                shop,
+                owner);
+
+        saleService.cancelSale(sale.getId());
+
+        PurchaseBatch restoredBatch = purchaseBatchRepository.findById(batch.getId()).orElseThrow();
+        assertEquals(5, restoredBatch.getAvailableQuantity());
+        assertEquals(5, productRepository.findById(product.getId()).orElseThrow().getStockQuantity());
+    }
+
+    @Test
+    void completeSaleRejectsExpiredBatchOnlyStock() {
+        Shop shop = createShop("EXP");
+        User owner = createOwner(shop, "EXP");
+        Product product = createProduct(shop, "Expired Only", "70.00", 0, 5);
+
+        createBatch(product, shop, owner, "EXP-01", LocalDate.now().minusDays(2), 5, "40.00", "70.00");
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> saleService.completeSale(
+                        List.of(CartItem.builder().productId(product.getId()).quantity(1).build()),
+                        shop,
+                        owner));
+
+        assertEquals("Not enough sellable stock for product: Expired Only", exception.getMessage());
+        assertEquals(5, productRepository.findById(product.getId()).orElseThrow().getStockQuantity());
+    }
+
+    @Test
     void completeSaleRejectsNonPositiveQuantity() {
         Shop shop = createShop("E");
         User owner = createOwner(shop, "E");
@@ -308,6 +388,46 @@ class SaleServiceTest {
                 .stockQuantity(stockQuantity)
                 .gstPercent(gstPercent)
                 .shop(shop)
+                .active(true)
+                .build());
+    }
+
+    private PurchaseBatch createBatch(Product product,
+                                      Shop shop,
+                                      User owner,
+                                      String batchNumber,
+                                      LocalDate expiryDate,
+                                      int quantity,
+                                      String purchasePrice,
+                                      String salePrice) {
+        PurchaseEntry entry = purchaseEntryRepository.save(PurchaseEntry.builder()
+                .purchaseDate(LocalDate.now())
+                .createdAt(LocalDateTime.now())
+                .supplierName("Supplier " + batchNumber)
+                .supplierInvoiceNumber("INV-" + batchNumber)
+                .shop(shop)
+                .createdBy(owner)
+                .totalAmount(new BigDecimal(purchasePrice).multiply(BigDecimal.valueOf(quantity)))
+                .build());
+
+        Product managedProduct = productRepository.findById(product.getId()).orElseThrow();
+        managedProduct.setPurchasePrice(new BigDecimal(purchasePrice));
+        managedProduct.setPrice(new BigDecimal(salePrice));
+        managedProduct.setStockQuantity(managedProduct.getStockQuantity() + quantity);
+        productRepository.save(managedProduct);
+
+        return purchaseBatchRepository.save(PurchaseBatch.builder()
+                .purchaseEntry(entry)
+                .shop(shop)
+                .product(managedProduct)
+                .batchNumber(batchNumber)
+                .expiryDate(expiryDate)
+                .receivedQuantity(quantity)
+                .availableQuantity(quantity)
+                .purchasePrice(new BigDecimal(purchasePrice))
+                .salePrice(new BigDecimal(salePrice))
+                .mrp(new BigDecimal(salePrice))
+                .createdAt(LocalDateTime.now())
                 .active(true)
                 .build());
     }

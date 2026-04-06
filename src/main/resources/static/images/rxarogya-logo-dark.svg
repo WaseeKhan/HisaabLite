@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 140" role="img" aria-labelledby="title desc">
+  <title id="title">RxArogya logo dark</title>
+  <desc id="desc">RxArogya wordmark with an abstract two-bar pharmacy brand mark and tagline.</desc>
+
+  <g transform="translate(10 14)">
+    <circle cx="30" cy="88" r="16" fill="#c8d0db"/>
+    <circle cx="126" cy="24" r="16" fill="#c8d0db"/>
+    <rect x="44" y="10" width="34" height="102" rx="17" fill="#f28c28" transform="rotate(-31 61 61)"/>
+    <rect x="86" y="10" width="34" height="102" rx="17" fill="#23262b" transform="rotate(-31 103 61)"/>
+  </g>
+
+  <text x="164" y="70" fill="#111827" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="46" font-weight="800" letter-spacing="-1.4">RxArogya</text>
+  <text x="166" y="104" fill="#4b5563" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="800" letter-spacing="2.2">SIMPLIFY PHARMACY</text>
+</svg>

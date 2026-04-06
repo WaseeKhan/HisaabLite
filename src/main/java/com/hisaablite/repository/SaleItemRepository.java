@@ -14,6 +14,8 @@ public interface SaleItemRepository extends JpaRepository<SaleItem, Long> {
 
     List<SaleItem> findBySale(Sale sale);
 
+    List<SaleItem> findBySaleIn(List<Sale> sales);
+
     // Todays sales dashboard
     @Query("SELECT SUM(si.quantity) FROM SaleItem si " +
             "WHERE si.sale.shop = :shop " +

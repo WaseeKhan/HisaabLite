@@ -7,8 +7,14 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
     
     // ==================== APPLICATION INFO ====================
-    @Value("${app.name:HisaabLite}")
+    @Value("${app.name:RxArogya}")
     private String appName;
+
+    @Value("${app.tagline:Simplify Pharmacy}")
+    private String appTagline;
+
+    @Value("${app.short-code:RXA}")
+    private String appShortCode;
     
     @Value("${app.version:2.1.3}")
     private String appVersion;
@@ -23,17 +29,17 @@ public class AppConfig {
     @Value("${app.email.from:waseemk.aws@gmail.com}")
     private String fromEmail;
     
-    @Value("${app.contact.supportEmail:${admin.email:admin@hisaablite.com}}")
+    @Value("${app.contact.supportEmail:${admin.email:admin@rxarogya.com}}")
     private String supportEmail;
-    
-    @Value("${app.email.admin:admin@hisaablite.com}")
+
+    @Value("${app.email.admin:admin@rxarogya.com}")
     private String adminEmail;
-    
-    @Value("${app.email.reply-to:no-reply@hisaablite.com}")
+
+    @Value("${app.email.reply-to:no-reply@rxarogya.com}")
     private String replyToEmail;
     
     // ==================== COMPANY DETAILS ====================
-    @Value("${app.company.name:HisaabLite}")
+    @Value("${app.company.name:RxArogya}")
     private String companyName;
     
     @Value("${app.company.address:India}")
@@ -70,6 +76,8 @@ public class AppConfig {
     
     // App Info
     public String getAppName() { return appName; }
+    public String getAppTagline() { return appTagline; }
+    public String getAppShortCode() { return appShortCode; }
     public String getAppVersion() { return appVersion; }
     public String getBaseUrl() { return baseUrl; }
     public String getEnvironment() { return environment; }
@@ -175,5 +183,13 @@ public class AppConfig {
      */
     public boolean isDevelopment() {
         return "development".equalsIgnoreCase(environment) || "dev".equalsIgnoreCase(environment);
+    }
+
+    public String getAdminPortalName() {
+        return appName + " Admin";
+    }
+
+    public String getSupportTeamName() {
+        return appName + " Support Team";
     }
 }

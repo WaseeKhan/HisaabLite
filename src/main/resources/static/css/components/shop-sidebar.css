@@ -1,46 +1,40 @@
 /* ===== SIDEBAR - Matching Dashboard Style ===== */
+.shop-sidebar-shell {
+    position: relative;
+}
+
+.shop-sidebar-overlay {
+    display: none;
+}
+
 .shop-sidebar {
     width: 240px;
-    background: #ffffff;
-    border-right: 1px solid #e9eef2;
-    padding: 32px 20px;
+    background: linear-gradient(180deg, #202329 0%, #181b20 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 18px 18px 20px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - var(--shop-header-height));
     position: fixed;
     left: 0;
-    top: 0;
+    top: var(--shop-header-height);
     bottom: 0;
     z-index: 10;
     overflow-y: auto;
 }
 
-.shop-logo {
+.shop-page-title {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
-    padding-left: 4px;
+    margin-bottom: 18px;
+    padding: 0 4px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.shop-logo-icon {
-    width: 32px;
-    height: 32px;
-    background: #0f172a;
-    color: white;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
+.shop-page-title span {
     font-size: 14px;
-}
-
-.shop-logo-text {
-    font-weight: 600;
-    font-size: 16px;
-    letter-spacing: -0.2px;
-    color: #0f172a;
+    font-weight: 700;
+    color: #f8fafc;
 }
 
 .shop-nav-links {
@@ -52,49 +46,52 @@
 
 .shop-nav-link {
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     text-decoration: none;
-    color: #5b6778;
+    color: #c2cad8;
     font-size: 13px;
     font-weight: 500;
     display: flex;
     align-items: center;
     gap: 12px;
     transition: all 0.15s;
+    border-left: 3px solid transparent;
 }
 
 .shop-nav-link i {
     width: 20px;
     font-size: 15px;
-    color: #8893a4;
+    color: #7e8aa0;
 }
 
 .shop-nav-link:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
 }
 
 .shop-nav-link:hover i {
-    color: #0f172a;
+    color: var(--shop-accent);
 }
 
 .shop-nav-link.active {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
     font-weight: 600;
+    border-left-color: var(--shop-accent);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .shop-nav-link.active i {
-    color: #0f172a;
+    color: var(--shop-accent);
 }
 
 .shop-logout-btn {
     width: 100%;
     padding: 10px 14px;
-    background: #fef2f2;
+    background: rgba(220, 67, 67, 0.14);
     border: none;
-    color: #b91c1c;
-    border-radius: 10px;
+    color: #fca5a5;
+    border-radius: 12px;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -106,11 +103,11 @@
 }
 
 .shop-logout-btn i {
-    color: #b91c1c;
+    color: #f87171;
 }
 
 .shop-logout-btn:hover {
-    background: #fee2e2;
+    background: rgba(220, 67, 67, 0.22);
 }
 
 .shop-sidebar::-webkit-scrollbar {
@@ -118,32 +115,22 @@
 }
 
 .shop-sidebar::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .shop-sidebar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: rgba(255, 255, 255, 0.16);
     border-radius: 10px;
 }
 
 @media (max-width: 768px) {
     .shop-sidebar {
         width: 200px;
-        padding: 24px 16px;
+        padding: 14px 14px 18px;
     }
     
-    .shop-logo {
-        margin-bottom: 32px;
-    }
-    
-    .shop-logo-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
-    }
-    
-    .shop-logo-text {
-        font-size: 14px;
+    .shop-page-title {
+        margin-bottom: 14px;
     }
     
     .shop-nav-link {
@@ -162,6 +149,39 @@
     }
 }
 
+@media (max-width: 960px) {
+    .shop-sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: var(--shop-header-height) 0 0 0;
+        background: rgba(15, 23, 42, 0.44);
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 94;
+        border: none;
+        padding: 0;
+    }
+
+    .shop-sidebar {
+        width: min(260px, calc(100vw - 36px));
+        transform: translateX(-110%);
+        transition: transform 0.22s ease;
+        box-shadow: 20px 0 40px rgba(2, 6, 23, 0.28);
+        z-index: 101;
+    }
+
+    .shop-body.shop-shell-nav-open .shop-sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .shop-body.shop-shell-nav-open .shop-sidebar {
+        transform: translateX(0);
+    }
+}
+
 
 
 /* Upgrade Link - Simple */
@@ -170,10 +190,10 @@
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     text-decoration: none;
-    background: #fef3c7;
-    color: #b45309;
+    background: rgba(242, 140, 40, 0.16);
+    color: #ffd4a2;
     font-size: 13px;
     font-weight: 500;
     margin-top: 12px;
@@ -182,17 +202,17 @@
 }
 
 .upgrade-link i {
-    color: #f59e0b;
+    color: var(--shop-accent);
     font-size: 14px;
 }
 
 .upgrade-link:hover {
-    background: #fde68a;
+    background: rgba(242, 140, 40, 0.24);
     transform: translateX(2px);
 }
 
 .upgrade-link.active {
-    background: #f59e0b;
+    background: linear-gradient(135deg, var(--shop-accent), #e97a10);
     color: white;
 }
 
@@ -201,7 +221,7 @@
 }
 
 .upgrade-badge {
-    background: #ef4444;
+    background: var(--shop-secondary);
     color: white;
     font-size: 9px;
     font-weight: 600;
@@ -215,9 +235,9 @@
     margin-top: 16px;
     margin-bottom: 10px;
     padding: 10px 14px;
-    border: 1px solid #dbe3ea;
-    background: #f8fafc;
-    color: #334155;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    color: #dbe6f3;
     border-radius: 12px;
     font-size: 13px;
     font-weight: 600;
@@ -229,12 +249,12 @@
 }
 
 .shop-shortcut-hint:hover {
-    background: #eef4f8;
-    border-color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 .shop-shortcut-hint i {
-    color: #0f172a;
+    color: var(--shop-accent);
 }
 
 .shop-shortcut-hint-key {
@@ -242,7 +262,7 @@
     padding: 4px 8px;
     border-radius: 8px;
     background: #ffffff;
-    border: 1px solid #dbe3ea;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #64748b;
     font-size: 11px;
     font-weight: 700;

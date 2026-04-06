@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${'Invoice_' + sale.id + ' • HisaabLite'}">Invoice_123 • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title th:text="${'Invoice_' + sale.id + ' • RxArogya'}">Invoice_123 • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -28,10 +28,10 @@
         <!-- HEADER -->
         <div class="invoice-header">
             <div class="logo-section">
-                <div class="logo-icon">HL</div>
+                <img th:src="@{/images/rxarogya-mark.svg}" alt="RxArogya" class="logo-mark-image" style="width: 42px; height: 42px;">
                 <div class="brand-text">
-                    <div class="brand-name">HisaabLite</div>
-                    <div class="brand-tagline">RETAIL BILLING</div>
+                    <div class="brand-name">RxArogya</div>
+                    <div class="brand-tagline">SIMPLIFY PHARMACY</div>
                 </div>
             </div>
             <div class="invoice-badge">
@@ -85,11 +85,25 @@
                     <tr th:each="item, stat : ${items}">
                         <td class="col-sno" th:text="${stat.index + 1}">1</td>
                         <td class="col-product">
-                            <div class="product-name-cell">
+                            <div class="product-name-cell" th:with="batchTrace=${batchTraceBySaleItemId[item.id]}">
                                 <span class="product-main" th:text="${item.product.name}">Product Name</span>
+                                <div class="product-batch-trace" th:if="${batchTrace != null and !#lists.isEmpty(batchTrace)}">
+                                    <div class="product-batch-line" th:each="batch : ${batchTrace}">
+                                        <span class="product-batch-tag" th:text="${batch.batchNumber}">BATCH-01</span>
+                                        <span class="product-batch-meta">
+                                            Qty <span th:text="${batch.quantity}">1</span>
+                                            <span th:if="${batch.expiryDate != null}">
+                                                • Exp <span th:text="${#temporals.format(batch.expiryDate, 'dd MMM yyyy')}">20 Apr 2026</span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="product-batch-empty" th:if="${batchTrace == null or #lists.isEmpty(batchTrace)}">
+                                    Opening or manual stock
+                                </div>
                             </div>
                         </td>
-                        <td class="col-price">₹<span th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 2, 'POINT')}">100.00</span></td>
+                        <td class="col-price">₹<span th:text="${#numbers.formatDecimal(item.priceAtSale, 0, 'COMMA', 2, 'POINT')}">100.00</span></td>
                         <td class="col-qty" th:text="${item.quantity}">2</td>
                         <td class="col-gst"><span th:text="${item.gstPercent}">18</span>%</td>
                         <td class="col-cgst">
@@ -128,7 +142,7 @@
                 <div class="summary-row">
                     <span class="summary-label">Subtotal</span>
                     <span class="summary-value">
-                        ₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![product.price * quantity]), 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                        ₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![subtotal]), 0, 'COMMA', 2, 'POINT')}">0.00</span>
                     </span>
                 </div>
                 

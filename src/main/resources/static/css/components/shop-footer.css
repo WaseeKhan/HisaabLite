@@ -2,89 +2,175 @@
 
 .shop-footer {
     background: white;
-    border-top: 1px solid #e9eef2;
-    padding: 12px 24px;
-    display: flex;
+    border-top: 1px solid var(--shop-border);
+    box-shadow: inset 0 2px 0 rgba(242, 140, 40, 0.2);
+    padding: 11px 18px;
+    display: grid;
+    grid-template-columns: minmax(240px, auto) 1fr minmax(220px, auto);
     justify-content: space-between;
     align-items: center;
     font-size: 11px;
     color: #94a3b8;
     flex-shrink: 0;
     width: 100%;
+    gap: 16px;
 }
 
 .shop-footer-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0;
+    min-width: 0;
 }
 
 .shop-footer-logo {
     display: flex;
     align-items: center;
-    gap: 8px;
 }
 
-.shop-footer-logo-icon {
-    width: 24px;
-    height: 24px;
-    background: #0f172a;
-    color: white;
-    border-radius: 6px;
+.shop-footer-logo-image {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
+.shop-footer-logo-image-light {
+    display: none;
+}
+
+.shop-footer-center {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 10px;
+    gap: 10px;
+    flex-wrap: nowrap;
 }
 
-.shop-footer-logo-text {
-    font-weight: 500;
-    font-size: 12px;
-    color: #0f172a;
+.shop-footer-center a {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 9px;
+    border-radius: 9px;
+    transition: all 0.15s ease;
 }
 
-.shop-footer-left .heart {
-    color: #ef4444;
+.shop-footer-center a:hover {
+    background: #eef5ff;
+    color: var(--shop-secondary);
 }
 
 .shop-footer-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
-.shop-footer-right a {
-    color: #64748b;
-    text-decoration: none;
-    font-size: 11px;
+.shop-footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #edf8f1;
+    color: #15803d;
+    font-weight: 700;
 }
 
-.shop-footer-right a:hover {
-    color: #2563eb;
+.shop-footer-status i {
+    font-size: 8px;
+    color: #10b981;
 }
 
 .shop-footer-right .version {
-    background: #f1f5f9;
-    padding: 3px 8px;
-    border-radius: 30px;
+    background: var(--shop-accent-soft);
+    padding: 3px 9px;
+    border-radius: 999px;
     font-size: 10px;
+    font-weight: 700;
+    color: #9a5a17;
 }
 
-@media (max-width: 768px) {
+.shop-footer-copy {
+    color: #94a3b8;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.shop-footer-made .heart {
+    color: #ef4444;
+    font-weight: 800;
+}
+
+:root[data-theme="dark"] .shop-footer {
+    background: var(--shop-footer-bg);
+    border-top-color: var(--shop-border);
+    color: var(--shop-footer-text);
+}
+
+:root[data-theme="dark"] .shop-footer-logo-image-dark {
+    display: none;
+}
+
+:root[data-theme="dark"] .shop-footer-logo-image-light {
+    display: block;
+}
+
+:root[data-theme="dark"] .shop-footer-copy {
+    color: #94a3b8;
+}
+
+:root[data-theme="dark"] .shop-footer-made .heart {
+    color: #fb7185;
+}
+
+:root[data-theme="dark"] .shop-footer-center a {
+    color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .shop-footer-center a:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #9fc4ff;
+}
+
+:root[data-theme="dark"] .shop-footer-status {
+    background: rgba(34, 197, 94, 0.14);
+    color: #86efac;
+}
+
+:root[data-theme="dark"] .shop-footer-status i {
+    color: #4ade80;
+}
+
+:root[data-theme="dark"] .shop-footer-right .version {
+    background: rgba(242, 140, 40, 0.14);
+    color: #ffd19a;
+}
+
+@media (max-width: 1024px) {
     .shop-footer {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         gap: 10px;
         text-align: center;
         padding: 10px 16px;
     }
+
     .shop-footer-left {
-        flex-wrap: wrap;
         justify-content: center;
     }
+
+    .shop-footer-center,
     .shop-footer-right {
-        flex-wrap: wrap;
         justify-content: center;
         gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .shop-footer-right {
+        white-space: normal;
     }
 }

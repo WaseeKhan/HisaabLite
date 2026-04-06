@@ -21,6 +21,7 @@ public class DashboardService {
     private final SaleRepository saleRepository;
     private final SaleItemRepository saleItemRepository;
     private final ProductRepository productRepository;
+    private final BatchInventoryVisibilityService batchInventoryVisibilityService;
 
     // Get Top Selling Products
     public List<Map<String, Object>> getTopSellingProducts(Shop shop, int limit) {
@@ -105,14 +106,23 @@ public class DashboardService {
             }
             
             // Low stock alerts
-            List<Product> lowStockProducts = productRepository.findLowStockProducts(shop);
+            List<Product> activeProducts = productRepository.findByShopAndActiveTrue(shop);
+            var visibilityMap = batchInventoryVisibilityService.summarizeProducts(shop, activeProducts);
+            List<Product> lowStockProducts = activeProducts.stream()
+                    .filter(product -> {
+                        var visibility = visibilityMap.get(product.getId());
+                        return visibility != null && visibility.isLowStock();
+                    })
+                    .toList();
             if (lowStockProducts != null && !lowStockProducts.isEmpty()) {
                 for (Product product : lowStockProducts) {
+                    var visibility = visibilityMap.get(product.getId());
+                    int sellableStock = visibility != null ? visibility.getSellableStock() : (product.getStockQuantity() != null ? product.getStockQuantity() : 0);
                     Map<String, Object> activity = new HashMap<>();
                     activity.put("icon", "fas fa-truck");
                     activity.put("text", "Low stock alert - " + (product.getName() != null ? product.getName() : "Unknown"));
                     activity.put("time", "Now");
-                    activity.put("amount", (product.getStockQuantity() != null ? product.getStockQuantity() : 0) + " left");
+                    activity.put("amount", sellableStock + " sellable");
                     activity.put("urgent", true);
                     activities.add(activity);
                 }

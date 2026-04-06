@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Ticket #${ticket.ticketNumber} • HisaabLite</title>
-    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>Ticket #${ticket.ticketNumber} • RxArogya</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
@@ -57,7 +57,7 @@
                         </div>
 
                         <div class="ticket-meta">
-                            <span><i class="fas fa-hashtag"></i> <span th:text="${ticket.ticketNumber}">HL2024031300011234</span></span>
+                            <span><i class="fas fa-hashtag"></i> <span th:text="${ticket.ticketNumber}">RXA2026031300011234</span></span>
                             <span><i class="far fa-calendar"></i> Created: <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 10:30 AM</span></span>
                             <span><i class="fas fa-flag"></i> Priority: <span th:text="${ticket.priority.displayName}">MEDIUM</span></span>
                             <span th:if="${ticket.updatedAt}"><i class="fas fa-clock"></i> Updated: <span th:text="${#temporals.format(ticket.updatedAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 11:30 AM</span></span>

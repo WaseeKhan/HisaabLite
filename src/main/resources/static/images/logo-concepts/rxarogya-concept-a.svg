@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" role="img" aria-labelledby="title desc">
+  <title id="title">RxArogya concept A</title>
+  <desc id="desc">Orbit and pharmacy cross concept for RxArogya.</desc>
+  <defs>
+    <linearGradient id="orbitA" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#f7ba6e"/>
+      <stop offset="100%" stop-color="#f28c28"/>
+    </linearGradient>
+    <linearGradient id="coreA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4d8ff0"/>
+      <stop offset="100%" stop-color="#1f5fcb"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(6 8)">
+    <path d="M14 62c8-31 30-47 50-42 10 2 18 8 23 17" fill="none" stroke="url(#orbitA)" stroke-linecap="round" stroke-width="4.8"/>
+    <path d="M12 70c14 6 34 5 50-4 15-8 24-22 28-43" fill="none" opacity=".92" stroke="url(#orbitA)" stroke-linecap="round" stroke-width="4.8"/>
+    <circle cx="11" cy="70" r="4.8" fill="#f28c28"/>
+    <circle cx="89" cy="27" r="4.8" fill="#f28c28"/>
+
+    <rect x="28" y="24" width="18" height="28" rx="9" fill="#ffffff" stroke="#d9e5f7" stroke-width="2"/>
+    <rect x="46" y="24" width="18" height="28" rx="9" fill="url(#coreA)"/>
+    <rect x="36" y="14" width="8" height="26" rx="4" fill="#19212c"/>
+    <rect x="27" y="23" width="26" height="8" rx="4" fill="#19212c"/>
+  </g>
+
+  <text x="108" y="49" fill="#171b22" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="36" font-weight="700" letter-spacing="-0.8">RxArogya</text>
+  <text x="110" y="72" fill="#5f6b7f" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700" letter-spacing="2.5">SIMPLIFY PHARMACY</text>
+</svg>

@@ -189,6 +189,62 @@
     color: #0f172a;
 }
 
+.sales-batch-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 170px;
+}
+
+.sales-batch-summary-empty {
+    gap: 3px;
+}
+
+.sales-batch-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sales-batch-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.sales-batch-chip-soft {
+    background: #eef2ff;
+    color: #475569;
+}
+
+.sales-batch-meta {
+    font-size: 10px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sales-batch-warning {
+    font-size: 10px;
+    color: #b45309;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+}
+
+.sales-batch-muted {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
 /* Status Badges */
 .status-badge {
     display: inline-flex;
@@ -370,6 +426,11 @@
     .sales-table th:nth-child(2),
     .sales-table td:nth-child(2) {
         min-width: 140px;
+    }
+
+    .sales-table th:nth-child(4),
+    .sales-table td:nth-child(4) {
+        min-width: 170px;
     }
 }
 
