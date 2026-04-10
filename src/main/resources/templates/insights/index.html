@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Insights • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+
+    <section class="cockpit-hero">
+        <div class="cockpit-hero-copy">
+            <span class="cockpit-kicker">Expygen Command Deck</span>
+            <h1>Business visibility, risk control, and operational intelligence in one cockpit.</h1>
+            <p>
+                Watch revenue, procurement, inventory pressure, and accountability together.
+                Use this deck to spot what needs attention before it becomes a daily operational problem.
+            </p>
+            <div class="cockpit-hero-actions">
+                <a th:href="@{/insights/sales/summary}" class="insights-primary-btn">
+                    <i class="fas fa-chart-line"></i> Open Sales Deck
+                </a>
+                <a th:href="@{/insights/inventory/near-expiry}" class="cockpit-secondary-btn">
+                    <i class="fas fa-hourglass-half"></i> Check Risk Radar
+                </a>
+            </div>
+        </div>
+
+        <div class="cockpit-status-panel">
+            <div class="cockpit-status-top">
+                <span>System Status</span>
+                <strong>Live Intelligence Feed</strong>
+            </div>
+            <div class="cockpit-status-grid">
+                <div class="cockpit-status-card">
+                    <span>Revenue</span>
+                    <strong th:text="${summaryCards[0].value}">₹0.00</strong>
+                    <small th:text="${summaryCards[0].label}">Today Sales</small>
+                </div>
+                <div class="cockpit-status-card">
+                    <span>Inventory</span>
+                    <strong th:text="${summaryCards[2].value}">₹0.00</strong>
+                    <small th:text="${summaryCards[2].label}">Current Stock Value</small>
+                </div>
+                <div class="cockpit-status-card cockpit-status-card-alert">
+                    <span>Expiry Risk</span>
+                    <strong th:text="${summaryCards[3].value}">0</strong>
+                    <small th:text="${summaryCards[3].label}">Near Expiry Batches</small>
+                </div>
+                <div class="cockpit-status-card cockpit-status-card-muted">
+                    <span>Control</span>
+                    <strong th:text="${summaryCards[5].value}">0</strong>
+                    <small th:text="${summaryCards[5].label}">Stock Adjustments</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cockpit-summary-grid">
+        <a class="cockpit-instrument"
+           th:each="card, stat : ${summaryCards}"
+           th:href="${stat.count <= 2} ? @{/insights/sales/summary} : (${stat.count <= 4} ? @{/insights/inventory/current-stock} : @{/insights/inventory/stock-adjustments})">
+            <div class="cockpit-instrument-top">
+                <span class="cockpit-instrument-label" th:text="${card.label}">Today Sales</span>
+                <i class="fas fa-arrow-up-right-from-square"></i>
+            </div>
+            <h3 th:text="${card.value}">₹0.00</h3>
+            <p th:text="${card.description}">Live sales snapshot for today</p>
+            <div class="cockpit-instrument-bar"></div>
+        </a>
+    </section>
+
+    <section class="cockpit-layout-grid">
+        <div class="cockpit-panel cockpit-panel-primary">
+            <div class="cockpit-panel-header">
+                <div>
+                    <span class="cockpit-panel-kicker">Flight Controls</span>
+                    <h2>Operational decks</h2>
+                </div>
+                <span class="cockpit-panel-chip">8 modules</span>
+            </div>
+
+            <div class="cockpit-modules-grid">
+                <a class="cockpit-module-card" th:href="@{/insights}">
+                    <div class="cockpit-module-icon"><i class="fas fa-compass"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Command Deck</h3>
+                        <p>Executive overview of revenue, risk, inventory, and control signals.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/sales/summary}">
+                    <div class="cockpit-module-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Sales Insights</h3>
+                        <p>Billing performance, discount discipline, and revenue movement.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/purchases/summary}">
+                    <div class="cockpit-module-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Purchase Insights</h3>
+                        <p>Procurement trend, supplier mix, and inward control.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/sales/invoices}">
+                    <div class="cockpit-module-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Invoice Sales</h3>
+                        <p>Invoice-level billing review, customer mix, and payment visibility.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/inventory/current-stock}">
+                    <div class="cockpit-module-icon"><i class="fas fa-boxes-stacked"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Current Stock</h3>
+                        <p>Live inventory value, batch presence, and health visibility.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/inventory/near-expiry}">
+                    <div class="cockpit-module-icon"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Near Expiry</h3>
+                        <p>Expiry radar for batches that need urgent action.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/inventory/stock-adjustments}">
+                    <div class="cockpit-module-icon"><i class="fas fa-sliders-h"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Stock Adjustments</h3>
+                        <p>Correction trail, shrinkage review, and adjustment flow.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/audit/activity}">
+                    <div class="cockpit-module-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Audit Insights</h3>
+                        <p>User accountability, module activity, and event tracking.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="cockpit-side-column">
+            <div class="cockpit-panel cockpit-panel-dark">
+                <div class="cockpit-panel-header">
+                    <div>
+                        <span class="cockpit-panel-kicker">Radar</span>
+                        <h2>Priority watch</h2>
+                    </div>
+                </div>
+                <div class="cockpit-radar-list">
+                    <a th:href="@{/insights/inventory/near-expiry}" class="cockpit-radar-item">
+                        <span class="cockpit-radar-dot cockpit-radar-dot-alert"></span>
+                        <div>
+                            <strong>Expiry pressure</strong>
+                            <small th:text="${summaryCards[3].value + ' batches under watch'}">0 batches under watch</small>
+                        </div>
+                    </a>
+                    <a th:href="@{/insights/inventory/current-stock}" class="cockpit-radar-item">
+                        <span class="cockpit-radar-dot cockpit-radar-dot-primary"></span>
+                        <div>
+                            <strong>Inventory value</strong>
+                            <small th:text="${summaryCards[2].value + ' in visible stock'}">₹0.00 in visible stock</small>
+                        </div>
+                    </a>
+                    <a th:href="@{/insights/sales/summary}" class="cockpit-radar-item">
+                        <span class="cockpit-radar-dot cockpit-radar-dot-accent"></span>
+                        <div>
+                            <strong>Revenue pulse</strong>
+                            <small th:text="${summaryCards[0].value + ' sales pulse active'}">₹0.00 sales pulse active</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="cockpit-panel">
+                <div class="cockpit-panel-header">
+                    <div>
+                        <span class="cockpit-panel-kicker">Shortcuts</span>
+                        <h2>Quick deploy</h2>
+                    </div>
+                </div>
+                <div class="cockpit-shortcuts">
+                    <a th:href="@{/insights/sales/invoices}" class="quick-link-chip">Invoice-wise Sales</a>
+                    <a th:href="@{/insights/purchases/summary}" class="quick-link-chip">Purchase Summary</a>
+                    <a th:href="@{/insights/inventory/current-stock}" class="quick-link-chip">Current Stock</a>
+                    <a th:href="@{/insights/inventory/near-expiry}" class="quick-link-chip">Near Expiry</a>
+                    <a th:href="@{/insights/inventory/stock-adjustments}" class="quick-link-chip">Stock Adjustments</a>
+                    <a th:href="@{/insights/audit/activity}" class="quick-link-chip">Activity Audit</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/theme-toggle.js}"></script>
+</body>
+</html>

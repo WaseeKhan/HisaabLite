@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>RxArogya • Billing</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Expygen • Billing</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -37,60 +37,6 @@
                     <div th:if="${whatsappError != null}" class="billing-feedback billing-feedback-error" th:text="${whatsappError}">WhatsApp error</div>
                 </div>
 
-                <div id="lastInvoiceBar" class="last-invoice-bar" hidden>
-                    <div class="last-invoice-info">
-                        <div class="last-invoice-label">
-                            <i class="fas fa-receipt"></i>
-                            <span>Last Invoice Ready</span>
-                        </div>
-                        <div class="last-invoice-meta">
-                            <strong id="lastInvoiceNumber">Invoice</strong>
-                            <span id="lastInvoiceHint">Thermal print or send this invoice anytime from this billing screen.</span>
-                        </div>
-                    </div>
-                    <div class="last-invoice-actions">
-                        <a id="lastInvoiceViewBtn" href="#" target="_blank" class="last-invoice-btn last-invoice-btn-secondary">
-                            <i class="fas fa-file-invoice"></i> View
-                        </a>
-                        <button type="button" id="lastInvoicePrintBtn" class="last-invoice-btn last-invoice-btn-primary">
-                            <i class="fas fa-print"></i> Thermal Print
-                        </button>
-                        <button type="button" id="lastInvoiceWhatsappBtn" class="last-invoice-btn last-invoice-btn-success">
-                            <i class="fab fa-whatsapp"></i> WhatsApp
-                        </button>
-                    </div>
-                </div>
-
-                <section class="billing-command-strip">
-                    <div class="billing-command-brand">
-                        <div class="billing-brand-logo">
-                            <img th:src="@{/images/rxarogya-logo-dark.svg}" alt="RxArogya" class="billing-brand-logo-dark">
-                            <img th:src="@{/images/rxarogya-logo-light.svg}" alt="RxArogya" class="billing-brand-logo-light">
-                        </div>
-                        <div class="billing-command-copy">
-                            <span class="billing-command-kicker">Medical Counter Console</span>
-                            <h2>Pharmacy billing, barcode entry, and live invoice control</h2>
-                            <p>A market-style medicine billing workspace with fast scan-to-cart flow, patient details, tax-ready totals, thermal print, and WhatsApp invoice handoff.</p>
-                        </div>
-                    </div>
-                    <div class="billing-command-side">
-                        <div class="billing-command-card">
-                            <span>Shift Flow</span>
-                            <strong>Search, bill, print, send</strong>
-                            <small>Compact counter flow for owner, manager, and cashier desks</small>
-                        </div>
-                        <div class="billing-command-card">
-                            <span>Quick Keys</span>
-                            <div class="billing-command-shortcuts">
-                                <span>F2 Search</span>
-                                <span>F4 Mode</span>
-                                <span>F6 Receive</span>
-                                <span>Ctrl + Enter Save</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
                 <div class="billing-stage-grid">
                     <div class="billing-stage-left">
                         <section class="billing-search-shell">
@@ -99,7 +45,6 @@
                                     <div class="billing-block-icon"><i class="fas fa-barcode"></i></div>
                                     <div>
                                         <span>Medicine Search Desk</span>
-                                        <small>Brand, salt, manufacturer, or exact barcode entry</small>
                                     </div>
                                 </div>
                                 <div class="search-mode-switch" role="group" aria-label="Billing input mode">
@@ -131,11 +76,6 @@
                                 </div>
                             </div>
 
-                            <div class="billing-counter-notes">
-                                <span><i class="fas fa-layer-group"></i> Only sellable batch stock is billed</span>
-                                <span><i class="fas fa-prescription-bottle-medical"></i> Medicines, salts, and manufacturer lookup supported</span>
-                                <span><i class="fas fa-bolt"></i> Exact barcode match can auto-add instantly</span>
-                            </div>
                         </section>
 
                         <form id="billingForm" th:action="@{/sales/complete}" method="post" class="billing-console-form">
@@ -144,11 +84,10 @@
                             <div class="billing-console-grid">
                                 <section class="customer-section">
                                     <div class="billing-block-head">
-                                        <div class="billing-block-title">
+                                    <div class="billing-block-title">
                                             <div class="billing-block-icon"><i class="fas fa-user-circle"></i></div>
                                             <div>
-                                                <span>Patient / Customer</span>
-                                                <small>Optional details for invoice handoff and WhatsApp delivery</small>
+                                        <span>Patient / Customer</span>
                                             </div>
                                         </div>
                                         <span class="billing-pill">Optional</span>
@@ -156,21 +95,22 @@
 
                                     <div class="customer-fields">
                                         <div class="field-group">
-                                            <label>Name</label>
+                                            <label class="field-label-icon"><i class="fas fa-user"></i><span>Name</span></label>
                                             <input type="text" name="customerName" placeholder="Walk-in customer"
                                                 class="customer-input">
                                         </div>
                                         <div class="field-group">
-                                            <label>Phone</label>
+                                            <label class="field-label-icon"><i class="fas fa-phone"></i><span>Phone</span></label>
                                             <input type="text" name="customerPhone" placeholder="9876543210"
                                                 inputmode="numeric" maxlength="10" class="customer-input">
                                         </div>
+                                        <div class="field-group">
+                                            <label class="field-label-icon"><i class="fas fa-user-doctor"></i><span>Doctor / Referred By</span></label>
+                                            <input type="text" name="doctorName" placeholder="Optional doctor name"
+                                                class="customer-input">
+                                        </div>
                                     </div>
 
-                                    <div class="billing-side-tip">
-                                        <i class="fas fa-circle-info"></i>
-                                        <span>Phone number helps for invoice sharing and repeat customer tracking later.</span>
-                                    </div>
                                 </section>
 
                                 <section class="payment-section">
@@ -179,7 +119,6 @@
                                             <div class="billing-block-icon"><i class="fas fa-credit-card"></i></div>
                                             <div>
                                                 <span>Payment Console</span>
-                                                <small>Mode, discount, received amount, and live change</small>
                                             </div>
                                         </div>
                                         <span class="billing-pill billing-pill-accent">Ready to save</span>
@@ -219,7 +158,6 @@
                                     <div class="change-card">
                                         <div class="change-copy">
                                             <span class="change-label"><i class="fas fa-exchange-alt"></i> Change to return</span>
-                                            <small>Live calculation from payable vs received amount</small>
                                         </div>
                                         <span class="change-amount">₹ <span id="changeAmount">0.00</span></span>
                                     </div>
@@ -234,6 +172,17 @@
                                     </div>
                                 </section>
                             </div>
+
+                            <div id="lastInvoiceBar" class="last-invoice-bar billing-last-invoice-inline" hidden>
+                                <div class="last-invoice-head">
+                                    <div class="last-invoice-label">
+                                        <i class="fas fa-receipt"></i>
+                                        <span>Recent Invoices</span>
+                                    </div>
+                                    <span class="billing-pill">Last 3</span>
+                                </div>
+                                <div id="lastInvoiceList" class="last-invoice-list"></div>
+                            </div>
                         </form>
                     </div>
 
@@ -241,57 +190,29 @@
                         <section class="invoice-shell">
                             <div class="invoice-shell-head">
                                 <div>
-                                    <span class="invoice-shell-kicker">Live Invoice Monitor</span>
-                                    <h3>Current Cart & Payable</h3>
+                                    <span class="invoice-shell-kicker">Current Bill</span>
                                 </div>
                                 <span class="cart-badge" id="cartCount">0 items</span>
                             </div>
 
-                            <div class="invoice-snapshot">
-                                <div class="invoice-snapshot-card">
-                                    <span>Line Items</span>
-                                    <strong id="cartItemCountValue">0</strong>
-                                    <small>current bill items</small>
-                                </div>
-                                <div class="invoice-snapshot-card">
-                                    <span>Total Tax</span>
-                                    <strong>₹ <span id="cartTaxSpotlight">0.00</span></strong>
-                                    <small>CGST + SGST</small>
-                                </div>
-                                <div class="invoice-snapshot-card highlight">
-                                    <span>Payable</span>
-                                    <strong>₹ <span id="cartTotalSpotlight">0.00</span></strong>
-                                    <small>after discount</small>
-                                </div>
-                            </div>
-
                             <div class="invoice-board" id="cartContainer">
-                                <div class="empty-cart">
-                                    <div class="empty-cart-graphic"><i class="fas fa-prescription-bottle-medical"></i></div>
+                                    <div class="empty-cart">
+                                        <div class="empty-cart-graphic"><i class="fas fa-prescription-bottle-medical"></i></div>
                                     <p>Counter cart is empty</p>
-                                    <span>Search a medicine or scan a barcode to begin billing.</span>
+                                    <span>Search or scan a medicine to begin billing.</span>
                                 </div>
                             </div>
 
                             <div class="invoice-summary-panel">
                                 <div class="cart-summary-header">
                                     <span>Bill Summary</span>
-                                    <small>Live GST and payable totals from the invoice board</small>
                                 </div>
                                 <div class="summary-row">
                                     <span>Base Amount</span>
                                     <span>₹ <span id="subtotalAmount">0.00</span></span>
                                 </div>
-                                <div class="summary-row tax-row" id="cgstRow">
-                                    <span>CGST</span>
-                                    <span>₹ <span id="cgstAmount">0.00</span></span>
-                                </div>
-                                <div class="summary-row tax-row" id="sgstRow">
-                                    <span>SGST</span>
-                                    <span>₹ <span id="sgstAmount">0.00</span></span>
-                                </div>
                                 <div class="summary-row">
-                                    <span>Total Tax</span>
+                                    <span>GST (CGST + SGST)</span>
                                     <span>₹ <span id="totalGstAmount">0.00</span></span>
                                 </div>
                                 <div class="summary-row discount-row" id="discountRow">
@@ -303,6 +224,7 @@
                                     <span class="total-amount">₹ <span id="finalTotalAmount">0.00</span></span>
                                 </div>
                             </div>
+
                         </section>
                     </aside>
                 </div>

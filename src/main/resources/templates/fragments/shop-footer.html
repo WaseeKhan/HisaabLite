@@ -3,8 +3,8 @@
 <div th:fragment="footer" class="shop-footer">
     <div class="shop-footer-left">
         <div class="shop-footer-logo">
-            <img th:src="@{/images/expygen-mark-light.svg}" th:alt="${@appConfig.appName}" class="shop-footer-logo-image shop-footer-logo-image-dark">
-            <img th:src="@{/images/expygen-mark-dark.svg}" th:alt="${@appConfig.appName}" class="shop-footer-logo-image shop-footer-logo-image-light">
+            <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="shop-footer-logo-image shop-footer-logo-image-dark">
+            <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="shop-footer-logo-image shop-footer-logo-image-light">
         </div>
     </div>
     <div class="shop-footer-center">
@@ -19,7 +19,7 @@
         </span>
         <span class="shop-footer-made">Made with <span class="heart">♥</span> in India</span>
         <span class="version" th:text="'v' + ${@appConfig.appVersion}">v2.1.2</span>
-        <span class="shop-footer-copy" th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 RxArogya</span>
+        <span class="shop-footer-copy" th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 Expygen</span>
     </div>
 </div>
 </html>

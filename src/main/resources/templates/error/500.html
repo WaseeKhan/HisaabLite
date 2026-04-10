@@ -1,356 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>500 • Server Error • RxArogya</title>
+    <title>500 • Server Error • Expygen</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .error-container {
-            max-width: 480px;
-            width: 100%;
-            animation: fadeInUp 0.3s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .error-card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px 28px;
-            text-align: center;
-            border: 1px solid #eef2f6;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-        }
-        
-        .error-code {
-            font-size: 80px;
-            font-weight: 700;
-            color: #0f172a;
-            line-height: 1;
-            margin-bottom: 12px;
-            letter-spacing: -2px;
-        }
-        
-        .error-icon {
-            font-size: 56px;
-            color: #dc2626;
-            margin-bottom: 16px;
-        }
-        
-        .error-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 8px;
-        }
-        
-        .error-message {
-            font-size: 13px;
-            color: #64748b;
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-        
-        .error-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-        
-        .btn-primary, .btn-secondary {
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary {
-            background: #0f172a;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1e293b;
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        
-        .btn-secondary:hover {
-            background: #e2e8f0;
-        }
-        
-        .support-section {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            border: 1px solid #eef2f6;
-        }
-        
-        .support-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        
-        .support-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .support-btn {
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        
-        .support-btn.whatsapp {
-            background: #25D366;
-            color: white;
-        }
-        
-        .support-btn.whatsapp:hover {
-            background: #1da15b;
-            transform: translateY(-1px);
-        }
-        
-        .support-btn.email {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        
-        .support-btn.email:hover {
-            background: #e2e8f0;
-        }
-        
-        .support-btn.phone {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        
-        .support-btn.phone:hover {
-            background: #e2e8f0;
-        }
-        
-        .error-note {
-            background: #fef3c7;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-align: left;
-            font-size: 11px;
-            color: #b45309;
-            border-left: 3px solid #f59e0b;
-        }
-        
-        .error-note i {
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-        
-        .help-links {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding-top: 16px;
-            border-top: 1px solid #eef2f6;
-        }
-        
-        .help-links a {
-            color: #64748b;
-            text-decoration: none;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: color 0.2s;
-        }
-        
-        .help-links a:hover {
-            color: #2563eb;
-        }
-        
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            text-decoration: none;
-        }
-        
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: #0f172a;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 12px;
-        }
-        
-        .logo-text {
-            font-size: 16px;
-            font-weight: 600;
-            color: #0f172a;
-        }
-        
-        .notify-badge {
-            font-size: 10px;
-            color: #64748b;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        
-        @media (max-width: 500px) {
-            .error-card {
-                padding: 24px 20px;
-            }
-            .error-code {
-                font-size: 64px;
-            }
-            .error-icon {
-                font-size: 48px;
-            }
-            .error-title {
-                font-size: 18px;
-            }
-            .support-buttons {
-                flex-direction: column;
-            }
-            .support-btn {
-                justify-content: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/pages/error-pages.css}">
 </head>
-<body>
-    <div class="error-container">
-        <div class="error-card">
-            <a href="/" class="logo">
-                <img th:src="@{/images/rxarogya-logo-dark.svg}" alt="RxArogya" style="height: 34px; width: auto; display: block;">
-            </a>
-            
-            <div class="error-icon">
-                <i class="fas fa-server"></i>
+<body class="error-body">
+    <main class="error-shell">
+        <section class="error-stage">
+            <div class="error-illustration" aria-hidden="true">
+                <div class="error-orbit"></div>
+                <i class="fas fa-paper-plane error-plane"></i>
+                <div class="error-dot dot-a"></div>
+                <div class="error-dot dot-b"></div>
+                <div class="error-dot dot-c"></div>
+                <div class="error-dot dot-d"></div>
+                <div class="error-shell-left"><span class="error-crack"></span></div>
+                <div class="error-shell-right"><span class="error-crack"></span></div>
+                <div class="error-center-mark">
+                    <div class="error-burst"><span></span></div>
+                    <div class="error-code-mark">500</div>
+                </div>
+                <div class="error-shadow"></div>
             </div>
-            
-            <div class="error-code">500</div>
-            
-            <h1 class="error-title">Server Error</h1>
-            
-            <p class="error-message" th:text="${message != null ? message : 'Something went wrong on our end. Please try again.'}">
-                Something went wrong on our end. Please try again.
-            </p>
-            
+
+            <div class="error-copy">
+                <h1 class="error-title">Something broke on our side</h1>
+                <p class="error-message" th:text="${message != null ? message : 'We hit an unexpected issue while loading this workspace. Please retry once or return to a safe page.'}">
+                    We hit an unexpected issue while loading this workspace. Please retry once or return to a safe page.
+                </p>
+            </div>
+
             <div class="error-actions">
-                <a href="javascript:location.reload()" class="btn-primary">
-                    <i class="fas fa-sync-alt"></i> Try Again
+                <a href="javascript:window.location.reload();" class="error-btn error-btn-primary">
+                    <i class="fas fa-rotate-right"></i>
+                    <span>Try Again</span>
                 </a>
-                <a href="/dashboard" class="btn-secondary">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </div>
-            
-            <div class="support-section">
-                <div class="support-title">
-                    <i class="fas fa-headset"></i> Need Help?
-                </div>
-                <div class="support-buttons">
-                    <a th:href="'https://wa.me/' + ${whatsappNumber}" class="support-btn whatsapp" target="_blank">
-                        <i class="fab fa-whatsapp"></i> WhatsApp Support
-                    </a>
-                    <a th:href="'mailto:' + ${supportEmail}" class="support-btn email">
-                        <i class="fas fa-envelope"></i> Email Support
-                    </a>
-                    <a th:href="'tel:' + ${supportPhone}" class="support-btn phone">
-                        <i class="fas fa-phone"></i> Call Support
-                    </a>
-                </div>
-            </div>
-            
-            <div class="error-note" th:if="${message != null and message != ''}">
-                <i class="fas fa-info-circle"></i>
-                <span th:text="${message}">Error details</span>
-            </div>
-            
-            <div class="notify-badge">
-                <i class="fas fa-bell"></i>
-                <span>Our team has been automatically notified</span>
-            </div>
-            
-            <div class="help-links">
-                <a href="/">
-                    <i class="fas fa-home"></i> Home
-                </a>
-                <a href="/support">
-                    <i class="fas fa-question-circle"></i> Help Center
-                </a>
-                <a href="/contact">
-                    <i class="fas fa-envelope"></i> Contact
+                <a th:href="@{/dashboard}" class="error-btn error-btn-secondary">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Open Dashboard</span>
                 </a>
             </div>
-        </div>
-    </div>
+
+            <div class="error-meta">
+                <span class="error-meta-pill"><i class="fas fa-shield-heart"></i> Your saved data is safe</span>
+                <span class="error-meta-pill"><i class="fas fa-headset"></i> Contact support if this keeps happening</span>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

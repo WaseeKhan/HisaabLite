@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${user != null and user.id != null} ? 'Edit Staff • RxArogya' : 'Add Staff • RxArogya'">
-        Add Staff • RxArogya
+    <title th:text="${user != null and user.id != null} ? 'Edit Staff • Expygen' : 'Add Staff • Expygen'">
+        Add Staff • Expygen
     </title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
@@ -13,8 +13,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <!-- Shop CSS -->
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
@@ -25,175 +23,189 @@
 </head>
 
 <body class="shop-body">
-
     <div class="shop-layout">
-        <!-- Sidebar Fragment -->
         <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='staff')}"></div>
 
-        <!-- Main Content -->
         <div class="shop-main">
             <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${authUser}, role=${role}, planType=${planType})}"></div>
 
-                <!-- Header Fragment -->
-                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+                <div class="staff-form-shell">
+                    <section class="staff-form-hero">
+                        <div class="staff-form-copy">
+                            <span class="staff-form-kicker">Staff Access Desk</span>
+                            <h1 th:text="${user != null and user.id != null} ? 'Update Staff Access Record' : 'Add Staff Access Record'">Add Staff Access Record</h1>
+                            <p>Maintain team identity, login credentials, contact details, and permission level from one staff workspace.</p>
+                            <div class="staff-form-pills">
+                                <span><i class="fas fa-user-shield"></i> Role-based access</span>
+                                <span><i class="fas fa-store"></i> Shop-bound account</span>
+                                <span><i class="fas fa-key"></i> Secure login credentials</span>
+                            </div>
+                        </div>
+                        <a th:href="@{/staff}" class="staff-form-back">
+                            <i class="fas fa-arrow-left"></i> Back to Staff
+                        </a>
+                    </section>
 
-                <!-- Page Header - Centered -->
-                <div class="page-header" style="text-align: center; justify-content: center;">
-                    <!-- <h2>
-                        <i class="fas fa-users"></i>
-                        <span th:text="${user != null and user.id != null} ? 'Edit Staff Member' : 'Add Staff Member'">
-                           
-                        </span>
-                    </h2> -->
-                </div>
+                    <div class="staff-form-layout">
+                        <div class="staff-form-card">
+                            <div class="staff-form-title-block">
+                                <div class="staff-form-title">
+                                    <i class="fas" th:class="${user != null and user.id != null} ? 'fa-user-pen' : 'fa-user-plus'"></i>
+                                    <div>
+                                        <h3 th:text="${user != null and user.id != null} ? 'Staff Account Details' : 'Create Staff Account'">Create Staff Account</h3>
+                                        <p th:text="${user != null and user.id != null} ? 'Update team identity, access role, and login information.' : 'Create a new staff login for your store team.'">Create a new staff login for your store team.</p>
+                                    </div>
+                                </div>
+                                <div class="staff-form-status-chip" th:text="${user != null and user.id != null} ? 'Editing Access Record' : 'New Team Record'">New Team Record</div>
+                            </div>
 
-                <!-- Form Card - Centered -->
-                <div style="display: flex; justify-content: center;">
-                    <div class="form-card">
+                            <div th:if="${error}" class="error-message">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span th:text="${error}"></span>
+                            </div>
 
-                        <div class="form-title">
-                            <i class="fas" th:class="${user != null and user.id != null} ? 'fa-edit' : 'fa-user-plus'"></i>
-                            <span th:text="${user != null and user.id != null} ? 'Edit Staff Details' : 'Add Staff Details'">
-                                Staff Details
-                            </span>
+                            <form th:action="@{/staff/save}" th:object="${user}" method="post">
+                                <input type="hidden" th:field="*{id}" />
+
+                                <section class="staff-form-section">
+                                    <div class="staff-section-head">
+                                        <h4>Identity</h4>
+                                        <p>Keep the staff member recognisable across billing, audit, and support flows.</p>
+                                    </div>
+                                    <div class="staff-form-grid">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Full Name <span class="required">*</span></label>
+                                            <input type="text" th:field="*{name}" placeholder="Enter full name" required />
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><i class="fas fa-phone"></i> Phone Number <span class="required">*</span></label>
+                                            <input type="text" th:field="*{phone}" placeholder="Enter phone number" required />
+                                        </div>
+
+                                        <div class="form-group full-width">
+                                            <label><i class="fas fa-envelope"></i> Email Address <span class="required">*</span></label>
+                                            <input type="email" th:field="*{username}" placeholder="Enter email address" required />
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="staff-form-section">
+                                    <div class="staff-section-head">
+                                        <h4>Access Control</h4>
+                                        <p>Choose the access role and define password behavior for the staff account.</p>
+                                    </div>
+                                    <div class="staff-form-grid">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-badge"></i> Role</label>
+                                            <select th:field="*{role}">
+                                                <option value="MANAGER">Manager - operational access</option>
+                                                <option value="CASHIER">Cashier - billing focused</option>
+                                            </select>
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i>
+                                                <span th:text="${user != null and user.id != null} ? 'Changing role updates staff permissions immediately.' : 'Choose the right permission level before saving the account.'">
+                                                    Choose the right permission level before saving the account.
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" th:if="${user == null or user.id == null}">
+                                            <label><i class="fas fa-lock"></i> Password <span class="required">*</span></label>
+                                            <input type="password" th:field="*{password}" placeholder="Create password" required />
+                                        </div>
+
+                                        <div class="form-group" th:unless="${user == null or user.id == null}">
+                                            <label><i class="fas fa-key"></i> New Password</label>
+                                            <input type="password" th:field="*{password}" placeholder="Leave blank to keep current password" />
+                                            <div class="hint-text">
+                                                <i class="fas fa-info-circle"></i> Only fill if you want to reset the password
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div class="action-buttons">
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-save"></i>
+                                        <span th:text="${user != null and user.id != null} ? 'Update Staff' : 'Save Staff'">Save Staff</span>
+                                    </button>
+                                    <a th:href="@{/staff}" class="btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
                         </div>
 
-                        <!-- Error Message -->
-                        <div th:if="${error}" class="error-message">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span th:text="${error}"></span>
-                        </div>
-
-                        <!-- Staff Form -->
-                        <form th:action="@{/staff/save}" th:object="${user}" method="post">
-                            <input type="hidden" th:field="*{id}" />
-
-                            <div class="form-group">
-                                <label><i class="fas fa-user"></i> Full Name <span style="color: #dc2626;">*</span></label>
-                                <input type="text" th:field="*{name}" placeholder="Enter full name" required />
+                        <aside class="staff-side-panel">
+                            <div class="staff-side-card">
+                                <h4>Good access setup</h4>
+                                <ul>
+                                    <li>Use the staff member's real name for audit and billing traceability.</li>
+                                    <li>Keep phone and email unique so login and support handoff stay clean.</li>
+                                    <li>Assign Manager only when the team member needs inventory and purchase access.</li>
+                                </ul>
                             </div>
-
-                            <div class="form-group">
-                                <label><i class="fas fa-envelope"></i> Email Address <span style="color: #dc2626;">*</span></label>
-                                <input type="email" th:field="*{username}" placeholder="Enter email" required />
-                            </div>
-
-                            <div class="form-group">
-                                <label><i class="fas fa-phone"></i> Phone Number <span style="color: #dc2626;">*</span></label>
-                                <input type="text" th:field="*{phone}" placeholder="Enter phone number" required />
-                            </div>
-
-                            <div class="form-group" th:if="${user == null or user.id == null}">
-                                <label><i class="fas fa-lock"></i> Password <span style="color: #dc2626;">*</span></label>
-                                <input type="password" th:field="*{password}" placeholder="Create password" required />
-                            </div>
-
-                            <div class="form-group" th:unless="${user == null or user.id == null}">
-                                <label><i class="fas fa-key"></i> New Password</label>
-                                <input type="password" th:field="*{password}" placeholder="Leave blank to keep current" />
-                                <div class="hint-text">
-                                    <i class="fas fa-info-circle"></i> Only fill if you want to change password
+                            <div class="staff-side-card">
+                                <h4>Operational reminders</h4>
+                                <div class="side-metric">
+                                    <span>Manager</span>
+                                    <strong>Use for purchase, product, and operational supervision access.</strong>
+                                </div>
+                                <div class="side-metric">
+                                    <span>Cashier</span>
+                                    <strong>Use for billing-first counters with restricted business controls.</strong>
+                                </div>
+                                <div class="side-metric">
+                                    <span>Password reset</span>
+                                    <strong>Leave blank during edit when the current password should remain active.</strong>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label><i class="fas fa-badge"></i> Role</label>
-                                <select th:field="*{role}">
-                                    <option value="MANAGER">👔 Manager - Full access</option>
-                                    <option value="CASHIER">💰 Cashier - Billing only</option>
-                                </select>
-                                <div class="hint-text">
-                                    <i class="fas fa-info-circle"></i> 
-                                    <span th:text="${user != null and user.id != null} ? 'Changing role will update permissions' : 'Select appropriate role for staff member'">
-                                        Select appropriate role for staff member
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="action-buttons">
-                                <button type="submit" class="btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    <span th:text="${user != null and user.id != null} ? 'Update Staff' : 'Save Staff'">
-                                        Save Staff
-                                    </span>
-                                </button>
-                                <a th:href="@{/staff}" class="btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Cancel
-                                </a>
-                            </div>
-
-                        </form>
+                        </aside>
                     </div>
                 </div>
 
+                <div th:replace="~{fragments/shop-footer :: footer}"></div>
             </div>
-
-            <!-- Footer Fragment -->
-            <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
-    <!-- Reassign Confirmation Modal -->
     <div th:if="${showReassignModal}" class="reassign-modal">
         <div class="modal-container">
-            <h3><i class="fas fa-exchange-alt"></i> Reassign Records</h3>
+            <h3><i class="fas fa-exchange-alt"></i> Reassign records before deletion</h3>
             <p>
-                User <strong th:text="${userToDelete != null ? userToDelete.name : ''}"></strong> has existing 
-                sales or ticket records. Please select a staff member to reassign these records to:
+                <strong th:text="${userToDelete != null ? userToDelete.name : ''}">Staff member</strong>
+                has sales or support history. Select another staff member to keep those records active.
             </p>
-            
+
             <form th:action="@{'/staff/' + ${userToDelete.id} + '/delete'}" method="post">
-                <label>Reassign to:</label>
+                <label>Reassign to</label>
                 <select name="reassignToId" required>
-                    <option value="">-- Select Staff Member --</option>
-                    <option th:each="staff : ${otherStaff}" 
-                            th:value="${staff.id}" 
+                    <option value="">Select staff member</option>
+                    <option th:each="staff : ${otherStaff}"
+                            th:value="${staff.id}"
                             th:text="${staff.name} + ' (' + ${staff.role} + ')'"></option>
                 </select>
-                
+
                 <div class="modal-actions">
                     <button type="submit" class="btn-danger">
                         <i class="fas fa-trash-alt"></i> Delete & Reassign
                     </button>
-                    <a th:href="@{/staff}" class="btn-cancel">
-                        Cancel
-                    </a>
+                    <a th:href="@{/staff}" class="btn-cancel">Cancel</a>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Auto-focus on first input
         document.addEventListener('DOMContentLoaded', function() {
             const firstInput = document.querySelector('input[type="text"]');
             if (firstInput) {
                 firstInput.focus();
             }
         });
-        
-        // Password strength indicator (optional)
-        const passwordInput = document.querySelector('input[type="password"]');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', function() {
-                const value = this.value;
-                const strength = getPasswordStrength(value);
-                // You can add password strength UI here if needed
-            });
-        }
-        
-        function getPasswordStrength(password) {
-            if (!password) return 0;
-            let strength = 0;
-            if (password.length >= 8) strength++;
-            if (password.match(/[a-z]/)) strength++;
-            if (password.match(/[A-Z]/)) strength++;
-            if (password.match(/[0-9]/)) strength++;
-            if (password.match(/[^a-zA-Z0-9]/)) strength++;
-            return strength;
-        }
     </script>
-
 </body>
 
 </html>

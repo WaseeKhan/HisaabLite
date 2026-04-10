@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>User Profile • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/user-profile.css}">
+</head>
+
+<body class="shop-body">
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header}"></div>
+
+                <main class="user-profile-shell">
+                    <section class="user-profile-hero">
+                        <div class="user-profile-hero-copy">
+                            <span class="user-profile-kicker">Account Workspace</span>
+                            <h1>User Profile</h1>
+                            <p>Manage your account identity, access details, and sign-in controls from one place.</p>
+                        </div>
+                        <div class="user-profile-actions">
+                            <a th:href="@{/forgot-password}" class="user-profile-btn user-profile-btn-primary">
+                                <i class="fas fa-key"></i>
+                                <span>Change Password</span>
+                            </a>
+                            <a th:if="${role == 'OWNER'}" th:href="@{/profile}" class="user-profile-btn">
+                                <i class="fas fa-store"></i>
+                                <span>Open Shop Profile</span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <section class="user-profile-grid">
+                        <article class="user-profile-panel user-profile-identity">
+                            <div class="user-profile-panel-head">
+                                <i class="fas fa-id-badge"></i>
+                                <div>
+                                    <h2>Identity</h2>
+                                    <p>Primary user account attached to this workspace.</p>
+                                </div>
+                            </div>
+
+                            <div class="user-identity-card">
+                                <div class="user-identity-avatar" th:text="${user != null ? #strings.substring(user.name, 0, 1) : 'U'}">U</div>
+                                <div class="user-identity-copy">
+                                    <h3 th:text="${user.name}">User Name</h3>
+                                    <p th:text="${role}">OWNER</p>
+                                </div>
+                            </div>
+
+                            <div class="user-profile-info-list">
+                                <div class="user-profile-info-row">
+                                    <span>Email</span>
+                                    <strong th:text="${user.username}">owner@example.com</strong>
+                                </div>
+                                <div class="user-profile-info-row">
+                                    <span>Phone</span>
+                                    <strong th:text="${user.phone}">9876543210</strong>
+                                </div>
+                                <div class="user-profile-info-row">
+                                    <span>Member Since</span>
+                                    <strong th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">09 Apr 2026</strong>
+                                </div>
+                                <div class="user-profile-info-row">
+                                    <span>Shop</span>
+                                    <strong th:text="${shop.name}">Shop Name</strong>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="user-profile-panel">
+                            <div class="user-profile-panel-head">
+                                <i class="fas fa-shield-halved"></i>
+                                <div>
+                                    <h2>Access & Security</h2>
+                                    <p>Review account status, access role, and password actions.</p>
+                                </div>
+                            </div>
+
+                            <div class="user-profile-stat-grid">
+                                <div class="user-profile-stat-card">
+                                    <span class="user-profile-stat-label">Role</span>
+                                    <strong th:text="${role}">OWNER</strong>
+                                </div>
+                                <div class="user-profile-stat-card">
+                                    <span class="user-profile-stat-label">Account Status</span>
+                                    <strong th:text="${user.active ? 'Active' : 'Inactive'}">Active</strong>
+                                </div>
+                                <div class="user-profile-stat-card">
+                                    <span class="user-profile-stat-label">Approval</span>
+                                    <strong th:text="${user.approved ? 'Approved' : 'Pending'}">Approved</strong>
+                                </div>
+                                <div class="user-profile-stat-card">
+                                    <span class="user-profile-stat-label">Plan Access</span>
+                                    <strong th:text="${planType}">FREE</strong>
+                                </div>
+                            </div>
+
+                            <div class="user-profile-note-card">
+                                <i class="fas fa-circle-info"></i>
+                                <div>
+                                    <h3>Personal settings live here</h3>
+                                    <p>Use this page for your login identity. Shop details, billing setup, GST, address, and WhatsApp remain under Shop Profile.</p>
+                                </div>
+                            </div>
+                        </article>
+                    </section>
+                </main>
+            </div>
+
+            <div th:replace="~{fragments/shop-footer :: footer}"></div>
+        </div>
+    </div>
+</body>
+
+</html>

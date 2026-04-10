@@ -2,23 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Terms & Conditions • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
-
-    <!-- Fonts & Icons -->
+    <title>Terms & Conditions • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/terms.css}">
-
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
@@ -26,274 +19,128 @@
 <body>
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- Hero Section -->
-    <div class="terms-hero">
-        <h1>📋 <span>Terms & Conditions</span></h1>
-        <p>Please read these terms carefully before using RxArogya</p>
-        <div class="last-updated">
-            <i class="far fa-calendar-alt"></i> Last Updated: March 15, 2026
-        </div>
-    </div>
-
-    <!-- Terms Content -->
-    <div class="terms-content">
-        <!-- Quick Links -->
-        <div class="quick-links-box">
-            <h3><i class="fas fa-link"></i> Jump to Section</h3>
-            <div class="quick-links-grid">
-                <a href="#section1"><i class="fas fa-chevron-right"></i> Acceptance</a>
-                <a href="#section2"><i class="fas fa-chevron-right"></i> Definitions</a>
-                <a href="#section3"><i class="fas fa-chevron-right"></i> Account Terms</a>
-                <a href="#section4"><i class="fas fa-chevron-right"></i> Payment Terms</a>
-                <a href="#section5"><i class="fas fa-chevron-right"></i> Cancellation</a>
-                <a href="#section6"><i class="fas fa-chevron-right"></i> Prohibited Uses</a>
-                <a href="#section7"><i class="fas fa-chevron-right"></i> Intellectual Property</a>
-                <a href="#section8"><i class="fas fa-chevron-right"></i> Limitation of Liability</a>
-                <a href="#section9"><i class="fas fa-chevron-right"></i> Governing Law</a>
-                <a href="#section10"><i class="fas fa-chevron-right"></i> Changes to Terms</a>
+    <section class="legal-hero">
+        <div class="legal-hero-content">
+            <span class="legal-kicker">Terms</span>
+            <h1>Terms for using Expygen in store operations</h1>
+            <p>These terms describe how Expygen is provided, how accounts and subscriptions work, and what responsibilities apply when a store uses the platform.</p>
+            <div class="legal-meta">
+                <span><i class="far fa-calendar-alt"></i> Last updated: April 09, 2026</span>
+                <span><i class="fas fa-file-contract"></i> Service and subscription terms</span>
             </div>
         </div>
+    </section>
 
-        <!-- Section 1 - Acceptance -->
-        <div id="section1" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-check-circle"></i> 1. Acceptance of Terms</h2>
-            </div>
-            <div class="section-content">
-                <p>By accessing or using RxArogya ("the Software"), you agree to be bound by these Terms & Conditions. If you do not agree to all these terms, you may not access or use the Software.</p>
-                
-                <div class="important-box">
-                    <i class="fas fa-info-circle"></i>
-                    <p>By creating an account or using RxArogya, you acknowledge that you have read, understood, and agree to be bound by these Terms.</p>
+    <main class="legal-page">
+        <aside class="legal-nav-card">
+            <h3><i class="fas fa-link"></i> On this page</h3>
+            <nav class="legal-nav">
+                <a href="#acceptance">Acceptance</a>
+                <a href="#accounts">Accounts and roles</a>
+                <a href="#subscriptions">Plans and subscriptions</a>
+                <a href="#acceptable-use">Acceptable use</a>
+                <a href="#data">Store data</a>
+                <a href="#liability">Liability</a>
+                <a href="#law">Governing law</a>
+                <a href="#contact">Contact us</a>
+            </nav>
+        </aside>
+
+        <section class="legal-content">
+            <article class="legal-section" id="acceptance">
+                <div class="legal-section-head">
+                    <span class="section-number">01</span>
+                    <h2>Acceptance</h2>
                 </div>
-                
-                <p>We reserve the right to modify these terms at any time. Continued use of the Software after any such changes constitutes your acceptance of the new Terms.</p>
-            </div>
-        </div>
+                <p>By creating an account, activating a plan, or using Expygen, you agree to these terms. If you do not agree with them, you should not use the service.</p>
+            </article>
 
-        <!-- Section 2 - Definitions -->
-        <div id="section2" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-book"></i> 2. Definitions</h2>
-            </div>
-            <div class="section-content">
-                <table class="terms-table">
-                    <thead>
-                        <tr>
-                            <th>Term</th>
-                            <th>Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>"Software", "Service", "Platform"</td>
-                            <td>Refers to the RxArogya medical billing, stock, and pharmacy operations platform</td>
-                        </tr>
-                        <tr>
-                            <td>"User", "You", "Your"</td>
-                            <td>Refers to the individual or entity using the Software</td>
-                        </tr>
-                        <tr>
-                            <td>"Account"</td>
-                            <td>Your registered account with RxArogya</td>
-                        </tr>
-                        <tr>
-                            <td>"Content"</td>
-                            <td>Any data, text, files, information, or materials you submit to the Software</td>
-                        </tr>
-                        <tr>
-                            <td>"Subscription"</td>
-                            <td>The paid plan you have selected for using the Software</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Section 3 - Account Terms -->
-        <div id="section3" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-user-lock"></i> 3. Account Terms</h2>
-            </div>
-            <div class="section-content">
-                <h3>3.1 Account Creation</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> You must be at least 18 years old to use this Service</li>
-                    <li><i class="fas fa-check-circle"></i> You must provide accurate and complete information</li>
-                    <li><i class="fas fa-check-circle"></i> You are responsible for maintaining account security</li>
-                    <li><i class="fas fa-check-circle"></i> One person may not maintain multiple free accounts</li>
-                </ul>
-
-                <h3>3.2 Account Responsibility</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> You are responsible for all activities under your account</li>
-                    <li><i class="fas fa-check-circle"></i> Notify us immediately of any unauthorized use</li>
-                    <li><i class="fas fa-check-circle"></i> We are not liable for any loss from unauthorized use</li>
-                </ul>
-
-                <div class="notice-box">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>You must immediately notify us of any unauthorized use of your account or any other security breach.</p>
+            <article class="legal-section" id="accounts">
+                <div class="legal-section-head">
+                    <span class="section-number">02</span>
+                    <h2>Accounts and roles</h2>
                 </div>
-            </div>
-        </div>
-
-        <!-- Section 4 - Payment Terms -->
-        <div id="section4" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-credit-card"></i> 4. Payment Terms</h2>
-            </div>
-            <div class="section-content">
-                <h3>4.1 Subscription Fees</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Free Plan: No payment required</li>
-                    <li><i class="fas fa-check-circle"></i> Paid Plans: Fees as specified on our pricing page</li>
-                    <li><i class="fas fa-check-circle"></i> All fees are non-refundable except as required by law</li>
+                <ul class="legal-list">
+                    <li>The store is responsible for account access, password handling, and internal role assignment.</li>
+                    <li>Owner, manager, and cashier access may differ based on product permissions and plan configuration.</li>
+                    <li>You should notify us if you believe an account has been accessed without authorization.</li>
                 </ul>
-
-                <h3>4.2 Billing</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Paid plans are billed in advance on a monthly basis</li>
-                    <li><i class="fas fa-check-circle"></i> We accept major credit cards and UPI</li>
-                    <li><i class="fas fa-check-circle"></i> Taxes may be added to fees where applicable</li>
-                </ul>
-
-                <h3>4.3 Price Changes</h3>
-                <p>We may change our fees at any time. We will provide at least 30 days notice of any price changes.</p>
-            </div>
-        </div>
-
-        <!-- Section 5 - Cancellation and Termination -->
-        <div id="section5" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-ban"></i> 5. Cancellation and Termination</h2>
-            </div>
-            <div class="section-content">
-                <h3>5.1 By You</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> You may cancel your account at any time</li>
-                    <li><i class="fas fa-check-circle"></i> Cancellation takes effect at the end of your billing cycle</li>
-                    <li><i class="fas fa-check-circle"></i> No refunds for partial months</li>
-                </ul>
-
-                <h3>5.2 By Us</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> We may suspend or terminate your account for violation of these Terms</li>
-                    <li><i class="fas fa-check-circle"></i> We may terminate free accounts for prolonged inactivity</li>
-                </ul>
-
-                <div class="warning-box">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Upon termination, your right to use the Service will immediately cease. We may delete your data after 30 days.</p>
+                <div class="legal-note">
+                    <i class="fas fa-user-shield"></i>
+                    <p>Role-based access is part of the product, but stores remain responsible for deciding who should be given operational access.</p>
                 </div>
-            </div>
-        </div>
+            </article>
 
-        <!-- Section 6 - Prohibited Uses -->
-        <div id="section6" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-prohibited"></i> 6. Prohibited Uses</h2>
-            </div>
-            <div class="section-content">
-                <p>You may not use the Service for:</p>
-                <ul>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Any illegal purpose or in violation of laws</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Harassing, abusing, or harming others</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Impersonating any person or entity</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Interfering with the Service's operation</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Attempting to gain unauthorized access</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Reverse engineering the Software</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Using the Service for competitive analysis</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Section 7 - Intellectual Property -->
-        <div id="section7" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-copyright"></i> 7. Intellectual Property Rights</h2>
-            </div>
-            <div class="section-content">
-                <h3>7.1 Our Rights</h3>
-                <p>The Service, including its code, design, and content, is owned by RxArogya and protected by copyright and other intellectual property laws.</p>
-
-                <h3>7.2 Your Rights</h3>
-                <p>You retain all rights to your business data. You grant us a license to host, back up, and process your data solely to provide the Service.</p>
-
-                <h3>7.3 Feedback</h3>
-                <p>Any feedback you provide becomes our property and we may use it without compensation.</p>
-            </div>
-        </div>
-
-        <!-- Section 8 - Limitation of Liability -->
-        <div id="section8" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-exclamation-triangle"></i> 8. Limitation of Liability</h2>
-            </div>
-            <div class="section-content">
-                <p>To the maximum extent permitted by law:</p>
-                <ul>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> The Service is provided "AS IS" without warranties</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> We are not liable for indirect or consequential damages</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> Our total liability shall not exceed the fees paid by you</li>
-                    <li><i class="fas fa-times-circle" style="color: #ef4444;"></i> We are not liable for data loss or business interruption</li>
-                </ul>
-
-                <div class="important-box">
-                    <i class="fas fa-shield-alt"></i>
-                    <p>We take reasonable measures to protect your data but cannot guarantee absolute security.</p>
+            <article class="legal-section" id="subscriptions">
+                <div class="legal-section-head">
+                    <span class="section-number">03</span>
+                    <h2>Plans and subscriptions</h2>
                 </div>
-            </div>
-        </div>
+                <div class="legal-grid">
+                    <div class="legal-mini-card">
+                        <h3>Free and paid plans</h3>
+                        <p>Plan limits may apply to products, users, or other operational areas depending on the subscription selected.</p>
+                    </div>
+                    <div class="legal-mini-card">
+                        <h3>Billing and renewal</h3>
+                        <p>Paid plans may require activation, renewal, or upgrade handling through Expygen support or subscription workflow.</p>
+                    </div>
+                    <div class="legal-mini-card">
+                        <h3>Plan changes</h3>
+                        <p>Features, limits, or pricing may change over time, and any material changes should be reflected in the service workflow.</p>
+                    </div>
+                </div>
+            </article>
 
-        <!-- Section 9 - Governing Law -->
-        <div id="section9" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-gavel"></i> 9. Governing Law</h2>
-            </div>
-            <div class="section-content">
-                <p>These Terms shall be governed by the laws of India, without regard to its conflict of law provisions.</p>
-                <p>Any disputes arising from these Terms shall be resolved in the courts of Bangalore, Karnataka.</p>
-            </div>
-        </div>
+            <article class="legal-section" id="acceptable-use">
+                <div class="legal-section-head">
+                    <span class="section-number">04</span>
+                    <h2>Acceptable use</h2>
+                </div>
+                <ul class="legal-list legal-list-warning">
+                    <li>You may not use Expygen for unlawful activity or to interfere with the service.</li>
+                    <li>You may not attempt unauthorized access, abuse account permissions, or reverse engineer the product.</li>
+                    <li>You may not use the product in a way that harms service quality for other users.</li>
+                </ul>
+            </article>
 
-        <!-- Section 10 - Changes to Terms -->
-        <div id="section10" class="terms-section">
-            <div class="section-header">
-                <h2><i class="fas fa-history"></i> 10. Changes to Terms</h2>
-            </div>
-            <div class="section-content">
-                <p>We may modify these Terms at any time. We will notify you of material changes via email or through the Service.</p>
-                <p>Your continued use after changes constitutes acceptance of the modified Terms.</p>
-            </div>
-        </div>
+            <article class="legal-section" id="data">
+                <div class="legal-section-head">
+                    <span class="section-number">05</span>
+                    <h2>Store data and service use</h2>
+                </div>
+                <p>The store retains responsibility for the operational data entered into Expygen, including products, invoices, purchases, suppliers, and related records. Expygen uses that data to provide the service and its workflows.</p>
+                <p>You should ensure the data entered by your team is accurate and appropriate for your operational use.</p>
+            </article>
 
-        <!-- Acceptance Box -->
-        <div class="acceptance-box">
-            <div class="acceptance-text">
-                <i class="fas fa-check-circle"></i>
-                <p>By using RxArogya, you acknowledge that you have read and agree to these Terms & Conditions.</p>
-            </div>
-            <button class="acceptance-btn" onclick="window.location.href='/register'">
-                <i class="fas fa-arrow-right"></i> I Agree & Continue
-            </button>
-        </div>
+            <article class="legal-section" id="liability">
+                <div class="legal-section-head">
+                    <span class="section-number">06</span>
+                    <h2>Liability and service scope</h2>
+                </div>
+                <p>Expygen is provided as a software service. While we work to maintain product quality, no software can promise uninterrupted availability or absolute security in every case.</p>
+                <p>To the maximum extent permitted by applicable law, Expygen is not responsible for indirect or consequential business loss resulting from use of the service.</p>
+            </article>
 
-        <!-- Contact Box -->
-        <div class="contact-box">
-            <i class="fas fa-file-signature"></i>
-            <h3>Questions About Terms?</h3>
-            <p>If you have any questions about these Terms, please contact our legal team</p>
-            <div class="contact-buttons">
-                <a href="/contact" class="contact-btn primary">
-                    <i class="fas fa-paper-plane"></i> Contact Us
-                </a>
-                <a href="mailto:legal@rxarogya.com" class="contact-btn secondary">
-                    <i class="fas fa-envelope"></i> Email Legal Team
-                </a>
-            </div>
-        </div>
-    </div>
+            <article class="legal-section" id="law">
+                <div class="legal-section-head">
+                    <span class="section-number">07</span>
+                    <h2>Governing law</h2>
+                </div>
+                <p>These terms are governed by the laws of India. Any disputes related to the service are subject to the applicable courts and jurisdiction in India.</p>
+            </article>
+
+            <article class="legal-contact-card" id="contact">
+                <span class="legal-kicker">Contact</span>
+                <h2>Questions about terms?</h2>
+                <p>If you need clarification on subscriptions, account responsibilities, or service use, contact us directly.</p>
+                <div class="legal-actions">
+                    <a href="/contact" class="legal-btn legal-btn-primary"><i class="fas fa-paper-plane"></i> Contact support</a>
+                    <a href="mailto:legal@expygen.com" class="legal-btn legal-btn-secondary"><i class="fas fa-envelope"></i> legal@expygen.com</a>
+                </div>
+            </article>
+        </section>
+    </main>
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>
 </body>

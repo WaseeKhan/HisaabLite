@@ -2,23 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Pricing • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
-
-    <!-- Fonts & Icons -->
+    <title>Pricing • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/pricing.css}">
-
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
@@ -26,51 +19,49 @@
 <body>
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- Hero Section -->
-    <div class="pricing-hero">
-        <h1>💰 <span>Simple, Transparent Pricing</span></h1>
-        <p>Start free, upgrade as your medical store grows. No hidden fees.</p>
-    </div>
+    <section class="pricing-hero">
+        <div class="pricing-hero-content">
+            <span class="pricing-kicker">Pricing</span>
+            <h1>Plans that grow from single-store setup to full pharmacy operations</h1>
+            <p>Start with billing and sales history, move into purchases and stock control, then unlock Insights, WhatsApp invoices, and larger product or staff capacity as the store grows.</p>
+        </div>
+    </section>
 
-    <!-- Billing Toggle -->
-    <div class="billing-toggle">
-        <span class="toggle-label active" id="monthlyLabel">Monthly</span>
-        <label class="switch">
-            <input type="checkbox" id="billingToggle" onclick="toggleBilling()">
-            <span class="slider"></span>
-        </label>
-        <span class="toggle-label" id="yearlyLabel">
-            Yearly <span class="save-badge">Save 17%</span>
-        </span>
-    </div>
+    <section class="billing-toggle-strip">
+        <div class="billing-toggle">
+            <span class="toggle-label active" id="monthlyLabel">Monthly</span>
+            <label class="switch">
+                <input type="checkbox" id="billingToggle" onclick="toggleBilling()">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-label" id="yearlyLabel">
+                Yearly <span class="save-badge">Save 17%</span>
+            </span>
+        </div>
+    </section>
 
-    <!-- Pricing Grid -->
-    <div class="pricing-grid-section">
+    <section class="pricing-grid-section">
         <div class="pricing-grid">
-            <!-- FREE Plan -->
-            <div class="pricing-card">
+            <article class="pricing-card">
                 <div class="pricing-name">FREE</div>
                 <div class="pricing-price">
                     <div class="monthly-price price-free">₹0</div>
                     <div class="yearly-price price-free" style="display: none;">₹0</div>
-                    <span class="price-period">7 Days Free Trial</span>
+                    <span class="price-period">Start without upfront cost</span>
                 </div>
                 <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 1 User - Owner Only</li>
-                    <li><i class="fas fa-check"></i> 10 Products</li>
-                    <li><i class="fas fa-check"></i> Advanced Invoices</li>
-                    <li><i class="fas fa-check"></i> WhatsApp Integration</li>
-                    <li><i class="fas fa-check"></i> Dashboard Support</li>
-                    <li class="not-included"><i class="fas fa-times"></i> Email Support</li>
-                    <li class="not-included"><i class="fas fa-times"></i> API Access</li>
+                    <li><i class="fas fa-check"></i> 2 Users</li>
+                    <li><i class="fas fa-check"></i> 50 Products</li>
+                    <li><i class="fas fa-check"></i> Billing + Sales History</li>
+                    <li><i class="fas fa-check"></i> GST invoice flow</li>
+                    <li><i class="fas fa-check"></i> Basic support</li>
                 </ul>
                 <div class="pricing-footer">
-                    <a href="/register" class="btn-pricing primary">Get Started</a>
+                    <a href="/register" class="btn-pricing primary">Start Free</a>
                 </div>
-            </div>
+            </article>
 
-            <!-- BASIC Plan -->
-            <div class="pricing-card">
+            <article class="pricing-card">
                 <div class="pricing-name">BASIC</div>
                 <div class="pricing-price">
                     <div class="monthly-price">₹499 <span class="price-period">/mo</span></div>
@@ -81,25 +72,19 @@
                     </div>
                 </div>
                 <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 1 User - Owner Only</li>
-                    <li><i class="fas fa-check"></i> 50 Products</li>
-                    <li><i class="fas fa-check"></i> GST Invoices</li>
-                    <li><i class="fas fa-check"></i> Basic Reports</li>
-                    <li><i class="fas fa-check"></i> Email Support</li>
-                    <li><i class="fas fa-check"></i> Dashboard Support</li>
-                    <li class="not-included"><i class="fas fa-times"></i> WhatsApp Support 24/7</li>
-                    <li class="not-included"><i class="fas fa-times"></i> On Call Support 24/7</li>
-                    <li class="not-included"><i class="fas fa-times"></i> WhatsApp Integration</li>
-                    <li class="not-included"><i class="fas fa-times"></i> API Access</li>
+                    <li><i class="fas fa-check"></i> 5 Users</li>
+                    <li><i class="fas fa-check"></i> 200 Products</li>
+                    <li><i class="fas fa-check"></i> Purchases + stock control</li>
+                    <li><i class="fas fa-check"></i> Supplier and batch workflows</li>
+                    <li><i class="fas fa-check"></i> GST invoice flow</li>
                 </ul>
                 <div class="pricing-footer">
                     <a href="/register" class="btn-pricing primary">Choose Basic</a>
                 </div>
-            </div>
+            </article>
 
-            <!-- PREMIUM Plan (Popular) -->
-            <div class="pricing-card popular">
-                <div class="popular-badge">🔥 MOST POPULAR</div>
+            <article class="pricing-card popular">
+                <div class="popular-badge">Most Popular</div>
                 <div class="pricing-name">PREMIUM</div>
                 <div class="pricing-price">
                     <div class="monthly-price">₹999 <span class="price-period">/mo</span></div>
@@ -110,24 +95,18 @@
                     </div>
                 </div>
                 <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 1 Owner - 9 Staff Users </li>
+                    <li><i class="fas fa-check"></i> 15 Users</li>
                     <li><i class="fas fa-check"></i> 1000 Products</li>
-                    <li><i class="fas fa-check"></i> GST Invoices</li>
-                    <li><i class="fas fa-check"></i> Advanced Reports</li>
-                    <li><i class="fas fa-check"></i> WhatsApp Integration</li>
-                    <li><i class="fas fa-check"></i> Priority Email Support</li>
-                    <li><i class="fas fa-check"></i> WhatsApp Support 24/7</li>
-                    <li><i class="fas fa-check"></i> On Call Support 24/7</li>
-                    <li><i class="fas fa-check"></i> Dashboard Support</li>
-                    <li><i class="fas fa-check"></i> API Access</li>
+                    <li><i class="fas fa-check"></i> WhatsApp invoice sharing</li>
+                    <li><i class="fas fa-check"></i> Insights workspace</li>
+                    <li><i class="fas fa-check"></i> Batch and expiry visibility</li>
                 </ul>
                 <div class="pricing-footer">
                     <a href="/register" class="btn-pricing primary">Go Premium</a>
                 </div>
-            </div>
+            </article>
 
-            <!-- ENTERPRISE Plan -->
-            <div class="pricing-card enterprise">
+            <article class="pricing-card enterprise">
                 <div class="pricing-name">ENTERPRISE</div>
                 <div class="pricing-price">
                     <div class="monthly-price">₹1,999 <span class="price-period">/mo</span></div>
@@ -140,41 +119,36 @@
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> Unlimited Users</li>
                     <li><i class="fas fa-check"></i> Unlimited Products</li>
-                    <li><i class="fas fa-check"></i> All Premium Features</li>
-                    <li><i class="fas fa-check"></i> Priority Support</li>
-                    <li><i class="fas fa-check"></i> Custom Integration</li>
-                    <li><i class="fas fa-check"></i> Dedicated Account Manager</li>
-                    <li><i class="fas fa-check"></i> WhatsApp Integration</li>
-                    <li><i class="fas fa-check"></i> Priority Email Support</li>
-                    <li><i class="fas fa-check"></i> WhatsApp Support 24/7</li>
-                    <li><i class="fas fa-check"></i> On Call Support 24/7</li>
+                    <li><i class="fas fa-check"></i> Priority support</li>
+                    <li><i class="fas fa-check"></i> Enterprise rollout help</li>
+                    <li><i class="fas fa-check"></i> Full Premium capability</li>
                 </ul>
                 <div class="pricing-footer">
                     <a href="/contact" class="btn-pricing">Contact Sales</a>
                 </div>
-            </div>
+            </article>
         </div>
 
-        <!-- Money Back Guarantee -->
         <div class="guarantee-box">
             <div class="guarantee-icon">
-                <i class="fas fa-shield-alt"></i>
+                <i class="fas fa-layer-group"></i>
             </div>
             <div class="guarantee-text">
-                <h3>7 - Days Free Trial • No Credit Card Required</h3>
-                <p>Experience pharmacy billing and stock control for 7 days, completely free. After the trial, pick the plan that fits your store.</p>
+                <h3>Plan usage stays visible inside the app</h3>
+                <p>Once a store is active, owners can track product and staff limits, current plan status, and upgrade readiness from the subscription workspace.</p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Feature Comparison Table -->
-    <div class="comparison-section">
-        <h2>Compare Plans</h2>
-        <p>Find the right plan for your medical store</p>
+    <section class="comparison-section">
+        <div class="section-head">
+            <h2>Compare the operational difference</h2>
+            <p>Choose based on how far you want to go beyond billing into purchases, stock control, WhatsApp delivery, and Insights.</p>
+        </div>
 
         <div class="comparison-table">
             <div class="comparison-row header">
-                <div class="comparison-cell">Features</div>
+                <div class="comparison-cell">Capability</div>
                 <div class="comparison-cell">FREE</div>
                 <div class="comparison-cell">BASIC</div>
                 <div class="comparison-cell">PREMIUM</div>
@@ -182,59 +156,56 @@
             </div>
 
             <div class="comparison-row">
-                <div class="comparison-cell">Users</div>
-                <div class="comparison-cell">1</div>
-                <div class="comparison-cell">1</div>
-                <div class="comparison-cell">10</div>
-                <div class="comparison-cell">∞</div>
+                <div class="comparison-cell">Billing + Sales History</div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
             </div>
-
             <div class="comparison-row">
-                <div class="comparison-cell">Products</div>
-                <div class="comparison-cell">10</div>
+                <div class="comparison-cell">Purchases + Stock Control</div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">WhatsApp Invoice Sharing</div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Insights Workspace</div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-cell">Product Limit</div>
                 <div class="comparison-cell">50</div>
+                <div class="comparison-cell">200</div>
                 <div class="comparison-cell">1000</div>
-                <div class="comparison-cell">∞</div>
+                <div class="comparison-cell">Unlimited</div>
             </div>
-
             <div class="comparison-row">
-                <div class="comparison-cell">GST Invoices</div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-
-            <div class="comparison-row">
-                <div class="comparison-cell">WhatsApp Integration</div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-
-            <div class="comparison-row">
-                <div class="comparison-cell">API Access</div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-
-            <div class="comparison-row">
-                <div class="comparison-cell">Priority Support</div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                <div class="comparison-cell">User Limit</div>
+                <div class="comparison-cell">2</div>
+                <div class="comparison-cell">5</div>
+                <div class="comparison-cell">15</div>
+                <div class="comparison-cell">Unlimited</div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- FAQ Section -->
-    <div class="faq-section">
-        <h2>Frequently Asked Questions</h2>
-        
+    <section class="faq-section">
+        <div class="section-head">
+            <h2>Frequently asked questions</h2>
+            <p>Clear answers around plan changes, billing cycle, onboarding, and activation.</p>
+        </div>
+
         <div class="faq-grid">
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
@@ -242,82 +213,70 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Yes! You can upgrade your plan at any time. Changes take effect immediately and we'll prorate the difference.
+                    Yes. Stores can start small and move to larger plans later as user count, product volume, purchases, or Insights needs grow.
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
-    Is there a free trial for paid plans?
-    <i class="fas fa-chevron-down"></i>
-</div>
-<div class="faq-answer">
-    Yes! Enjoy a <strong>7-day free trial</strong> on any paid plan — no credit card required. Experience all premium features risk-free. After the trial, choose the plan that works for you. Love it? Continue seamlessly. Not satisfied? Cancel with no charges.
-</div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    What payment methods do you accept?
+                    Is there a paid-plan trial?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    We accept all major credit/debit cards, UPI, and bank transfers for annual plans.
+                    You can start with the free plan and move into paid capability when your store is ready for higher limits and operational depth.
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
-                    Can I cancel anytime?
+                    How does activation work today?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    We don't offer cancellations during the active subscription period. Your plan continues until the end of the billing cycle. Need help or want to explore other options? Contact our support team — we're happy to assist you.
+                    Paid activation currently follows the assisted workflow shown on the workflow page. The team confirms payment and activates the workspace.
                 </div>
             </div>
 
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">
-                    Do you offer GST invoices?
+                    Do all plans support GST invoicing?
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Yes, all paid plans include GST-compliant invoices with your business details.
+                    Yes. GST invoicing is part of the product flow across plans, with higher plans adding more operational depth around purchases, WhatsApp delivery, and Insights.
                 </div>
             </div>
 
-<div class="faq-item">
-    <div class="faq-question" onclick="toggleFaq(this)">
-        What is your billing cycle?
-        <i class="fas fa-chevron-down"></i>
-    </div>
-    <div class="faq-answer">
-        We offer <strong>annual billing only</strong>. You pay once for the entire year and get uninterrupted access to your chosen plan. No monthly subscriptions, no hidden charges. Simple, straightforward, and hassle-free.
-    </div>
-</div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Can I see plan usage inside the app?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes. Owners can view subscription status, product usage, staff usage, and plan comparison from the subscription workspace.
+                </div>
+            </div>
 
             <div class="faq-item">
-               <div class="faq-question" onclick="toggleFaq(this)">
-    Is there a setup fee?
-    <i class="fas fa-chevron-down"></i>
-</div>
-<div class="faq-answer">
-    No setup fees ever! Our team will help you get started — completely free. From onboarding to training, the RxArogya team is here to ensure a smooth setup. Just pay for your subscription and we'll handle the rest.
-</div>
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Which plan is best for Insights?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Premium and Enterprise are the right choices if you want the dedicated Insights workspace for sales, purchases, stock risk, and audit visibility.
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- CTA Section -->
-    <div class="pricing-cta">
-        <h2>Ready to get started?</h2>
-        <p>Join growing medical stores that trust RxArogya for billing, stock control, and day-to-day pharmacy operations</p>
+    <section class="pricing-cta">
+        <h2>Start with the plan your store can actually use today</h2>
+        <p>Begin with billing, then scale into purchases, inventory control, WhatsApp invoices, and Insights when the store is ready.</p>
         <a href="/register" class="btn-cta">
-            <i class="fas fa-rocket"></i> Start Your Free Plan
+            <i class="fas fa-rocket"></i> Start Free
         </a>
-    </div>
+    </section>
 
-    <!-- FAQ Toggle Script -->
     <script>
         function toggleFaq(element) {
             const faqItem = element.parentElement;
@@ -332,13 +291,11 @@
             const yearlyLabel = document.getElementById('yearlyLabel');
 
             if (toggle.checked) {
-                // Yearly selected
                 monthlyPrices.forEach(el => el.style.display = 'none');
                 yearlyPrices.forEach(el => el.style.display = 'block');
                 monthlyLabel.classList.remove('active');
                 yearlyLabel.classList.add('active');
             } else {
-                // Monthly selected
                 monthlyPrices.forEach(el => el.style.display = 'block');
                 yearlyPrices.forEach(el => el.style.display = 'none');
                 monthlyLabel.classList.add('active');

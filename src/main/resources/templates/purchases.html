@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Purchases • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Purchases • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -38,12 +38,12 @@
                 <section class="purchase-hero">
                     <div class="purchase-hero-copy">
                         <span class="purchase-kicker">Supplier Inward Desk</span>
-                        <h2>Receive medicines with batch and expiry control</h2>
-                        <p>Record supplier invoices, create sellable batches, and keep expiry visibility ready for pharmacy operations.</p>
+                        <h2>Run inward, batch control, and purchase review</h2>
+                        <p>Handle inward, batch ledger, expiry risk, and purchase ops in one workspace.</p>
                         <div class="purchase-pills">
                             <span><i class="fas fa-boxes-stacked"></i> Batch-wise stock</span>
                             <span><i class="fas fa-calendar-check"></i> Expiry visibility</span>
-                            <span><i class="fas fa-truck"></i> Supplier purchase history</span>
+                            <span><i class="fas fa-truck"></i> Supplier inward history</span>
                         </div>
                     </div>
                     <div class="purchase-hero-actions">
@@ -83,7 +83,7 @@
                             <span>Live Batch Units</span>
                             <strong th:text="${availableBatchUnits}">0</strong>
                         </div>
-                        <i class="fas fa-boxes-packing"></i>
+                        <i class="fas fa-boxes-stacked"></i>
                     </article>
                     <article class="purchase-stat-card">
                         <div>
@@ -152,6 +152,20 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="purchase-pagination" th:if="${purchaseTotalPages != null and purchaseTotalPages > 1}">
+                            <a th:href="@{/purchases(purchasePage=${purchasePageNumber - 1},batchPage=${batchPageNumber})}"
+                               class="purchase-page-btn"
+                               th:classappend="${purchasePageNumber == 0} ? ' disabled'"
+                               aria-disabled="true">Previous</a>
+                            <span class="purchase-page-meta">
+                                Page <strong th:text="${purchasePageNumber + 1}">1</strong>
+                                of <strong th:text="${purchaseTotalPages}">1</strong>
+                            </span>
+                            <a th:href="@{/purchases(purchasePage=${purchasePageNumber + 1},batchPage=${batchPageNumber})}"
+                               class="purchase-page-btn"
+                               th:classappend="${purchasePageNumber + 1 >= purchaseTotalPages} ? ' disabled'"
+                               aria-disabled="true">Next</a>
                         </div>
                         <div class="purchase-empty" th:if="${#lists.isEmpty(purchases)}">
                             <i class="fas fa-truck-loading"></i>
@@ -253,6 +267,20 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="purchase-pagination" th:if="${batchTotalPages != null and batchTotalPages > 1}">
+                        <a th:href="@{/purchases(purchasePage=${purchasePageNumber},batchPage=${batchPageNumber - 1})}"
+                           class="purchase-page-btn"
+                           th:classappend="${batchPageNumber == 0} ? ' disabled'"
+                           aria-disabled="true">Previous</a>
+                        <span class="purchase-page-meta">
+                            Page <strong th:text="${batchPageNumber + 1}">1</strong>
+                            of <strong th:text="${batchTotalPages}">1</strong>
+                        </span>
+                        <a th:href="@{/purchases(purchasePage=${purchasePageNumber},batchPage=${batchPageNumber + 1})}"
+                           class="purchase-page-btn"
+                           th:classappend="${batchPageNumber + 1 >= batchTotalPages} ? ' disabled'"
+                           aria-disabled="true">Next</a>
                     </div>
                     <div class="purchase-empty" th:if="${#lists.isEmpty(batches)}">
                         <i class="fas fa-box-open"></i>

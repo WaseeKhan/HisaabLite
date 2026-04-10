@@ -6,22 +6,21 @@
     <div class="footer-container">
         <div class="footer-brand-block">
             <a href="/" class="footer-logo">
-                <img th:src="@{/images/expygen-mark-light.svg}" th:alt="${@appConfig.appName}" class="footer-logo-image footer-logo-image-dark">
-                <img th:src="@{/images/expygen-mark-dark.svg}" th:alt="${@appConfig.appName}" class="footer-logo-image footer-logo-image-light">
+                <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="footer-logo-image footer-logo-image-dark">
+                <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="footer-logo-image footer-logo-image-light">
             </a>
         </div>
 
         <div class="footer-links-cluster">
             <div class="footer-links">
-                <a href="/about">About</a>
+                <a href="/features">Features</a>
+                <a href="/workflow">Workflow</a>
                 <a href="/pricing">Pricing</a>
-                <a href="/blog">Insights</a>
-                <a href="/help">Support</a>
                 <a href="/contact">Contact</a>
-                <a href="/careers">
-                    Careers
-                    <span class="career-badge">HIRING</span>
-                </a>
+                <a href="/blog">Blog</a>
+                <a href="/careers">Careers</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
             </div>
             <div class="footer-socials">
                 <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
@@ -33,11 +32,7 @@
 
         <div class="footer-meta">
             <div class="footer-meta-links">
-                <span th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 RxArogya</span>
-                <span class="separator">•</span>
-                <a href="/privacy">Privacy</a>
-                <span class="separator">•</span>
-                <a href="/terms">Terms</a>
+                <span th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 Expygen</span>
                 <span class="separator">•</span>
                 <span class="footer-made">Made with <span class="heart">♥</span> in India</span>
             </div>

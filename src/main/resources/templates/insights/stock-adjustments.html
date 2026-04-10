@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Stock Adjustments • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+    <div class="report-shell">
+
+        <div class="report-header">
+            <div>
+                <div class="report-badge">Inventory Insights</div>
+                <h1>Stock Adjustments</h1>
+                <p>
+                    Review manual and operational stock corrections across products and batches,
+                    including damaged, expired, and quantity reconciliation adjustments.
+                </p>
+            </div>
+
+            <div class="report-header-actions">
+                <a class="table-action-btn"
+                   th:href="@{/insights/inventory/stock-adjustments/export(fromDate=${fromDate}, toDate=${toDate}, adjustmentType=${adjustmentType}, userName=${userName}, keyword=${keyword})}">Export CSV</a>
+                <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+            </div>
+        </div>
+
+        <form class="insights-filter-form insights-filter-command" th:action="@{/insights/inventory/stock-adjustments}" method="get">
+            <div class="filter-command-top">
+                <div class="filter-command-title">
+                    <span class="filter-command-kicker">Filter Console</span>
+                </div>
+                <strong class="filter-command-inline-note">Refine adjustment intelligence by time, type, user, and stock event signal.</strong>
+                <div class="quick-filter-row quick-filter-row-inline">
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('yesterday')">Yesterday</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This Week</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This Month</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last Month</button>
+                </div>
+            </div>
+            <div class="filter-row filter-row-command filter-row-command-adjustments">
+
+                <div class="filter-group filter-group-compact">
+                    <label for="fromDate">From</label>
+                    <input type="date" id="fromDate" name="fromDate" th:value="${fromDate}">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="toDate">To</label>
+                    <input type="date" id="toDate" name="toDate" th:value="${toDate}">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="adjustmentType">Adjustment Type</label>
+                    <select id="adjustmentType" name="adjustmentType">
+                        <option value="">All</option>
+                        <option value="INCREASE" th:selected="${adjustmentType == 'INCREASE'}">Increase</option>
+                        <option value="DECREASE" th:selected="${adjustmentType == 'DECREASE'}">Decrease</option>
+                        <option value="DAMAGED" th:selected="${adjustmentType == 'DAMAGED'}">Damaged</option>
+                        <option value="EXPIRED" th:selected="${adjustmentType == 'EXPIRED'}">Expired</option>
+                        <option value="CORRECTION" th:selected="${adjustmentType == 'CORRECTION'}">Correction</option>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="userName">User</label>
+                    <input type="text" id="userName" name="userName" th:value="${userName}" placeholder="Search user">
+                </div>
+
+                <div class="filter-group filter-group-search">
+                    <label for="keyword">Search</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                           placeholder="Search product, batch, reason...">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn primary-btn">Apply</button>
+                    <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="report-action-strip">
+            <a class="report-action-card" th:href="@{/purchases/adjustments/new}">
+                <span class="report-action-icon"><i class="fas fa-sliders"></i></span>
+                <span class="report-action-copy">
+                    <strong>New Adjustment</strong>
+                    <span>Open the adjustment desk for correction, damage, or expiry actions.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/insights/inventory/current-stock}">
+                <span class="report-action-icon"><i class="fas fa-boxes-stacked"></i></span>
+                <span class="report-action-copy">
+                    <strong>Current Stock</strong>
+                    <span>Cross-check live batch positions before creating the next correction.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases/returns}">
+                <span class="report-action-icon"><i class="fas fa-rotate-left"></i></span>
+                <span class="report-action-copy">
+                    <strong>Purchase Returns</strong>
+                    <span>Shift from adjustment review to supplier return operations when needed.</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="report-alert-strip">
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-arrow-trend-up"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[1].value + ' units corrected upward'}">Units corrected upward</strong>
+                    <span>Positive adjustments usually reflect reconciliation or restored stock.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/stock-adjustments(adjustmentType='INCREASE')}">
+                        <i class="fas fa-arrow-right"></i><span>View increases</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-warning">
+                <span class="report-alert-icon"><i class="fas fa-arrow-trend-down"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[2].value + ' units reduced from stock'}">Units reduced from stock</strong>
+                    <span>Follow reductions closely to separate shrinkage from valid corrections.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/stock-adjustments(adjustmentType='DECREASE')}">
+                        <i class="fas fa-arrow-right"></i><span>View reductions</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-danger">
+                <span class="report-alert-icon"><i class="fas fa-box-open"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[3].value + ' damaged cases recorded'}">Damaged cases recorded</strong>
+                    <span>Damage-driven adjustments need stock review and supplier follow-up.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/stock-adjustments(adjustmentType='DAMAGED')}">
+                        <i class="fas fa-arrow-right"></i><span>View damaged cases</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-strip">
+            <div th:each="card, stat : ${kpis}" class="kpi-card" th:classappend="${stat.count == 1} ? ' kpi-card-primary'">
+                <span th:text="${card.label}">Total Adjustments</span>
+                <h3 th:text="${card.value}">0</h3>
+                <small th:text="${card.description}">Description</small>
+            </div>
+        </div>
+
+        <div class="analytics-grid analytics-grid-adjustments">
+            <div class="analytics-card analytics-card-lg">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Adjustment Trend</h3>
+                        <p>Adjustment activity over the selected period</p>
+                    </div>
+                    <span class="analytics-chip">Correction Flow</span>
+                </div>
+                <div class="chart-box chart-box-lg">
+                    <canvas id="adjustmentTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Adjustment Type Split</h3>
+                        <p>Distribution by adjustment category</p>
+                    </div>
+                    <span class="analytics-chip analytics-chip-accent">Type Mix</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="adjustmentTypeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Top Adjusted Products</h3>
+                        <p>Products with highest correction frequency</p>
+                    </div>
+                    <span class="analytics-chip">High Movement</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="topAdjustedProductsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card analytics-card-radar">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Adjustment Radar</h3>
+                        <p>Quick control view for stock correction pressure and accountability</p>
+                    </div>
+                    <span class="analytics-chip">Control Radar</span>
+                </div>
+                <div class="report-radar-list">
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-primary"></span>
+                        <div>
+                            <strong>Quantity added</strong>
+                            <small th:text="${#lists.size(kpis) > 1 ? kpis[1].value + ' units restored or corrected upward' : 'No increase adjustments'}">No increase adjustments</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-alert"></span>
+                        <div>
+                            <strong>Quantity reduced</strong>
+                            <small th:text="${#lists.size(kpis) > 2 ? kpis[2].value + ' units reduced across stock corrections' : 'No reductions in current view'}">No reductions in current view</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-accent"></span>
+                        <div>
+                            <strong>Top adjusted product</strong>
+                            <small th:text="${#lists.isEmpty(topProducts)} ? 'No product movement in current range' : topProducts[0].paymentMode">No product movement</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-divider"></div>
+                    <div class="report-radar-metric">
+                        <span>Damaged Cases</span>
+                        <strong th:text="${#lists.size(kpis) > 3 ? kpis[3].value : '0'}">0</strong>
+                    </div>
+                    <div class="report-radar-metric">
+                        <span>Users Involved</span>
+                        <strong th:text="${#lists.size(kpis) > 5 ? kpis[5].value : '0'}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-table-shell">
+            <div class="report-table-header">
+                <h3>Stock Adjustment Data</h3>
+                <div class="report-table-actions">
+                    <a class="table-action-btn"
+                       th:href="@{/insights/inventory/stock-adjustments/export(fromDate=${fromDate}, toDate=${toDate}, adjustmentType=${adjustmentType}, userName=${userName}, keyword=${keyword})}">Export CSV</a>
+                    <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Timestamp</th>
+                        <th>Product</th>
+                        <th>Batch No</th>
+                        <th>Type</th>
+                        <th>Previous Qty</th>
+                        <th>Changed Qty</th>
+                        <th>New Qty</th>
+                        <th>Reason</th>
+                        <th>User</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                        <td colspan="11" style="text-align:center;">No stock adjustment data found</td>
+                    </tr>
+                    <tr th:each="row, stat : ${rows}">
+                        <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                        <td th:text="${#temporals.format(row.timestamp, 'yyyy-MM-dd hh:mm a')}">2026-04-06 09:40 AM</td>
+                        <td><a class="report-drill-link" th:href="@{/products(keyword=${row.productName})}" th:text="${row.productName}">Amoxicillin 500</a></td>
+                        <td th:text="${row.batchNumber}">AMX-1120</td>
+                        <td><span class="status-pill"
+                                  th:classappend="${row.adjustmentType == 'INCREASE'} ? ' status-success' : (${row.adjustmentType == 'DECREASE' or row.adjustmentType == 'DAMAGED'} ? ' status-warning' : (${row.adjustmentType == 'EXPIRED'} ? ' status-dark' : ' status-info'))"
+                                  th:text="${row.adjustmentType}">Decrease</span></td>
+                        <td th:text="${row.previousQty}">15</td>
+                        <td th:text="${row.changedQty}">-7</td>
+                        <td th:text="${row.newQty}">8</td>
+                        <td th:text="${row.reason}">Reason</td>
+                        <td th:text="${row.userName}">Admin</td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="row-action-link" th:href="@{/products(keyword=${row.productName})}">
+                                    <i class="fas fa-box-open"></i><span>Product</span>
+                                </a>
+                                <a class="row-action-link" th:href="@{/purchases/adjustments/new}">
+                                    <i class="fas fa-repeat"></i><span>New Adjust</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="report-pagination" th:if="${totalRows > pageSize}">
+                <a class="pagination-btn"
+                   th:classappend="${!hasPreviousPage} ? ' disabled'"
+                   th:href="${hasPreviousPage} ? @{/insights/inventory/stock-adjustments(page=${previousPage}, fromDate=${fromDate}, toDate=${toDate}, adjustmentType=${adjustmentType}, userName=${userName}, keyword=${keyword})} : '#'">Previous</a>
+                <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                <a class="pagination-btn"
+                   th:classappend="${!hasNextPage} ? ' disabled'"
+                   th:href="${hasNextPage} ? @{/insights/inventory/stock-adjustments(page=${nextPage}, fromDate=${fromDate}, toDate=${toDate}, adjustmentType=${adjustmentType}, userName=${userName}, keyword=${keyword})} : '#'">Next</a>
+            </div>
+        </div>
+
+    </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        axisColor: '#667085',
+        textColor: '#1f2a3d',
+        gridColor: '#edf1f5'
+    };
+    const axisColor = chartPalette.axisColor;
+    const gridColor = chartPalette.gridColor;
+    const primary = '#2f6fe4';
+    const primarySoft = 'rgba(47, 111, 228, 0.16)';
+    const accent = '#f39a2d';
+    const darkText = chartPalette.textColor;
+
+    const adjustmentTrendLabels = /*[[${trendPoints.![label]}]]*/ [];
+    const adjustmentTrendValues = /*[[${trendPoints.![amount]}]]*/ [];
+    new Chart(document.getElementById('adjustmentTrendChart'), {
+        type: 'line',
+        data: {
+            labels: adjustmentTrendLabels,
+            datasets: [{
+                label: 'Adjustments',
+                data: adjustmentTrendValues,
+                borderColor: primary,
+                backgroundColor: primarySoft,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 5,
+                pointBackgroundColor: primary,
+                pointBorderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+
+    const adjustmentTypeLabels = /*[[${typeSplit.![label]}]]*/ [];
+    const adjustmentTypeValues = /*[[${typeSplit.![amount]}]]*/ [];
+    new Chart(document.getElementById('adjustmentTypeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: adjustmentTypeLabels,
+            datasets: [{
+                data: adjustmentTypeValues,
+                backgroundColor: ['#2f6fe4', '#f39a2d', '#c23b3b', '#202939', '#7b8db3'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: darkText,
+                        font: { family: 'Manrope', weight: '700' },
+                        boxWidth: 12,
+                        padding: 16
+                    }
+                }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/inventory/stock-adjustments', {
+                    fromDate: document.getElementById('fromDate') ? document.getElementById('fromDate').value : '',
+                    toDate: document.getElementById('toDate') ? document.getElementById('toDate').value : '',
+                    adjustmentType: label,
+                    userName: document.getElementById('userName') ? document.getElementById('userName').value : '',
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            }
+        }
+    });
+
+    const adjustedProductLabels = /*[[${topProducts.![label]}]]*/ [];
+    const adjustedProductValues = /*[[${topProducts.![amount]}]]*/ [];
+    new Chart(document.getElementById('topAdjustedProductsChart'), {
+        type: 'bar',
+        data: {
+            labels: adjustedProductLabels,
+            datasets: [{
+                label: 'Adjustments',
+                data: adjustedProductValues,
+                backgroundColor: ['#2f6fe4', '#4d82e8', '#6f99ed', '#91aff1', '#f39a2d'],
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/products', { keyword: label });
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                }
+            }
+        }
+    });
+
+    if (window.refreshInsightsCharts) {
+        window.refreshInsightsCharts();
+    }
+</script>
+
+</body>
+</html>

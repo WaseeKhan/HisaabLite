@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Purchase Summary • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+    <div class="report-shell">
+
+        <div class="report-header">
+            <div>
+                <div class="report-badge">Purchase Insights</div>
+                <h1>Purchase Summary</h1>
+                <p>
+                    Review procurement activity with purchase trends, supplier contribution,
+                    invoice visibility, and purchase return impact.
+                </p>
+            </div>
+
+            <div class="report-header-actions">
+                <a class="table-action-btn"
+                   th:href="@{/insights/purchases/summary/export(fromDate=${fromDate}, toDate=${toDate}, supplier=${supplier}, keyword=${keyword})}">Export CSV</a>
+                <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+            </div>
+        </div>
+
+        <form class="insights-filter-form insights-filter-command" th:action="@{/insights/purchases/summary}" method="get">
+            <div class="filter-command-top">
+                <div class="filter-command-title">
+                    <span class="filter-command-kicker">Filter Console</span>
+                </div>
+                <strong class="filter-command-inline-note">Refine purchase intelligence by time, supplier, and inward activity.</strong>
+                <div class="quick-filter-row quick-filter-row-inline">
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('yesterday')">Yesterday</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This Week</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This Month</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last Month</button>
+                </div>
+            </div>
+            <div class="filter-row filter-row-command filter-row-command-tight">
+
+                <div class="filter-group filter-group-compact">
+                    <label for="fromDate">From</label>
+                    <input type="date" id="fromDate" name="fromDate" th:value="${fromDate}">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="toDate">To</label>
+                    <input type="date" id="toDate" name="toDate" th:value="${toDate}">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="supplier">Supplier</label>
+                    <input type="text" id="supplier" name="supplier" th:value="${supplier}" placeholder="Search supplier name">
+                </div>
+
+                <div class="filter-group filter-group-search">
+                    <label for="keyword">Search</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                           placeholder="Search invoice, product, batch...">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn primary-btn">Apply</button>
+                    <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="report-action-strip">
+            <a class="report-action-card" th:href="@{/purchases/new}">
+                <span class="report-action-icon"><i class="fas fa-cart-plus"></i></span>
+                <span class="report-action-copy">
+                    <strong>New Purchase</strong>
+                    <span>Create a fresh inward entry from supplier invoice to live stock.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases/returns/new}">
+                <span class="report-action-icon"><i class="fas fa-rotate-left"></i></span>
+                <span class="report-action-copy">
+                    <strong>Purchase Return</strong>
+                    <span>Start a supplier return workflow when procurement risk needs action.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases/suppliers}">
+                <span class="report-action-icon"><i class="fas fa-truck-loading"></i></span>
+                <span class="report-action-copy">
+                    <strong>Supplier Directory</strong>
+                    <span>Open suppliers to investigate contribution and procurement dependency.</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="report-alert-strip">
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[0].value + ' purchase value tracked'}">Purchase value tracked</strong>
+                    <span>Procurement movement is ready for supplier-level analysis.</span>
+                    <a class="report-alert-action" th:href="@{/purchases}">
+                        <i class="fas fa-arrow-right"></i><span>Open purchases</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-warning">
+                <span class="report-alert-icon"><i class="fas fa-rotate-left"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[4].value + ' supplier returns in impact'}">Supplier returns in impact</strong>
+                    <span>Returns are affecting inward net value and need follow-through.</span>
+                    <a class="report-alert-action" th:href="@{/purchases/returns}">
+                        <i class="fas fa-arrow-right"></i><span>Open returns</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-truck-loading"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[5].value + ' suppliers are active'}">Suppliers are active</strong>
+                    <span>Click supplier charts to review procurement concentration and exposure.</span>
+                    <a class="report-alert-action" th:href="@{/purchases/suppliers}">
+                        <i class="fas fa-arrow-right"></i><span>Open supplier directory</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-strip">
+            <div th:each="card, stat : ${kpis}" class="kpi-card" th:classappend="${stat.count == 1} ? ' kpi-card-primary'">
+                <span th:text="${card.label}">Total Purchases</span>
+                <h3 th:text="${card.value}">₹0.00</h3>
+                <small th:text="${card.description}">Description</small>
+            </div>
+            <div class="kpi-card">
+                <span>Top Supplier Share</span>
+                <h3 th:text="${#lists.isEmpty(supplierContribution)} ? '0%' : supplierContribution[0].amount + '%'">0%</h3>
+                <small th:text="${#lists.isEmpty(supplierContribution)} ? 'No supplier mix available for current range' : supplierContribution[0].paymentMode + ' contributes the highest purchase share'">Highest supplier contribution</small>
+            </div>
+        </div>
+
+        <div class="analytics-grid analytics-grid-purchase">
+            <div class="analytics-card analytics-card-lg">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Purchase Trend</h3>
+                        <p>Procurement movement across the selected timeline</p>
+                    </div>
+                    <span class="analytics-chip">Spend Trend</span>
+                </div>
+                <div class="chart-box chart-box-lg">
+                    <canvas id="purchaseTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Supplier Contribution</h3>
+                        <p>Share of total purchase value by top suppliers</p>
+                    </div>
+                    <span class="analytics-chip analytics-chip-accent">Supplier Mix</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="supplierContributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Purchase vs Returns</h3>
+                        <p>Net inward movement versus return impact</p>
+                    </div>
+                    <span class="analytics-chip">Net View</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="purchaseReturnChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card analytics-card-radar">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Procurement Radar</h3>
+                        <p>Quick supplier and return signals for the selected period</p>
+                    </div>
+                    <span class="analytics-chip">Control Radar</span>
+                </div>
+                <div class="procurement-radar-list">
+                    <div class="procurement-radar-item" th:if="${#lists.isEmpty(supplierContribution)}">
+                        <span class="procurement-radar-dot procurement-radar-dot-muted"></span>
+                        <div>
+                            <strong>No supplier spread</strong>
+                            <small>Supplier contribution will appear once purchase records are available.</small>
+                        </div>
+                    </div>
+                    <div class="procurement-radar-item" th:each="entry, stat : ${supplierContribution}" th:if="${stat.count <= 3}">
+                        <span class="procurement-radar-dot" th:classappend="${stat.count == 1} ? ' procurement-radar-dot-primary' : (${stat.count == 2} ? ' procurement-radar-dot-accent' : ' procurement-radar-dot-alert')"></span>
+                        <div>
+                            <strong th:text="${entry.paymentMode}">Supplier Name</strong>
+                            <small th:text="${#numbers.formatDecimal(entry.amount, 1, 2) + '% of purchase value'}">0% of purchase value</small>
+                        </div>
+                    </div>
+                    <div class="procurement-radar-divider"></div>
+                    <div class="procurement-radar-metric">
+                        <span>Purchase Returns</span>
+                        <strong th:text="${#lists.size(kpis) > 4 ? kpis[4].value : '₹0.00'}">₹0.00</strong>
+                    </div>
+                    <div class="procurement-radar-metric">
+                        <span>Active Suppliers</span>
+                        <strong th:text="${#lists.size(kpis) > 5 ? kpis[5].value : '0'}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-table-shell">
+            <div class="report-table-header">
+                <h3>Purchase Invoice Data</h3>
+                <div class="report-table-actions">
+                    <a class="table-action-btn"
+                       th:href="@{/insights/purchases/summary/export(fromDate=${fromDate}, toDate=${toDate}, supplier=${supplier}, keyword=${keyword})}">Export CSV</a>
+                    <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Invoice No</th>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Items</th>
+                        <th>Taxable Amount</th>
+                        <th>GST</th>
+                        <th>Net Amount</th>
+                        <th>Created By</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                        <td colspan="11" style="text-align:center;">No purchase data found</td>
+                    </tr>
+                    <tr th:each="row, stat : ${rows}">
+                        <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                        <td><a class="report-drill-link" th:href="@{/purchases/view/{id}(id=${row.purchaseId})}" th:text="${row.invoiceNo}">PUR-240601</a></td>
+                        <td th:text="${row.purchaseDate}">2026-04-06</td>
+                        <td><a class="report-drill-link" th:href="@{/insights/purchases/summary(fromDate=${fromDate}, toDate=${toDate}, supplier=${row.supplierName})}" th:text="${row.supplierName}">HealthPlus Distributors</a></td>
+                        <td th:text="${row.itemCount}">14</td>
+                        <td th:text="'₹' + ${row.taxableAmount}">₹8,250.00</td>
+                        <td th:text="'₹' + ${row.gstAmount}">₹0.00</td>
+                        <td th:text="'₹' + ${row.totalAmount}">₹8,662.50</td>
+                        <td th:text="${row.createdBy}">Admin</td>
+                        <td>
+                            <span class="status-pill"
+                                  th:classappend="${row.status == 'Returned Partial'} ? ' status-warning' : ' status-success'"
+                                  th:text="${row.status}">Posted</span>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="row-action-link" th:href="@{/purchases/view/{id}(id=${row.purchaseId})}">
+                                    <i class="fas fa-file-lines"></i><span>View</span>
+                                </a>
+                                <a class="row-action-link" th:href="@{/purchases/suppliers}">
+                                    <i class="fas fa-truck"></i><span>Supplier</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="report-pagination" th:if="${totalRows > pageSize}">
+                <a class="pagination-btn"
+                   th:classappend="${!hasPreviousPage} ? ' disabled'"
+                   th:href="${hasPreviousPage} ? @{/insights/purchases/summary(page=${previousPage}, fromDate=${fromDate}, toDate=${toDate}, supplier=${supplier}, keyword=${keyword})} : '#'">Previous</a>
+                <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                <a class="pagination-btn"
+                   th:classappend="${!hasNextPage} ? ' disabled'"
+                   th:href="${hasNextPage} ? @{/insights/purchases/summary(page=${nextPage}, fromDate=${fromDate}, toDate=${toDate}, supplier=${supplier}, keyword=${keyword})} : '#'">Next</a>
+            </div>
+        </div>
+
+    </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        axisColor: '#667085',
+        textColor: '#1f2a3d',
+        gridColor: '#edf1f5'
+    };
+    const axisColor = chartPalette.axisColor;
+    const gridColor = chartPalette.gridColor;
+    const primary = '#2f6fe4';
+    const primarySoft = 'rgba(47, 111, 228, 0.16)';
+    const accent = '#f39a2d';
+    const darkText = chartPalette.textColor;
+
+    const purchaseTrendLabels = /*[[${trendPoints.![label]}]]*/ [];
+    const purchaseTrendValues = /*[[${trendPoints.![amount]}]]*/ [];
+    new Chart(document.getElementById('purchaseTrendChart'), {
+        type: 'line',
+        data: {
+            labels: purchaseTrendLabels,
+            datasets: [{
+                label: 'Purchases',
+                data: purchaseTrendValues,
+                borderColor: primary,
+                backgroundColor: primarySoft,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 5,
+                pointBackgroundColor: primary,
+                pointBorderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+
+    const supplierLabels = /*[[${supplierContribution.![paymentMode]}]]*/ [];
+    const supplierValues = /*[[${supplierContribution.![amount]}]]*/ [];
+    new Chart(document.getElementById('supplierContributionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: supplierLabels,
+            datasets: [{
+                data: supplierValues,
+                backgroundColor: ['#2f6fe4', '#f39a2d', '#7b8db3', '#d8e2f5', '#202939'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: darkText,
+                        font: { family: 'Manrope', weight: '700' },
+                        boxWidth: 12,
+                        padding: 16
+                    }
+                }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/purchases/summary', {
+                    fromDate: document.getElementById('fromDate') ? document.getElementById('fromDate').value : '',
+                    toDate: document.getElementById('toDate') ? document.getElementById('toDate').value : '',
+                    supplier: label,
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            }
+        }
+    });
+
+    const purchaseReturnLabels = /*[[${purchaseReturnSplit.![paymentMode]}]]*/ [];
+    const purchaseReturnValues = /*[[${purchaseReturnSplit.![amount]}]]*/ [];
+    new Chart(document.getElementById('purchaseReturnChart'), {
+        type: 'bar',
+        data: {
+            labels: purchaseReturnLabels,
+            datasets: [{
+                label: 'Amount',
+                data: purchaseReturnValues,
+                backgroundColor: ['#2f6fe4', '#f39a2d'],
+                borderRadius: 12,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length) return;
+                var label = chart.data.labels[elements[0].index];
+                if (String(label).toLowerCase().indexOf('return') >= 0) {
+                    window.location.href = '/purchases/returns';
+                } else {
+                    window.location.href = '/purchases';
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+
+    if (window.refreshInsightsCharts) {
+        window.refreshInsightsCharts();
+    }
+</script>
+
+</body>
+</html>

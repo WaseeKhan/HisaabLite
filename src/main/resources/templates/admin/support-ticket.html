@@ -3,7 +3,7 @@
 
 <head>
     <title>Ticket #${ticket.ticketNumber} • Admin</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -294,10 +294,10 @@
     <div class="admin-nav">
         <div class="admin-logo">
             <div class="logo-icon">HL</div>
-            <span style="font-weight: 600;">RxArogya Admin</span>
+            <span style="font-weight: 600;">Expygen Admin</span>
         </div>
         <div class="admin-user">
-            <span th:text="${#authentication.name}">admin@rxarogya.com</span>
+            <span th:text="${#authentication.name}">admin@expygen.com</span>
             <a th:href="@{/admin/support}" style="color: white; margin-right: 16px;">Dashboard</a>
             <form th:action="@{/admin/logout}" method="post" style="display:inline;">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">

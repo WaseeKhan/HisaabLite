@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="hisaablite"/>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="expygen"/>
     <property name="LOG_DIR" value="${LOG_DIR:-logs}"/>
     <property name="LOG_FILE" value="${LOG_DIR}/${APP_NAME}.log"/>
     <property name="CONSOLE_PATTERN"
@@ -25,7 +25,7 @@
         </rollingPolicy>
     </appender>
 
-    <logger name="com.hisaablite" level="INFO"/>
+    <logger name="com.expygen" level="INFO"/>
     <logger name="org.springframework.security" level="WARN"/>
     <logger name="org.hibernate.SQL" level="WARN"/>
 

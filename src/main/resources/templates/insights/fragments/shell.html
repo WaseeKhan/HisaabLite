@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar(pageTitle)" class="insights-sidebar" id="insightsSidebarNav">
+    <div class="insights-sidebar-brand">
+        <img th:src="@{/images/expygen-mark-fevicon.png}" alt="Expygen" class="insights-sidebar-mark">
+        <div class="insights-sidebar-brand-copy">
+            <strong>EXPYGEN</strong>
+            <span>Insights Workspace</span>
+        </div>
+    </div>
+
+    <div class="insights-sidebar-group">
+        <div class="insights-sidebar-label">Overview</div>
+        <a th:href="@{/insights}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Insights'} ? ' active' : ''">
+            <i class="fas fa-compass"></i>
+            <span>Intelligence Hub</span>
+        </a>
+    </div>
+
+    <div class="insights-sidebar-group">
+        <div class="insights-sidebar-label">Revenue</div>
+        <a th:href="@{/insights/sales/summary}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Sales Summary'} ? ' active' : ''">
+            <i class="fas fa-chart-line"></i>
+            <span>Sales Summary</span>
+        </a>
+        <a th:href="@{/insights/sales/invoices}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Invoice-wise Sales'} ? ' active' : ''">
+            <i class="fas fa-receipt"></i>
+            <span>Invoice Sales</span>
+        </a>
+    </div>
+
+    <div class="insights-sidebar-group">
+        <div class="insights-sidebar-label">Procurement</div>
+        <a th:href="@{/insights/purchases/summary}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Purchase Summary'} ? ' active' : ''">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <span>Purchase Summary</span>
+        </a>
+    </div>
+
+    <div class="insights-sidebar-group">
+        <div class="insights-sidebar-label">Inventory</div>
+        <a th:href="@{/insights/inventory/current-stock}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Current Stock'} ? ' active' : ''">
+            <i class="fas fa-boxes-stacked"></i>
+            <span>Current Stock</span>
+        </a>
+        <a th:href="@{/insights/inventory/near-expiry}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Near Expiry'} ? ' active' : ''">
+            <i class="fas fa-hourglass-half"></i>
+            <span>Near Expiry</span>
+        </a>
+        <a th:href="@{/insights/inventory/stock-adjustments}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Stock Adjustments'} ? ' active' : ''">
+            <i class="fas fa-sliders-h"></i>
+            <span>Stock Adjustments</span>
+        </a>
+    </div>
+
+    <div class="insights-sidebar-group">
+        <div class="insights-sidebar-label">Governance</div>
+        <a th:href="@{/insights/audit/activity}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Activity Audit'} ? ' active' : ''">
+            <i class="fas fa-shield-alt"></i>
+            <span>Activity Audit</span>
+        </a>
+    </div>
+
+    <div class="insights-sidebar-footer">
+        <span>Operate in app</span>
+        <strong>Understand in Insights</strong>
+    </div>
+</aside>
+
+<header th:fragment="topbar(pageTitle)" class="insights-topbar">
+    <div class="insights-topbar-brand">
+        <button type="button" class="insights-nav-toggle" id="insightsNavToggle" aria-label="Toggle Insights navigation" aria-controls="insightsSidebarNav" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <img th:src="@{/images/expygen-logo-light.png}" alt="Expygen" class="insights-topbar-logo insights-topbar-logo-light">
+        <img th:src="@{/images/expygen-logo-dark.png}" alt="Expygen" class="insights-topbar-logo insights-topbar-logo-dark">
+        <div class="insights-topbar-copy">
+            <span class="insights-topbar-kicker">Dedicated Intelligence Center</span>
+            <h1 th:text="${pageTitle}">Insights</h1>
+        </div>
+    </div>
+
+    <div class="insights-topbar-actions">
+        <button type="button" class="insights-topbar-btn insights-theme-btn" onclick="toggleAppTheme()" data-theme-toggle>
+            <i class="fas fa-moon" data-theme-icon></i>
+            <span data-theme-label data-theme-label-mode="compact">Dark</span>
+        </button>
+        <a th:href="@{/dashboard}" class="insights-topbar-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to App</span>
+        </a>
+        <a th:href="@{/sales/new}" class="insights-topbar-btn insights-topbar-btn-primary">
+            <i class="fas fa-cash-register"></i>
+            <span>Open Billing</span>
+        </a>
+        <div class="insights-user-menu-wrap">
+            <button type="button" class="insights-user-trigger" id="insightsUserTrigger" aria-haspopup="true" aria-expanded="false">
+                <span class="insights-user-avatar" th:text="${insightsUser != null ? #strings.substring(insightsUser.name, 0, 1) : #strings.substring(#authentication.name, 0, 1)}">U</span>
+                <span class="insights-user-name" th:text="${insightsUser != null ? insightsUser.name : #authentication.name}">User</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="insights-user-menu" id="insightsUserMenu">
+                <div class="insights-user-menu-meta">
+                    <strong th:text="${insightsUser != null ? insightsUser.name : #authentication.name}">User</strong>
+                    <span th:text="${#authentication.name}">user@example.com</span>
+                </div>
+                <div class="insights-user-menu-divider"></div>
+                <a th:href="@{/dashboard}">
+                    <i class="fas fa-home"></i>
+                    <span>Main Dashboard</span>
+                </a>
+                <a th:href="@{/user-profile}">
+                    <i class="fas fa-user"></i>
+                    <span>User Profile</span>
+                </a>
+                <a th:href="@{/forgot-password}">
+                    <i class="fas fa-key"></i>
+                    <span>Change Password</span>
+                </a>
+                <div class="insights-user-menu-divider"></div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="insights-mobile-backdrop" id="insightsNavBackdrop"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var trigger = document.getElementById('insightsUserTrigger');
+            var menu = document.getElementById('insightsUserMenu');
+            var navToggle = document.getElementById('insightsNavToggle');
+            var navBackdrop = document.getElementById('insightsNavBackdrop');
+            var sidebar = document.getElementById('insightsSidebarNav');
+
+            var syncNavState = function () {
+                if (!navToggle) return;
+                navToggle.setAttribute('aria-expanded', document.body.classList.contains('insights-nav-open') ? 'true' : 'false');
+            };
+
+            if (navToggle) {
+                navToggle.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    document.body.classList.toggle('insights-nav-open');
+                    syncNavState();
+                });
+            }
+
+            if (navBackdrop) {
+                navBackdrop.addEventListener('click', function () {
+                    document.body.classList.remove('insights-nav-open');
+                    syncNavState();
+                });
+            }
+
+            if (!trigger || !menu) {
+                syncNavState();
+                return;
+            }
+
+            trigger.addEventListener('click', function (event) {
+                event.stopPropagation();
+                var isOpen = menu.classList.toggle('show');
+                trigger.classList.toggle('open', isOpen);
+                trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!trigger.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.remove('show');
+                    trigger.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
+                if (navToggle && sidebar && !navToggle.contains(event.target) && !sidebar.contains(event.target)) {
+                    document.body.classList.remove('insights-nav-open');
+                    syncNavState();
+                }
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 1100 && document.body.classList.contains('insights-nav-open')) {
+                    document.body.classList.remove('insights-nav-open');
+                    syncNavState();
+                }
+            });
+
+            syncNavState();
+        });
+    </script>
+</header>
+
+<footer th:fragment="footer" class="insights-footer">
+    <div class="insights-footer-left">
+        <div class="insights-footer-logo">
+            <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="insights-footer-logo-image insights-footer-logo-image-light">
+            <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="insights-footer-logo-image insights-footer-logo-image-dark">
+        </div>
+    </div>
+
+    <div class="insights-footer-center">
+        <a th:href="@{/privacy}">Privacy</a>
+        <a th:href="@{/terms}">Terms</a>
+        <a th:href="@{/support}">Support</a>
+    </div>
+
+    <div class="insights-footer-right">
+        <span class="insights-footer-status">
+            <i class="fas fa-circle"></i>
+            Intelligence live
+        </span>
+        <span class="insights-footer-made">Made with <span class="heart">♥</span> in India</span>
+        <span class="insights-footer-version" th:text="'v' + ${@appConfig.appVersion}">v2.1.2</span>
+        <span class="insights-footer-copy" th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 EXPYGEN</span>
+    </div>
+</footer>
+</body>
+</html>

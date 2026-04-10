@@ -1,5 +1,5 @@
 (function () {
-    var STORAGE_KEY = 'rxarogya-theme';
+    var STORAGE_KEY = 'expygen-theme';
     var root = document.documentElement;
     var mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
@@ -38,6 +38,10 @@
                 ? (compact ? 'Light' : 'Light Mode')
                 : (compact ? 'Dark' : 'Dark Mode');
         });
+
+        window.dispatchEvent(new CustomEvent('app-theme-change', {
+            detail: { theme: theme }
+        }));
     }
 
     function persistTheme(theme) {

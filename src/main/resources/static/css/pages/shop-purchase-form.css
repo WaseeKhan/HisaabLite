@@ -10,7 +10,7 @@
     background: #ffffff;
     border: 1px solid #dce5ef;
     border-radius: 24px;
-    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.05);
 }
 
 .purchase-form-intro {
@@ -18,7 +18,10 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 18px;
-    padding: 22px 24px;
+    padding: 20px 22px;
+    background:
+        linear-gradient(90deg, rgba(242, 122, 33, 0.96) 0 5px, transparent 5px),
+        linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
 }
 
 .purchase-form-copy {
@@ -46,24 +49,24 @@
 }
 
 .purchase-form-copy h2 {
-    margin: 12px 0 6px;
-    font-size: 30px;
+    margin: 10px 0 6px;
+    font-size: 28px;
     letter-spacing: -0.04em;
     color: #162131;
 }
 
 .purchase-form-copy p {
     margin: 0;
-    font-size: 14px;
-    line-height: 1.7;
+    font-size: 13px;
+    line-height: 1.6;
     color: #5f6e82;
 }
 
 .purchase-form-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 16px;
+    gap: 8px;
+    margin-top: 14px;
 }
 
 .purchase-form-pills span,
@@ -71,7 +74,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
+    padding: 7px 11px;
     border-radius: 999px;
     background: #f4f8fd;
     border: 1px solid #e2eaf3;
@@ -109,7 +112,7 @@
 }
 
 .purchase-form-card {
-    padding: 24px;
+    padding: 22px;
 }
 
 .purchase-form-title {
@@ -117,8 +120,8 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-    padding-bottom: 18px;
-    margin-bottom: 18px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
     border-bottom: 1px solid #e9eef5;
 }
 
@@ -138,7 +141,7 @@
 .purchase-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px 20px;
+    gap: 16px 18px;
 }
 
 .form-group {
@@ -171,6 +174,7 @@
     font-size: 13px;
     font-family: 'Inter', sans-serif;
     transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .form-group input {
@@ -195,7 +199,7 @@
 }
 
 .line-items-head {
-    margin-top: 24px;
+    margin-top: 22px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -227,7 +231,7 @@
     min-height: 40px;
     padding: 0 14px;
     border-radius: 12px;
-    background: #edf5ff;
+    background: linear-gradient(180deg, #edf5ff 0%, #e3efff 100%);
     color: var(--primary);
     font-size: 12px;
     font-weight: 800;
@@ -238,6 +242,8 @@
     overflow-x: auto;
     border: 1px solid #e5edf6;
     border-radius: 18px;
+    max-height: 520px;
+    background: #fbfdff;
 }
 
 .line-items-table {
@@ -260,6 +266,9 @@
     letter-spacing: 0.08em;
     color: #6a7890;
     background: #f8fbff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .line-items-table input,
@@ -268,6 +277,10 @@
     height: 40px;
     padding: 0 12px;
     border-radius: 12px;
+}
+
+.line-items-table tbody tr:hover {
+    background: rgba(31, 111, 235, 0.028);
 }
 
 .line-remove-btn {
@@ -346,8 +359,8 @@
 
 .btn-primary {
     color: #ffffff;
-    background: linear-gradient(180deg, #2f74da 0%, #225ab2 100%);
-    box-shadow: 0 16px 24px rgba(47, 116, 218, 0.18);
+    background: linear-gradient(135deg, #f27a21 0%, #1f6feb 100%);
+    box-shadow: 0 18px 28px rgba(31, 111, 235, 0.22);
 }
 
 .btn-secondary {
@@ -359,10 +372,13 @@
 .purchase-form-side {
     display: grid;
     gap: 18px;
+    position: sticky;
+    top: 86px;
 }
 
 .purchase-side-card {
     padding: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
 .purchase-side-card h4 {
@@ -456,6 +472,12 @@
     box-shadow: 0 22px 36px rgba(2, 6, 23, 0.26);
 }
 
+:root[data-theme="dark"] .purchase-form-intro {
+    background:
+        linear-gradient(90deg, rgba(242, 122, 33, 0.92) 0 5px, transparent 5px),
+        linear-gradient(180deg, #111827 0%, #0f1729 100%);
+}
+
 :root[data-theme="dark"] .purchase-form-copy h2,
 :root[data-theme="dark"] .purchase-form-title h3,
 :root[data-theme="dark"] .line-items-head h4,
@@ -513,6 +535,14 @@
 
 :root[data-theme="dark"] .line-items-table th {
     background: #0f172a;
+}
+
+:root[data-theme="dark"] .line-items-wrap {
+    background: #0f172a;
+}
+
+:root[data-theme="dark"] .line-items-table tbody tr:hover {
+    background: rgba(148, 163, 184, 0.05);
 }
 
 :root[data-theme="dark"] .line-remove-btn {

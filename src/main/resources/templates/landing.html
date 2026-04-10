@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${@appConfig.appName} + ' • ' + ${@appConfig.appTagline}">RxArogya • Simplify Pharmacy</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title th:text="${@appConfig.appName} + ' • ' + ${@appConfig.appTagline}">Expygen • Simplify Pharmacy</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
 
     <!-- Fonts & Icons -->
     <link
@@ -30,27 +30,32 @@
 
     <div class="landing-hero">
         <div class="landing-hero-copy">
-            <span class="hero-kicker">Enterprise Pharmacy Desk</span>
-            <h1>Medical billing and batch stock control in one <span>compact workspace</span></h1>
+            <span class="hero-kicker">Pharmacy Operations Platform</span>
+            <h1>Run billing, purchases, stock control, and owner visibility from one <span>connected system</span></h1>
             <p class="hero-tagline" th:text="${@appConfig.appTagline}">Simplify Pharmacy</p>
-            <p class="hero-description">Fast counter billing, medicine search, staff control, invoices, and pharmacy-ready workflow for modern medical stores.</p>
+            <p class="hero-description">Expygen helps medical stores handle billing, inward entry, batch and expiry control, supplier invoices, staff roles, support tickets, subscription usage, and Insights from one connected pharmacy workflow.</p>
             <div class="hero-buttons">
-                <a href="/register" class="btn-primary">Book Onboarding</a>
+                <a href="/register" class="btn-primary">Start Free</a>
                 <a href="/login" class="btn-outline">Open Workspace</a>
+            </div>
+            <div class="hero-proof">
+                <span><i class="fas fa-receipt"></i> Counter billing</span>
+                <span><i class="fas fa-boxes-stacked"></i> Batch & expiry control</span>
+                <span><i class="fas fa-chart-line"></i> Dedicated Insights center</span>
             </div>
 
             <div class="landing-stats">
                 <div>
-                    <span class="landing-stat-number">Counter</span>
-                    <span class="landing-stat-label">Keyboard-first billing</span>
+                    <span class="landing-stat-number">Billing</span>
+                    <span class="landing-stat-label">Thermal, PDF, and WhatsApp invoices</span>
                 </div>
                 <div>
-                    <span class="landing-stat-number">Stock</span>
-                    <span class="landing-stat-label">Medicine and batch-ready search</span>
+                    <span class="landing-stat-number">Inventory</span>
+                    <span class="landing-stat-label">Batch, expiry, stock, and supplier control</span>
                 </div>
                 <div>
-                    <span class="landing-stat-number">Control</span>
-                    <span class="landing-stat-label">Roles, audit, and WhatsApp invoices</span>
+                    <span class="landing-stat-number">Insights</span>
+                    <span class="landing-stat-label">Sales, stock risk, purchases, and audit visibility</span>
                 </div>
             </div>
         </div>
@@ -58,9 +63,10 @@
         <div class="landing-hero-shell">
             <div class="shell-topbar">
                 <div class="shell-brand">
-                    <img th:src="@{/images/rxarogya-mark.svg}" th:alt="${@appConfig.appName}" class="shell-mark">
+                    <img th:src="@{/images/expygen-mark-fevicon.png}" th:alt="${@appConfig.appName}" class="shell-mark shell-mark-dark">
+                    <img th:src="@{/images/expygen-mark-fevicon.png}" th:alt="${@appConfig.appName}" class="shell-mark shell-mark-light">
                     <div>
-                        <strong th:text="${@appConfig.appName}">RxArogya</strong>
+                        <strong th:text="${@appConfig.appName}">Expygen</strong>
                         <span th:text="${@appConfig.appTagline}">Simplify Pharmacy</span>
                     </div>
                 </div>
@@ -69,27 +75,36 @@
 
             <div class="shell-grid">
                 <div class="shell-card">
-                    <div class="shell-card-title">Billing Queue</div>
+                    <div class="shell-card-title">Counter Console</div>
                     <ul>
-                        <li><span>Walk-in medicine bill</span><strong>04</strong></li>
-                        <li><span>Thermal invoice print</span><strong>18</strong></li>
-                        <li><span>WhatsApp invoices</span><strong>12</strong></li>
+                        <li><span>Recent invoices</span><strong>03</strong></li>
+                        <li><span>Thermal ready</span><strong>18</strong></li>
+                        <li><span>WhatsApp shares</span><strong>12</strong></li>
                     </ul>
                 </div>
                 <div class="shell-card shell-card-accent">
-                    <div class="shell-card-title">Batch Watch</div>
+                    <div class="shell-card-title">Inventory Watch</div>
                     <ul>
                         <li><span>Near expiry</span><strong>09</strong></li>
                         <li><span>Low stock</span><strong>14</strong></li>
-                        <li><span>Reorder ready</span><strong>06</strong></li>
+                        <li><span>Adjustments today</span><strong>06</strong></li>
                     </ul>
                 </div>
                 <div class="shell-card shell-card-wide">
-                    <div class="shell-card-title">Today at Counter</div>
+                    <div class="shell-card-title">Today in Store</div>
                     <div class="shell-metrics">
                         <div><span>Bills</span><strong>126</strong></div>
                         <div><span>Net Sales</span><strong>₹48,250</strong></div>
-                        <div><span>Customers</span><strong>91</strong></div>
+                        <div><span>Purchase Entries</span><strong>11</strong></div>
+                    </div>
+                </div>
+                <div class="shell-card shell-card-wide shell-card-mini">
+                    <div class="shell-card-title">Store Signals</div>
+                    <div class="shell-mini-metrics">
+                        <div><span>Customers</span><strong>41</strong></div>
+                        <div><span>Staff Active</span><strong>03</strong></div>
+                        <div><span>Plan Usage</span><strong>44/50</strong></div>
+                        <div><span>Open Tickets</span><strong>02</strong></div>
                     </div>
                 </div>
             </div>
@@ -97,80 +112,109 @@
     </div>
 
     <!-- FEATURES SECTION - Glassy Cards -->
-    <div class="features">
-        <h2>Why <span th:text="${@appConfig.appName}">RxArogya</span>?</h2>
-        <div class="features-subtitle">Everything a modern medical store needs in one compact, controlled workspace</div>
+    <div class="features" id="features">
+        <h2>Built for day-to-day pharmacy work</h2>
+        <div class="features-subtitle">Everything your store actually uses daily, from billing and inward entry to stock risk, staff control, and business visibility.</div>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-box"></i></div>
-                <h3>📦 Medicine Stock Control</h3>
-                <p>Track products, manufacturers, pack size, pricing, and low-stock signals</p>
+                <h3>Medicine Master</h3>
+                <p>Manage medicines with barcode, GST, pack size, pricing, manufacturer, and prescription handling from one product desk.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-cash-register"></i></div>
-                <h3>💰 Counter Billing</h3>
-                <p>Fast keyboard billing, thermal print, WhatsApp invoice, and GST-ready totals</p>
+                <h3>Counter Billing</h3>
+                <p>Use search or scan billing with thermal print, PDF invoice, WhatsApp share, and recent-invoice recall at the counter.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                <h3>📊 Owner Visibility</h3>
-                <p>Monitor sales, products, and staff activity from one compact dashboard</p>
+                <h3>Insights Workspace</h3>
+                <p>Open a separate intelligence center for sales summary, purchases, current stock, near expiry, adjustments, and audit visibility.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-bell"></i></div>
-                <h3>⚡ Pharmacy Alerts</h3>
-                <p>Act on low stock, invoice activity, and support tasks before the counter slows down</p>
+                <div class="feature-icon"><i class="fas fa-truck-loading"></i></div>
+                <h3>Purchase & Batch Control</h3>
+                <p>Record supplier invoices, inward batches, expiry dates, purchase returns, and stock adjustments with traceability.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-users"></i></div>
-                <h3>👥 Staff Control</h3>
-                <p>Owner, manager, and cashier access stay clearly separated and audited</p>
+                <h3>Role-Based Access</h3>
+                <p>Keep owner, manager, and cashier workflows separated so billing, stock, staff, and settings stay under control.</p>
             </div>
             <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-qrcode"></i></div>
-                <h3>🔎 Barcode Ready</h3>
-                <p>Search medicines by brand, manufacturer, generic name, or barcode at billing time</p>
+                <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                <h3>Subscription & Support</h3>
+                <p>Track plan usage, product and staff limits, upgrade readiness, and support tickets from inside the application.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="workflow-section" id="workflow">
+        <div class="workflow-head">
+            <span class="workflow-kicker">Workflow</span>
+            <h2>One pharmacy flow from counter to control</h2>
+            <p>Use Expygen the way stores actually work: operate in the main app, understand in Insights, and keep purchases, stock, billing, and support connected.</p>
+        </div>
+
+        <div class="workflow-grid">
+            <div class="workflow-step">
+                <div class="workflow-step-index">01</div>
+                <div class="workflow-step-icon"><i class="fas fa-cash-register"></i></div>
+                <h3>Run the counter fast</h3>
+                <p>Search or scan medicines, bill quickly, print thermal slips, and share invoice copies on PDF or WhatsApp without slowing the desk.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-step-index">02</div>
+                <div class="workflow-step-icon"><i class="fas fa-truck-loading"></i></div>
+                <h3>Control inward and stock</h3>
+                <p>Record supplier invoices, batches, expiry dates, stock adjustments, and purchase returns while keeping a clean ledger of what came in.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-step-index">03</div>
+                <div class="workflow-step-icon"><i class="fas fa-satellite-dish"></i></div>
+                <h3>Open Insights when needed</h3>
+                <p>Review sales movement, stock pressure, purchase visibility, and audit activity in a separate intelligence workspace without cluttering daily screens.</p>
             </div>
         </div>
     </div>
 
     <!-- WHATSAPP SECTION - Glassy -->
     <div class="whatsapp-section">
-        <h2>🚀 WhatsApp Business Integration</h2>
-        <p>Send professional invoices directly to customers on WhatsApp</p>
+        <h2>Invoice delivery that works at the counter</h2>
+        <p>Keep thermal as the daily print format, PDF as the official copy, and WhatsApp as the instant customer handoff.</p>
 
         <div class="whatsapp-features">
             <div class="whatsapp-feature">
                 <i class="fab fa-whatsapp"></i>
-                <h4>Direct Invoicing</h4>
-                <p>Send invoices with one click</p>
+                <h4>Send on WhatsApp</h4>
+                <p>Share invoice copies directly from billing, recent invoices, and sales history.</p>
             </div>
             <div class="whatsapp-feature">
                 <i class="fas fa-file-pdf"></i>
-                <h4>PDF Attachments</h4>
-                <p>Professional invoice PDFs automatically</p>
+                <h4>Official PDF Copy</h4>
+                <p>Generate branded invoice PDFs with GST, customer details, payment summary, and product lines.</p>
             </div>
             <div class="whatsapp-feature">
-                <i class="fas fa-store"></i>
-                <h4>Multi-Store Support</h4>
-                <p>Each shop gets its own WhatsApp number</p>
+                <i class="fas fa-print"></i>
+                <h4>Thermal Print</h4>
+                <p>Use dense counter-ready thermal invoices for everyday pharmacy billing.</p>
             </div>
             <div class="whatsapp-feature">
-                <i class="fas fa-qrcode"></i>
-                <h4>Easy QR Setup</h4>
-                <p>Simple QR code scanning for connection</p>
+                <i class="fas fa-clock-rotate-left"></i>
+                <h4>Sales History Actions</h4>
+                <p>Reopen invoice preview, thermal view, direct print, PDF, and WhatsApp from one ledger screen.</p>
             </div>
         </div>
 
         <a href="/register" class="btn-whatsapp">
-            <i class="fab fa-whatsapp"></i> Enable WhatsApp for Your Business
+            <i class="fas fa-file-invoice"></i> Start Your Billing Setup
         </a>
     </div>
 
     <!-- PRICING SECTION - With Yearly Toggle -->
-    <div class="pricing-section">
-        <h2>Simple, Transparent Pricing</h2>
-        <div class="pricing-subtitle">Start free, upgrade as you grow. No hidden fees.</div>
+    <div class="pricing-section" id="pricing">
+        <h2>Simple plans for stores that are growing</h2>
+        <div class="pricing-subtitle">Start free, move to operations, then unlock Insights and higher limits as your store scales.</div>
 
 
         <!-- Billing Toggle - FIXED -->
@@ -198,8 +242,8 @@
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> 2 Users</li>
                     <li><i class="fas fa-check"></i> 50 Products</li>
-                    <li><i class="fas fa-check"></i> Basic Invoices</li>
-                    <li><i class="fas fa-check"></i> Email Support</li>
+                    <li><i class="fas fa-check"></i> Billing + Sales History</li>
+                    <li><i class="fas fa-check"></i> Basic Support</li>
                 </ul>
                 <a href="/register" class="btn-pricing">Get Started</a>
             </div>
@@ -218,8 +262,8 @@
                 <ul class="pricing-features">
                     <li><i class="fas fa-check"></i> 5 Users</li>
                     <li><i class="fas fa-check"></i> 200 Products</li>
-                    <li><i class="fas fa-check"></i> GST Invoices</li>
-                    <li><i class="fas fa-check"></i> Basic Reports</li>
+                    <li><i class="fas fa-check"></i> Purchases + stock control</li>
+                    <li><i class="fas fa-check"></i> GST invoice flow</li>
                 </ul>
                 <a href="/register" class="btn-pricing">Choose Basic</a>
             </div>
@@ -240,8 +284,8 @@
                     <li><i class="fas fa-check"></i> 15 Users</li>
                     <li><i class="fas fa-check"></i> 1000 Products</li>
                     <li><i class="fas fa-check"></i> WhatsApp Integration</li>
-                    <li><i class="fas fa-check"></i> API Access</li>
-                    <li><i class="fas fa-check"></i> Advanced Reports</li>
+                    <li><i class="fas fa-check"></i> Insights workspace</li>
+                    <li><i class="fas fa-check"></i> Batch and expiry visibility</li>
                 </ul>
                 <a href="/register" class="btn-pricing">Go Premium</a>
             </div>
@@ -261,7 +305,7 @@
                     <li><i class="fas fa-check"></i> Unlimited Users</li>
                     <li><i class="fas fa-check"></i> Unlimited Products</li>
                     <li><i class="fas fa-check"></i> Priority Support</li>
-                    <li><i class="fas fa-check"></i> Custom Features</li>
+                    <li><i class="fas fa-check"></i> Enterprise rollout support</li>
                 </ul>
                 <a href="/contact" class="btn-pricing">Contact Sales</a>
             </div>
@@ -269,93 +313,90 @@
     </div>
 
     <!-- SUPPORT SECTION - Glassy -->
-    <div class="support-section">
-        <h2>🌟 24x7 Customer Support</h2>
-        <p>We're always here to help you, day or night</p>
+    <div class="support-section" id="support">
+        <h2>Support that matches store operations</h2>
+        <p>Use the built-in support desk when your team needs onboarding help, issue tracking, subscription guidance, or workflow assistance.</p>
 
         <div class="support-grid">
             <div class="support-card">
                 <i class="fas fa-headset"></i>
-                <h4>Live Chat</h4>
-                <p>Instant responses from our support team</p>
+                <h4>Ticket Desk</h4>
+                <p>Create and track support tickets from the same workspace your team already uses daily.</p>
             </div>
             <div class="support-card">
                 <i class="fas fa-envelope"></i>
-                <h4>Email Support</h4>
-                <p>Get answers within 1 hour</p>
+                <h4>Email Follow-up</h4>
+                <p>Keep onboarding, issue resolution, and store-level requests documented cleanly.</p>
             </div>
             <div class="support-card">
                 <i class="fab fa-whatsapp"></i>
-                <h4>WhatsApp Support</h4>
-                <p>Chat with us on WhatsApp</p>
+                <h4>Operational Guidance</h4>
+                <p>Get help for billing, stock, purchases, staff access, and invoice workflows.</p>
             </div>
             <div class="support-card">
                 <i class="fas fa-phone"></i>
-                <h4>Phone Support</h4>
-                <p>Talk to a human, anytime</p>
+                <h4>Escalation Ready</h4>
+                <p>Priority flows stay available for bigger stores and urgent operational issues.</p>
             </div>
         </div>
 
         <div class="support-stats">
             <div class="support-stat">
-                <span class="number">24x7</span>
-                <span class="label">Support Available</span>
+                <span class="number">Desk</span>
+                <span class="label">Track store issues cleanly</span>
             </div>
             <div class="support-stat">
-                <span class="number">15min</span>
-                <span class="label">Avg Response</span>
+                <span class="number">Role</span>
+                <span class="label">Owner, manager, cashier aware</span>
             </div>
             <div class="support-stat">
-                <span class="number">98%</span>
-                <span class="label">Satisfaction</span>
+                <span class="number">Flow</span>
+                <span class="label">Built into the application</span>
             </div>
         </div>
 
         <a href="/support" class="btn-support">
-            <i class="fas fa-life-ring"></i> Get Help Now
+            <i class="fas fa-life-ring"></i> Explore Support
         </a>
     </div>
 
     <!-- TESTIMONIALS SECTION -->
     <div class="testimonials-section">
-        <h2>❤️ Trusted by Growing Medical Stores</h2>
+        <h2>Built around real pharmacy operations</h2>
 
         <div class="testimonials-grid">
             <div class="testimonial-card">
-                <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">"RxArogya transformed how we manage our pharmacy counter. WhatsApp invoicing
-                    is a game-changer!"</p>
+                <div class="testimonial-rating">Billing</div>
+                <p class="testimonial-text">Thermal print, PDF, and WhatsApp invoice flow keeps the counter fast without losing invoice control.</p>
                 <div class="testimonial-author">
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div class="author-info">
-                        <h4>Rajesh Sharma</h4>
-                        <p>Rajesh Medical, Mumbai</p>
+                        <h4>Counter First</h4>
+                        <p>Search, scan, print, and move quickly</p>
                     </div>
                 </div>
             </div>
 
             <div class="testimonial-card">
-                <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">"Low stock alerts saved us from missing repeat medicine orders. Best investment for our
-                    store!"</p>
+                <div class="testimonial-rating">Inventory</div>
+                <p class="testimonial-text">Purchase inward, batch ledger, expiry report, and stock adjustments stay connected instead of living in separate tools.</p>
                 <div class="testimonial-author">
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div class="author-info">
-                        <h4>Priya Singh</h4>
-                        <p>Priya Medico, Delhi</p>
+                        <h4>Batch Aware</h4>
+                        <p>Expiry and stock visibility that stays usable</p>
                     </div>
                 </div>
             </div>
 
             <div class="testimonial-card">
-                <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
-                <p class="testimonial-text">"24x7 support is amazing! They helped us at 2 AM when we had an urgent
-                    issue."</p>
+                <div class="testimonial-rating">Insights</div>
+                <p class="testimonial-text">Keep operations in the app and open Insights only when you need trends, audit visibility, stock risk, or purchase understanding.</p>
                 <div class="testimonial-author">
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div class="author-info">
-                        <h4>Kumar & Co.</h4>
-                        <p>Kumar Pharmacy, Chennai</p>
+                        <h4>Owner View</h4>
+                        <p>Understand the business without cluttering daily screens</p>
                     </div>
                 </div>
             </div>
@@ -365,19 +406,19 @@
     <!-- NEWSLETTER SECTION -->
     <div class="newsletter-section">
         <div class="newsletter-card">
-            <h2>🚀 Get Latest Updates & Offers</h2>
-            <p>Join medical-store owners getting weekly workflow tips and product updates</p>
+            <h2>See how Expygen fits your store workflow</h2>
+            <p>Talk to us if you want billing, purchases, product control, staff roles, support, subscription visibility, and Insights in one pharmacy system.</p>
 
             <div class="newsletter-form">
-                <input type="email" placeholder="Enter your email address">
+                <input type="email" placeholder="Enter your work email">
                 <button>
-                    <i class="fas fa-paper-plane"></i> Subscribe
+                    <i class="fas fa-paper-plane"></i> Request a walkthrough
                 </button>
             </div>
 
             <div class="trust-badges">
-                <span><i class="fas fa-shield-alt"></i> No spam, unsubscribe anytime</span>
-                <span><i class="fas fa-lock"></i> 100% privacy</span>
+                <span><i class="fas fa-shield-alt"></i> Practical pharmacy setup guidance</span>
+                <span><i class="fas fa-lock"></i> Private business discussion</span>
             </div>
         </div>
     </div>

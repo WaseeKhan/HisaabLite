@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="filterBar">
+    <form class="insights-filter-form" th:action="@{/insights/sales/summary}" method="get">
+        <div class="filter-row">
+
+            <div class="filter-group">
+                <label for="fromDate">From Date</label>
+                <input type="date" id="fromDate" name="fromDate" th:value="${param.fromDate}">
+            </div>
+
+            <div class="filter-group">
+                <label for="toDate">To Date</label>
+                <input type="date" id="toDate" name="toDate" th:value="${param.toDate}">
+            </div>
+
+            <div class="filter-group filter-search">
+                <label for="keyword">Search</label>
+                <input type="text"
+                       id="keyword"
+                       name="keyword"
+                       th:value="${param.keyword}"
+                       placeholder="Search invoice, customer, product, batch...">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="filter-btn primary-btn">Apply</button>
+                <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+            </div>
+        </div>
+
+        <div class="quick-filter-row">
+            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('yesterday')">Yesterday</button>
+            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This Week</button>
+            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This Month</button>
+            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last Month</button>
+        </div>
+    </form>
+</th:block>
+
+</body>
+</html>

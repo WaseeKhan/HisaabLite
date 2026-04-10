@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${product.id != null} ? 'Edit Medicine • RxArogya' : 'Add Medicine • RxArogya'">
-        Add Medicine • RxArogya
+    <title th:text="${product.id != null} ? 'Edit Medicine • Expygen' : 'Add Medicine • Expygen'">
+        Add Medicine • Expygen
     </title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
@@ -35,15 +35,15 @@
             <div class="shop-content-wrapper">
 
                 <!-- Header Fragment -->
-                <div th:replace="~{fragments/shop-header :: header}"></div>
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
 
 
                 <div class="product-form-shell">
                     <div class="product-form-intro">
                         <div class="product-form-copy">
                             <span class="product-form-kicker">Medicine Entry Desk</span>
-                            <h2 th:text="${product.id != null} ? 'Update Medicine Master' : 'Add a New Medicine'">Add a New Medicine</h2>
-                            <p>Capture the medicine identity first, then pricing, tax, stock, and compliance details so your team can search and bill confidently.</p>
+                            <h2 th:text="${product.id != null} ? 'Update Medicine Master' : 'Add New Medicine'">Add New Medicine</h2>
+                            <p>Capture medicine identity, pricing, stock, and compliance in one compact product workspace.</p>
                             <div class="product-form-pills">
                                 <span><i class="fas fa-barcode"></i> Barcode-ready record</span>
                                 <span><i class="fas fa-capsules"></i> Salt search support</span>
@@ -237,7 +237,7 @@
 
                         <aside class="product-side-panel">
                             <div class="product-side-card">
-                                <h4>What makes a good medicine record?</h4>
+                                <h4>What makes a strong medicine record?</h4>
                                 <ul>
                                     <li>Use the brand name exactly as staff and customers ask for it.</li>
                                     <li>Always fill salt, company, and pack size for faster search results.</li>
@@ -245,7 +245,7 @@
                                 </ul>
                             </div>
                             <div class="product-side-card">
-                                <h4>Recommended setup</h4>
+                                <h4>Operational setup</h4>
                                 <div class="side-metric">
                                     <span>Barcode</span>
                                     <strong>Enable direct scan-to-bill flow</strong>

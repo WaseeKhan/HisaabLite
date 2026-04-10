@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Sales History • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Sales History • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -35,6 +35,24 @@
 
                 <!-- Header Fragment -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
+
+                <section class="sales-hero">
+                    <div class="sales-hero-copy">
+                        <span class="sales-kicker">Invoice Review Desk</span>
+                        <h2>Track billed invoices, payment flow, batch trace, and sales actions</h2>
+                        <p>Review completed and cancelled invoices, reopen printable slips, send WhatsApp copies, and audit batch-linked sales from one history workspace.</p>
+                    </div>
+                    <div class="sales-hero-actions">
+                        <a th:href="@{/sales/new}" class="sales-hero-btn sales-hero-btn-primary">
+                            <i class="fas fa-cash-register"></i>
+                            <span>Open Billing</span>
+                        </a>
+                        <a th:href="@{/insights/sales/summary}" class="sales-hero-btn">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Sales Insights</span>
+                        </a>
+                    </div>
+                </section>
 
                 <!-- Stats Cards -->
                 <div class="sales-stats-grid">
@@ -107,12 +125,19 @@
 
                         <button id="clearFilters" class="sales-clear-filters">
                             <i class="fas fa-times"></i>
+                            <span>Reset</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Sales Card -->
                 <div class="sales-card">
+                    <div class="sales-card-head">
+                        <div>
+                            <h3>Invoice Ledger</h3>
+                            <p>Search, validate, print, and cancel billed invoices with full trace visibility.</p>
+                        </div>
+                    </div>
                     <div class="sales-table-responsive">
                         <table class="sales-table">
                             <thead>
@@ -124,7 +149,7 @@
                                     <th style="width: 100px;">Cashier</th>
                                     <th style="width: 100px;">Amount</th>
                                     <th style="width: 100px;">Status</th>
-                                    <th style="width: 140px;">Actions</th>
+                                    <th style="width: 176px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="salesTableBody">
@@ -184,6 +209,7 @@
         let currentSort = 'saleDate_desc';
         let searchTimeout;
         let currentSaleId = null;
+        const currentRole = /*[[${role}]]*/ 'OWNER';
 
         // Get initial server data
         const totalSales = /*[[${totalSales}]]*/ 0;
@@ -311,17 +337,19 @@
                                 <a href="/sales/invoice/${sale.id}" target="_blank" class="sales-btn-view" title="View Invoice">
                                     <i class="fas fa-file-invoice"></i>
                                 </a>
-
-<button onclick="openThermalPrint(${sale.id})" class="sales-btn-view sales-btn-print" title="Print Thermal Invoice">
-    <i class="fas fa-print"></i>
-</button>                 
+                                <a href="/sales/invoice/${sale.id}/thermal" target="_blank" class="sales-btn-view sales-btn-thermal" title="View Thermal Invoice">
+                                    <i class="fas fa-receipt"></i>
+                                </a>
+                                <button onclick="openThermalPrint(${sale.id})" class="sales-btn-view sales-btn-print" title="Print Thermal Invoice">
+                                    <i class="fas fa-print"></i>
+                                </button>
                                 <button onclick="downloadPDF(${sale.id})" class="sales-btn-pdf" title="Download PDF">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
                                 <button onclick="openWhatsAppModal(${sale.id}, '${escapeHtml(sale.customerPhone || '')}')" class="sales-btn-whatsapp" title="Send via WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
                                 </button>
-                                ${sale.status === 'COMPLETED' ? `
+                                ${(sale.status === 'COMPLETED' && currentRole !== 'CASHIER') ? `
                                     <button type="button" class="sales-btn-cancel"
                                        onclick="cancelSale(${sale.id})" title="Cancel Sale">
                                         <i class="fas fa-ban"></i>
@@ -600,7 +628,7 @@
             }
         });
 
-        document.addEventListener('hisaab:collect-commands', function (event) {
+        document.addEventListener('expygen:collect-commands', function (event) {
             const tableBody = document.getElementById('salesTableBody');
             if (!tableBody) {
                 return;

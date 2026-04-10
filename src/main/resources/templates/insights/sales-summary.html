@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Sales Summary • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="insights-body">
+    <div class="insights-app">
+        <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+        <div class="insights-stage">
+            <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+            <div class="insights-page">
+        <div class="report-shell">
+
+            <div class="report-header">
+                <div>
+                    <span class="report-badge"><i class="fas fa-gauge-high"></i> Revenue Intelligence Deck</span>
+                    <h1>Sales Summary</h1>
+                    <p>
+                        Analyze billing performance, sales movement, payment distribution, and top-performing products
+                        with a charts-first intelligence view.
+                    </p>
+                </div>
+
+                <div class="report-header-actions">
+                    <a class="table-action-btn"
+                       th:href="@{/insights/sales/summary/export(fromDate=${filter.fromDate}, toDate=${filter.toDate}, paymentMode=${filter.paymentMode}, keyword=${filter.keyword})}">Export CSV</a>
+                    <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                </div>
+            </div>
+
+            <form class="insights-filter-form insights-filter-command" th:action="@{/insights/sales/summary}" method="get">
+                <div class="filter-command-top">
+                    <div class="filter-command-title">
+                        <span class="filter-command-kicker">Filter Console</span>
+                    </div>
+                    <strong class="filter-command-inline-note">Refine sales intelligence by time, payment, and customer signal.</strong>
+                    <div class="quick-filter-row quick-filter-row-inline">
+                        <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+                        <button type="button" class="quick-filter-chip"
+                            onclick="setQuickDateRange('yesterday')">Yesterday</button>
+                        <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This
+                            Week</button>
+                        <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This
+                            Month</button>
+                        <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last
+                            Month</button>
+                    </div>
+                </div>
+
+                <div class="filter-row filter-row-command filter-row-command-tight">
+
+                    <div class="filter-group filter-group-compact">
+                        <label for="fromDate">From</label>
+                        <input type="date" id="fromDate" name="fromDate" th:value="${filter.fromDate}">
+                    </div>
+
+                    <div class="filter-group filter-group-compact">
+                        <label for="toDate">To</label>
+                        <input type="date" id="toDate" name="toDate" th:value="${filter.toDate}">
+                    </div>
+
+                    <div class="filter-group filter-group-compact">
+                        <label for="paymentMode">Payment Mode</label>
+                        <select id="paymentMode" name="paymentMode">
+                            <option value="">All</option>
+                            <option value="CASH" th:selected="${filter.paymentMode == 'CASH'}">Cash</option>
+                            <option value="UPI" th:selected="${filter.paymentMode == 'UPI'}">UPI</option>
+                            <option value="CARD" th:selected="${filter.paymentMode == 'CARD'}">Card</option>
+                            <option value="MIXED" th:selected="${filter.paymentMode == 'MIXED'}">Mixed</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group filter-group-search">
+                        <label for="keyword">Search</label>
+                        <input type="text" id="keyword" name="keyword" th:value="${filter.keyword}"
+                            placeholder="Search invoice, customer, phone...">
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" class="filter-btn primary-btn">Apply</button>
+                        <button type="button" class="filter-btn secondary-btn"
+                            onclick="resetInsightsFilters()">Reset</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="report-action-strip">
+                <a class="report-action-card" th:href="@{/sales/new}">
+                    <span class="report-action-icon"><i class="fas fa-cash-register"></i></span>
+                    <span class="report-action-copy">
+                        <strong>Open Billing</strong>
+                        <span>Jump into the live billing desk and create a new invoice.</span>
+                    </span>
+                </a>
+                <a class="report-action-card" th:href="@{/sales/history}">
+                    <span class="report-action-icon"><i class="fas fa-clock-rotate-left"></i></span>
+                    <span class="report-action-copy">
+                        <strong>Sales History</strong>
+                        <span>Review operational sales rows, cancellations, and invoice actions.</span>
+                    </span>
+                </a>
+                <a class="report-action-card" th:href="@{/products}">
+                    <span class="report-action-icon"><i class="fas fa-capsules"></i></span>
+                    <span class="report-action-copy">
+                        <strong>Open Products</strong>
+                        <span>Investigate top movers and stock-linked sales performance.</span>
+                    </span>
+                </a>
+            </div>
+
+            <div class="report-alert-strip">
+                <div class="report-alert-card">
+                    <span class="report-alert-icon"><i class="fas fa-bolt"></i></span>
+                    <div class="report-alert-copy">
+                        <strong th:text="${'Revenue pulse at ' + '₹' + summary.kpis.totalSales}">Revenue pulse</strong>
+                        <span>Billing momentum is live for the selected window.</span>
+                        <a class="report-alert-action" th:href="@{/sales/new}">
+                            <i class="fas fa-arrow-right"></i><span>Open billing now</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="report-alert-card report-alert-card-warning">
+                    <span class="report-alert-icon"><i class="fas fa-ban"></i></span>
+                    <div class="report-alert-copy">
+                        <strong th:text="${summary.kpis.cancelledBills + ' cancelled bills under review'}">Cancelled bills under review</strong>
+                        <span>Watch reversal pressure and investigate invoice-side issues.</span>
+                        <a class="report-alert-action" th:href="@{/sales/history(status='CANCELLED')}">
+                            <i class="fas fa-arrow-right"></i><span>Open cancelled history</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="report-alert-card">
+                    <span class="report-alert-icon"><i class="fas fa-capsules"></i></span>
+                    <div class="report-alert-copy">
+                        <strong>Top movers need stock follow-up</strong>
+                        <span>Use product drill-down from the chart to cross-check stock and availability.</span>
+                        <a class="report-alert-action" th:href="@{/products}">
+                            <i class="fas fa-arrow-right"></i><span>Open product desk</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-strip">
+                <div class="kpi-card kpi-card-primary">
+                    <span>Total Sales</span>
+                    <h3 th:text="'₹' + ${summary.kpis.totalSales}">₹0.00</h3>
+                    <small>Sales for selected period</small>
+                </div>
+
+                <div class="kpi-card">
+                    <span>Total Invoices</span>
+                    <h3 th:text="${summary.kpis.invoiceCount}">0</h3>
+                    <small>Completed invoice count</small>
+                </div>
+
+                <div class="kpi-card">
+                    <span>Average Bill Value</span>
+                    <h3 th:text="'₹' + ${summary.kpis.avgBillValue}">₹0.00</h3>
+                    <small>Average billing size</small>
+                </div>
+
+                <div class="kpi-card">
+                    <span>GST Collected</span>
+                    <h3 th:text="'₹' + ${summary.kpis.gstCollected}">₹0.00</h3>
+                    <small>GST component in selected range</small>
+                </div>
+
+                <div class="kpi-card">
+                    <span>Discount Given</span>
+                    <h3 th:text="'₹' + ${summary.kpis.totalDiscount}">₹0.00</h3>
+                    <small>Total discount granted</small>
+                </div>
+
+                <div class="kpi-card">
+                    <span>Cancelled Bills</span>
+                    <h3 th:text="${summary.kpis.cancelledBills}">0</h3>
+                    <small>Cancelled invoice count</small>
+                </div>
+            </div>
+            <div class="analytics-grid analytics-grid-primary">
+                <div class="analytics-card analytics-card-lg">
+                    <div class="analytics-card-header">
+                        <div>
+                            <h3>Sales Trend</h3>
+                            <p>Daily sales movement for the selected period</p>
+                        </div>
+                        <span class="analytics-chip">Trend View</span>
+                    </div>
+                    <div class="chart-wrap chart-wrap-lg">
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="analytics-card-header">
+                        <div>
+                            <h3>Payment Mix</h3>
+                            <p>Contribution by payment mode</p>
+                        </div>
+                        <span class="analytics-chip analytics-chip-accent">Collection Split</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="paymentModeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-grid analytics-grid-secondary">
+                <div class="analytics-card">
+                    <div class="analytics-card-header">
+                        <div>
+                            <h3>Top Selling Products</h3>
+                            <p>Best-performing products by sales value</p>
+                        </div>
+                        <span class="analytics-chip">Top Movers</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="topProductsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="analytics-card-header">
+                        <div>
+                            <h3>Billing Performance</h3>
+                            <p>Invoices versus cancelled bills snapshot</p>
+                        </div>
+                        <span class="analytics-chip">Control View</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="billingPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-table-shell">
+                <div class="report-table-header">
+                    <div>
+                        <h3>Sales Summary Data</h3>
+                        <p class="report-table-subtitle">Invoice-level view for the filtered billing window.</p>
+                    </div>
+                    <div class="report-table-actions">
+                        <a class="table-action-btn"
+                           th:href="@{/insights/sales/summary/export(fromDate=${filter.fromDate}, toDate=${filter.toDate}, paymentMode=${filter.paymentMode}, keyword=${filter.keyword})}">Export CSV</a>
+                        <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                    </div>
+                </div>
+
+                <div class="report-table-wrapper">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Invoice No</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Payment Mode</th>
+                                <th>Taxable Amount</th>
+                                <th>GST Amount</th>
+                                <th>Discount Amount</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${pagedInvoices == null or #lists.isEmpty(pagedInvoices)}">
+                                <td colspan="11" style="text-align:center;">No sales data found</td>
+                            </tr>
+
+                            <tr th:each="row, stat : ${pagedInvoices}">
+                                <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                                <td><a class="report-drill-link" th:href="@{/sales/invoice/{saleId}(saleId=${row.saleId})}" th:text="${row.invoiceNo}">SALE-1</a></td>
+                                <td th:text="${#temporals.format(row.saleDate, 'yyyy-MM-dd hh:mm a')}">2026-04-06 10:30
+                                    AM</td>
+                                <td><a class="report-drill-link" th:href="@{/insights/sales/invoices(fromDate=${filter.fromDate}, toDate=${filter.toDate}, keyword=${row.customerName})}" th:text="${row.customerName}">Walk-in Customer</a></td>
+                                <td th:text="${row.paymentMode}">Cash</td>
+                                <td th:text="'₹' + ${row.taxableAmount}">₹0.00</td>
+                                <td th:text="'₹' + ${row.gstAmount}">₹0.00</td>
+                                <td th:text="'₹' + ${row.discountAmount}">₹0.00</td>
+                                <td th:text="'₹' + ${row.totalAmount}">₹0.00</td>
+                                <td>
+                                    <span class="status-pill"
+                                        th:classappend="${row.status == 'CANCELLED'} ? ' status-warning' : ' status-success'"
+                                        th:text="${row.status}">
+                                        Completed
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="row-action-link" th:href="@{/sales/invoice/{saleId}(saleId=${row.saleId})}">
+                                            <i class="fas fa-receipt"></i><span>Invoice</span>
+                                        </a>
+                                        <a class="row-action-link" th:href="@{/sales/history(keyword=${row.invoiceNo})}">
+                                            <i class="fas fa-list"></i><span>History</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="report-pagination" th:if="${totalRows > pageSize}">
+                    <a class="pagination-btn"
+                       th:classappend="${!hasPreviousPage} ? ' disabled'"
+                       th:href="${hasPreviousPage} ? @{/insights/sales/summary(page=${previousPage}, fromDate=${filter.fromDate}, toDate=${filter.toDate}, paymentMode=${filter.paymentMode}, keyword=${filter.keyword})} : '#'">Previous</a>
+                    <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                    <a class="pagination-btn"
+                       th:classappend="${!hasNextPage} ? ' disabled'"
+                       th:href="${hasNextPage} ? @{/insights/sales/summary(page=${nextPage}, fromDate=${filter.fromDate}, toDate=${filter.toDate}, paymentMode=${filter.paymentMode}, keyword=${filter.keyword})} : '#'">Next</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+    <script th:src="@{/js/insights/filters.js}"></script>
+    <script th:src="@{/js/insights/chart-theme.js}"></script>
+    <script th:src="@{/js/insights/sales-summary.js}"></script>
+    <script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const salesTrendLabels = [[${summary.salesTrend.![label]}]];
+    const salesTrendValues = [[${summary.salesTrend.![amount]}]];
+    window.__salesTrendInitialized = true;
+    initSalesTrendChart(salesTrendLabels, salesTrendValues);
+
+    const paymentModeLabels = [[${summary.paymentModes.![paymentMode]}]];
+    const paymentModeValues = [[${summary.paymentModes.![amount]}]];
+    window.__paymentModeInitialized = true;
+    initPaymentModeChart(paymentModeLabels, paymentModeValues);
+
+    const topProductLabels = [[${summary.topProducts.![productName]}]];
+    const topProductValues = [[${summary.topProducts.![amount]}]];
+    window.__topProductsInitialized = true;
+    initTopProductsChart(topProductLabels, topProductValues);
+</script>
+
+</body>
+
+</html>

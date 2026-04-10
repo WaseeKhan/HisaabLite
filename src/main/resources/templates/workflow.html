@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Workflow • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/workflow.css}">
+</head>
+
+<body>
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+    <section class="hiw-hero">
+        <div class="hiw-hero-content">
+            <span class="hiw-kicker">Workflow</span>
+            <h1>Set up once, go live fast, and run pharmacy<br>operations with confidence</h1>
+            <p>Expygen keeps onboarding practical: activate the right plan, prepare your medicine desk, enable staff roles, and move into billing, inventory, and Insights without operational clutter.</p>
+            <div class="hiw-hero-pills">
+                <span><i class="fas fa-cash-register"></i> Counter ready</span>
+                <span><i class="fas fa-boxes-stacked"></i> Batch aware</span>
+                <span><i class="fas fa-chart-line"></i> Insights enabled</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="workflow-overview">
+        <div class="workflow-overview-grid">
+            <div class="workflow-overview-card">
+                <div class="workflow-overview-icon"><i class="fas fa-sliders"></i></div>
+                <span class="workflow-overview-label">Setup</span>
+                <strong>Plan activation, medicine setup, and role control</strong>
+                <p>Prepare your store for billing, staff access, and operational workflows.</p>
+            </div>
+            <div class="workflow-overview-card">
+                <div class="workflow-overview-icon"><i class="fas fa-cash-register"></i></div>
+                <span class="workflow-overview-label">Operate</span>
+                <strong>Billing, purchases, batch ledger, and invoice delivery</strong>
+                <p>Run the counter, inward stock, and invoice actions from one connected app.</p>
+            </div>
+            <div class="workflow-overview-card">
+                <div class="workflow-overview-icon"><i class="fas fa-chart-line"></i></div>
+                <span class="workflow-overview-label">Understand</span>
+                <strong>Sales, stock risk, audit, and purchase visibility in Insights</strong>
+                <p>Open Insights when you need owner-level visibility without cluttering daily work.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="steps-section">
+        <div class="section-head">
+            <h2>How stores usually go live</h2>
+            <p>Start with the plan that fits, activate the workspace, configure your medicine desk, and move into daily counter operations.</p>
+        </div>
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>Register your store</h3>
+                <p>Start with your pharmacy details and select the plan that matches your team size, medicine catalog, and reporting needs.</p>
+                <div class="step-note">Free plan available to start setup</div>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                <h3>Activate the plan</h3>
+                <p>For paid plans, complete payment through the shared activation process and our team verifies your workspace for live use.</p>
+                <div class="step-note">Activation usually completed within 24 hours</div>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                <h3>Set up operations</h3>
+                <p>Load medicines, configure staff access, review billing flow, and prepare purchases, inventory control, and invoice delivery.</p>
+                <div class="step-note">Owner, manager, and cashier roles stay separated</div>
+            </div>
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-icon"><i class="fas fa-receipt"></i></div>
+                <h3>Go live at the counter</h3>
+                <p>Start billing with thermal slips, PDF copies, WhatsApp invoice sharing, sales history, and a separate Insights workspace for visibility.</p>
+                <div class="step-note">Support remains available during rollout</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="plan-selection-section">
+        <div class="section-head">
+            <h2>Choose the plan that matches your store stage</h2>
+            <p>Start with the product and staff limits you need today, then scale into purchases, WhatsApp invoicing, and Insights as your store grows.</p>
+        </div>
+        
+        <div class="plan-grid">
+            <div class="plan-card">
+                <div class="plan-name">FREE</div>
+                <div class="plan-price">₹0</div>
+                <div class="plan-period">Lifetime Free</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 2 Users</li>
+                    <li><i class="fas fa-check"></i> 50 Products</li>
+                    <li><i class="fas fa-check"></i> GST Invoices</li>
+                    <li><i class="fas fa-check"></i> Basic support</li>
+                </ul>
+                <a href="/register?plan=FREE" class="plan-btn">Start Free</a>
+            </div>
+            
+            <div class="plan-card">
+                <div class="plan-name">BASIC</div>
+                <div class="plan-price">₹4,990</div>
+                <div class="plan-period">per year</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 5 Users</li>
+                    <li><i class="fas fa-check"></i> 200 Products</li>
+                    <li><i class="fas fa-check"></i> Purchases + stock control</li>
+                    <li><i class="fas fa-check"></i> GST invoice flow</li>
+                </ul>
+                <a href="/register?plan=BASIC" class="plan-btn primary">Choose Basic</a>
+            </div>
+            
+            <div class="plan-card popular">
+                <div class="popular-tag">🔥 Most Popular</div>
+                <div class="plan-name">PREMIUM</div>
+                <div class="plan-price">₹9,990</div>
+                <div class="plan-period">per year</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> 15 Users</li>
+                    <li><i class="fas fa-check"></i> 1000 Products</li>
+                    <li><i class="fas fa-check"></i> WhatsApp Integration</li>
+                    <li><i class="fas fa-check"></i> Insights workspace</li>
+                    <li><i class="fas fa-check"></i> Batch and expiry visibility</li>
+                </ul>
+                <a href="/register?plan=PREMIUM" class="plan-btn primary">Go Premium</a>
+            </div>
+            
+            <div class="plan-card">
+                <div class="plan-name">ENTERPRISE</div>
+                <div class="plan-price">₹19,990</div>
+                <div class="plan-period">per year</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Unlimited Users</li>
+                    <li><i class="fas fa-check"></i> Unlimited Products</li>
+                    <li><i class="fas fa-check"></i> Priority Support</li>
+                    <li><i class="fas fa-check"></i> Enterprise rollout support</li>
+                </ul>
+                <a href="/contact?plan=ENTERPRISE" class="plan-btn">Contact Sales</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="payment-process">
+        <div class="section-head">
+            <h2>How paid plan activation works today</h2>
+            <p>Until a direct payment gateway is live, activation follows a simple assisted process so your store can still start quickly.</p>
+        </div>
+        
+        <div class="payment-steps">
+            <div class="payment-step">
+                <div class="payment-icon"><i class="fas fa-edit"></i></div>
+                <h3>1. Register and select plan</h3>
+                <p>Sign up on the platform and choose the paid plan that fits your medical store.</p>
+            </div>
+            <div class="payment-step">
+                <div class="payment-icon"><i class="fas fa-phone-alt"></i></div>
+                <h3>2. Connect with our team</h3>
+                <p>Our team will reach out to you within 2 hours with payment details for bank transfer or UPI.</p>
+            </div>
+            <div class="payment-step">
+                <div class="payment-icon"><i class="fas fa-rupee-sign"></i></div>
+                <h3>3. Complete payment</h3>
+                <p>Transfer the amount to our bank account or scan the UPI QR code. Share payment receipt.</p>
+            </div>
+            <div class="payment-step">
+                <div class="payment-icon"><i class="fas fa-check-circle"></i></div>
+                <h3>4. Workspace activated</h3>
+                <p>Once payment is verified, your account is activated within 24 hours. Start billing!</p>
+            </div>
+        </div>
+        
+        <div class="payment-note">
+            <i class="fas fa-clock"></i>
+            <div>
+                <strong>Manual Activation Notice</strong><br>
+                Since we're currently integrating a secure payment gateway, all payments are processed manually.
+                Your account will be activated within 24 hours after payment confirmation. 
+                For any assistance, contact us on WhatsApp.
+            </div>
+        </div>
+        
+        <div class="coming-soon">
+            <i class="fas fa-rocket"></i>
+            <div>
+                <strong>Coming Soon!</strong> We're working on secure payment gateway integration for faster account activation. Soon you'll be able to pay and activate your medical-store workspace instantly.
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-support">
+        <div class="support-content">
+            <i class="fas fa-headset"></i>
+            <h3>Need help with payment or activation?</h3>
+            <p>Our team is available to help with activation, setup, and early workflow questions during onboarding.</p>
+            <div class="support-buttons">
+                  <a th:href="'https://wa.me/' + ${whatsappNumber} + '?text=' + ${#uris.escapeQueryParam('Hi, I need help with Expygen activation')}" 
+               class="support-btn whatsapp" 
+               target="_blank">
+                    <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                </a>
+               <a th:href="'mailto:' + ${supportEmail}" class="support-btn email">
+                    <i class="fas fa-envelope"></i> Email Support
+                </a>
+               <a th:href="'tel:' + ${supportPhone}" class="support-btn phone">
+                    <i class="fas fa-phone"></i> Call Us
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+</body>
+</html>

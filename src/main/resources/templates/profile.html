@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Shop Profile • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Shop Profile • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -35,7 +35,43 @@
                 <!-- Header Fragment -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
-
+                <section class="profile-hero">
+                    <div class="profile-hero-copy">
+                        <span class="profile-kicker">Business Identity Desk</span>
+                        <h1>Shop Profile</h1>
+                        <p>Maintain store identity, GST, address, payment setup, and WhatsApp invoice routing from one business profile workspace.</p>
+                        <div class="profile-hero-pills">
+                            <span><i class="fas fa-building"></i> Business identity</span>
+                            <span><i class="fas fa-percent"></i> GST and billing setup</span>
+                            <span><i class="fab fa-whatsapp"></i> Invoice routing</span>
+                        </div>
+                    </div>
+                    <div class="profile-hero-side">
+                        <div class="profile-hero-avatar-card">
+                            <div class="profile-hero-avatar-wrap">
+                                <img th:src="@{/images/expygen-mark-fevicon.png}" alt="Shop profile placeholder" class="profile-hero-avatar">
+                            </div>
+                            <div class="profile-hero-avatar-copy">
+                                <strong th:text="${shop.name}">Shop Name</strong>
+                                <span>Static profile image for now</span>
+                            </div>
+                        </div>
+                        <div class="profile-hero-stats">
+                            <div class="profile-hero-stat">
+                                <span>Plan</span>
+                                <strong th:text="${planType}">FREE</strong>
+                            </div>
+                            <div class="profile-hero-stat">
+                                <span>Products</span>
+                                <strong th:text="${currentProductCount}">0</strong>
+                            </div>
+                            <div class="profile-hero-stat">
+                                <span>Staff</span>
+                                <strong th:text="${currentStaffCount}">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Two Column Layout -->
                 <div class="profile-two-col">
@@ -64,9 +100,6 @@
                                             th:text="${shop.state}">Maharashtra</span></span><span
                                         th:if="${shop.pincode}"> - <span
                                             th:text="${shop.pincode}">400001</span></span></span></div>
-                            <div class="info-row"><span class="info-label">Password</span><a
-                                    th:href="@{/forgot-password}" class="password-link"><i class="fas fa-key"></i>
-                                    Change Password</a></div>
                         </div>
                     </div>
 
@@ -274,10 +307,31 @@
         function openWhatsAppModal() { document.getElementById("whatsappModal").style.display = "flex"; }
         function closeWhatsAppModal() { document.getElementById("whatsappModal").style.display = "none"; }
         function startConnectionPolling(instanceName) {
+            let attempts = 0;
+            const maxAttempts = 30;
             const interval = setInterval(() => {
-                fetch('/profile/whatsapp/check-connection/' + instanceName).then(r => r.json()).then(data => {
-                    if (data.connected) { clearInterval(interval); closeWhatsAppModal(); setTimeout(() => location.reload(), 500); }
-                }).catch(err => console.error("Polling error:", err));
+                fetch('/profile/whatsapp/check-connection/' + instanceName)
+                    .then(r => r.json())
+                    .then(data => {
+                        attempts += 1;
+                        if (data.connected) {
+                            clearInterval(interval);
+                            showProfileNotice('WhatsApp connected successfully', 'success');
+                            closeWhatsAppModal();
+                            setTimeout(() => location.reload(), 500);
+                            return;
+                        }
+
+                        if (attempts >= maxAttempts) {
+                            clearInterval(interval);
+                            showProfileNotice('Still waiting for WhatsApp confirmation. Scan the QR and try again if needed.', 'warning');
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Polling error:", err);
+                        clearInterval(interval);
+                        showProfileNotice('Could not verify WhatsApp connection status', 'error');
+                    });
             }, 3000);
         }
         window.saveWhatsAppNumber = function () {
@@ -289,7 +343,7 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
             btn.disabled = true;
-            fetch('/profile/whatsapp/create-instance?whatsappNumber=' + number, { method: 'POST', headers: { [csrfHeader]: csrfToken } })
+            fetch('/profile/whatsapp/create-instance?whatsappNumber=' + encodeURIComponent(number), { method: 'POST', headers: { [csrfHeader]: csrfToken } })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success || data.qrCode) {

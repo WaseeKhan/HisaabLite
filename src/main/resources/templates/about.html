@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>About • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
 
       <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -27,106 +28,89 @@
      <div th:replace="~{fragments/public-header :: header}"></div>
     
 
-<!-- Hero Section -->
     <section class="about-hero">
         <div class="about-hero-content">
-            <h1>Built for India's Medical Stores</h1>
-            <p>RxArogya is on a mission to make medical billing, stock control, and pharmacy operations simple, accessible, and dependable for growing chemists and medical stores.</p>
+            <span class="about-kicker">About Expygen</span>
+            <h1>Built for India's medical stores, not generic retail software</h1>
+            <p>Expygen is designed around how pharmacies actually run: faster billing, cleaner inward entry, batch and expiry control, role-safe operations, and a separate Insights layer for owners and managers.</p>
+            <div class="about-hero-pills">
+                <span><i class="fas fa-receipt"></i> Billing first</span>
+                <span><i class="fas fa-boxes-stacked"></i> Batch aware</span>
+                <span><i class="fas fa-chart-line"></i> Intelligence ready</span>
+            </div>
         </div>
     </section>
 
-    <!-- Mission Section -->
     <section class="mission-section">
         <h2>Our Mission</h2>
-        <p>To help Indian pharmacies run faster counters, cleaner stock rooms, and more reliable daily operations with compact software that is simple to learn and practical to trust.</p>
+        <p>To help Indian pharmacies run faster counters, cleaner stock rooms, and more reliable daily operations with compact software that is simple to learn, practical to trust, and built around real pharmacy workflows.</p>
         
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number">10+</div>
-                <div class="stat-label">Medical Stores Trust Us</div>
+                <div class="stat-number">Billing</div>
+                <div class="stat-label">Counter-first invoice flow</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">2000+</div>
-                <div class="stat-label">Invoices Generated</div>
+                <div class="stat-number">Inventory</div>
+                <div class="stat-label">Batch, inward, expiry visibility</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">24x7</div>
-                <div class="stat-label">Support Available</div>
+                <div class="stat-number">Insights</div>
+                <div class="stat-label">Sales, stock, purchase intelligence</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">100%</div>
-                <div class="stat-label">Made in India</div>
+                <div class="stat-number">Roles</div>
+                <div class="stat-label">Owner, manager, cashier control</div>
             </div>
         </div>
     </section>
 
-    <!-- Values Section -->
     <section class="values-section">
-        <h2>Our Values</h2>
-        <p>What drives us every day to serve you better</p>
+        <h2>What we believe software for stores should do</h2>
+        <p>Expygen is shaped by practical counter work, not decorative feature lists.</p>
         
         <div class="values-grid">
             <div class="value-card">
-                <div class="value-icon">❤️</div>
-                <h3>Customer First</h3>
-                <p>Every feature we build starts with "Will this help our customers?"</p>
+                <div class="value-icon"><i class="fas fa-store"></i></div>
+                <h3>Built around the counter</h3>
+                <p>Billing, purchases, and stock control should feel fast and dependable during real store hours.</p>
             </div>
             <div class="value-card">
-                <div class="value-icon">🚀</div>
-                <h3>Keep It Simple</h3>
-                <p>Powerful features should be simple enough for anyone to use</p>
+                <div class="value-icon"><i class="fas fa-sliders"></i></div>
+                <h3>Compact but capable</h3>
+                <p>Powerful operations software should stay easy for owners, managers, and cashiers to understand.</p>
             </div>
             <div class="value-card">
-                <div class="value-icon">🇮🇳</div>
+                <div class="value-icon"><i class="fas fa-flag"></i></div>
                 <h3>Made in India</h3>
-                <p>Built for Indian pharmacies, by developers who care about real counter operations</p>
+                <p>Built for Indian pharmacies by people who care about local store realities, GST flow, and practical day-to-day usage.</p>
             </div>
         </div>
     </section>
 
-    <!-- Team Section -->
-    <section class="team-section">
-        <h2>Meet Our Team</h2>
-        <p>The passionate people behind RxArogya</p>
-        
-        <div class="team-grid">
-            <div class="team-card">
-                <div class="team-avatar">W</div>
-                <h3>Waseem Khan</h3>
-                <div class="team-role">Founder & CEO</div>
-                <p class="team-bio">7+ years in enterprise and operations software. Focused on building dependable software for Indian medical stores.</p>
-            </div>
+    <section class="difference-section">
+        <h2>Why stores choose a pharmacy-first system</h2>
+        <p>Expygen is built to reduce daily friction at the counter and in the stock room, while still giving owners the visibility they need.</p>
 
-        
-
-
-            <div class="team-card">
-                <div class="team-avatar">W</div>
-                <h3>Waseem Khan</h3>
-                <div class="team-role">Lead Developer</div>
-                <p class="team-bio">Full-stack developer with passion for clean code and great UX.</p>
+        <div class="difference-grid">
+            <div class="difference-card">
+                <div class="difference-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Faster daily operations</h3>
+                <p>Billing, purchases, stock adjustments, and invoice actions stay in one connected flow instead of scattered tools.</p>
             </div>
-            <div class="team-card">
-                <div class="team-avatar">Z</div>
-                <h3>Zeeshan Khan</h3>
-                <div class="team-role">Production Engineer</div>
-                <p class="team-bio"> Ensuring system reliability and seamless deployments. Passionate about automation and operational excellence.
-                    </p>
+            <div class="difference-card">
+                <div class="difference-icon"><i class="fas fa-user-shield"></i></div>
+                <h3>Safer role control</h3>
+                <p>Owner, manager, and cashier access stays separated so the right people can operate without exposing sensitive controls.</p>
             </div>
-            <div class="team-card">
-                <div class="team-avatar">S</div>
-                <h3>Sufiyan Khan</h3>
-                <div class="team-role">Business Development Executive</div>
-                <p class="team-bio">
-                    Identifying new opportunities and expanding market presence. Driven by results, relationships, and revenue growth.
-                </p>
+            <div class="difference-card">
+                <div class="difference-icon"><i class="fas fa-wave-square"></i></div>
+                <h3>Operate first, understand later</h3>
+                <p>The main app stays operational and clean, while Insights handles sales, stock risk, purchase visibility, and audit intelligence.</p>
             </div>
         </div>
-
-
     </section>
 
-    <!-- Timeline Section -->
   <section class="timeline-section">
     <h2>Our Journey</h2>
     
@@ -135,7 +119,7 @@
             <div class="timeline-year">2025</div>
             <div class="timeline-content">
                 <h3>The Idea</h3>
-                <p>The first idea was simple: local pharmacies deserved software that felt practical, fast, and trustworthy at the counter. Built in India, for Indian medical stores. <strong>#MakeInIndia</strong> <strong>#VocalForLocal</strong></p>
+                <p>The first idea was simple: local pharmacies deserved software that felt practical, fast, and trustworthy at the counter, not generic business software forced into medical store workflows.</p>
             </div>
         </div>
         
@@ -151,7 +135,7 @@
             <div class="timeline-year">2025</div>
             <div class="timeline-content">
                 <h3>Product Development</h3>
-                <p>Built core features like billing, stock tracking, GST calculations, audit visibility, and role-safe operations. Improved the product continuously with real user feedback.</p>
+                <p>Built core features like billing, stock tracking, GST calculations, purchase control, role-safe operations, and Insights, then kept improving with real usage feedback.</p>
             </div>
         </div>
         
@@ -159,7 +143,7 @@
             <div class="timeline-year">2026</div>
             <div class="timeline-content">
                 <h3>Launch in Mumbai</h3>
-                <p>Officially launched RxArogya and onboarded the first local medical stores in Mumbai, learning from live counter usage and day-to-day staff workflows.</p>
+                <p>Officially launched Expygen and onboarded local medical stores in Mumbai, learning from live counter usage and day-to-day staff workflows.</p>
             </div>
         </div>
         
@@ -175,7 +159,7 @@
             <div class="timeline-year">Future</div>
             <div class="timeline-content">
                 <h3>Growing Together</h3>
-                <p>Planning to help medical stores across India go digital with software that stays compact, reliable, and easy to trust.</p>
+                <p>Planning to help medical stores across India go digital with software that stays compact, reliable, role-aware, and easy to trust.</p>
             </div>
         </div>
     </div>

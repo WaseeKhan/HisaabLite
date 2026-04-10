@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Sales Summary • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+
+<div class="insights-page">
+    <div class="report-shell">
+
+        <div class="report-header">
+            <div>
+                <div class="report-badge">Sales Insights</div>
+                <h1>Sales Summary</h1>
+                <p>
+                    Track billing performance with trend analytics, payment distribution,
+                    operational KPIs, and invoice-level visibility.
+                </p>
+            </div>
+
+            <div class="report-header-actions">
+                <button type="button" class="table-action-btn">Export Excel</button>
+                <button type="button" class="table-action-btn">Print</button>
+            </div>
+        </div>
+
+        <form class="insights-filter-form" th:action="@{/insights/sales/summary}" method="get">
+            <div class="filter-row">
+
+                <div class="filter-group">
+                    <label for="fromDate">From Date</label>
+                    <input type="date" id="fromDate" name="fromDate">
+                </div>
+
+                <div class="filter-group">
+                    <label for="toDate">To Date</label>
+                    <input type="date" id="toDate" name="toDate">
+                </div>
+
+                <div class="filter-group">
+                    <label for="paymentMode">Payment Mode</label>
+                    <select id="paymentMode" name="paymentMode">
+                        <option value="">All</option>
+                        <option value="CASH">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="CARD">Card</option>
+                        <option value="MIXED">Mixed</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="keyword">Search</label>
+                    <input type="text" id="keyword" name="keyword"
+                           placeholder="Search invoice, customer, phone...">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn primary-btn">Apply</button>
+                    <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                </div>
+            </div>
+
+            <div class="quick-filter-row">
+                <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+                <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('yesterday')">Yesterday</button>
+                <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This Week</button>
+                <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This Month</button>
+                <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last Month</button>
+            </div>
+        </form>
+
+        <div class="kpi-strip">
+            <div class="kpi-card kpi-card-primary">
+                <span>Total Sales</span>
+                <h3>₹48,250</h3>
+                <small>+8.4% vs previous period</small>
+            </div>
+
+            <div class="kpi-card">
+                <span>Total Invoices</span>
+                <h3>128</h3>
+                <small>Average billing flow healthy</small>
+            </div>
+
+            <div class="kpi-card">
+                <span>Average Bill Value</span>
+                <h3>₹377</h3>
+                <small>Stable customer basket size</small>
+            </div>
+
+            <div class="kpi-card">
+                <span>GST Collected</span>
+                <h3>₹3,920</h3>
+                <small>Tax component for selected range</small>
+            </div>
+
+            <div class="kpi-card">
+                <span>Discount Given</span>
+                <h3>₹1,140</h3>
+                <small>Visible pricing impact</small>
+            </div>
+
+            <div class="kpi-card">
+                <span>Cancelled Bills</span>
+                <h3>4</h3>
+                <small>Requires operational review</small>
+            </div>
+        </div>
+
+        <div class="analytics-grid analytics-grid-sales">
+            <div class="analytics-card analytics-card-lg">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Sales Trend</h3>
+                        <p>Day-wise billing movement for the selected period</p>
+                    </div>
+                    <span class="analytics-chip">Revenue Trend</span>
+                </div>
+                <div class="chart-box chart-box-lg">
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Payment Split</h3>
+                        <p>Share by payment mode</p>
+                    </div>
+                    <span class="analytics-chip analytics-chip-accent">Collection Mix</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="paymentModeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Top Selling Products</h3>
+                        <p>Most contributing medicines</p>
+                    </div>
+                    <span class="analytics-chip">Top Movers</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-table-shell">
+            <div class="report-table-header">
+                <h3>Invoice Summary Data</h3>
+                <div class="report-table-actions">
+                    <button type="button" class="table-action-btn">Export Excel</button>
+                    <button type="button" class="table-action-btn">Print</button>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Invoice No</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Payment Mode</th>
+                        <th>Taxable Amount</th>
+                        <th>GST</th>
+                        <th>Discount</th>
+                        <th>Net Amount</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>INV-240601</td>
+                        <td>2026-04-06</td>
+                        <td>Walk-in Customer</td>
+                        <td>UPI</td>
+                        <td>₹420.00</td>
+                        <td>₹21.00</td>
+                        <td>₹10.00</td>
+                        <td>₹431.00</td>
+                        <td><span class="status-pill status-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>INV-240602</td>
+                        <td>2026-04-06</td>
+                        <td>Rohan Sharma</td>
+                        <td>Cash</td>
+                        <td>₹860.00</td>
+                        <td>₹43.00</td>
+                        <td>₹25.00</td>
+                        <td>₹878.00</td>
+                        <td><span class="status-pill status-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>INV-240603</td>
+                        <td>2026-04-06</td>
+                        <td>Fatima Khan</td>
+                        <td>Card</td>
+                        <td>₹290.00</td>
+                        <td>₹14.50</td>
+                        <td>₹0.00</td>
+                        <td>₹304.50</td>
+                        <td><span class="status-pill status-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>INV-240604</td>
+                        <td>2026-04-06</td>
+                        <td>Walk-in Customer</td>
+                        <td>Cash</td>
+                        <td>₹180.00</td>
+                        <td>₹9.00</td>
+                        <td>₹5.00</td>
+                        <td>₹184.00</td>
+                        <td><span class="status-pill status-warning">Cancelled</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+
+<script>
+    const axisColor = '#667085';
+    const gridColor = '#edf1f5';
+    const primary = '#2f6fe4';
+    const primarySoft = 'rgba(47, 111, 228, 0.16)';
+    const accent = '#f39a2d';
+    const darkText = '#1f2a3d';
+
+    new Chart(document.getElementById('salesTrendChart'), {
+        type: 'line',
+        data: {
+            labels: ['1 Apr', '2 Apr', '3 Apr', '4 Apr', '5 Apr', '6 Apr', '7 Apr'],
+            datasets: [{
+                label: 'Sales',
+                data: [4200, 5100, 4650, 5900, 6200, 5750, 6800],
+                borderColor: primary,
+                backgroundColor: primarySoft,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 5,
+                pointBackgroundColor: primary,
+                pointBorderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('paymentModeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['UPI', 'Cash', 'Card', 'Mixed'],
+            datasets: [{
+                data: [42, 31, 17, 10],
+                backgroundColor: ['#2f6fe4', '#f39a2d', '#7b8db3', '#d8e2f5'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: darkText,
+                        font: { family: 'Manrope', weight: '700' },
+                        boxWidth: 12,
+                        padding: 16
+                    }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('topProductsChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Paracetamol', 'Azithromycin', 'Cetirizine', 'Pantoprazole', 'Vitamin C'],
+            datasets: [{
+                label: 'Sales Qty',
+                data: [82, 68, 54, 49, 41],
+                backgroundColor: ['#2f6fe4', '#4d82e8', '#6b95eb', '#8aa8ef', '#f39a2d'],
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

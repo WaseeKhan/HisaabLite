@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Current Stock • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+    <div class="report-shell">
+
+        <div class="report-header">
+            <div>
+                <div class="report-badge">Inventory Insights</div>
+                <h1>Current Stock</h1>
+                <p>
+                    Monitor live inventory across products and batches with stock availability,
+                    quantity health, valuation signals, and batch-level visibility.
+                </p>
+            </div>
+
+            <div class="report-header-actions">
+                <a class="table-action-btn"
+                   th:href="@{/insights/inventory/current-stock/export(keyword=${keyword}, stockStatus=${stockStatus}, expiryRange=${expiryRange}, manufacturer=${manufacturer})}">Export CSV</a>
+                <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+            </div>
+        </div>
+
+        <form class="insights-filter-form insights-filter-command" th:action="@{/insights/inventory/current-stock}" method="get">
+            <div class="filter-command-top">
+                <div class="filter-command-title">
+                    <span class="filter-command-kicker">Filter Console</span>
+                </div>
+                <strong class="filter-command-inline-note">Refine current stock by product signal, stock state, expiry window, and manufacturer.</strong>
+            </div>
+            <div class="filter-row filter-row-command filter-row-command-stock">
+
+                <div class="filter-group filter-group-search">
+                    <label for="keyword">Search</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                           placeholder="Search product, batch, barcode, manufacturer...">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="stockStatus">Stock Status</label>
+                    <select id="stockStatus" name="stockStatus">
+                        <option value="">All</option>
+                        <option value="IN_STOCK" th:selected="${stockStatus == 'IN_STOCK'}">In Stock</option>
+                        <option value="LOW_STOCK" th:selected="${stockStatus == 'LOW_STOCK'}">Low Stock</option>
+                        <option value="OUT_OF_STOCK" th:selected="${stockStatus == 'OUT_OF_STOCK'}">Out of Stock</option>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="expiryRange">Expiry Window</label>
+                    <select id="expiryRange" name="expiryRange">
+                        <option value="">All</option>
+                        <option value="30" th:selected="${expiryRange == '30'}">Within 30 Days</option>
+                        <option value="60" th:selected="${expiryRange == '60'}">Within 60 Days</option>
+                        <option value="90" th:selected="${expiryRange == '90'}">Within 90 Days</option>
+                        <option value="EXPIRED" th:selected="${expiryRange == 'EXPIRED'}">Expired</option>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="manufacturer">Manufacturer</label>
+                    <input type="text" id="manufacturer" name="manufacturer" th:value="${manufacturer}" placeholder="Search manufacturer">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn primary-btn">Apply</button>
+                    <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="report-action-strip">
+            <a class="report-action-card" th:href="@{/products}">
+                <span class="report-action-icon"><i class="fas fa-capsules"></i></span>
+                <span class="report-action-copy">
+                    <strong>Open Products</strong>
+                    <span>Review medicine masters, pricing, and barcode setup from operations.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases/new}">
+                <span class="report-action-icon"><i class="fas fa-cart-plus"></i></span>
+                <span class="report-action-copy">
+                    <strong>Add Purchase</strong>
+                    <span>Replenish stock immediately from the procurement workspace.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases/adjustments/new}">
+                <span class="report-action-icon"><i class="fas fa-sliders"></i></span>
+                <span class="report-action-copy">
+                    <strong>Adjust Stock</strong>
+                    <span>Open adjustment flow when quantity on hand needs correction.</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="report-alert-strip">
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-layer-group"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[2].value + ' visible as live stock value'}">Live stock value</strong>
+                    <span>Use inventory charts to drill into the heaviest live positions.</span>
+                    <a class="report-alert-action" th:href="@{/products}">
+                        <i class="fas fa-arrow-right"></i><span>Open products</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-warning">
+                <span class="report-alert-icon"><i class="fas fa-triangle-exclamation"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[3].value + ' low stock items need replenishment'}">Low stock items need replenishment</strong>
+                    <span>Prioritize low stock SKUs before they hit the counter empty.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/current-stock(stockStatus='LOW_STOCK')}">
+                        <i class="fas fa-arrow-right"></i><span>View low stock</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-hourglass-half"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[5].value + ' batches carry expiry watch'}">Batches carry expiry watch</strong>
+                    <span>Move straight from stock into expiry review when ageing increases.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/near-expiry}">
+                        <i class="fas fa-arrow-right"></i><span>Open expiry radar</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-strip">
+            <div th:each="card, stat : ${kpis}" class="kpi-card" th:classappend="${stat.count == 1} ? ' kpi-card-primary'">
+                <span th:text="${card.label}">Total Products</span>
+                <h3 th:text="${card.value}">0</h3>
+                <small th:text="${card.description}">Description</small>
+            </div>
+        </div>
+
+        <div class="analytics-grid analytics-grid-stock">
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Stock Health Overview</h3>
+                        <p>Distribution of stock status across active products</p>
+                    </div>
+                    <span class="analytics-chip">Inventory Health</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="stockHealthChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Top Stock by Manufacturer</h3>
+                        <p>Highest quantity presence by manufacturer</p>
+                    </div>
+                    <span class="analytics-chip analytics-chip-accent">Stock Mix</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="manufacturerStockChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-table-shell">
+            <div class="report-table-header">
+                <h3>Current Stock Data</h3>
+                <div class="report-table-actions">
+                    <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Batch No</th>
+                        <th>Manufacturer</th>
+                        <th>Barcode</th>
+                        <th>Available Qty</th>
+                        <th>MRP</th>
+                        <th>Sale Price</th>
+                        <th>Expiry Date</th>
+                        <th>Stock Value</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                        <td colspan="12" style="text-align:center;">No current stock data found</td>
+                    </tr>
+                    <tr th:each="row, stat : ${rows}">
+                        <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                        <td><a class="report-drill-link" th:href="@{/products(keyword=${row.productName})}" th:text="${row.productName}">Paracetamol 650</a></td>
+                        <td><a class="report-drill-link" th:href="@{/purchases/returns/new(batchId=${row.batchId})}" th:text="${row.batchNumber}">PCM-2401</a></td>
+                        <td th:text="${row.manufacturer}">ABC Pharma</td>
+                        <td th:text="${row.barcode}">8901234567890</td>
+                        <td th:text="${row.availableQty}">120</td>
+                        <td th:text="'₹' + ${row.mrp}">₹35.00</td>
+                        <td th:text="'₹' + ${row.salePrice}">₹32.00</td>
+                        <td th:text="${row.expiryDate}">2026-10-31</td>
+                        <td th:text="'₹' + ${row.stockValue}">₹3,840.00</td>
+                        <td>
+                            <span class="status-pill"
+                                  th:classappend="${row.status == 'In Stock'} ? ' status-success' : (${row.status == 'Low Stock'} ? ' status-warning' : (${row.status == 'Near Expiry'} ? ' status-info' : ' status-dark'))"
+                                  th:text="${row.status}">In Stock</span>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="row-action-link" th:href="@{/products(keyword=${row.productName})}">
+                                    <i class="fas fa-box-open"></i><span>Product</span>
+                                </a>
+                                <a class="row-action-link" th:href="@{/purchases/adjustments/new(batchId=${row.batchId})}">
+                                    <i class="fas fa-pen-ruler"></i><span>Adjust</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="report-pagination" th:if="${totalRows > pageSize}">
+                <a class="pagination-btn"
+                   th:classappend="${!hasPreviousPage} ? ' disabled'"
+                   th:href="${hasPreviousPage} ? @{/insights/inventory/current-stock(page=${previousPage}, keyword=${keyword}, stockStatus=${stockStatus}, expiryRange=${expiryRange}, manufacturer=${manufacturer})} : '#'">Previous</a>
+                <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                <a class="pagination-btn"
+                   th:classappend="${!hasNextPage} ? ' disabled'"
+                   th:href="${hasNextPage} ? @{/insights/inventory/current-stock(page=${nextPage}, keyword=${keyword}, stockStatus=${stockStatus}, expiryRange=${expiryRange}, manufacturer=${manufacturer})} : '#'">Next</a>
+            </div>
+        </div>
+
+    </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        axisColor: '#667085',
+        textColor: '#1f2a3d',
+        gridColor: '#edf1f5'
+    };
+    const axisColor = chartPalette.axisColor;
+    const gridColor = chartPalette.gridColor;
+    const primary = '#2f6fe4';
+    const accent = '#f39a2d';
+    const darkText = chartPalette.textColor;
+
+    const stockHealthLabels = /*[[${stockHealth.![paymentMode]}]]*/ [];
+    const stockHealthValues = /*[[${stockHealth.![amount]}]]*/ [];
+    new Chart(document.getElementById('stockHealthChart'), {
+        type: 'doughnut',
+        data: {
+            labels: stockHealthLabels,
+            datasets: [{
+                data: stockHealthValues,
+                backgroundColor: ['#2f6fe4', '#f39a2d', '#202939', '#7b8db3'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: darkText,
+                        font: { family: 'Manrope', weight: '700' },
+                        boxWidth: 12,
+                        padding: 16
+                    }
+                }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                var stockStatusMap = {
+                    'In Stock': 'IN_STOCK',
+                    'Low Stock': 'LOW_STOCK',
+                    'Out of Stock': 'OUT_OF_STOCK',
+                    'Near Expiry': ''
+                };
+                window.navigateInsightsUrl('/insights/inventory/current-stock', {
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : '',
+                    stockStatus: stockStatusMap[label] || '',
+                    expiryRange: label === 'Near Expiry' ? '90' : '',
+                    manufacturer: document.getElementById('manufacturer') ? document.getElementById('manufacturer').value : ''
+                });
+            }
+        }
+    });
+
+    const manufacturerLabels = /*[[${manufacturerStock.![paymentMode]}]]*/ [];
+    const manufacturerValues = /*[[${manufacturerStock.![amount]}]]*/ [];
+    new Chart(document.getElementById('manufacturerStockChart'), {
+        type: 'bar',
+        data: {
+            labels: manufacturerLabels,
+            datasets: [{
+                label: 'Available Qty',
+                data: manufacturerValues,
+                backgroundColor: ['#2f6fe4', '#4d82e8', '#6f99ed', '#91aff1', '#f39a2d'],
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/inventory/current-stock', {
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : '',
+                    stockStatus: document.getElementById('stockStatus') ? document.getElementById('stockStatus').value : '',
+                    expiryRange: document.getElementById('expiryRange') ? document.getElementById('expiryRange').value : '',
+                    manufacturer: label
+                });
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                }
+            }
+        }
+    });
+
+    if (window.refreshInsightsCharts) {
+        window.refreshInsightsCharts();
+    }
+</script>
+
+</body>
+</html>

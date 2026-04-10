@@ -1,6 +1,9 @@
 spring:
+  flyway:
+    enabled: false
+
   datasource:
-    url: jdbc:h2:mem:hisaablite;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:expygen;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -32,7 +35,7 @@ management:
     enabled-by-default: false
 
 admin:
-  email: admin@hisaablite.test
+  email: admin@expygen.test
   password: test-admin-password
   name: Test Admin
   phone: 9999999999

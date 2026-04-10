@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="reportTable(tableTitle)">
+    <div class="report-table-shell">
+        <div class="report-table-header">
+            <h3 th:text="${tableTitle}">Report Data</h3>
+            <div class="report-table-actions">
+                <button type="button" class="table-action-btn">Export Excel</button>
+                <button type="button" class="table-action-btn">Print</button>
+            </div>
+        </div>
+
+        <div class="report-table-wrapper">
+            <table class="report-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Placeholder Column</th>
+                    <th>Placeholder Column</th>
+                    <th>Placeholder Column</th>
+                    <th>Placeholder Column</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Sample Data</td>
+                    <td>Sample Data</td>
+                    <td>Sample Data</td>
+                    <td>Sample Data</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Sample Data</td>
+                    <td>Sample Data</td>
+                    <td>Sample Data</td>
+                    <td>Sample Data</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>

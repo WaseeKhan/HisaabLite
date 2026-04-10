@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Activity Audit • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+    <div class="report-shell">
+
+        <div class="report-header">
+            <div>
+                <div class="report-badge">Audit Insights</div>
+                <h1>Activity Audit</h1>
+                <p>
+                    Review operational activity across billing, purchases, inventory, and administrative actions
+                    with user-wise and module-wise visibility.
+                </p>
+            </div>
+
+            <div class="report-header-actions">
+                <a class="table-action-btn"
+                   th:href="@{/insights/audit/activity/export(fromDate=${fromDate}, toDate=${toDate}, module=${module}, userName=${userName}, keyword=${keyword})}">Export CSV</a>
+                <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+            </div>
+        </div>
+
+        <form class="insights-filter-form insights-filter-command" th:action="@{/insights/audit/activity}" method="get">
+            <div class="filter-command-top">
+                <div class="filter-command-title">
+                    <span class="filter-command-kicker">Filter Console</span>
+                </div>
+                <strong class="filter-command-inline-note">Refine audit intelligence by time, module, user, and event signal.</strong>
+                <div class="quick-filter-row quick-filter-row-inline">
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('yesterday')">Yesterday</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This Week</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This Month</button>
+                    <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last Month</button>
+                </div>
+            </div>
+            <div class="filter-row filter-row-command filter-row-command-audit">
+
+                <div class="filter-group filter-group-compact">
+                    <label for="fromDate">From</label>
+                    <input type="date" id="fromDate" name="fromDate" th:value="${fromDate}">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="toDate">To</label>
+                    <input type="date" id="toDate" name="toDate" th:value="${toDate}">
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="module">Module</label>
+                    <select id="module" name="module">
+                        <option value="">All</option>
+                        <option value="BILLING" th:selected="${module == 'BILLING'}">Billing</option>
+                        <option value="PURCHASE" th:selected="${module == 'PURCHASE'}">Purchase</option>
+                        <option value="INVENTORY" th:selected="${module == 'INVENTORY'}">Inventory</option>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="userName">User</label>
+                    <input type="text" id="userName" name="userName" th:value="${userName}" placeholder="Search user">
+                </div>
+
+                <div class="filter-group filter-group-search">
+                    <label for="keyword">Search</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                           placeholder="Search action, entity, remarks...">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn primary-btn">Apply</button>
+                    <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="report-action-strip">
+            <a class="report-action-card" th:href="@{/dashboard}">
+                <span class="report-action-icon"><i class="fas fa-house"></i></span>
+                <span class="report-action-copy">
+                    <strong>Main Dashboard</strong>
+                    <span>Return to live operations after reviewing audit pressure and accountability.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/sales/history}">
+                <span class="report-action-icon"><i class="fas fa-receipt"></i></span>
+                <span class="report-action-copy">
+                    <strong>Sales History</strong>
+                    <span>Investigate invoice-side operational traces behind billing events.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases}">
+                <span class="report-action-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                <span class="report-action-copy">
+                    <strong>Purchases Workspace</strong>
+                    <span>Jump to purchase, return, and stock-control operations from audit review.</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="report-alert-strip">
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-receipt"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[1].value + ' billing actions observed'}">Billing actions observed</strong>
+                    <span>Invoice-related activity remains the strongest operational signal.</span>
+                    <a class="report-alert-action" th:href="@{/insights/audit/activity(module='BILLING')}">
+                        <i class="fas fa-arrow-right"></i><span>Filter billing actions</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-warning">
+                <span class="report-alert-icon"><i class="fas fa-user-shield"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[5].value + ' active users tracked'}">Active users tracked</strong>
+                    <span>Use the user chart to identify who is driving the operational load.</span>
+                    <a class="report-alert-action" th:href="@{/insights/audit/activity}">
+                        <i class="fas fa-arrow-right"></i><span>Review user activity</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-danger">
+                <span class="report-alert-icon"><i class="fas fa-triangle-exclamation"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[4].value + ' events need attention'}">Events need attention</strong>
+                    <span>High-priority activity should be reviewed before it becomes an operational issue.</span>
+                    <a class="report-alert-action" th:href="@{/insights/audit/activity(keyword='cancel')}">
+                        <i class="fas fa-arrow-right"></i><span>Open sensitive events</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-strip">
+            <div th:each="card, stat : ${kpis}" class="kpi-card" th:classappend="${stat.count == 1} ? ' kpi-card-primary'">
+                <span th:text="${card.label}">Total Activities</span>
+                <h3 th:text="${card.value}">0</h3>
+                <small th:text="${card.description}">Description</small>
+            </div>
+        </div>
+
+        <div class="analytics-grid analytics-grid-audit">
+            <div class="analytics-card analytics-card-lg">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Activity Trend</h3>
+                        <p>Daily operational event movement across the selected period</p>
+                    </div>
+                    <span class="analytics-chip">Audit Flow</span>
+                </div>
+                <div class="chart-box chart-box-lg">
+                    <canvas id="activityTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Module Distribution</h3>
+                        <p>Activity split by module</p>
+                    </div>
+                    <span class="analytics-chip analytics-chip-accent">Module Mix</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="moduleDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Top Active Users</h3>
+                        <p>Users generating the most tracked events</p>
+                    </div>
+                    <span class="analytics-chip">User Load</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="userActivityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card analytics-card-radar">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Audit Radar</h3>
+                        <p>Operational risk and accountability highlights for the selected range</p>
+                    </div>
+                    <span class="analytics-chip">Control Radar</span>
+                </div>
+                <div class="report-radar-list">
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-alert"></span>
+                        <div>
+                            <strong>High priority events</strong>
+                            <small th:text="${#lists.size(kpis) > 4 ? kpis[4].value + ' entries need administrative attention' : 'No high-priority events'}">No high-priority events</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-primary"></span>
+                        <div>
+                            <strong>Most active user</strong>
+                            <small th:text="${#lists.isEmpty(topUsers)} ? 'No user activity in current range' : topUsers[0].label">No user activity</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-accent"></span>
+                        <div>
+                            <strong>Most active module</strong>
+                            <small th:text="${#lists.isEmpty(moduleSplit)} ? 'No module activity in current range' : moduleSplit[0].label">No module activity</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-divider"></div>
+                    <div class="report-radar-metric">
+                        <span>Active Users</span>
+                        <strong th:text="${#lists.size(kpis) > 5 ? kpis[5].value : '0'}">0</strong>
+                    </div>
+                    <div class="report-radar-metric">
+                        <span>Billing Actions</span>
+                        <strong th:text="${#lists.size(kpis) > 1 ? kpis[1].value : '0'}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-table-shell">
+            <div class="report-table-header">
+                <h3>Activity Log Data</h3>
+                <div class="report-table-actions">
+                    <a class="table-action-btn"
+                       th:href="@{/insights/audit/activity/export(fromDate=${fromDate}, toDate=${toDate}, module=${module}, userName=${userName}, keyword=${keyword})}">Export CSV</a>
+                    <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table report-table-audit">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Reference</th>
+                        <th>Details</th>
+                        <th>Priority</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                        <td colspan="8" style="text-align:center;">No audit activity found</td>
+                    </tr>
+                    <tr th:each="row, stat : ${rows}">
+                        <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                        <td th:text="${#temporals.format(row.timestamp, 'yyyy-MM-dd hh:mm a')}">2026-04-06 10:12 AM</td>
+                        <td><a class="report-drill-link" th:href="@{/insights/audit/activity(fromDate=${fromDate}, toDate=${toDate}, module=${module}, userName=${row.userName}, keyword=${keyword})}" th:text="${row.userName}">Waseem</a></td>
+                        <td><a class="report-drill-link" th:href="@{/insights/audit/activity(fromDate=${fromDate}, toDate=${toDate}, module=${row.module}, userName=${userName}, keyword=${keyword})}" th:text="${row.module}">Billing</a></td>
+                        <td th:text="${row.action}">Sale Completed</td>
+                        <td th:text="${row.reference}">INV-240601</td>
+                        <td th:text="${row.details}">Invoice posted successfully with 4 items</td>
+                        <td><span class="status-pill"
+                                  th:classappend="${row.priority == 'High'} ? ' status-danger' : (${row.priority == 'Attention'} ? ' status-warning' : (${row.priority == 'Tracked'} ? ' status-info' : ' status-success'))"
+                                  th:text="${row.priority}">Normal</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="report-pagination" th:if="${totalRows > pageSize}">
+                <a class="pagination-btn"
+                   th:classappend="${!hasPreviousPage} ? ' disabled'"
+                   th:href="${hasPreviousPage} ? @{/insights/audit/activity(page=${previousPage}, fromDate=${fromDate}, toDate=${toDate}, module=${module}, userName=${userName}, keyword=${keyword})} : '#'">Previous</a>
+                <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                <a class="pagination-btn"
+                   th:classappend="${!hasNextPage} ? ' disabled'"
+                   th:href="${hasNextPage} ? @{/insights/audit/activity(page=${nextPage}, fromDate=${fromDate}, toDate=${toDate}, module=${module}, userName=${userName}, keyword=${keyword})} : '#'">Next</a>
+            </div>
+        </div>
+
+    </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        axisColor: '#667085',
+        textColor: '#1f2a3d',
+        gridColor: '#edf1f5'
+    };
+    const axisColor = chartPalette.axisColor;
+    const gridColor = chartPalette.gridColor;
+    const primary = '#2f6fe4';
+    const primarySoft = 'rgba(47, 111, 228, 0.16)';
+    const accent = '#f39a2d';
+    const darkText = chartPalette.textColor;
+
+    const activityTrendLabels = /*[[${trendPoints.![label]}]]*/ [];
+    const activityTrendValues = /*[[${trendPoints.![amount]}]]*/ [];
+    new Chart(document.getElementById('activityTrendChart'), {
+        type: 'line',
+        data: {
+            labels: activityTrendLabels,
+            datasets: [{
+                label: 'Activities',
+                data: activityTrendValues,
+                borderColor: primary,
+                backgroundColor: primarySoft,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 5,
+                pointBackgroundColor: primary,
+                pointBorderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+
+    const moduleLabels = /*[[${moduleSplit.![label]}]]*/ [];
+    const moduleValues = /*[[${moduleSplit.![amount]}]]*/ [];
+    new Chart(document.getElementById('moduleDistributionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: moduleLabels,
+            datasets: [{
+                data: moduleValues,
+                backgroundColor: ['#2f6fe4', '#f39a2d', '#7b8db3', '#d8e2f5', '#202939'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: darkText,
+                        font: { family: 'Manrope', weight: '700' },
+                        boxWidth: 12,
+                        padding: 16
+                    }
+                }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/audit/activity', {
+                    fromDate: document.getElementById('fromDate') ? document.getElementById('fromDate').value : '',
+                    toDate: document.getElementById('toDate') ? document.getElementById('toDate').value : '',
+                    module: label,
+                    userName: document.getElementById('userName') ? document.getElementById('userName').value : '',
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            }
+        }
+    });
+
+    const topUserLabels = /*[[${topUsers.![label]}]]*/ [];
+    const topUserValues = /*[[${topUsers.![amount]}]]*/ [];
+    new Chart(document.getElementById('userActivityChart'), {
+        type: 'bar',
+        data: {
+            labels: topUserLabels,
+            datasets: [{
+                label: 'Activities',
+                data: topUserValues,
+                backgroundColor: ['#2f6fe4', '#4d82e8', '#6f99ed', '#91aff1', '#f39a2d'],
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/audit/activity', {
+                    fromDate: document.getElementById('fromDate') ? document.getElementById('fromDate').value : '',
+                    toDate: document.getElementById('toDate') ? document.getElementById('toDate').value : '',
+                    module: document.getElementById('module') ? document.getElementById('module').value : '',
+                    userName: label,
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                }
+            }
+        }
+    });
+
+    if (window.refreshInsightsCharts) {
+        window.refreshInsightsCharts();
+    }
+</script>
+
+</body>
+</html>

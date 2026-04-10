@@ -2,23 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Privacy Policy • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
-
-    <!-- Fonts & Icons -->
+    <title>Privacy Policy • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/privacy.css}">
-
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
@@ -26,228 +19,167 @@
 <body>
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- Hero Section -->
-    <div class="privacy-hero">
-        <h1>🔒 <span>Privacy Policy</span></h1>
-        <p>Your privacy is important to us. Learn how we protect your data.</p>
-        <div class="last-updated">
-            <i class="far fa-calendar-alt"></i> Last Updated: March 15, 2026
-        </div>
-    </div>
-
-    <!-- Privacy Content -->
-    <div class="privacy-content">
-        <!-- Quick Links -->
-        <div class="quick-links-box">
-            <h3><i class="fas fa-link"></i> Jump to Section</h3>
-            <div class="quick-links-grid">
-                <a href="#section1"><i class="fas fa-chevron-right"></i> Introduction</a>
-                <a href="#section2"><i class="fas fa-chevron-right"></i> Data Collection</a>
-                <a href="#section3"><i class="fas fa-chevron-right"></i> How We Use Data</a>
-                <a href="#section4"><i class="fas fa-chevron-right"></i> Data Sharing</a>
-                <a href="#section5"><i class="fas fa-chevron-right"></i> Your Rights</a>
-                <a href="#section6"><i class="fas fa-chevron-right"></i> Security</a>
-                <a href="#section7"><i class="fas fa-chevron-right"></i> Cookies</a>
-                <a href="#section8"><i class="fas fa-chevron-right"></i> Changes</a>
+    <section class="legal-hero">
+        <div class="legal-hero-content">
+            <span class="legal-kicker">Privacy</span>
+            <h1>Privacy policy for stores using Expygen</h1>
+            <p>This page explains what information Expygen collects, how it is used to run the product, and what control a store has over account, business, and operational data.</p>
+            <div class="legal-meta">
+                <span><i class="far fa-calendar-alt"></i> Last updated: April 09, 2026</span>
+                <span><i class="fas fa-shield-alt"></i> Product and account data</span>
             </div>
         </div>
+    </section>
 
-        <!-- Section 1 - Introduction -->
-        <div id="section1" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-info-circle"></i> 1. Introduction</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content active">
-                <p>Welcome to RxArogya ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our medical billing, stock, and pharmacy operations platform.</p>
-                <p>Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application.</p>
-                <p>We reserve the right to make changes to this Privacy Policy at any time and for any reason. We will alert you about any changes by updating the "Last Updated" date of this Privacy Policy.</p>
-            </div>
-        </div>
+    <main class="legal-page">
+        <aside class="legal-nav-card">
+            <h3><i class="fas fa-link"></i> On this page</h3>
+            <nav class="legal-nav">
+                <a href="#overview">Overview</a>
+                <a href="#collection">Information we collect</a>
+                <a href="#usage">How we use information</a>
+                <a href="#sharing">When information is shared</a>
+                <a href="#retention">Retention and security</a>
+                <a href="#rights">Your controls and rights</a>
+                <a href="#cookies">Cookies and preferences</a>
+                <a href="#contact">Contact us</a>
+            </nav>
+        </aside>
 
-        <!-- Section 2 - Data Collection -->
-        <div id="section2" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-database"></i> 2. Information We Collect</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>We collect personal information that you voluntarily provide to us when you register on the application, express an interest in obtaining information about us or our products, or otherwise contact us.</p>
-                
-                <h3>Personal Data</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Name and contact information (email, phone number)</li>
-                    <li><i class="fas fa-check-circle"></i> Business details (shop name, PAN, GST number)</li>
-                    <li><i class="fas fa-check-circle"></i> Login credentials (username and password)</li>
-                    <li><i class="fas fa-check-circle"></i> Billing and transaction data</li>
-                    <li><i class="fas fa-check-circle"></i> Customer information you enter into the system</li>
+        <section class="legal-content">
+            <article class="legal-section" id="overview">
+                <div class="legal-section-head">
+                    <span class="section-number">01</span>
+                    <h2>Overview</h2>
+                </div>
+                <p>Expygen is a pharmacy operations system that supports billing, purchases, stock control, staff roles, support, subscription usage, and Insights. To run those workflows, we process account details, business details, operational records, and product usage information.</p>
+                <p>We do not position Expygen as a consumer social product. The data handled here is tied to store operations, account access, support communication, and service delivery.</p>
+            </article>
+
+            <article class="legal-section" id="collection">
+                <div class="legal-section-head">
+                    <span class="section-number">02</span>
+                    <h2>Information we collect</h2>
+                </div>
+                <div class="legal-grid">
+                    <div class="legal-mini-card">
+                        <h3>Account data</h3>
+                        <ul>
+                            <li>Name, email, phone number, and login credentials</li>
+                            <li>User role details like owner, manager, or cashier</li>
+                            <li>Support and subscription contact information</li>
+                        </ul>
+                    </div>
+                    <div class="legal-mini-card">
+                        <h3>Business data</h3>
+                        <ul>
+                            <li>Shop name, GST number, PAN, address, and invoice settings</li>
+                            <li>Plan selection, usage counts, and subscription status</li>
+                            <li>Business profile and invoice routing preferences</li>
+                        </ul>
+                    </div>
+                    <div class="legal-mini-card">
+                        <h3>Operational data</h3>
+                        <ul>
+                            <li>Invoices, products, batches, stock adjustments, suppliers, and purchases</li>
+                            <li>Customer names or phone numbers entered during billing</li>
+                            <li>Audit activity related to operational use inside the product</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="legal-section" id="usage">
+                <div class="legal-section-head">
+                    <span class="section-number">03</span>
+                    <h2>How we use information</h2>
+                </div>
+                <div class="legal-table-wrap">
+                    <table class="legal-table">
+                        <thead>
+                            <tr>
+                                <th>Purpose</th>
+                                <th>How it helps run Expygen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Account access</td>
+                                <td>Authenticate users, apply roles, and protect the store workspace.</td>
+                            </tr>
+                            <tr>
+                                <td>Operational workflows</td>
+                                <td>Run billing, purchases, product records, stock movement, and Insights reports.</td>
+                            </tr>
+                            <tr>
+                                <td>Support and communication</td>
+                                <td>Respond to support tickets, onboarding queries, and service-related messages.</td>
+                            </tr>
+                            <tr>
+                                <td>Subscription handling</td>
+                                <td>Show plan usage, enforce plan limits, and process upgrade or activation requests.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="legal-section" id="sharing">
+                <div class="legal-section-head">
+                    <span class="section-number">04</span>
+                    <h2>When information is shared</h2>
+                </div>
+                <ul class="legal-list">
+                    <li>With service providers that help operate hosting, email, or infrastructure needed to run the service.</li>
+                    <li>When required by law, regulation, or valid legal request.</li>
+                    <li>During a business transfer, merger, or acquisition if the service ownership changes.</li>
                 </ul>
+                <div class="legal-note">
+                    <i class="fas fa-info-circle"></i>
+                    <p>We do not describe this product as one that sells store data to third parties for advertising or unrelated marketing use.</p>
+                </div>
+            </article>
 
-                <h3>Automatically Collected Data</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Log and usage data (IP address, browser type)</li>
-                    <li><i class="fas fa-check-circle"></i> Device information</li>
-                    <li><i class="fas fa-check-circle"></i> Cookies and similar technologies</li>
+            <article class="legal-section" id="retention">
+                <div class="legal-section-head">
+                    <span class="section-number">05</span>
+                    <h2>Retention and security</h2>
+                </div>
+                <p>We use reasonable technical and organizational measures to protect service data, account access, and operational information. This includes authentication controls, protected account flows, and service-level security practices.</p>
+                <p>We retain information for as long as needed to run the service, support the account, comply with legal obligations, and maintain operational continuity for the store.</p>
+            </article>
+
+            <article class="legal-section" id="rights">
+                <div class="legal-section-head">
+                    <span class="section-number">06</span>
+                    <h2>Your controls and rights</h2>
+                </div>
+                <ul class="legal-list">
+                    <li>Update account and business information through the product where available.</li>
+                    <li>Request help with access, corrections, or support-related data questions.</li>
+                    <li>Contact us about privacy concerns, account status, or service-related requests.</li>
                 </ul>
-            </div>
-        </div>
+            </article>
 
-        <!-- Section 3 - How We Use Data -->
-        <div id="section3" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-cogs"></i> 3. How We Use Your Information</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>We use personal information collected via our application for a variety of business purposes:</p>
-                
-                <table class="privacy-table">
-                    <thead>
-                        <tr>
-                            <th>Purpose</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>To provide and maintain service</td>
-                            <td>Create accounts, process transactions, provide customer support</td>
-                        </tr>
-                        <tr>
-                            <td>To improve our service</td>
-                            <td>Analyze usage patterns, develop new features</td>
-                        </tr>
-                        <tr>
-                            <td>To communicate with you</td>
-                            <td>Send updates, security alerts, support messages</td>
-                        </tr>
-                        <tr>
-                            <td>To comply with laws</td>
-                            <td>Meet legal obligations, prevent fraud</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <article class="legal-section" id="cookies">
+                <div class="legal-section-head">
+                    <span class="section-number">07</span>
+                    <h2>Cookies and preferences</h2>
+                </div>
+                <p>Expygen may use browser storage or similar technologies to support login, theme preference, and basic product behavior. Disabling some browser storage features may affect how the product works.</p>
+            </article>
 
-        <!-- Section 4 - Data Sharing -->
-        <div id="section4" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-share-alt"></i> 4. Sharing Your Information</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>We do not sell, trade, or rent your personal information to third parties. We may share information in the following situations:</p>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> <strong>Service Providers:</strong> With third-party vendors who perform services on our behalf (hosting, email delivery)</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Business Transfers:</strong> In connection with a merger, sale of company assets, or acquisition</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Legal Requirements:</strong> If required to do so by law or in response to valid requests by public authorities</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Section 5 - Your Rights -->
-        <div id="section5" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-gavel"></i> 5. Your Data Rights</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>Depending on your location, you may have the following rights regarding your personal information:</p>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> <strong>Access:</strong> Request a copy of your data</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Correction:</strong> Update inaccurate information</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Deletion:</strong> Request deletion of your data</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Objection:</strong> Object to certain processing</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Data Portability:</strong> Receive your data in a portable format</li>
-                </ul>
-                <p>To exercise these rights, please contact us at <strong>privacy@rxarogya.com</strong></p>
-            </div>
-        </div>
-
-        <!-- Section 6 - Security -->
-        <div id="section6" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-shield-alt"></i> 6. Data Security</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>We implement appropriate technical and organizational security measures to protect your data:</p>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Encryption of data in transit (SSL/TLS)</li>
-                    <li><i class="fas fa-check-circle"></i> Secure password hashing</li>
-                    <li><i class="fas fa-check-circle"></i> Regular security audits</li>
-                    <li><i class="fas fa-check-circle"></i> Access controls and authentication</li>
-                </ul>
-                <p>While we strive to protect your information, no method of transmission over the Internet is 100% secure.</p>
-            </div>
-        </div>
-
-        <!-- Section 7 - Cookies -->
-        <div id="section7" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-cookie-bite"></i> 7. Cookies Policy</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>We use cookies and similar tracking technologies to track activity on our service and hold certain information.</p>
-                
-                <h3>Types of Cookies We Use</h3>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> <strong>Essential Cookies:</strong> Required for login and security</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Preference Cookies:</strong> Remember your settings</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Analytics Cookies:</strong> Understand how you use our service</li>
-                </ul>
-                
-                <p>You can control cookies through your browser settings. Disabling cookies may affect functionality.</p>
-            </div>
-        </div>
-
-        <!-- Section 8 - Changes -->
-        <div id="section8" class="privacy-section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2><i class="fas fa-history"></i> 8. Changes to This Policy</h2>
-                <i class="fas fa-chevron-down toggle-icon"></i>
-            </div>
-            <div class="section-content">
-                <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.</p>
-                <p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
-            </div>
-        </div>
-
-        <!-- Contact Box -->
-        <div class="contact-box">
-            <i class="fas fa-envelope-open-text"></i>
-            <h3>Have Questions?</h3>
-            <p>If you have any questions about this Privacy Policy, please contact us</p>
-            <div class="contact-buttons">
-                <a href="/contact" class="contact-btn primary">
-                    <i class="fas fa-paper-plane"></i> Contact Us
-                </a>
-                <a href="mailto:privacy@rxarogya.com" class="contact-btn secondary">
-                    <i class="fas fa-envelope"></i> Email Privacy Team
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript for Toggle Sections -->
-    <script>
-        function toggleSection(header) {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('.toggle-icon');
-            
-            // Toggle active class
-            content.classList.toggle('active');
-            
-            // Rotate icon
-            if (content.classList.contains('active')) {
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                icon.style.transform = 'rotate(0deg)';
-            }
-        }
-    </script>
+            <article class="legal-contact-card" id="contact">
+                <span class="legal-kicker">Contact</span>
+                <h2>Questions about privacy?</h2>
+                <p>If your store has a privacy, account, or product-data question, reach out through support or email us directly.</p>
+                <div class="legal-actions">
+                    <a href="/contact" class="legal-btn legal-btn-primary"><i class="fas fa-paper-plane"></i> Contact support</a>
+                    <a href="mailto:privacy@expygen.com" class="legal-btn legal-btn-secondary"><i class="fas fa-envelope"></i> privacy@expygen.com</a>
+                </div>
+            </article>
+        </section>
+    </main>
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>
 </body>

@@ -5,11 +5,11 @@ set -euo pipefail
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
-DB_NAME="${DB_NAME:-hisaablite}"
-DB_USER="${DB_USER:-hisaab}"
-DB_PASSWORD="${DB_PASSWORD:-hisaab123}"
+DB_NAME="${DB_NAME:-expygen}"
+DB_USER="${DB_USER:-expygen}"
+DB_PASSWORD="${DB_PASSWORD:-expygen123}"
 TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
-OUTPUT_FILE="${1:-$BACKUP_DIR/hisaablite_${TIMESTAMP}.sql.gz}"
+OUTPUT_FILE="${1:-$BACKUP_DIR/expygen_${TIMESTAMP}.sql.gz}"
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 

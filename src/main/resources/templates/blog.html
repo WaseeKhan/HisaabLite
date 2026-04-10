@@ -2,23 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Blog • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
-
-    <!-- Fonts & Icons -->
+    <title>Blog • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/blog.css}">
-
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
@@ -26,151 +19,142 @@
 <body>
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- Hero Section -->
-    <div class="blog-hero">
-        <h1>📚 <span>RxArogya</span> Blog</h1>
-        <p>Tips, workflow ideas, and product updates for modern medical stores</p>
-    </div>
+    <section class="blog-hero">
+        <div class="blog-hero-content">
+            <span class="blog-kicker">Blog</span>
+            <h1>Practical pharmacy ideas, product updates, and workflow notes</h1>
+            <p>Use the Expygen blog to follow product changes, billing ideas, inventory practices, and operational lessons that matter to medical stores.</p>
+        </div>
+    </section>
 
-    <!-- Featured Post -->
-    <div class="featured-section">
+    <section class="featured-section">
         <div class="featured-card">
             <div class="featured-image">
                 <img src="/images/learning.jpg" alt="Featured Post">
             </div>
             <div class="featured-content">
-                <span class="featured-badge">✨ FEATURED</span>
-                <h2>How WhatsApp Invoices Help Medical Stores Serve Customers Faster</h2>
+                <span class="featured-badge">Featured</span>
+                <h2>Why thermal billing, PDF copies, and WhatsApp sharing should work together</h2>
                 <div class="featured-meta">
-                    <span><i class="far fa-calendar"></i> Mar 15, 2026</span>
+                    <span><i class="far fa-calendar"></i> Apr 09, 2026</span>
                     <span><i class="far fa-clock"></i> 5 min read</span>
-                    <span><i class="far fa-user"></i> Waseem Khan</span>
+                    <span><i class="far fa-user"></i> Expygen Team</span>
                 </div>
                 <p class="featured-excerpt">
-                    Discover how pharmacies are using WhatsApp invoices to share bills, answer repeat customer queries faster, and keep the counter moving during peak hours.
+                    A pharmacy invoice is not just a printout. It is a counter document, a shareable copy, and a repeat-customer reference. Here's why all three formats matter operationally.
                 </p>
                 <a href="#" class="btn-read-more">
-                    Read Full Article <i class="fas fa-arrow-right"></i>
+                    Read article <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Categories -->
     <div class="categories-bar">
         <a href="#" class="category-btn active">All Posts</a>
         <a href="#" class="category-btn">Product Updates</a>
-        <a href="#" class="category-btn">Business Tips</a>
-        <a href="#" class="category-btn">Case Studies</a>
-        <a href="#" class="category-btn">WhatsApp</a>
-        <a href="#" class="category-btn">Announcements</a>
+        <a href="#" class="category-btn">Billing</a>
+        <a href="#" class="category-btn">Inventory</a>
+        <a href="#" class="category-btn">Insights</a>
+        <a href="#" class="category-btn">Store Operations</a>
     </div>
 
-    <!-- Blog Grid -->
-    <div class="blog-grid-section">
+    <section class="blog-grid-section">
         <div class="blog-grid">
-            <!-- Post 1 -->
-            <div class="blog-card">
+            <article class="blog-card">
                 <div class="blog-card-image">
-                   <img src="/images/image1.jpeg" alt="Blog Post">
+                    <img src="/images/image1.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Billing</span>
+                    <h3 class="blog-card-title">What fast pharmacy billing actually looks like at the counter</h3>
+                    <p class="blog-card-excerpt">Search, scan, print, share, and reopen invoices without making the operator fight the interface.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Apr 02, 2026</span>
+                        <span><i class="far fa-clock"></i> 4 min</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/image2.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Inventory</span>
+                    <h3 class="blog-card-title">Why batch and expiry control should not live outside the purchase flow</h3>
+                    <p class="blog-card-excerpt">Stores save time when inward entry, batch recording, expiry tracking, and stock movement stay connected.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Mar 28, 2026</span>
+                        <span><i class="far fa-clock"></i> 5 min</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/image3.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Insights</span>
+                    <h3 class="blog-card-title">Operate in the app, understand in Insights</h3>
+                    <p class="blog-card-excerpt">Why daily operations and business intelligence work better when they are separated into different workspaces.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Mar 21, 2026</span>
+                        <span><i class="far fa-clock"></i> 6 min</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/learning.jpg" alt="Blog Post">
                 </div>
                 <div class="blog-card-content">
                     <span class="blog-card-category">Product Updates</span>
-                    <h3 class="blog-card-title">New: Low Stock Alerts via WhatsApp</h3>
-                    <p class="blog-card-excerpt">Never run out of bestsellers again. Get instant alerts when your stock is running low.</p>
+                    <h3 class="blog-card-title">What changed in Expygen: support desk, subscription usage, and cleaner roles</h3>
+                    <p class="blog-card-excerpt">A walkthrough of recent product improvements around support handling, plan usage visibility, and owner-manager-cashier separation.</p>
+                    <div class="blog-card-meta">
+                        <span><i class="far fa-calendar"></i> Mar 17, 2026</span>
+                        <span><i class="far fa-clock"></i> 4 min</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="blog-card">
+                <div class="blog-card-image">
+                    <img src="/images/image1.jpeg" alt="Blog Post">
+                </div>
+                <div class="blog-card-content">
+                    <span class="blog-card-category">Store Operations</span>
+                    <h3 class="blog-card-title">How store roles reduce accidental actions and keep operations cleaner</h3>
+                    <p class="blog-card-excerpt">Why separating owner, manager, and cashier actions matters once a store grows beyond one operator.</p>
                     <div class="blog-card-meta">
                         <span><i class="far fa-calendar"></i> Mar 10, 2026</span>
                         <span><i class="far fa-clock"></i> 3 min</span>
                     </div>
                 </div>
-            </div>
+            </article>
 
-            <!-- Post 2 -->
-            <div class="blog-card">
-                <div class="blog-card-image">
-                    <img src="/images/image2.jpeg" alt="Blog Post">
-                </div>
-                <div class="blog-card-content">
-                    <span class="blog-card-category">Business Tips</span>
-                    <h3 class="blog-card-title">5 Ways to Manage Udhar (Credit) Better</h3>
-                    <p class="blog-card-excerpt">Simple strategies to track credit sales and improve cash flow in your medical store.</p>
-                    <div class="blog-card-meta">
-                        <span><i class="far fa-calendar"></i> Mar 5, 2026</span>
-                        <span><i class="far fa-clock"></i> 4 min</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post 3 -->
-            <div class="blog-card">
-                <div class="blog-card-image">
-                    <img src="/images/image1.jpeg" alt="Blog Post">
-                </div>
-                <div class="blog-card-content">
-                    <span class="blog-card-category">Case Study</span>
-                    <h3 class="blog-card-title">How a Pharmacy Saved 10 Hours a Week</h3>
-                    <p class="blog-card-excerpt">See how a local medical store digitized billing and reduced manual counter work dramatically.</p>
-                    <div class="blog-card-meta">
-                        <span><i class="far fa-calendar"></i> Feb 28, 2026</span>
-                        <span><i class="far fa-clock"></i> 6 min</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post 4 -->
-            <div class="blog-card">
-                <div class="blog-card-image">
-                   <img src="/images/learning.jpg" alt="Blog Post">
-                </div>
-                <div class="blog-card-content">
-                    <span class="blog-card-category">WhatsApp</span>
-                    <h3 class="blog-card-title">WhatsApp Business API vs. Regular App</h3>
-                    <p class="blog-card-excerpt">What's the difference and why it matters for pharmacy invoices and follow-ups.</p>
-                    <div class="blog-card-meta">
-                        <span><i class="far fa-calendar"></i> Feb 20, 2026</span>
-                        <span><i class="far fa-clock"></i> 5 min</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post 5 -->
-            <div class="blog-card">
-                <div class="blog-card-image">
-                     <img src="/images/image3.jpeg" alt="Blog Post">
-                    
-                </div>
-                <div class="blog-card-content">
-                    <span class="blog-card-category">Business Tips</span>
-                    <h3 class="blog-card-title">GST Invoice Guide for Medical Stores</h3>
-                    <p class="blog-card-excerpt">Everything you need to know about creating GST-compliant invoices.</p>
-                    <div class="blog-card-meta">
-                        <span><i class="far fa-calendar"></i> Feb 15, 2026</span>
-                        <span><i class="far fa-clock"></i> 7 min</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post 6 -->
-            <div class="blog-card">
+            <article class="blog-card">
                 <div class="blog-card-image">
                     <img src="/images/learning.jpg" alt="Blog Post">
                 </div>
                 <div class="blog-card-content">
-                    <span class="blog-card-category">Announcements</span>
-                    <h3 class="blog-card-title">RxArogya Raises Seed Funding</h3>
-                    <p class="blog-card-excerpt">We're excited to announce our first round of funding to accelerate growth.</p>
+                    <span class="blog-card-category">Billing</span>
+                    <h3 class="blog-card-title">Why recent invoice recall matters for repeat customers and fast corrections</h3>
+                    <p class="blog-card-excerpt">A small billing feature can reduce friction significantly when stores need to reopen, print, or share recent invoices quickly.</p>
                     <div class="blog-card-meta">
-                        <span><i class="far fa-calendar"></i> Feb 10, 2026</span>
-                        <span><i class="far fa-clock"></i> 2 min</span>
+                        <span><i class="far fa-calendar"></i> Mar 05, 2026</span>
+                        <span><i class="far fa-clock"></i> 4 min</span>
                     </div>
                 </div>
-            </div>
+            </article>
         </div>
 
-        <!-- Newsletter Section -->
         <div class="blog-newsletter">
-            <h3>📬 Get Weekly Business Tips</h3>
-            <p>Join pharmacy owners and operators getting useful updates in their inbox</p>
+            <h3>Get practical pharmacy notes in your inbox</h3>
+            <p>Receive product updates, workflow ideas, and store-operation tips from the Expygen team.</p>
             <div class="newsletter-form-compact">
                 <input type="email" placeholder="Enter your email">
                 <button>
@@ -179,16 +163,14 @@
             </div>
         </div>
 
-        <!-- Pagination -->
         <div class="pagination">
             <a href="#" class="disabled">← Prev</a>
             <a href="#" class="active">1</a>
             <a href="#">2</a>
             <a href="#">3</a>
-            <a href="#">4</a>
             <a href="#">Next →</a>
         </div>
-    </div>
+    </section>
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>
 </body>

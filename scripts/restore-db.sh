@@ -8,11 +8,11 @@ if [ "${1:-}" = "" ]; then
 fi
 
 BACKUP_FILE="$1"
-TARGET_DB_NAME="${2:-${DB_NAME:-hisaablite_restore}}"
+TARGET_DB_NAME="${2:-${DB_NAME:-expygen_restore}}"
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-3306}"
-DB_USER="${DB_USER:-hisaab}"
-DB_PASSWORD="${DB_PASSWORD:-hisaab123}"
+DB_USER="${DB_USER:-expygen}"
+DB_PASSWORD="${DB_PASSWORD:-expygen123}"
 
 if [ ! -f "$BACKUP_FILE" ]; then
   echo "Backup file not found: $BACKUP_FILE"

@@ -1,4 +1,4 @@
-# HisaabLite – Retail Billing & Inventory Management System
+# Expygen – Retail Billing & Inventory Management System
 
 A lightweight, modern Point of Sale (POS) solution for small retail businesses. Streamline billing, inventory tracking, staff management, and customer invoicing with ease.
 
@@ -6,7 +6,7 @@ A lightweight, modern Point of Sale (POS) solution for small retail businesses. 
 
 ## 🚀 Live Demo
 
-🔗 [https://hisaablite.duckdns.org](https://hisaablite.duckdns.org)
+🔗 [https://expygen.duckdns.org](https://expygen.duckdns.org)
 
 *Hosted on a personal VM — may be temporarily unavailable if the server is stopped.*
 
@@ -74,7 +74,7 @@ A lightweight, modern Point of Sale (POS) solution for small retail businesses. 
 
 ### Steps
 ```bash
-git clone https://github.com/yourusername/hisaablite.git
-cd hisaablite
+git clone https://github.com/yourusername/expygen.git
+cd expygen
 # Update database credentials in application.properties
 mvn spring-boot:run

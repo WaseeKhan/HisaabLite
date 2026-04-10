@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Near Expiry • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+    <div class="report-shell">
+
+        <div class="report-header">
+            <div>
+                <div class="report-badge">Inventory Insights</div>
+                <h1>Near Expiry</h1>
+                <p>
+                    Monitor expiry risk across batches with bucket analysis, stock exposure,
+                    and actionable batch-level visibility.
+                </p>
+            </div>
+
+            <div class="report-header-actions">
+                <a class="table-action-btn"
+                   th:href="@{/insights/inventory/near-expiry/export(expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})}">Export CSV</a>
+                <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+            </div>
+        </div>
+
+        <form class="insights-filter-form insights-filter-command" th:action="@{/insights/inventory/near-expiry}" method="get">
+            <div class="filter-command-top">
+                <div class="filter-command-title">
+                    <span class="filter-command-kicker">Filter Console</span>
+                </div>
+                <strong class="filter-command-inline-note">Refine expiry risk by bucket, manufacturer, and batch signal.</strong>
+            </div>
+            <div class="filter-row filter-row-command filter-row-command-expiry">
+
+                <div class="filter-group filter-group-compact">
+                    <label for="expiryBucket">Expiry Bucket</label>
+                    <select id="expiryBucket" name="expiryBucket">
+                        <option value="">All</option>
+                        <option value="EXPIRED" th:selected="${expiryBucket == 'EXPIRED'}">Expired</option>
+                        <option value="30" th:selected="${expiryBucket == '30'}">Within 30 Days</option>
+                        <option value="60" th:selected="${expiryBucket == '60'}">Within 60 Days</option>
+                        <option value="90" th:selected="${expiryBucket == '90'}">Within 90 Days</option>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-group-compact">
+                    <label for="manufacturer">Manufacturer</label>
+                    <input type="text" id="manufacturer" name="manufacturer" th:value="${manufacturer}" placeholder="Search manufacturer">
+                </div>
+
+                <div class="filter-group filter-group-search">
+                    <label for="keyword">Search</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                           placeholder="Search product, batch, barcode...">
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="filter-btn primary-btn">Apply</button>
+                    <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="report-action-strip">
+            <a class="report-action-card" th:href="@{/purchases/returns/new}">
+                <span class="report-action-icon"><i class="fas fa-rotate-left"></i></span>
+                <span class="report-action-copy">
+                    <strong>Start Return</strong>
+                    <span>Open supplier return flow for high-risk or expired batches.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/purchases/adjustments/new}">
+                <span class="report-action-icon"><i class="fas fa-sliders"></i></span>
+                <span class="report-action-copy">
+                    <strong>Adjust Inventory</strong>
+                    <span>Handle damaged, expired, or corrected quantities from one place.</span>
+                </span>
+            </a>
+            <a class="report-action-card" th:href="@{/insights/inventory/current-stock}">
+                <span class="report-action-icon"><i class="fas fa-layer-group"></i></span>
+                <span class="report-action-copy">
+                    <strong>Open Current Stock</strong>
+                    <span>Move from expiry risk to the live stock board for deeper action.</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="report-alert-strip">
+            <div class="report-alert-card report-alert-card-danger">
+                <span class="report-alert-icon"><i class="fas fa-skull-crossbones"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[0].value + ' batches already expired'}">Expired batches</strong>
+                    <span>These batches need immediate adjustment or supplier return action.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/near-expiry(expiryBucket='EXPIRED')}">
+                        <i class="fas fa-arrow-right"></i><span>Open expired view</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card report-alert-card-warning">
+                <span class="report-alert-icon"><i class="fas fa-hourglass-start"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[1].value + ' batches inside 30-day window'}">30-day expiry pressure</strong>
+                    <span>Urgent sell-through or return planning should happen from this bucket.</span>
+                    <a class="report-alert-action" th:href="@{/insights/inventory/near-expiry(expiryBucket='30')}">
+                        <i class="fas fa-arrow-right"></i><span>Open 30-day bucket</span>
+                    </a>
+                </div>
+            </div>
+            <div class="report-alert-card">
+                <span class="report-alert-icon"><i class="fas fa-indian-rupee-sign"></i></span>
+                <div class="report-alert-copy">
+                    <strong th:text="${kpis[4].value + ' sits under expiry pressure'}">Value at risk</strong>
+                    <span>Use value mix and batch drill-down to prioritize operational action.</span>
+                    <a class="report-alert-action" th:href="@{/purchases/returns}">
+                        <i class="fas fa-arrow-right"></i><span>Open return workspace</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-strip">
+            <div th:each="card, stat : ${kpis}" class="kpi-card" th:classappend="${stat.count == 1} ? ' kpi-card-primary'">
+                <span th:text="${card.label}">Expired Batches</span>
+                <h3 th:text="${card.value}">0</h3>
+                <small th:text="${card.description}">Description</small>
+            </div>
+        </div>
+
+        <div class="analytics-grid analytics-grid-sales">
+            <div class="analytics-card analytics-card-lg">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Expiry Bucket Distribution</h3>
+                        <p>Batch count across expired and near-expiry windows</p>
+                    </div>
+                    <span class="analytics-chip analytics-chip-accent">Risk View</span>
+                </div>
+                <div class="chart-box chart-box-lg">
+                    <canvas id="expiryBucketChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Risk by Manufacturer</h3>
+                        <p>Highest expiry exposure by manufacturer</p>
+                    </div>
+                    <span class="analytics-chip">Exposure</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="manufacturerRiskChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Stock Value at Risk</h3>
+                        <p>Value split by expiry bucket</p>
+                    </div>
+                    <span class="analytics-chip">Value Mix</span>
+                </div>
+                <div class="chart-box chart-box-md">
+                    <canvas id="expiryValueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card analytics-card-radar">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3>Action Radar</h3>
+                        <p>Urgency view for expiry follow-up and stock exposure</p>
+                    </div>
+                    <span class="analytics-chip">Risk Radar</span>
+                </div>
+                <div class="report-radar-list">
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-alert"></span>
+                        <div>
+                            <strong>Expired batches</strong>
+                            <small th:text="${#lists.size(kpis) > 0 ? kpis[0].value + ' require immediate clearance' : 'No expired batches in current view'}">Immediate clearance needed</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-primary"></span>
+                        <div>
+                            <strong>30-day pressure</strong>
+                            <small th:text="${#lists.size(kpis) > 1 ? kpis[1].value + ' batches need urgent sell-through or return planning' : 'No urgent 30-day batches'}">Urgent follow-up window</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-item">
+                        <span class="report-radar-dot report-radar-dot-accent"></span>
+                        <div>
+                            <strong>Risk value</strong>
+                            <small th:text="${#lists.size(kpis) > 4 ? kpis[4].value + ' exposed under expiry pressure' : '₹0.00 at risk'}">Value under pressure</small>
+                        </div>
+                    </div>
+                    <div class="report-radar-divider"></div>
+                    <div class="report-radar-metric">
+                        <span>Affected Products</span>
+                        <strong th:text="${#lists.size(kpis) > 5 ? kpis[5].value : '0'}">0</strong>
+                    </div>
+                    <div class="report-radar-metric">
+                        <span>Within 90 Days</span>
+                        <strong th:text="${#lists.size(kpis) > 3 ? kpis[3].value : '0'}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-table-shell">
+            <div class="report-table-header">
+                <h3>Near Expiry Batch Data</h3>
+                <div class="report-table-actions">
+                    <a class="table-action-btn"
+                       th:href="@{/insights/inventory/near-expiry/export(expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})}">Export CSV</a>
+                    <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                </div>
+            </div>
+
+            <div class="report-table-wrapper">
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Batch No</th>
+                        <th>Manufacturer</th>
+                        <th>Available Qty</th>
+                        <th>Expiry Date</th>
+                        <th>Days Left</th>
+                        <th>MRP</th>
+                        <th>Stock Value</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                        <td colspan="11" style="text-align:center;">No near-expiry data found</td>
+                    </tr>
+                    <tr th:each="row, stat : ${rows}">
+                        <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                        <td><a class="report-drill-link" th:href="@{/products(keyword=${row.productName})}" th:text="${row.productName}">Amoxicillin 500</a></td>
+                        <td><a class="report-drill-link" th:href="@{/purchases/returns/new(batchId=${row.batchId})}" th:text="${row.batchNumber}">AMX-2401</a></td>
+                        <td th:text="${row.manufacturer}">MedLife Labs</td>
+                        <td th:text="${row.availableQty}">18</td>
+                        <td th:text="${row.expiryDate}">2026-04-18</td>
+                        <td th:text="${row.daysLeft}">12</td>
+                        <td th:text="'₹' + ${row.mrp}">₹92.00</td>
+                        <td th:text="'₹' + ${row.stockValue}">₹1,656.00</td>
+                        <td>
+                            <span class="status-pill"
+                                  th:classappend="${row.status == 'Expired'} ? ' status-dark' : (${row.status == 'Within 30 Days'} ? ' status-danger' : (${row.status == 'Within 60 Days'} ? ' status-warning' : ' status-info'))"
+                                  th:text="${row.status}">Within 30 Days</span>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="row-action-link" th:href="@{/purchases/returns/new(batchId=${row.batchId})}">
+                                    <i class="fas fa-rotate-left"></i><span>Return</span>
+                                </a>
+                                <a class="row-action-link" th:href="@{/purchases/adjustments/new(batchId=${row.batchId})}">
+                                    <i class="fas fa-pen-ruler"></i><span>Adjust</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="report-pagination" th:if="${totalRows > pageSize}">
+                <a class="pagination-btn"
+                   th:classappend="${!hasPreviousPage} ? ' disabled'"
+                   th:href="${hasPreviousPage} ? @{/insights/inventory/near-expiry(page=${previousPage}, expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})} : '#'">Previous</a>
+                <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                <a class="pagination-btn"
+                   th:classappend="${!hasNextPage} ? ' disabled'"
+                   th:href="${hasNextPage} ? @{/insights/inventory/near-expiry(page=${nextPage}, expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})} : '#'">Next</a>
+            </div>
+        </div>
+
+    </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        axisColor: '#667085',
+        textColor: '#1f2a3d',
+        gridColor: '#edf1f5'
+    };
+    const axisColor = chartPalette.axisColor;
+    const gridColor = chartPalette.gridColor;
+    const primary = '#2f6fe4';
+    const accent = '#f39a2d';
+    const darkText = chartPalette.textColor;
+
+    const bucketLabels = /*[[${bucketCounts.![paymentMode]}]]*/ [];
+    const bucketValues = /*[[${bucketCounts.![amount]}]]*/ [];
+    const expiryBucketMap = {
+        'Expired': 'EXPIRED',
+        '0-30 Days': '30',
+        '31-60 Days': '60',
+        '61-90 Days': '90'
+    };
+    new Chart(document.getElementById('expiryBucketChart'), {
+        type: 'bar',
+        data: {
+            labels: bucketLabels,
+            datasets: [{
+                label: 'Batch Count',
+                data: bucketValues,
+                backgroundColor: ['#202939', '#f39a2d', '#f6b85e', '#2f6fe4'],
+                borderRadius: 12,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/inventory/near-expiry', {
+                    expiryBucket: expiryBucketMap[label] || '',
+                    manufacturer: document.getElementById('manufacturer') ? document.getElementById('manufacturer').value : '',
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                }
+            }
+        }
+    });
+
+    const manufacturerRiskLabels = /*[[${manufacturerRisk.![paymentMode]}]]*/ [];
+    const manufacturerRiskValues = /*[[${manufacturerRisk.![amount]}]]*/ [];
+    new Chart(document.getElementById('manufacturerRiskChart'), {
+        type: 'bar',
+        data: {
+            labels: manufacturerRiskLabels,
+            datasets: [{
+                label: 'At-Risk Batches',
+                data: manufacturerRiskValues,
+                backgroundColor: ['#2f6fe4', '#4e84e8', '#719ceb', '#9ab8f1', '#f39a2d'],
+                borderRadius: 10,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/inventory/near-expiry', {
+                    expiryBucket: document.getElementById('expiryBucket') ? document.getElementById('expiryBucket').value : '',
+                    manufacturer: label,
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            },
+            scales: {
+                x: {
+                    grid: { color: gridColor },
+                    ticks: { color: axisColor, font: { family: 'Manrope', weight: '600' } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: darkText, font: { family: 'Manrope', weight: '700' } }
+                }
+            }
+        }
+    });
+
+    const expiryValueLabels = /*[[${valueSplit.![paymentMode]}]]*/ [];
+    const expiryValueValues = /*[[${valueSplit.![amount]}]]*/ [];
+    new Chart(document.getElementById('expiryValueChart'), {
+        type: 'doughnut',
+        data: {
+            labels: expiryValueLabels,
+            datasets: [{
+                data: expiryValueValues,
+                backgroundColor: ['#202939', '#f39a2d', '#f7c67d', '#2f6fe4'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: darkText,
+                        font: { family: 'Manrope', weight: '700' },
+                        boxWidth: 12,
+                        padding: 16
+                    }
+                }
+            },
+            onClick: function(event, elements, chart) {
+                if (!elements || !elements.length || !window.navigateInsightsUrl) return;
+                var label = chart.data.labels[elements[0].index];
+                window.navigateInsightsUrl('/insights/inventory/near-expiry', {
+                    expiryBucket: expiryBucketMap[label] || '',
+                    manufacturer: document.getElementById('manufacturer') ? document.getElementById('manufacturer').value : '',
+                    keyword: document.getElementById('keyword') ? document.getElementById('keyword').value : ''
+                });
+            }
+        }
+    });
+
+    if (window.refreshInsightsCharts) {
+        window.refreshInsightsCharts();
+    }
+</script>
+
+</body>
+</html>

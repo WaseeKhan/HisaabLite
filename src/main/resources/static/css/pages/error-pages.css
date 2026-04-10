@@ -1,0 +1,307 @@
+* {
+    box-sizing: border-box;
+}
+
+body.error-body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    color: #1f1f1f;
+    background:
+        radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(242, 122, 33, 0.08), transparent 26%),
+        linear-gradient(180deg, #fbfdff 0%, #f5f8fc 100%);
+}
+
+.error-shell {
+    min-height: 100vh;
+    padding: 32px 20px;
+    display: grid;
+    place-items: center;
+}
+
+.error-stage {
+    width: min(100%, 920px);
+    text-align: center;
+    display: grid;
+    justify-items: center;
+    gap: 20px;
+}
+
+.error-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.error-brand img {
+    width: 138px;
+    height: auto;
+    display: block;
+}
+
+.error-illustration {
+    position: relative;
+    width: min(100%, 460px);
+    height: 300px;
+}
+
+.error-orbit {
+    position: absolute;
+    left: 50%;
+    top: 18px;
+    width: 170px;
+    height: 110px;
+    transform: translateX(-50%);
+    border: 2px dashed rgba(31, 111, 235, 0.24);
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+}
+
+.error-plane {
+    position: absolute;
+    left: 50%;
+    top: 18px;
+    width: 28px;
+    height: 28px;
+    transform: translateX(78px) rotate(18deg);
+    color: #7ea6ff;
+    font-size: 22px;
+}
+
+.error-dot,
+.error-spark,
+.error-ring {
+    position: absolute;
+    border-radius: 999px;
+}
+
+.error-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(31, 111, 235, 0.2);
+}
+
+.error-dot.dot-a { left: 74px; top: 64px; }
+.error-dot.dot-b { right: 82px; top: 92px; }
+.error-dot.dot-c { left: 96px; bottom: 92px; }
+.error-dot.dot-d { right: 120px; bottom: 64px; }
+
+.error-shell-left,
+.error-shell-right {
+    position: absolute;
+    bottom: 34px;
+    width: 154px;
+    height: 168px;
+    background: linear-gradient(180deg, #e8efff 0%, #a5bcff 100%);
+    box-shadow: inset 0 -10px 18px rgba(31, 111, 235, 0.08);
+}
+
+.error-shell-left {
+    left: 54px;
+    border-radius: 52% 48% 36% 62% / 38% 42% 58% 62%;
+    transform: rotate(-6deg);
+}
+
+.error-shell-right {
+    right: 54px;
+    border-radius: 44% 56% 60% 40% / 44% 36% 64% 56%;
+    transform: rotate(8deg);
+}
+
+.error-crack {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    clip-path: polygon(30% 0, 64% 18%, 48% 42%, 74% 58%, 44% 100%, 18% 72%, 36% 52%, 12% 36%);
+}
+
+.error-shell-left .error-crack {
+    inset: 28px 36px 34px 44px;
+}
+
+.error-shell-right .error-crack {
+    inset: 24px 42px 36px 38px;
+}
+
+.error-center-mark {
+    position: absolute;
+    left: 50%;
+    top: 110px;
+    transform: translateX(-50%);
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+}
+
+.error-burst {
+    position: relative;
+    width: 26px;
+    height: 16px;
+}
+
+.error-burst::before,
+.error-burst::after,
+.error-burst span {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(126, 166, 255, 0.72);
+    transform-origin: center bottom;
+}
+
+.error-burst::before { transform: translate(-50%, -50%) rotate(-40deg); }
+.error-burst::after { transform: translate(-50%, -50%) rotate(40deg); }
+.error-burst span { transform: translate(-50%, -50%); }
+
+.error-code-mark {
+    color: #7b98f6;
+    font-size: 56px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+}
+
+.error-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    width: 132px;
+    height: 18px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: rgba(124, 150, 214, 0.14);
+    filter: blur(2px);
+}
+
+.error-copy {
+    display: grid;
+    gap: 8px;
+}
+
+.error-title {
+    margin: 0;
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.06em;
+    color: #121826;
+}
+
+.error-message {
+    margin: 0;
+    max-width: 620px;
+    color: #6b7a90;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.error-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.error-btn {
+    min-height: 52px;
+    padding: 0 28px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 800;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.error-btn:hover {
+    transform: translateY(-1px);
+}
+
+.error-btn-primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #ff6784 0%, #f0546c 100%);
+    box-shadow: 0 18px 28px rgba(240, 84, 108, 0.25);
+}
+
+.error-btn-secondary {
+    color: #42566f;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid #dce5ef;
+}
+
+.error-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.error-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #e4ebf4;
+    color: #607084;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.error-meta-pill i {
+    color: #1f6feb;
+}
+
+@media (max-width: 680px) {
+    .error-stage {
+        gap: 18px;
+    }
+
+    .error-illustration {
+        width: min(100%, 320px);
+        height: 220px;
+    }
+
+    .error-shell-left,
+    .error-shell-right {
+        width: 112px;
+        height: 126px;
+        bottom: 28px;
+    }
+
+    .error-shell-left { left: 28px; }
+    .error-shell-right { right: 28px; }
+
+    .error-center-mark {
+        top: 84px;
+    }
+
+    .error-code-mark {
+        font-size: 42px;
+    }
+
+    .error-message {
+        font-size: 14px;
+    }
+
+    .error-actions {
+        width: 100%;
+        display: grid;
+    }
+
+    .error-btn {
+        width: 100%;
+    }
+}

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Supplier Detail • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Supplier Detail • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
@@ -24,11 +24,12 @@
                 <div class="purchase-hero-copy">
                     <span class="purchase-kicker">Supplier Detail</span>
                     <h2 th:text="${supplier.name}">Supplier</h2>
-                    <p>Supplier-wide view of purchase value, return history, live stock on hand, and batches that need expiry action soon.</p>
+                    <p>Review supplier profile, inward value, return exposure, live stock, and expiry pressure from one workspace.</p>
                     <div class="purchase-pills">
                         <span><i class="fas fa-user"></i> <span th:text="${supplier.contactPerson != null ? supplier.contactPerson : 'No contact person'}">No contact person</span></span>
                         <span><i class="fas fa-phone"></i> <span th:text="${supplier.phone != null ? supplier.phone : 'No phone'}">No phone</span></span>
                         <span><i class="fas fa-file-lines"></i> <span th:text="${supplier.gstNumber != null ? supplier.gstNumber : 'No GST'}">No GST</span></span>
+                        <span><i class="fas fa-location-dot"></i> <span th:text="${supplier.address != null ? supplier.address : 'No address saved'}">No address</span></span>
                     </div>
                 </div>
                 <div class="purchase-hero-actions">
@@ -37,7 +38,7 @@
                 </div>
             </section>
 
-            <section class="purchase-stats-grid">
+            <section class="purchase-stats-grid purchase-stats-grid-four">
                 <article class="purchase-stat-card">
                     <div><span>Purchases</span><strong th:text="${purchaseCount}">0</strong></div>
                     <i class="fas fa-file-invoice"></i>
@@ -54,6 +55,54 @@
                     <div><span>Near Expiry</span><strong th:text="${nearExpiryCount}">0</strong></div>
                     <i class="fas fa-hourglass-half"></i>
                 </article>
+            </section>
+
+            <section class="purchase-layout-grid purchase-detail-layout">
+                <div class="purchase-card">
+                    <div class="purchase-card-head">
+                        <div>
+                            <h3>Supplier Profile Snapshot</h3>
+                            <p>Commercial identity, contact setup, and invoice-routing details for this supplier.</p>
+                        </div>
+                        <span class="purchase-card-badge">Profile view</span>
+                    </div>
+                    <div class="purchase-detail-meta-grid">
+                        <div class="purchase-detail-meta">
+                            <span>Contact person</span>
+                            <strong th:text="${supplier.contactPerson != null ? supplier.contactPerson : 'Not added'}">Not added</strong>
+                        </div>
+                        <div class="purchase-detail-meta">
+                            <span>Phone</span>
+                            <strong th:text="${supplier.phone != null ? supplier.phone : 'Not added'}">Not added</strong>
+                        </div>
+                        <div class="purchase-detail-meta">
+                            <span>GST number</span>
+                            <strong th:text="${supplier.gstNumber != null ? supplier.gstNumber : 'Not added'}">Not added</strong>
+                        </div>
+                        <div class="purchase-detail-meta">
+                            <span>Address</span>
+                            <strong th:text="${supplier.address != null ? supplier.address : 'Not added'}">Not added</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="purchase-side-column purchase-detail-side">
+                    <div class="purchase-card">
+                        <div class="purchase-card-head">
+                            <div>
+                                <h3>Supplier Radar</h3>
+                                <p>Quick action path for purchase, return, and stock follow-up.</p>
+                            </div>
+                            <span class="purchase-card-badge">Live actions</span>
+                        </div>
+                        <div class="purchase-side-actions">
+                            <a th:href="@{/purchases/new}" class="purchase-row-link">Record New Purchase</a>
+                            <a th:href="@{/purchases/returns/new}" class="purchase-row-link">Start Purchase Return</a>
+                            <a th:href="@{/purchases/expiry-report}" class="purchase-row-link">Review Expiry Risk</a>
+                            <a th:href="@{/purchases/suppliers/{id}/edit(id=${supplier.id})}" class="purchase-row-link">Edit Supplier</a>
+                        </div>
+                    </div>
+                </aside>
             </section>
 
             <section class="purchase-layout-grid">
@@ -140,6 +189,23 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <section class="purchase-card">
+                <div class="purchase-card-head">
+                    <div><h3>Supplier Notes</h3><p>Use supplier profile for contact and GST identity, and rely on purchases/returns for all stock movement history.</p></div>
+                    <span class="purchase-card-badge">Reference</span>
+                </div>
+                <div class="purchase-side-actions">
+                    <div class="purchase-detail-note">
+                        <i class="fas fa-warehouse"></i>
+                        <span>Live units and near-expiry counts shown here reflect current batch availability, not just original inward quantity.</span>
+                    </div>
+                    <div class="purchase-detail-note">
+                        <i class="fas fa-receipt"></i>
+                        <span>Purchase and return summaries here help review supplier-level exposure before creating the next inward or return entry.</span>
+                    </div>
                 </div>
             </section>
 

@@ -1,5 +1,5 @@
 // =========================
-// RxArogya Billing JS
+// Expygen Billing JS
 // Keyboard-first billing flow
 // =========================
 
@@ -32,22 +32,21 @@ const printInvoiceBtn = document.getElementById("printInvoiceBtn");
 const whatsappInvoiceBtn = document.getElementById("whatsappInvoiceBtn");
 const successToastMessage = document.getElementById("successToastMessage");
 const lastInvoiceBar = document.getElementById("lastInvoiceBar");
-const lastInvoiceNumber = document.getElementById("lastInvoiceNumber");
-const lastInvoiceHint = document.getElementById("lastInvoiceHint");
-const lastInvoiceViewBtn = document.getElementById("lastInvoiceViewBtn");
-const lastInvoicePrintBtn = document.getElementById("lastInvoicePrintBtn");
-const lastInvoiceWhatsappBtn = document.getElementById("lastInvoiceWhatsappBtn");
+const lastInvoiceList = document.getElementById("lastInvoiceList");
 const invoicePhoneModal = document.getElementById("invoicePhoneModal");
 const invoicePhoneInput = document.getElementById("invoicePhoneInput");
 const invoicePhoneSendBtn = document.getElementById("invoicePhoneSendBtn");
 
-const BILLING_ENTRY_MODE_KEY = "rxarogya-billing-entry-mode";
+const BILLING_ENTRY_MODE_KEY = "expygen-billing-entry-mode";
+const LAST_INVOICE_KEY = "expygen:lastInvoice";
+const LAST_INVOICES_KEY = "expygen:lastInvoices";
 
 let suggestions = [];
 let selectedIndex = -1;
 let selectedProduct = null;
 let lastSavedInvoiceId = null;
 let lastSavedPhone = null;
+let recentInvoices = [];
 let audioContext = null;
 let entryMode = "search";
 window.currentCart = [];
@@ -55,59 +54,107 @@ window.currentCart = [];
 function persistLastInvoiceContext() {
     if (!window.sessionStorage) return;
     if (!lastSavedInvoiceId) {
-        window.sessionStorage.removeItem("hisaab:lastInvoice");
-        return;
+        window.sessionStorage.removeItem(LAST_INVOICE_KEY);
+    } else {
+        window.sessionStorage.setItem(LAST_INVOICE_KEY, JSON.stringify({
+            invoiceId: lastSavedInvoiceId,
+            phone: lastSavedPhone || null
+        }));
     }
-    window.sessionStorage.setItem("hisaab:lastInvoice", JSON.stringify({
-        invoiceId: lastSavedInvoiceId,
-        phone: lastSavedPhone || null
-    }));
+    window.sessionStorage.setItem(LAST_INVOICES_KEY, JSON.stringify(recentInvoices.slice(0, 3)));
 }
 
 function restoreLastInvoiceContext() {
     if (!window.sessionStorage) return;
-    if (lastSavedInvoiceId) return;
     try {
-        const raw = window.sessionStorage.getItem("hisaab:lastInvoice");
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        lastSavedInvoiceId = parsed.invoiceId || null;
-        lastSavedPhone = parsed.phone || null;
+        const recentRaw = window.sessionStorage.getItem(LAST_INVOICES_KEY);
+        recentInvoices = recentRaw ? JSON.parse(recentRaw) : [];
+        if (!Array.isArray(recentInvoices)) {
+            recentInvoices = [];
+        }
+        if (!lastSavedInvoiceId && recentInvoices.length) {
+            lastSavedInvoiceId = recentInvoices[0].invoiceId || null;
+            lastSavedPhone = recentInvoices[0].phone || null;
+        }
+
+        if (!lastSavedInvoiceId) {
+            const raw = window.sessionStorage.getItem(LAST_INVOICE_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            lastSavedInvoiceId = parsed.invoiceId || null;
+            lastSavedPhone = parsed.phone || null;
+            if (lastSavedInvoiceId) {
+                recentInvoices = [{
+                    invoiceId: lastSavedInvoiceId,
+                    phone: lastSavedPhone || null
+                }, ...recentInvoices.filter(item => item?.invoiceId !== lastSavedInvoiceId)].slice(0, 3);
+            }
+        }
     } catch (_) {
-        window.sessionStorage.removeItem("hisaab:lastInvoice");
+        window.sessionStorage.removeItem(LAST_INVOICE_KEY);
+        window.sessionStorage.removeItem(LAST_INVOICES_KEY);
     }
 }
 
 function refreshLastInvoiceBar() {
-    if (!lastInvoiceBar || !lastSavedInvoiceId) {
+    if (!lastInvoiceBar || !lastInvoiceList || !recentInvoices.length) {
         if (lastInvoiceBar) {
             lastInvoiceBar.hidden = true;
         }
         return;
     }
 
-    const invoiceLabel = `Invoice_${lastSavedInvoiceId}`;
-    const invoiceUrl = getInvoiceViewUrl(lastSavedInvoiceId);
     lastInvoiceBar.hidden = false;
-    if (lastInvoiceNumber) {
-        lastInvoiceNumber.textContent = invoiceLabel;
-    }
-    if (lastInvoiceHint) {
-        lastInvoiceHint.textContent = lastSavedPhone
-            ? "Use Thermal Print or WhatsApp anytime from here. F10 prints and F9 sends on WhatsApp."
-            : "Use Thermal Print anytime from here. Add customer phone on the next bill for WhatsApp.";
-    }
-    if (invoiceBtn && invoiceUrl) {
-        invoiceBtn.href = invoiceUrl;
-    }
-    if (lastInvoiceViewBtn && invoiceUrl) {
-        lastInvoiceViewBtn.href = invoiceUrl;
+    lastInvoiceList.innerHTML = recentInvoices.slice(0, 3).map((entry, index) => {
+        const invoiceId = entry.invoiceId;
+        const phone = entry.phone || "";
+        const invoiceUrl = getInvoiceViewUrl(invoiceId);
+        const hint = phone
+            ? `Phone ${escapeHtml(phone)}`
+            : "No phone saved";
+        return `
+            <div class="last-invoice-item ${index === 0 ? 'is-latest' : ''}">
+                <div class="last-invoice-info">
+                    <div class="last-invoice-meta">
+                        <strong>Invoice_${invoiceId}</strong>
+                        <span>${hint}</span>
+                    </div>
+                </div>
+                <div class="last-invoice-actions">
+                    <a href="${invoiceUrl}" target="_blank" class="last-invoice-btn last-invoice-btn-secondary">
+                        <i class="fas fa-file-invoice"></i> View
+                    </a>
+                    <a href="/sales/invoice/${invoiceId}/thermal" target="_blank" class="last-invoice-btn last-invoice-btn-secondary">
+                        <i class="fas fa-receipt"></i> Thermal
+                    </a>
+                    <button type="button" class="last-invoice-btn last-invoice-btn-primary" data-print-invoice="${invoiceId}">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button type="button" class="last-invoice-btn last-invoice-btn-success" data-whatsapp-invoice="${invoiceId}" ${phone ? "" : "disabled"}>
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    lastInvoiceList.querySelectorAll("[data-print-invoice]").forEach(button => {
+        button.addEventListener("click", () => printInvoice(button.dataset.printInvoice));
+    });
+
+    lastInvoiceList.querySelectorAll("[data-whatsapp-invoice]").forEach(button => {
+        button.addEventListener("click", () => {
+            const invoiceId = button.dataset.whatsappInvoice;
+            const match = recentInvoices.find(item => String(item.invoiceId) === String(invoiceId));
+            sendInvoiceOnWhatsApp(invoiceId, match?.phone || null);
+        });
+    });
+
+    if (invoiceBtn && lastSavedInvoiceId) {
+        invoiceBtn.href = getInvoiceViewUrl(lastSavedInvoiceId);
     }
     if (whatsappInvoiceBtn) {
         whatsappInvoiceBtn.disabled = false;
-    }
-    if (lastInvoiceWhatsappBtn) {
-        lastInvoiceWhatsappBtn.disabled = false;
     }
 }
 
@@ -567,10 +614,23 @@ function calculateTotals() {
         totalWithTax += basePrice + gstAmount;
     });
 
-    document.getElementById("subtotalAmount").innerText = subtotal.toFixed(2);
-    document.getElementById("cgstAmount").innerText = totalCgst.toFixed(2);
-    document.getElementById("sgstAmount").innerText = totalSgst.toFixed(2);
-    document.getElementById("totalGstAmount").innerText = totalGst.toFixed(2);
+    const subtotalAmount = document.getElementById("subtotalAmount");
+    const cgstAmount = document.getElementById("cgstAmount");
+    const sgstAmount = document.getElementById("sgstAmount");
+    const totalGstAmount = document.getElementById("totalGstAmount");
+
+    if (subtotalAmount) {
+        subtotalAmount.innerText = subtotal.toFixed(2);
+    }
+    if (cgstAmount) {
+        cgstAmount.innerText = totalCgst.toFixed(2);
+    }
+    if (sgstAmount) {
+        sgstAmount.innerText = totalSgst.toFixed(2);
+    }
+    if (totalGstAmount) {
+        totalGstAmount.innerText = totalGst.toFixed(2);
+    }
     const cartTaxSpotlight = document.getElementById("cartTaxSpotlight");
     if (cartTaxSpotlight) {
         cartTaxSpotlight.innerText = totalGst.toFixed(2);
@@ -634,17 +694,20 @@ window.updateCartUI = function updateCartUI(cart) {
             <div class="cart-item-main">
                 <div class="cart-item-head">
                     <div class="cart-item-info">
-                        <div class="cart-item-name">${escapeHtml(item.productName)}</div>
-                        <div class="cart-item-tags">
-                            <span class="gst-badge ${gstClass}">${gst}% GST</span>
+                        <div class="cart-item-title-row">
+                            <div class="cart-item-name">${escapeHtml(item.productName)}</div>
+                            <div class="cart-item-tags">
+                                <span class="gst-badge ${gstClass}">${gst}%</span>
+                            </div>
+                        </div>
+                        <div class="cart-item-gst-breakdown">
+                            <span class="gst-pill gst-pill-base">Base ₹${basePrice.toFixed(2)}</span>
+                            <span class="gst-pill gst-pill-split">CGST ₹${(gstAmount / 2).toFixed(2)}</span>
+                            <span class="gst-pill gst-pill-split">SGST ₹${(gstAmount / 2).toFixed(2)}</span>
+                            <span class="gst-pill gst-pill-total">GST ₹${gstAmount.toFixed(2)}</span>
                         </div>
                     </div>
                     <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
-                </div>
-                <div class="cart-item-price">Base: ₹${price.toFixed(2)} × ${qty} = ₹${basePrice.toFixed(2)}</div>
-                <div class="cart-item-gst-breakdown">
-                    <span class="cgst">CGST: ₹${(gstAmount / 2).toFixed(2)} (${(gst / 2).toFixed(1)}%)</span>
-                    <span class="sgst">SGST: ₹${(gstAmount / 2).toFixed(2)} (${(gst / 2).toFixed(1)}%)</span>
                 </div>
                 <div class="cart-item-controls">
                     <div class="cart-item-qty">
@@ -862,17 +925,26 @@ if (searchInput) {
                 return;
             }
 
-            if (selectedIndex >= 0 && items[selectedIndex]) {
-                items[selectedIndex].click();
+            if (selectedProduct) {
+                focusAndSelect(qtyInput);
+                return;
+            }
+
+            if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                selectSuggestion(suggestions[selectedIndex]);
+                focusAndSelect(qtyInput);
+                return;
             } else if (exactMatch) {
                 if (getProductSellableStock(exactMatch) > 0) {
-                    autoAddScannedProduct(exactMatch);
+                    selectSuggestion(exactMatch);
+                    focusAndSelect(qtyInput);
                 } else {
                     setScanStatus("warning", "Medicine Not Sellable", `${exactMatch.name} matched, but there is no sellable batch stock available right now.`);
                     showTempToast("Matched medicine has no sellable stock", "warning");
                 }
             } else if (suggestions.length === 1) {
                 selectSuggestion(suggestions[0]);
+                focusAndSelect(qtyInput);
             } else if (looksLikeBarcode(keyword)) {
                 await handleBarcodeEntry(keyword);
             }
@@ -1038,7 +1110,7 @@ if (invoicePhoneInput) {
     });
 }
 
-document.addEventListener("hisaab:collect-commands", event => {
+document.addEventListener("expygen:collect-commands", event => {
     if (!billingForm) {
         return;
     }

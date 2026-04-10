@@ -1,6 +1,6 @@
 spring:
   application:
-    name: hisaablite
+    name: expygen
   config:
     import: optional:application-secrets.yml
 
@@ -52,15 +52,15 @@ management:
 evolution:
   api:
     url: http://localhost:8081
-    key: ${EVOLUTION_API_KEY:hisaablite-local-key}
+    key: ${EVOLUTION_API_KEY:expygen-whatsapp-key}
 
 app:
-  name: RxArogya
+  name: Expygen
   tagline: Simplify Pharmacy
-  short-code: RXA
+  short-code: RX
   security:
     enforce-single-session: true
 
 logging:
   file:
-    name: logs/hisaablite.log
+    name: logs/expygen.log

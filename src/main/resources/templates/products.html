@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Products • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Products • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -53,50 +53,6 @@
 
               
 
-                <!-- Usage Progress Bar - Only show for limited plans -->
-                <div class="shop-usage-progress" th:if="${planType != 'ENTERPRISE' and productLimitRaw != -1}">
-                    <div class="shop-usage-info">
-                        <div>
-                            <i class="fas fa-box"></i>
-                            <span>Medicines: </span>
-                            <strong th:text="${currentProductCount}">0</strong>
-                            <span>/</span>
-                            <strong th:text="${productLimit}">50</strong>
-                        </div>
-                        <div class="shop-usage-percent"
-                            th:classappend="${(currentProductCount * 100 / productLimitRaw) < 50} ? 'percent-green' : (${(currentProductCount * 100 / productLimitRaw) < 80} ? 'percent-yellow' : 'percent-red')"
-                            th:text="${(currentProductCount * 100 / productLimitRaw) + '%'}">
-                            0%
-                        </div>
-                    </div>
-                    <div class="shop-progress-bar">
-                        <div class="shop-progress-fill"
-                            th:style="'width: ' + ${currentProductCount * 100 / productLimitRaw} + '%'"
-                            th:classappend="${(currentProductCount * 100 / productLimitRaw) < 50} ? 'fill-green' : (${(currentProductCount * 100 / productLimitRaw) < 80} ? 'fill-yellow' : 'fill-red')">
-                        </div>
-                    </div>
-                    <!-- Warning only shows when near limit (>=80%) -->
-                    <div class="shop-usage-warning" th:if="${currentProductCount * 100 / productLimitRaw >= 80}">
-                        <i th:if="${currentProductCount * 100 / productLimitRaw >= 100}" class="fas fa-ban"></i>
-                        <i th:unless="${currentProductCount * 100 / productLimitRaw >= 100}"
-                            class="fas fa-exclamation-triangle"></i>
-                        <span th:if="${currentProductCount * 100 / productLimitRaw >= 100}">
-                             Limit reached! <a th:href="@{/upgrade}" class="warning-link">Upgrade now</a>
-                        </span>
-                        <span th:unless="${currentProductCount * 100 / productLimitRaw >= 100}">
-                             <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots left! <a
-                                th:href="@{/upgrade}" class="warning-link">Upgrade</a>
-                        </span>
-                    </div>
-                    <!-- Optional: Show success message when under limit -->
-                    <div class="shop-usage-success"
-                        th:if="${currentProductCount * 100 / productLimitRaw < 80 and currentProductCount > 0}">
-                        <i class="fas fa-check-circle"></i>
-                        <span>You have <strong th:text="${productLimitRaw - currentProductCount}"></strong> slots available
-                            for new medicines.</span>
-                    </div>
-                </div>
-
                 <!-- Alert Messages -->
                 <div th:if="${success}" class="shop-alert shop-alert-success">
                     <i class="fas fa-check-circle"></i>
@@ -112,22 +68,22 @@
                 <div class="products-workspace-strip">
                     <div class="products-workspace-copy">
                         <span class="products-workspace-kicker">Medicine Master</span>
-                        <h2>Build a pharmacy-ready medicine catalogue</h2>
-                        <p>Keep every brand, salt, manufacturer, barcode, and pricing detail in one place so billing, search, and stock decisions stay fast at the counter.</p>
+                        <h2>Run medicine master, search, and stock visibility</h2>
+                        <p>Keep every brand, salt, barcode, pricing, and stock signal ready for billing and inventory control.</p>
                         <div class="products-workspace-pills">
                             <span><i class="fas fa-capsules"></i> Brand + salt search</span>
                             <span><i class="fas fa-barcode"></i> Barcode-ready records</span>
-                            <span><i class="fas fa-file-prescription"></i> Rx-aware medicine tags</span>
+                            <span><i class="fas fa-file-prescription"></i> Rx-aware records</span>
                         </div>
                     </div>
                     <div class="products-workspace-panel">
                         <div class="workspace-panel-row">
-                            <span class="workspace-panel-label">Best Use</span>
-                            <strong>Search by brand, generic, manufacturer, barcode, or pack size</strong>
+                            <span class="workspace-panel-label">Search Desk</span>
+                            <strong>Search by brand, generic, company, barcode, or pack size</strong>
                         </div>
                         <div class="workspace-panel-row">
                             <span class="workspace-panel-label">Catalog Health</span>
-                            <strong>Use Min Stock + Rx tags to keep counter-ready products visible</strong>
+                            <strong>Use stock signals and batch visibility to keep the counter ready</strong>
                         </div>
                     </div>
                 </div>
@@ -174,12 +130,12 @@
                 <div class="products-command-card">
                     <div class="products-command-head">
                         <div>
-                            <h3>Medicine Search & Actions</h3>
-                            <p>Search live across brand, salt, company, barcode, or pack size, then take action immediately.</p>
+                            <h3>Search, filter, and act</h3>
+                            <p>Run live search across medicine master and take action immediately.</p>
                         </div>
                         <div class="products-command-badges">
                             <span><i class="fas fa-bolt"></i> Live Search</span>
-                            <span><i class="fas fa-layer-group"></i> Bulk Actions</span>
+                            <span><i class="fas fa-layer-group"></i> Fast Actions</span>
                         </div>
                     </div>
 
@@ -248,7 +204,7 @@
                     </div>
                     <div id="bulkActions" class="shop-bulk-actions">
                         <span id="selectedCount">0</span> selected
-                        <button class="shop-btn-delete" onclick="bulkDelete()"><i class="fas fa-trash"></i>
+                        <button th:if="${role == 'OWNER'}" class="shop-btn-delete" onclick="bulkDelete()"><i class="fas fa-trash"></i>
                             Delete</button>
                         <button onclick="clearSelection()" class="shop-cancel-btn">Cancel</button>
                     </div>
@@ -266,6 +222,7 @@
     <script>
         const productLimitRaw = /*[[${productLimitRaw}]]*/ 50;
         const productLimitDisplay = /*[[${productLimit}]]*/ "50";
+        const canDeleteProducts = /*[[${role == 'OWNER'}]]*/ false;
         let currentProductCount = /*[[${currentProductCount}]]*/ 0;
         const isUnlimited = productLimitRaw === -1;
         
@@ -443,7 +400,7 @@
                         <td>${batchCell}</td>
                         <td><span class="shop-gst-badge ${p.gstPercent === 0 ? 'shop-gst-badge-zero' : ''}">${p.gstPercent || 0}%</span></td>
                         <td><div class="shop-stock-cell"><span class="shop-stock-quantity">${sellableStock}</span><span class="${isLowStock ? 'shop-low-stock-badge' : 'shop-in-stock-badge'}"><i class="fas ${isLowStock ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${isLowStock ? 'Low' : 'Healthy'}</span></div><div class="shop-stock-note">Sellable stock • Min alert ${p.minStock}</div>${p.batchManaged ? `<div class="shop-stock-note">Raw total ${p.stockQuantity}</div>` : ''}</td>
-                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${(!isUnlimited && currentProductCount >= productLimitRaw) ? 'disabled' : ''}><i class="fas fa-copy"></i></button><form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form></div></td>
+                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${(!isUnlimited && currentProductCount >= productLimitRaw) ? 'disabled' : ''}><i class="fas fa-copy"></i></button>${canDeleteProducts ? `<form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form>` : ''}</div></td>
                     </tr>
                 `);
             });
@@ -459,6 +416,10 @@
         function clearSelection() { selectedProducts.clear(); updateBulkActions(); $('#selectAllCheckbox').prop('checked', false); loadProducts(); }
         
         function bulkDelete() {
+            if (!canDeleteProducts) {
+                showError('Only owners can delete medicines');
+                return;
+            }
             if(!selectedProducts.size) return;
             if(confirm(`Delete ${selectedProducts.size} product(s)?`)) {
                 $.ajax({

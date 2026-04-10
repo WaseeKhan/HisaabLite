@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="'Login • ' + ${@appConfig.appName}">Login • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title th:text="'Login • ' + ${@appConfig.appName}">Login • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
 
       <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
                             <span class="workspace-dot is-orange"></span>
                             <span class="workspace-dot is-blue"></span>
                             <span class="workspace-dot"></span>
-                            <span class="workspace-title">RxArogya Web Workspace</span>
+                            <span class="workspace-title">Expygen Store Workspace</span>
                         </div>
                         <div class="workspace-badge">
                             <i class="fas fa-prescription-bottle-medical"></i>
@@ -181,7 +181,8 @@
             <section class="login-panel">
                 <div class="login-panel-card">
                     <div class="panel-brand">
-                        <img th:src="@{/images/rxarogya-logo-dark.svg}" th:alt="${@appConfig.appName}">
+                        <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="login-brand-image login-brand-image-dark">
+                        <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="login-brand-image login-brand-image-light">
                         <div class="panel-workspace">
                             <i class="fas fa-user-shield"></i>&nbsp; Shop Workspace Login
                         </div>
@@ -242,8 +243,8 @@
                     </form>
 
                     <div class="links">
-                        New to <span th:text="${@appConfig.appName}">RxArogya</span>?
-                        <a th:href="@{/register}">Create medical store account</a>
+                        New to <span th:text="${@appConfig.appName}">Expygen</span>?
+                        <a th:href="@{/register}">Create store account</a>
                     </div>
 
                     <div class="login-note">

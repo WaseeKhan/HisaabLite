@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Purchase Detail • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Purchase Detail • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
@@ -24,11 +24,12 @@
                 <div class="purchase-hero-copy">
                     <span class="purchase-kicker">Purchase Detail</span>
                     <h2 th:text="${purchase.supplierName}">ABC Pharma</h2>
-                    <p>Full inward details for this supplier invoice, including all recorded batch lines, pricing values, and currently sellable quantity.</p>
+                    <p>Review inward value, batch ledger, expiry profile, and batch actions from one purchase detail workspace.</p>
                     <div class="purchase-pills">
                         <span><i class="fas fa-calendar-day"></i> <span th:text="${#temporals.format(purchase.purchaseDate, 'dd MMM yyyy')}">05 Apr 2026</span></span>
                         <span><i class="fas fa-receipt"></i> <span th:text="${purchase.supplierInvoiceNumber != null ? purchase.supplierInvoiceNumber : 'No invoice'}">INV-1</span></span>
                         <span><i class="fas fa-layer-group"></i> <span th:text="${#lists.size(batches) + ' batch lines'}">0 batch lines</span></span>
+                        <span><i class="fas fa-user-pen"></i> <span th:text="${purchase.createdBy != null ? purchase.createdBy.name : 'System entry'}">Owner</span></span>
                     </div>
                 </div>
                 <div class="purchase-hero-actions">
@@ -43,7 +44,7 @@
                 </div>
             </section>
 
-            <section class="purchase-stats-grid">
+            <section class="purchase-stats-grid purchase-stats-grid-four">
                 <article class="purchase-stat-card">
                     <div><span>Invoice Total</span><strong th:text="${'₹' + #numbers.formatDecimal(purchase.totalAmount, 1, 'COMMA', 2, 'POINT')}">₹0.00</strong></div>
                     <i class="fas fa-indian-rupee-sign"></i>
@@ -60,6 +61,54 @@
                     <div><span>Recorded By</span><strong th:text="${purchase.createdBy != null ? purchase.createdBy.name : 'System'}">Owner</strong></div>
                     <i class="fas fa-user-check"></i>
                 </article>
+            </section>
+
+            <section class="purchase-layout-grid purchase-detail-layout">
+                <div class="purchase-card">
+                    <div class="purchase-card-head">
+                        <div>
+                            <h3>Invoice Intelligence</h3>
+                            <p>Quick invoice summary for supplier trace, inward control, and live stock follow-up.</p>
+                        </div>
+                        <span class="purchase-card-badge">Invoice snapshot</span>
+                    </div>
+                    <div class="purchase-detail-meta-grid">
+                        <div class="purchase-detail-meta">
+                            <span>Supplier name</span>
+                            <strong th:text="${purchase.supplierName}">ABC Pharma</strong>
+                        </div>
+                        <div class="purchase-detail-meta">
+                            <span>Invoice number</span>
+                            <strong th:text="${purchase.supplierInvoiceNumber != null ? purchase.supplierInvoiceNumber : 'No invoice'}">INV-1</strong>
+                        </div>
+                        <div class="purchase-detail-meta">
+                            <span>Purchase date</span>
+                            <strong th:text="${#temporals.format(purchase.purchaseDate, 'dd MMM yyyy')}">05 Apr 2026</strong>
+                        </div>
+                        <div class="purchase-detail-meta">
+                            <span>Live units</span>
+                            <strong th:text="${#aggregates.sum(batches.![availableQuantity])}">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="purchase-side-column purchase-detail-side">
+                    <div class="purchase-card">
+                        <div class="purchase-card-head">
+                            <div>
+                                <h3>Action Radar</h3>
+                                <p>Jump into the next operational action for this inward entry.</p>
+                            </div>
+                            <span class="purchase-card-badge">Live actions</span>
+                        </div>
+                        <div class="purchase-side-actions">
+                            <a th:if="${purchase.supplier != null}" th:href="@{/purchases/suppliers/{id}(id=${purchase.supplier.id})}" class="purchase-row-link">Open Supplier Profile</a>
+                            <a th:href="@{/purchases/returns/new}" class="purchase-row-link">Start Return Entry</a>
+                            <a th:href="@{/purchases/adjustments/new}" class="purchase-row-link">Adjust Inventory</a>
+                            <a th:href="@{/purchases/expiry-report}" class="purchase-row-link">Open Expiry Report</a>
+                        </div>
+                    </div>
+                </aside>
             </section>
 
             <section class="purchase-card batch-card">
@@ -108,6 +157,26 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <section class="purchase-card">
+                <div class="purchase-card-head">
+                    <div>
+                        <h3>Batch Action Notes</h3>
+                        <p>Use returns for supplier reversal, adjustments for corrections, and expiry report for risk review.</p>
+                    </div>
+                    <span class="purchase-card-badge">Operational note</span>
+                </div>
+                <div class="purchase-side-actions">
+                    <div class="purchase-detail-note">
+                        <i class="fas fa-circle-info"></i>
+                        <span>Batch quantities shown here are live values and may already reflect billing, returns, or manual adjustments.</span>
+                    </div>
+                    <div class="purchase-detail-note">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>Use purchase returns for supplier-facing stock movement and stock adjustments for internal correction only.</span>
+                    </div>
                 </div>
             </section>
 

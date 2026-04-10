@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Staff Management • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Staff Management • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -34,7 +34,23 @@
                 <!-- Header Fragment -->
                 <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
 
-                
+                <section class="staff-hero">
+                    <div class="staff-hero-copy">
+                        <span class="staff-kicker">Team Control Desk</span>
+                        <h2>Manage staff access, roles, usage, and active team operations</h2>
+                        <p>Review active users, assign cashier or manager roles, reset access, and keep your shop team aligned from one workspace.</p>
+                    </div>
+                    <div class="staff-hero-actions">
+                        <a th:href="@{/subscription}" class="staff-hero-btn">
+                            <i class="fas fa-id-card"></i>
+                            <span>View Plan Usage</span>
+                        </a>
+                        <a th:href="@{/staff/new}" class="staff-hero-btn staff-hero-btn-primary">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Staff</span>
+                        </a>
+                    </div>
+                </section>
 
                 <!-- Stats Cards Row -->
                 <div class="staff-stats-row">
@@ -82,9 +98,10 @@
                         <i class="fas fa-search staff-search-icon"></i>
                         <input type="text" id="searchStaff" class="staff-search-input" placeholder="Search by name, email, or role..." autocomplete="off">
                     </div>
-                    <a th:href="@{/staff/new}" class="staff-add-button">
-                        <i class="fas fa-plus"></i> Add Staff
-                    </a>
+                    <div class="staff-action-pills">
+                        <span class="staff-action-pill"><i class="fas fa-shield-halved"></i> Role control</span>
+                        <span class="staff-action-pill"><i class="fas fa-key"></i> Access reset</span>
+                    </div>
                 </div>
 
                 <!-- Error/Success Messages -->
@@ -101,6 +118,12 @@
 
                 <!-- Staff Table -->
                 <div class="staff-table-container">
+                    <div class="staff-table-head">
+                        <div>
+                            <h3>Team Directory</h3>
+                            <p>Search, update, activate, or remove staff from the live shop team.</p>
+                        </div>
+                    </div>
                     <table class="staff-table">
                         <thead>
                             <tr>
@@ -141,10 +164,15 @@
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="staff-actions-menu">
-                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-item" style="cursor:default; opacity:0.75;">
+                                            <div class="staff-action-menu-head">
+                                                <strong th:text="${user.name}">Staff Name</strong>
+                                                <span th:text="${user.role}">CASHIER</span>
+                                            </div>
+                                            <div class="staff-action-divider"></div>
+                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-item staff-action-static" style="cursor:default; opacity:0.75;">
                                                 <i class="fas fa-shield-alt"></i> Owner managed by admin only
                                             </div>
-                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-item" style="cursor:not-allowed; opacity:0.45; pointer-events:none;">
+                                            <div th:if="${user.role == 'OWNER'}" class="staff-action-item staff-action-static" style="cursor:not-allowed; opacity:0.45; pointer-events:none;">
                                                 <i class="fas fa-edit"></i> Edit Details
                                             </div>
                                             <div th:if="${user.role == 'OWNER'}" class="staff-action-divider"></div>
@@ -152,15 +180,6 @@
                                             <a th:href="@{/staff/edit/{id}(id=${user.id})}" class="staff-action-item">
                                                 <i class="fas fa-edit"></i> Edit Details
                                             </a>
-                                            <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" class="staff-inline-form">
-                                                <select name="role" class="staff-role-select-inline">
-                                                    <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
-                                                    <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
-                                                </select>
-                                                <button type="submit" class="staff-action-item">
-                                                    <i class="fas fa-save"></i> Change Role
-                                                </button>
-                                            </form>
                                             <button class="staff-action-item" onclick="resetPassword(${user.id})">
                                                 <i class="fas fa-key"></i> Reset Password
                                             </button>
@@ -168,6 +187,19 @@
                                                 <i class="fas" th:class="${user.active ? 'fa-user-slash' : 'fa-user-check'}"></i>
                                                 <span th:text="${user.active ? 'Deactivate' : 'Activate'}">Deactivate</span>
                                             </button>
+                                            <form th:action="@{/staff/{id}/role(id=${user.id})}" method="post" class="staff-inline-form">
+                                                <label class="staff-inline-form-label">Role Access</label>
+                                                <div class="staff-inline-form-row">
+                                                    <select name="role" class="staff-role-select-inline">
+                                                        <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                                                        <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                                                    </select>
+                                                    <button type="submit" class="staff-inline-save-btn">
+                                                        <i class="fas fa-save"></i>
+                                                        <span>Apply</span>
+                                                    </button>
+                                                </div>
+                                            </form>
                                             <div class="staff-action-divider"></div>
                                             <button class="staff-action-item staff-action-delete" onclick="showDeleteModal(${user.id}, '${user.name}')">
                                                 <i class="fas fa-trash-alt"></i> Delete Staff

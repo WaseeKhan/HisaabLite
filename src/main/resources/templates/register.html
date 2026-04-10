@@ -2,243 +2,253 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="'Register • ' + ${@appConfig.appName}">Register • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
-
-    <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <title th:text="'Register • ' + ${@appConfig.appName}">Register • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/register.css}">
-
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body>
-
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <!-- MAIN CONTENT (COMPACT) -->
-    <div class="main-content">
-        <div class="onboarding-wrapper">
-            <div class="onboarding-card">
-                <div class="card-header">
-                    <h2>🚀 Onboard Your Pharmacy</h2>
-                    <p><span class="highlight">Medical-first workflow</span> powered by <span th:text="${@appConfig.appName}">RxArogya</span></p>
-                </div>
-                <br>
+    <main class="register-shell">
+        <div class="register-layout">
+            <section class="register-intro">
+                <span class="register-kicker">Onboarding</span>
+                <h1>Start your Expygen store workspace with calm, clear setup</h1>
+                <p>Set up your pharmacy account, choose the right plan, and go live with billing, purchases, stock control, staff roles, support, and Insights in one connected system.</p>
 
-                <!-- Success Modal (Hidden by default) -->
+                <div class="intro-pills">
+                    <span><i class="fas fa-capsules"></i> Billing + inventory ready</span>
+                    <span><i class="fas fa-user-shield"></i> Owner-first access</span>
+                    <span><i class="fas fa-layer-group"></i> Plan-based onboarding</span>
+                </div>
+
+                <div class="intro-signal-card">
+                    <div class="signal-head">
+                        <span class="signal-kicker">What you set up here</span>
+                        <span class="signal-status">Step 1</span>
+                    </div>
+                    <div class="signal-grid">
+                        <div class="signal-item">
+                            <strong>Business identity</strong>
+                            <span>Shop, owner, phone, PAN, and city details</span>
+                        </div>
+                        <div class="signal-item">
+                            <strong>Plan selection</strong>
+                            <span>Free, Basic, Premium, or Enterprise onboarding path</span>
+                        </div>
+                        <div class="signal-item">
+                            <strong>Account access</strong>
+                            <span>Your owner login to open the store workspace</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="register-card">
+                <div class="card-header">
+                    <span class="card-kicker">Create Account</span>
+                    <h2>Onboard your pharmacy</h2>
+                    <p>Keep this simple. Choose a plan, add your business details, and create the owner account.</p>
+                </div>
+
                 <div id="successContainer" style="display: none;">
                     <div class="modal-overlay">
                         <div class="success-modal-content">
                             <div class="success-icon">
                                 <i class="fas fa-check"></i>
                             </div>
-
-                            <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 8px; text-align: center;">
-                                Account Created!</h3>
-
-                            <p style="color: #52525b; font-size: 13px; margin-bottom: 16px; text-align: center;">
-                                Check your email to verify your account.
-                            </p>
-
+                            <h3>Account created</h3>
+                            <p>Check your email to verify the account, then sign in to start the store workspace.</p>
                             <div class="progress-bar-container">
                                 <div id="progressBar" class="progress-bar"></div>
                             </div>
-
                             <div class="action-buttons">
                                 <button onclick="goToLoginNow()" class="action-btn primary">
-                                    <i class="fas fa-sign-in-alt"></i> Login
+                                    <i class="fas fa-sign-in-alt"></i> Login now
                                 </button>
-
                                 <button onclick="stayHere()" class="action-btn secondary">
-                                    <i class="fas fa-clock"></i> Wait <span id="countdownDisplay">5</span>s
+                                    <i class="fas fa-clock"></i> Stay here <span id="countdownDisplay">5</span>s
                                 </button>
                             </div>
-
-                            <p class="info-text">
-                                Auto-redirect in <span id="countdown">5</span>s
-                            </p>
+                            <p class="info-text">Auto-redirect in <span id="countdown">5</span>s</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Global Error -->
                 <div th:if="${error}" class="message error">
                     <i class="fas fa-exclamation-circle"></i>
                     <span th:text="${error}"></span>
                 </div>
 
-                <!-- Registration Form -->
-                <form id="registrationForm" th:action="@{/register}" th:object="${registerRequest}" method="post"
-                    onsubmit="return handleSubmit()">
-
-                    <!-- Hidden input - EMPTY initially, set when plan selected -->
+                <form id="registrationForm" th:action="@{/register}" th:object="${registerRequest}" method="post" onsubmit="return handleSubmit()">
                     <input type="hidden" name="planType" id="selectedPlanInput" value="">
 
                     <div class="registration-grid">
-                        <!-- LEFT - Business -->
-                        <div>
-                            <div class="section-title">Business information</div>
+                        <div class="form-panel">
+                            <div class="section-title">Business details</div>
 
                             <div class="form-group">
-                                <label>Shop name <span style="color: #dc2626;">*</span> </label>
+                                <label>Shop name <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-store input-icon"></i>
-                                    <input type="text" th:field="*{shopName}" placeholder="Shop Name" />
+                                    <input type="text" th:field="*{shopName}" placeholder="Enter your pharmacy name" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('shopName')}"
-                                    th:errors="*{shopName}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('shopName')}" th:errors="*{shopName}"></small>
                             </div>
 
                             <div class="form-group">
-                                <label>Owner name <span style="color: #dc2626;">*</span></label>
+                                <label>Owner name <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-user input-icon"></i>
-                                    <input type="text" th:field="*{ownerName}" placeholder="Owner Name" />
+                                    <input type="text" th:field="*{ownerName}" placeholder="Primary owner or admin name" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('ownerName')}"
-                                    th:errors="*{ownerName}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('ownerName')}" th:errors="*{ownerName}"></small>
                             </div>
 
                             <div class="form-group">
-                                <label>Email <span style="color: #dc2626;">*</span></label>
+                                <label>Email <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-envelope input-icon"></i>
-                                    <input type="email" th:field="*{username}" placeholder="username@example.com"
-                                        oninput="this.value = this.value.toLowerCase()" />
+                                    <input type="email" th:field="*{username}" placeholder="owner@storename.com" oninput="this.value = this.value.toLowerCase()" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('username')}"
-                                    th:errors="*{username}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
                             </div>
 
                             <div class="form-group">
-                                <label>Phone <span style="color: #dc2626;">*</span></label>
+                                <label>Phone <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-phone input-icon"></i>
-                                    <input type="tel" th:field="*{phone}" placeholder="9876543210" maxlength="10"
-                                        pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                    <input type="tel" th:field="*{phone}" placeholder="9876543210" maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('phone')}"
-                                    th:errors="*{phone}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
                             </div>
 
                             <div class="form-group">
-                                <label>PAN number <span style="color: #dc2626;">*</span></label>
+                                <label>PAN number <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-id-card input-icon"></i>
-                                    <input type="text" th:field="*{panNumber}" placeholder="ABCDE1234F"
-                                        style="text-transform: uppercase;"
-                                        oninput="this.value = this.value.toUpperCase()" />
+                                    <input type="text" th:field="*{panNumber}" placeholder="ABCDE1234F" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('panNumber')}"
-                                    th:errors="*{panNumber}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('panNumber')}" th:errors="*{panNumber}"></small>
                             </div>
                         </div>
 
-                        <!-- RIGHT - Plan Selection -->
-                        <div>
-                            <div class="section-title">Choose your plan <span style="color: #dc2626;">*</span></div>
+                        <div class="form-panel">
+                            <div class="section-title">Plan and access</div>
 
-                            <!-- Plan Selector Card -->
-                            <div class="plan-selector" onclick="openPlanModal()" id="planSelector">
-                                <div class="plan-selector-info">
-                                    <div class="plan-selector-icon" id="selectedPlanIcon">
-                                        <i class="fas fa-question-circle"></i>
+                            <div class="plan-console">
+                                <div class="plan-console-head">
+                                    <div>
+                                        <h3>Choose your plan <span class="required">*</span></h3>
+                                        <p>Choose the right plan for your store.</p>
                                     </div>
-                                    <div class="plan-selector-text">
-                                        <span class="plan-selector-title" id="selectedPlanName">Select a Plan</span>
-                                        <span class="plan-selector-subtitle" id="selectedPlanDetails">Choose your plan</span>
-                                    </div>
+                                    <button type="button" class="plan-console-btn" onclick="openPlanModal()">
+                                        <i class="fas fa-layer-group"></i> View plans
+                                    </button>
                                 </div>
-                                <div class="plan-selector-price" id="selectedPlanPrice"></div>
+
+                                <div class="plan-selector" onclick="openPlanModal()" id="planSelector">
+                                    <div class="plan-selector-info">
+                                        <div class="plan-selector-icon" id="selectedPlanIcon">
+                                            <i class="fas fa-question-circle"></i>
+                                        </div>
+                                        <div class="plan-selector-text">
+                                            <span class="plan-selector-title" id="selectedPlanName">Select a plan</span>
+                                            <span class="plan-selector-subtitle" id="selectedPlanDetails">Users, products, and growth path</span>
+                                        </div>
+                                    </div>
+                                    <div class="plan-selector-price" id="selectedPlanPrice"></div>
+                                </div>
+
+                                <div id="planErrorMessage" class="plan-inline-error" style="display: none;">
+                                    <i class="fas fa-exclamation-circle"></i> Please select a plan before registering
+                                </div>
+
+                                <div class="selected-plan-wrap">
+                                    <span class="selected-plan-badge" id="selectedPlanBadge">No plan selected</span>
+                                </div>
                             </div>
 
-                            <!-- Inline Error Message -->
-                            <div id="planErrorMessage" style="display: none; color: #dc2626; font-size: 0.7rem; margin-top: 6px; margin-bottom: 8px;">
-                                <i class="fas fa-exclamation-circle"></i> Please select a plan before registering
-                            </div>
-
-                            <div style="margin-bottom: 40px;">
-                                <span class="selected-plan-badge" id="selectedPlanBadge" style="background: #fef2f2; color: #dc2626; padding: 5px 12px; border-radius: 30px; font-size: 0.7rem; border: 1px solid #fee2e2;">⚠️ No plan selected</span>
-                            </div>
-
-                            <!-- City -->
                             <div class="form-group">
                                 <label>City</label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-city input-icon"></i>
-                                    <input type="text" th:field="*{city}" placeholder="Lucknow" />
+                                    <input type="text" th:field="*{city}" placeholder="Enter your city" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('city')}"
-                                    th:errors="*{city}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></small>
                             </div>
 
-                            <!-- Password -->
                             <div class="form-group">
-                                <label>Password <span style="color: #dc2626;">*</span></label>
+                                <label>Password <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-lock input-icon"></i>
-                                    <input type="password" th:field="*{password}" placeholder="Create password" />
+                                    <input type="password" th:field="*{password}" placeholder="Create a secure password" />
                                 </div>
-                                <small class="error-message" th:if="${#fields.hasErrors('password')}"
-                                    th:errors="*{password}"></small>
+                                <small class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
                             </div>
 
-                            <!-- Confirm -->
                             <div class="form-group">
-                                <label>Confirm password <span style="color: #dc2626;">*</span></label>
+                                <label>Confirm password <span class="required">*</span></label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-lock input-icon"></i>
-                                    <input type="password" id="confirmPassword" name="confirmPassword"
-                                        placeholder="Re-enter password" />
+                                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" />
                                 </div>
-                                <small id="confirmError" class="error-message" style="display: none;">Passwords don't
-                                    match</small>
+                                <small id="confirmError" class="error-message" style="display: none;">Passwords don't match</small>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Button -->
-                    <button type="submit" class="btn-register" id="submitBtn">
-                        <span id="buttonText">🚀 Register Business</span>
-                        <span id="buttonSpinner" style="display: none;" class="btn-spinner"></span>
-                    </button>
+                    <div class="submit-area">
+                        <button type="submit" class="btn-register" id="submitBtn">
+                            <span id="buttonText">Create business account</span>
+                            <span id="buttonSpinner" style="display: none;" class="btn-spinner"></span>
+                        </button>
+                    </div>
+
+                    <div class="back-link">
+                        <a th:href="@{/login}">Already have an account? Sign in</a>
+                    </div>
+
+                    <div class="register-reassurance">
+                        <div class="reassurance-item">
+                            <i class="fas fa-envelope-open-text"></i>
+                            <span>Email verification after signup</span>
+                        </div>
+                        <div class="reassurance-item">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Plan can be upgraded later</span>
+                        </div>
+                        <div class="reassurance-item">
+                            <i class="fas fa-headset"></i>
+                            <span>Support available if setup needs help</span>
+                        </div>
+                    </div>
                 </form>
-
-                <div class="back-link">
-                    <a th:href="@{/login}">
-                        Already have an account? Sign in →
-                    </a>
-                </div>
-            </div>
+            </section>
         </div>
-    </div>
+    </main>
 
-    <!-- PLAN MODAL - NO DEFAULT SELECTION -->
     <div id="planModal" class="plan-modal">
         <div class="plan-modal-content">
             <div class="plan-modal-header">
-                <h3>Choose Your Perfect Plan</h3>
-                <p>Select the plan that fits your business needs</p>
+                <span class="card-kicker">Plans</span>
+                <h3>Choose your onboarding plan</h3>
+                <p>Pick the plan that matches your store usage today. You can upgrade later as operations grow.</p>
             </div>
 
             <div class="plan-grid" id="planGrid">
-                <!-- No default selected class -->
                 <div th:each="plan : ${plans}" class="plan-card"
-                     th:attr="data-plan-name=${plan.planName}, 
+                     th:attr="data-plan-name=${plan.planName},
                            data-plan-price=${plan.price},
                            data-plan-users=${plan.maxUsers == -1 ? 'Unlimited' : plan.maxUsers + ' users'},
                            data-plan-products=${plan.maxProducts == -1 ? 'Unlimited' : plan.maxProducts + ' products'}"
@@ -248,8 +258,8 @@
                     <div th:if="${plan.planName == 'BASIC'}" class="best-value"></div>
 
                     <div class="plan-icon">
-                        <i th:classappend="${plan.planName == 'FREE'} ? 'fas fa-gem' : 
-                                        (${plan.planName == 'BASIC'} ? 'fas fa-rocket' : 
+                        <i th:classappend="${plan.planName == 'FREE'} ? 'fas fa-gem' :
+                                        (${plan.planName == 'BASIC'} ? 'fas fa-rocket' :
                                          (${plan.planName == 'PREMIUM'} ? 'fas fa-crown' : 'fas fa-building'))"></i>
                     </div>
 
@@ -264,36 +274,18 @@
                     </div>
 
                     <ul class="plan-features">
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <span th:text="${plan.maxUsers == -1 ? 'Unlimited users' : plan.maxUsers + ' users'}">2
-                                users</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            <span
-                                th:text="${plan.maxProducts == -1 ? 'Unlimited products' : plan.maxProducts + ' products'}">50
-                                products</span>
-                        </li>
-                        <li th:if="${plan.planName != 'FREE'}">
-                            <i class="fas fa-check-circle"></i>
-                            <span>GST invoices</span>
-                        </li>
-                        <li th:if="${plan.planName == 'PREMIUM' or plan.planName == 'ENTERPRISE'}">
-                            <i class="fas fa-check-circle"></i>
-                            <span>WhatsApp integration</span>
-                        </li>
-                        <li th:if="${plan.planName == 'ENTERPRISE'}">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Priority support</span>
-                        </li>
+                        <li><i class="fas fa-check-circle"></i><span th:text="${plan.maxUsers == -1 ? 'Unlimited users' : plan.maxUsers + ' users'}">2 users</span></li>
+                        <li><i class="fas fa-check-circle"></i><span th:text="${plan.maxProducts == -1 ? 'Unlimited products' : plan.maxProducts + ' products'}">50 products</span></li>
+                        <li th:if="${plan.planName != 'FREE'}"><i class="fas fa-check-circle"></i><span>GST invoices</span></li>
+                        <li th:if="${plan.planName == 'PREMIUM' or plan.planName == 'ENTERPRISE'}"><i class="fas fa-check-circle"></i><span>WhatsApp invoice sharing</span></li>
+                        <li th:if="${plan.planName == 'ENTERPRISE'}"><i class="fas fa-check-circle"></i><span>Priority support</span></li>
                     </ul>
                 </div>
             </div>
 
             <div class="plan-modal-actions">
                 <button class="modal-btn secondary" onclick="closePlanModal()">Cancel</button>
-                <button class="modal-btn primary" onclick="confirmPlanSelection()">Confirm Plan</button>
+                <button class="modal-btn primary" onclick="confirmPlanSelection()">Confirm plan</button>
             </div>
         </div>
     </div>
@@ -323,7 +315,7 @@
 
         function confirmPlanSelection() {
             const selectedCard = document.querySelector('.plan-card.selected');
-            
+
             if (!selectedCard) {
                 alert('Please select a plan to continue');
                 return;
@@ -334,28 +326,21 @@
             const planUsers = selectedCard.getAttribute('data-plan-users');
             const planProducts = selectedCard.getAttribute('data-plan-products');
 
-            // Set the hidden input value
             document.getElementById('selectedPlanInput').value = planName;
             document.getElementById('selectedPlanName').innerText = planName;
             document.getElementById('selectedPlanDetails').innerHTML = `${planUsers} · ${planProducts}`;
 
             const priceElement = document.getElementById('selectedPlanPrice');
             const badgeElement = document.getElementById('selectedPlanBadge');
-            
+
             if (parseFloat(planPrice) === 0) {
                 priceElement.innerHTML = 'FREE';
                 priceElement.classList.add('free');
-                badgeElement.innerHTML = '✓ Free plan selected';
-                badgeElement.style.background = '#f0fdf4';
-                badgeElement.style.color = '#10b981';
-                badgeElement.style.border = '1px solid #bbf7d0';
+                badgeElement.innerHTML = 'Free plan selected';
             } else {
                 priceElement.innerHTML = `₹${parseFloat(planPrice).toLocaleString('en-IN')}/year`;
                 priceElement.classList.remove('free');
-                badgeElement.innerHTML = `✓ ${planName} plan selected`;
-                badgeElement.style.background = '#f0fdf4';
-                badgeElement.style.color = '#10b981';
-                badgeElement.style.border = '1px solid #bbf7d0';
+                badgeElement.innerHTML = `${planName} plan selected`;
             }
 
             const iconElement = document.getElementById('selectedPlanIcon').querySelector('i');
@@ -364,13 +349,11 @@
             else if (planName === 'PREMIUM') iconElement.className = 'fas fa-crown';
             else iconElement.className = 'fas fa-building';
 
-            // Hide error message when plan is selected
             const planErrorMessage = document.getElementById('planErrorMessage');
             if (planErrorMessage) {
                 planErrorMessage.style.display = 'none';
             }
-            
-            // Remove error styling
+
             const planSelector = document.getElementById('planSelector');
             planSelector.style.borderColor = '';
             planSelector.style.background = '';
@@ -389,12 +372,11 @@
             }
 
             confirmError.style.display = 'none';
-            
-            // Validate plan selection - Show inline error instead of alert
+
             const selectedPlan = document.getElementById('selectedPlanInput').value;
             const planErrorMessage = document.getElementById('planErrorMessage');
             const planSelector = document.getElementById('planSelector');
-            
+
             if (!selectedPlan || selectedPlan === '') {
                 if (planErrorMessage) {
                     planErrorMessage.style.display = 'block';
@@ -404,7 +386,7 @@
                 planSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return false;
             }
-            
+
             if (planErrorMessage) {
                 planErrorMessage.style.display = 'none';
             }
@@ -423,10 +405,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Ensure hidden input is empty on page load
             const planInput = document.getElementById('selectedPlanInput');
             if (planInput) planInput.value = '';
-            
+
             const password = document.querySelector('[name="password"]');
             const confirmPassword = document.getElementById('confirmPassword');
             const confirmError = document.getElementById('confirmError');
@@ -460,7 +441,7 @@
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
-            
+
             countdownValue = 5;
             redirectCancelled = false;
             updateCountdownDisplay();
@@ -516,27 +497,10 @@
 
             const successContainer = document.getElementById('successContainer');
             const registrationForm = document.getElementById('registrationForm');
-            
+
             if (successContainer) successContainer.style.display = 'none';
             if (registrationForm) registrationForm.style.display = 'block';
-            document.body.style.overflow = 'auto';
-
-            const submitBtn = document.getElementById('submitBtn');
-            const buttonText = document.getElementById('buttonText');
-            const buttonSpinner = document.getElementById('buttonSpinner');
-            
-            if (submitBtn) submitBtn.disabled = false;
-            if (buttonText) buttonText.style.display = 'inline';
-            if (buttonSpinner) buttonSpinner.style.display = 'none';
-        }
-
-        window.onclick = function (event) {
-            const planModal = document.getElementById('planModal');
-            if (event.target == planModal) {
-                planModal.classList.remove('active');
-            }
         }
     </script>
 </body>
-
 </html>

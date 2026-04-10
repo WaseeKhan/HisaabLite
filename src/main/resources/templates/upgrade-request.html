@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Upgrade Request • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/upgrade.css}">
+</head>
+
+<body class="shop-body">
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='upgrade')}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+                <div class="upgrade-shell">
+                    <section class="upgrade-hero">
+                        <div class="upgrade-hero-copy">
+                            <span class="upgrade-kicker">Upgrade Request</span>
+                            <h1>We are ready to process your plan change</h1>
+                            <p>Use this confirmation desk to continue the commercial handoff for your selected plan.</p>
+                            <div class="upgrade-hero-pills">
+                                <span><i class="fas fa-arrow-up"></i> Requested plan: <strong th:text="${selectedPlan}">PREMIUM</strong></span>
+                                <span><i class="fas fa-id-badge"></i> Current plan: <strong th:text="${currentPlan}">FREE</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="upgrade-hero-status">
+                            <div class="upgrade-status-card">
+                                <span>Selected plan</span>
+                                <strong th:text="${selectedPlan}">PREMIUM</strong>
+                                <small>Commercial request ready</small>
+                            </div>
+                            <div class="upgrade-status-card">
+                                <span>Current plan</span>
+                                <strong th:text="${currentPlan}">FREE</strong>
+                                <small>Live workspace tier</small>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="upgrade-lower-grid">
+                        <div class="upgrade-process-card">
+                            <div class="upgrade-section-head">
+                                <div>
+                                    <h3>Next steps</h3>
+                                    <p>Complete the request by reaching the commercial desk and sharing your preferred plan.</p>
+                                </div>
+                            </div>
+                            <div class="process-steps">
+                                <div class="step">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">
+                                        <h4>Confirm plan</h4>
+                                        <p>Tell support you want <strong th:text="${selectedPlan}">PREMIUM</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">
+                                        <h4>Share shop details</h4>
+                                        <p>Use your store name and registered contact to speed up activation.</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">
+                                        <h4>Complete payment</h4>
+                                        <p>Pay using the shared method and send transaction proof.</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">4</div>
+                                    <div class="step-content">
+                                        <h4>Activation</h4>
+                                        <p>Your workspace will be updated once support confirms the request.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="upgrade-service-card">
+                            <div class="upgrade-section-head">
+                                <div>
+                                    <h3>Quick actions</h3>
+                                    <p>Use these shortcuts to continue or review plan details.</p>
+                                </div>
+                            </div>
+                            <div class="contact-list">
+                                <a th:href="@{/upgrade}" class="contact-card">
+                                    <i class="fas fa-arrow-left"></i>
+                                    <div>
+                                        <strong>Back to plan comparison</strong>
+                                        <span>Review all available plans again</span>
+                                    </div>
+                                </a>
+                                <a th:href="@{/subscription}" class="contact-card">
+                                    <i class="fas fa-id-card"></i>
+                                    <div>
+                                        <strong>Open subscription usage</strong>
+                                        <span>Check current plan, users, and product usage</span>
+                                    </div>
+                                </a>
+                                <a th:href="@{/support}" class="contact-card">
+                                    <i class="fas fa-headset"></i>
+                                    <div>
+                                        <strong>Contact support desk</strong>
+                                        <span>Continue the commercial handoff from support</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div th:replace="~{fragments/shop-footer :: footer}"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

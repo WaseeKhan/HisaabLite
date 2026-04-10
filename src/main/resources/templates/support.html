@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Support Center • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Support Center • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -23,79 +23,138 @@
 
 <body class="shop-body">
 
-    <div class="shop-layout">
+        <div class="shop-layout">
         <!-- Sidebar Fragment -->
-        <div th:replace="~{fragments/shop-sidebar :: sidebar (shop=${shop})}"></div>
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='support')}"></div>
 
         <!-- Main Content -->
         <div class="shop-main">
             <div class="shop-content-wrapper">
 
                 <!-- Header Fragment -->
-                <div th:replace="~{fragments/shop-header :: header (shop=${shop})}"></div>
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
 
                 <!-- Support Container -->
                 <div class="support-container">
-
-                    <!-- Header Action Bar - Search and New Ticket in one line -->
-                    <div class="header-action-bar">
-                        <div class="search-section">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchInput" placeholder="Search for answers...">
-                            <button type="button" onclick="searchFAQ()">Search</button>
-                        </div>
-                        <button type="button" class="btn-new-ticket" onclick="openTicketModal()">
-                            <i class="fas fa-plus"></i> New Ticket
-                        </button>
-                    </div>
-
-                    <!-- Support Grid -->
-                    <div class="support-grid">
-                        <!-- Left Column - Tickets -->
-                        <div>
-                            <div class="tickets-section">
-                                <div class="section-header">
-                                    <h3><i class="fas fa-ticket-alt"></i> Your Support Tickets</h3>
-                                </div>
-
-                                <div th:if="${tickets != null and tickets.content != null and not #lists.isEmpty(tickets.content)}">
-                                    <div th:each="ticket : ${tickets.content}" class="ticket-item"
-                                        th:attr="data-ticket-number=${ticket.ticketNumber}" onclick="viewTicket(this)">
-                                        <div class="ticket-header">
-                                            <span class="ticket-id" th:text="${ticket.ticketNumber}">RXA2026031300011234</span>
-                                            <span class="ticket-status" 
-                                                th:classappend="'status-' + ${ticket.status.name()}"
-                                                th:text="${ticket.status.getDisplayName()}">OPEN</span>
-                                        </div>
-                                        <div class="ticket-subject" th:text="${ticket.subject}">Payment issue</div>
-                                        <div class="ticket-meta">
-                                            <span><i class="far fa-clock"></i> <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy')}">13 Mar 2026</span></span>
-                                            <span><i class="fas fa-flag"></i> <span th:text="${ticket.priority.getDisplayName()}">MEDIUM</span></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Pagination -->
-                                    <div th:if="${tickets.totalPages > 1}" class="pagination">
-                                        <a th:href="@{/support(page=${currentPage - 1})}" th:if="${currentPage > 0}"><i class="fas fa-chevron-left"></i></a>
-                                        <span th:each="i : ${#numbers.sequence(0, tickets.totalPages - 1)}">
-                                            <a th:href="@{/support(page=${i})}" th:classappend="${i == currentPage ? 'active' : ''}" th:text="${i + 1}">1</a>
-                                        </span>
-                                        <a th:href="@{/support(page=${currentPage + 1})}" th:if="${currentPage < tickets.totalPages - 1}"><i class="fas fa-chevron-right"></i></a>
-                                    </div>
-                                </div>
-
-                                <div th:if="${tickets == null or tickets.content == null or #lists.isEmpty(tickets.content)}" class="empty-state">
-                                    <i class="fas fa-ticket-alt"></i>
-                                    <p>No tickets yet. Create your first support ticket!</p>
-                                </div>
+                    <section class="support-hero">
+                        <div class="support-hero-copy">
+                            <span class="support-kicker">Service Desk</span>
+                            <h1>Resolve tickets, escalate issues, and access verified support channels</h1>
+                            <p>Run support like a structured service workspace with ticket visibility, escalation readiness, searchable answers, and direct reach to the Expygen support team.</p>
+                            <div class="support-hero-pills">
+                                <span><i class="fas fa-ticket"></i> Ticket-led support</span>
+                                <span><i class="fas fa-shield-check"></i> Verified channels</span>
+                                <span><i class="fas fa-bolt"></i> Escalation ready</span>
                             </div>
                         </div>
+                        <div class="support-hero-actions">
+                            <button type="button" class="btn-new-ticket" onclick="openTicketModal()" th:if="${canCreateTicket}">
+                                <i class="fas fa-plus"></i> New Ticket
+                            </button>
+                            <a th:href="'mailto:' + ${supportEmail}" class="support-hero-link">
+                                <i class="fas fa-envelope"></i>
+                                Email Support
+                            </a>
+                        </div>
+                    </section>
 
-                        <!-- Right Column - FAQs & Contact -->
-                        <div>
-                            <!-- FAQs -->
-                            <div class="faq-section">
-                                <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
+                    <section class="support-stats-grid">
+                        <article class="support-stat-card">
+                            <div class="support-stat-copy">
+                                <span>Total Tickets</span>
+                                <strong th:text="${totalTickets}">0</strong>
+                            </div>
+                            <i class="fas fa-ticket-alt"></i>
+                        </article>
+                        <article class="support-stat-card">
+                            <div class="support-stat-copy">
+                                <span>Open</span>
+                                <strong th:text="${openTickets}">0</strong>
+                            </div>
+                            <i class="fas fa-folder-open"></i>
+                        </article>
+                        <article class="support-stat-card">
+                            <div class="support-stat-copy">
+                                <span>In Progress</span>
+                                <strong th:text="${inProgressTickets}">0</strong>
+                            </div>
+                            <i class="fas fa-spinner"></i>
+                        </article>
+                        <article class="support-stat-card">
+                            <div class="support-stat-copy">
+                                <span>Urgent</span>
+                                <strong th:text="${urgentTickets}">0</strong>
+                            </div>
+                            <i class="fas fa-bell"></i>
+                        </article>
+                    </section>
+
+                    <section class="support-command-bar">
+                        <div class="search-section">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search FAQs, workflow help, and support answers...">
+                            <button type="button" onclick="searchFAQ()">Search</button>
+                        </div>
+                        <div class="support-command-pills">
+                            <span><i class="fas fa-clock"></i> Typical response within 24 hours</span>
+                            <span><i class="fas fa-user-tie"></i> Owner-led ticket creation</span>
+                        </div>
+                    </section>
+
+                    <div class="support-grid">
+                        <section class="support-panel tickets-panel">
+                            <div class="support-panel-head">
+                                <div>
+                                    <h3><i class="fas fa-ticket-alt"></i> Ticket Queue</h3>
+                                    <p>Track open, active, and resolved requests raised for this shop.</p>
+                                </div>
+                                <span class="support-panel-badge" th:text="${totalTickets + ' total'}">0 total</span>
+                            </div>
+
+                            <div th:if="${tickets != null and tickets.content != null and not #lists.isEmpty(tickets.content)}" class="ticket-list">
+                                <div th:each="ticket : ${tickets.content}" class="ticket-item"
+                                    th:attr="data-ticket-number=${ticket.ticketNumber}" onclick="viewTicket(this)">
+                                    <div class="ticket-header">
+                                        <span class="ticket-id" th:text="${ticket.ticketNumber}">RXA2026031300011234</span>
+                                        <span class="ticket-status" 
+                                            th:classappend="'status-' + ${ticket.status.name()}"
+                                            th:text="${ticket.status.getDisplayName()}">OPEN</span>
+                                    </div>
+                                    <div class="ticket-subject" th:text="${ticket.subject}">Payment issue</div>
+                                    <div class="ticket-meta">
+                                        <span><i class="far fa-clock"></i> <span th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy')}">13 Mar 2026</span></span>
+                                        <span><i class="fas fa-flag"></i> <span th:text="${ticket.priority.getDisplayName()}">MEDIUM</span></span>
+                                    </div>
+                                </div>
+
+                                <div th:if="${tickets.totalPages > 1}" class="pagination">
+                                    <a th:href="@{/support(page=${currentPage - 1})}" th:if="${currentPage > 0}"><i class="fas fa-chevron-left"></i></a>
+                                    <span th:each="i : ${#numbers.sequence(0, tickets.totalPages - 1)}">
+                                        <a th:href="@{/support(page=${i})}" th:classappend="${i == currentPage ? 'active' : ''}" th:text="${i + 1}">1</a>
+                                    </span>
+                                    <a th:href="@{/support(page=${currentPage + 1})}" th:if="${currentPage < tickets.totalPages - 1}"><i class="fas fa-chevron-right"></i></a>
+                                </div>
+                            </div>
+
+                            <div th:if="${tickets == null or tickets.content == null or #lists.isEmpty(tickets.content)}" class="empty-state">
+                                <i class="fas fa-ticket-alt"></i>
+                                <p>No tickets yet. Create your first support ticket.</p>
+                                <button type="button" class="empty-state-action" onclick="openTicketModal()" th:if="${canCreateTicket}">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Raise Ticket</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <aside class="support-side-column">
+                            <section class="support-panel faq-panel-shell">
+                                <div class="support-panel-head">
+                                    <div>
+                                        <h3><i class="fas fa-book-open"></i> Knowledge Base</h3>
+                                        <p>Fast answers for the most common support questions.</p>
+                                    </div>
+                                    <span class="support-panel-badge" th:text="${#lists.size(faqs) + ' answers'}">0 answers</span>
+                                </div>
 
                                 <div th:if="${faqs != null and not #lists.isEmpty(faqs)}">
                                     <div th:each="faq, iterStat : ${faqs}" class="faq-item" th:id="'faq-' + ${iterStat.index}">
@@ -106,29 +165,58 @@
                                         <div class="faq-answer" th:text="${faq.answer}">Go to Products section...</div>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
-                            <!-- Contact Card -->
-                            <div class="contact-card">
-                                <h3><i class="fas fa-phone-alt"></i> Contact Support</h3>
-                                <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <div><div>Email</div><div th:text="${supportEmail}">support@rxarogya.com</div></div>
+                            <section class="support-panel contact-panel">
+                                <div class="support-panel-head">
+                                    <div>
+                                        <h3><i class="fas fa-headset"></i> Contact Channels</h3>
+                                        <p>Use the right support lane based on urgency and issue type.</p>
+                                    </div>
                                 </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <div><div>Phone</div><div th:text="${formattedSupportPhone}">+91 98765 43210</div><div>Mon-Fri, 10AM - 6PM</div></div>
+                                <div class="contact-card-grid">
+                                    <a th:href="'mailto:' + ${supportEmail}" class="contact-card-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <div><strong>Email</strong><span th:text="${supportEmail}">support@expygen.com</span></div>
+                                    </a>
+                                    <div class="contact-card-item">
+                                        <i class="fas fa-phone"></i>
+                                        <div><strong>Phone</strong><span th:text="${formattedSupportPhone}">+91 98765 43210</span></div>
+                                    </div>
+                                    <div class="contact-card-item">
+                                        <i class="fab fa-whatsapp"></i>
+                                        <div><strong>WhatsApp</strong><span th:text="${formattedSupportPhone}">+91 98765 43210</span></div>
+                                    </div>
+                                    <div class="contact-card-item">
+                                        <i class="fas fa-clock"></i>
+                                        <div><strong>Response SLA</strong><span>Within 24 hours</span></div>
+                                    </div>
                                 </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-clock"></i>
-                                    <div><div>Response Time</div><div>Within 24 hours</div></div>
+                            </section>
+
+                            <section class="support-panel support-guidance">
+                                <div class="support-panel-head">
+                                    <div>
+                                        <h3><i class="fas fa-shield-heart"></i> Escalation Guidance</h3>
+                                        <p>Choose the right route before raising an urgent issue.</p>
+                                    </div>
                                 </div>
-                                <div class="contact-item">
-                                    <i class="fab fa-whatsapp" style="color: #25D366;"></i>
-                                    <div><div>WhatsApp</div><div th:text="${formattedSupportPhone}">+91 98765 43210</div><div>Quick support</div></div>
+                                <div class="guidance-list">
+                                    <div class="guidance-item">
+                                        <strong>Low priority</strong>
+                                        <span>Use the knowledge base or raise a normal ticket for workflow help.</span>
+                                    </div>
+                                    <div class="guidance-item">
+                                        <strong>High priority</strong>
+                                        <span>Raise a ticket with exact impact, invoice reference, and screenshots if possible.</span>
+                                    </div>
+                                    <div class="guidance-item">
+                                        <strong>Urgent outage</strong>
+                                        <span>Use phone or WhatsApp after creating a ticket so the team can trace it immediately.</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </section>
+                        </aside>
                     </div>
                 </div>
 
@@ -144,7 +232,7 @@
         <div class="modal-content">
             <h3>Create Support Ticket</h3>
             <form th:action="@{/support/create}" method="post">
-                <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="form-group">
                     <label>Subject</label>
                     <input type="text" name="subject" required placeholder="Brief summary of your issue">

@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148 118" role="img" aria-labelledby="title desc">
-  <title id="title">RxArogya mark light</title>
-  <desc id="desc">RxArogya abstract brand mark for dark backgrounds.</desc>
-
-  <circle cx="24" cy="88" r="15" fill="#d7e5ff"/>
-  <circle cx="120" cy="24" r="15" fill="#d7e5ff"/>
-  <rect x="38" y="10" width="34" height="98" rx="17" fill="#f4a143" transform="rotate(-31 55 59)"/>
-  <rect x="80" y="10" width="34" height="98" rx="17" fill="#eef2f7" transform="rotate(-31 97 59)"/>
-</svg>

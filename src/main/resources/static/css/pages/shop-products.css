@@ -10,11 +10,14 @@
     background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     border: 1px solid #dbe4ef;
     border-radius: 22px;
-    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.05);
 }
 
 .products-workspace-copy {
-    padding: 22px 24px;
+    padding: 20px 22px;
+    background:
+        linear-gradient(90deg, rgba(242, 122, 33, 0.96) 0 5px, transparent 5px),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
 .products-workspace-kicker {
@@ -31,9 +34,9 @@
 }
 
 .products-workspace-copy h2 {
-    margin: 12px 0 6px;
-    font-size: 28px;
-    line-height: 1.1;
+    margin: 10px 0 6px;
+    font-size: 25px;
+    line-height: 1.12;
     letter-spacing: -0.04em;
     color: #162131;
 }
@@ -42,22 +45,22 @@
     margin: 0;
     max-width: 780px;
     color: #566579;
-    font-size: 14px;
-    line-height: 1.7;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .products-workspace-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 16px;
+    gap: 8px;
+    margin-top: 14px;
 }
 
 .products-workspace-pills span {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
+    padding: 7px 11px;
     border-radius: 999px;
     background: #f4f8fd;
     border: 1px solid #e2eaf3;
@@ -71,14 +74,14 @@
 }
 
 .products-workspace-panel {
-    padding: 18px;
+    padding: 16px;
     display: grid;
-    gap: 12px;
+    gap: 10px;
     align-content: center;
 }
 
 .workspace-panel-row {
-    padding: 14px 14px 12px;
+    padding: 13px 14px 12px;
     border-radius: 16px;
     background: #ffffff;
     border: 1px solid #e5ecf5;
@@ -115,7 +118,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 12px 22px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.05);
 }
 
 .shop-stat-info h4 {
@@ -147,11 +150,11 @@
 
 .products-command-card {
     margin-bottom: 18px;
-    padding: 18px 20px;
+    padding: 16px 18px;
     background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
     border: 1px solid #dce5ef;
     border-radius: 22px;
-    box-shadow: 0 12px 22px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.05);
 }
 
 .products-command-head {
@@ -171,8 +174,8 @@
 .products-command-head p {
     margin: 0;
     color: #627083;
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.5;
 }
 
 .products-command-badges {
@@ -185,7 +188,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 11px;
+    padding: 7px 10px;
     border-radius: 999px;
     background: #f3f7fc;
     border: 1px solid #e2eaf3;
@@ -203,21 +206,29 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.shop-filter-actions::-webkit-scrollbar {
+    display: none;
 }
 
 .shop-filter-bar {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    flex: 1 1 auto;
+    min-width: max-content;
 }
 
 .shop-filter-chip {
-    padding: 8px 14px;
+    padding: 7px 12px;
     background: #ffffff;
     border: 1px solid #dbe4ef;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
     color: #4d5b6f;
@@ -230,29 +241,32 @@
 }
 
 .shop-filter-chip.active {
-    background: linear-gradient(180deg, #152033 0%, #1f2b3d 100%);
-    border-color: #152033;
+    background: linear-gradient(135deg, #f27a21 0%, #1f6feb 100%);
+    border-color: transparent;
     color: #ffffff;
+    box-shadow: 0 14px 22px rgba(31, 111, 235, 0.18);
 }
 
 .shop-actions-right {
     display: flex;
     gap: 8px;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    flex: 0 0 auto;
 }
 
 .shop-search {
     position: relative;
+    flex: 0 0 auto;
 }
 
 .shop-search-input {
-    width: 280px;
-    height: 42px;
-    padding: 0 40px 0 40px;
+    width: 220px;
+    height: 40px;
+    padding: 0 36px 0 36px;
     border: 1px solid #dbe4ef;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
     background: #ffffff;
     color: #162131;
 }
@@ -272,21 +286,21 @@
 }
 
 .shop-search-icon {
-    left: 14px;
+    left: 12px;
     color: #97a4b8;
 }
 
 .shop-search-loading {
-    right: 14px;
+    right: 12px;
     color: var(--primary);
     display: none;
 }
 
 .shop-btn-icon,
 .shop-btn-primary {
-    height: 42px;
+    height: 40px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
@@ -297,7 +311,7 @@
 }
 
 .shop-btn-icon {
-    padding: 0 16px;
+    padding: 0 13px;
     border: 1px solid #dbe4ef;
     background: #ffffff;
     color: #48576b;
@@ -309,11 +323,11 @@
 }
 
 .shop-btn-primary {
-    padding: 0 18px;
+    padding: 0 14px;
     border: 1px solid transparent;
-    background: linear-gradient(180deg, #182235 0%, #111827 100%);
+    background: linear-gradient(135deg, #f27a21 0%, #1f6feb 100%);
     color: #ffffff;
-    box-shadow: 0 14px 20px rgba(17, 24, 39, 0.14);
+    box-shadow: 0 18px 26px rgba(31, 111, 235, 0.2);
 }
 
 .shop-btn-primary:hover:not(.disabled) {
@@ -339,7 +353,7 @@
     border-radius: 22px;
     border: 1px solid #dce5ef;
     overflow: hidden;
-    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.05);
 }
 
 .products-card-head {
@@ -379,6 +393,7 @@
 
 .shop-table-responsive {
     overflow-x: auto;
+    background: #fbfdff;
 }
 
 .shop-table {
@@ -397,6 +412,9 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     border-bottom: 1px solid #e8eef5;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .shop-table td {
@@ -615,6 +633,12 @@
     box-shadow: 0 16px 28px rgba(2, 6, 23, 0.3);
 }
 
+:root[data-theme="dark"] .products-workspace-copy {
+    background:
+        linear-gradient(90deg, rgba(242, 122, 33, 0.92) 0 5px, transparent 5px),
+        linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
 :root[data-theme="dark"] .products-workspace-copy h2,
 :root[data-theme="dark"] .workspace-panel-row strong,
 :root[data-theme="dark"] .shop-stat-number,
@@ -663,8 +687,8 @@
 :root[data-theme="dark"] .shop-btn-primary,
 :root[data-theme="dark"] .shop-pagination button.active,
 :root[data-theme="dark"] .shop-add-link {
-    background: #2563eb;
-    border-color: #2563eb;
+    background: linear-gradient(135deg, #f27a21 0%, #1f6feb 100%);
+    border-color: transparent;
     color: #ffffff;
 }
 

@@ -5,24 +5,24 @@
 <header th:fragment="header" class="hl-public-header">
     <div class="hl-header-container">
         <a href="/" class="hl-logo">
-            <img th:src="@{/images/expygen-mark-word-light.svg}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-dark">
-            <img th:src="@{/images/expygen-mark-word-dark.svg}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-light">
+            <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-dark">
+            <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-light">
         </a>
 
         <nav class="hl-nav">
-            <a href="/features" class="hl-nav-link">
-                <i class="fas fa-capsules"></i> Modules
+            <a href="/about" class="hl-nav-link" data-nav-path="/about">
+                <i class="fas fa-building"></i> About
             </a>
-            <a href="/how-it-works" class="hl-nav-link">
+            <a href="/features" class="hl-nav-link" data-nav-path="/features">
+                <i class="fas fa-capsules"></i> Features
+            </a>
+            <a href="/workflow" class="hl-nav-link" data-nav-path="/workflow,/how-it-works">
                 <i class="fas fa-wave-square"></i> Workflow
             </a>
-            <a href="/pricing" class="hl-nav-link">
+            <a href="/pricing" class="hl-nav-link" data-nav-path="/pricing">
                 <i class="fas fa-layer-group"></i> Pricing
             </a>
-            <a href="/blog" class="hl-nav-link">
-                <i class="fas fa-notes-medical"></i> Insights
-            </a>
-            <a href="/help" class="hl-nav-link">
+            <a href="/contact" class="hl-nav-link" data-nav-path="/contact">
                 <i class="fas fa-headset"></i> Support
             </a>
         </nav>
@@ -32,8 +32,8 @@
                 <i class="fas fa-moon" data-theme-icon></i>
                 <span data-theme-label>Dark Mode</span>
             </button>
-            <a href="/login" class="hl-btn-login">Login</a>
-            <a href="/register" class="hl-btn-register">Book Onboarding</a>
+            <a href="/login" class="hl-btn-login" data-nav-path="/login">Login</a>
+            <a href="/register" class="hl-btn-register" data-nav-path="/register">Start Free</a>
         </div>
 
         <button class="hl-mobile-toggle" id="hlMenuToggle">
@@ -45,24 +45,24 @@
 
     <div class="hl-mobile-menu" id="hlMobileMenu">
         <div class="hl-mobile-inner">
-            <a href="/features" class="hl-mobile-link">
-                <i class="fas fa-capsules"></i> Modules
+            <a href="/about" class="hl-mobile-link" data-nav-path="/about">
+                <i class="fas fa-building"></i> About
             </a>
-            <a href="/how-it-works" class="hl-mobile-link">
+            <a href="/features" class="hl-mobile-link" data-nav-path="/features">
+                <i class="fas fa-capsules"></i> Features
+            </a>
+            <a href="/workflow" class="hl-mobile-link" data-nav-path="/workflow,/how-it-works">
                 <i class="fas fa-wave-square"></i> Workflow
             </a>
-            <a href="/pricing" class="hl-mobile-link">
+            <a href="/pricing" class="hl-mobile-link" data-nav-path="/pricing">
                 <i class="fas fa-layer-group"></i> Pricing
             </a>
-            <a href="/blog" class="hl-mobile-link">
-                <i class="fas fa-notes-medical"></i> Insights
-            </a>
-            <a href="/help" class="hl-mobile-link">
+            <a href="/contact" class="hl-mobile-link" data-nav-path="/contact">
                 <i class="fas fa-headset"></i> Support
             </a>
             <div class="hl-mobile-actions">
-                <a href="/login" class="hl-mobile-login">Login</a>
-                <a href="/register" class="hl-mobile-register">Book Onboarding</a>
+                <a href="/login" class="hl-mobile-login" data-nav-path="/login">Login</a>
+                <a href="/register" class="hl-mobile-register" data-nav-path="/register">Start Free</a>
             </div>
         </div>
     </div>
@@ -71,6 +71,23 @@
     document.addEventListener('DOMContentLoaded', function() {
         const toggle = document.getElementById('hlMenuToggle');
         const menu = document.getElementById('hlMobileMenu');
+        const currentPath = window.location.pathname;
+
+        document.querySelectorAll('[data-nav-path]').forEach(function(link) {
+            const paths = (link.getAttribute('data-nav-path') || '')
+                .split(',')
+                .map(function(item) { return item.trim(); })
+                .filter(Boolean);
+
+            if (paths.includes(currentPath)) {
+                if (link.classList.contains('hl-nav-link')) link.classList.add('hl-nav-link-active');
+                if (link.classList.contains('hl-btn-login')) link.classList.add('hl-btn-login-active');
+                if (link.classList.contains('hl-btn-register')) link.classList.add('hl-btn-register-active');
+                if (link.classList.contains('hl-mobile-link')) link.classList.add('hl-mobile-link-active');
+                if (link.classList.contains('hl-mobile-login')) link.classList.add('hl-mobile-login-active');
+                if (link.classList.contains('hl-mobile-register')) link.classList.add('hl-mobile-register-active');
+            }
+        });
         
         if (toggle && menu) {
             toggle.addEventListener('click', function() {

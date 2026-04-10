@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Subscription • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
+    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/subscription.css}">
+</head>
+
+<body class="shop-body">
+    <div class="shop-layout">
+        <div th:replace="~{fragments/shop-sidebar :: sidebar(shop=${shop}, role=${role}, currentPageName='subscription')}"></div>
+
+        <div class="shop-main">
+            <div class="shop-content-wrapper">
+                <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
+
+                <div class="subscription-shell">
+                    <section class="subscription-hero">
+                        <div class="subscription-hero-copy">
+                            <span class="subscription-kicker">Plan & Usage</span>
+                            <h1>Track plan limits, usage, and upgrade readiness</h1>
+                            <p>See your current plan, active usage, and remaining capacity for medicines and users from one subscription workspace.</p>
+                            <div class="subscription-hero-pills">
+                                <span><i class="fas fa-id-card"></i> Subscription visibility</span>
+                                <span><i class="fas fa-chart-line"></i> Live usage watch</span>
+                                <span><i class="fas fa-arrow-trend-up"></i> Upgrade readiness</span>
+                            </div>
+                        </div>
+                        <div class="subscription-hero-status">
+                            <div class="subscription-status-card">
+                                <span>Current Plan</span>
+                                <strong th:text="${subscriptionView.currentPlanName}">FREE</strong>
+                                <small th:text="${subscriptionView.subscriptionActive} ? 'Active subscription' : 'Subscription expired'">Active subscription</small>
+                            </div>
+                            <div class="subscription-status-card">
+                                <span>Days Remaining</span>
+                                <strong th:text="${subscriptionView.daysRemaining != null ? subscriptionView.daysRemaining : 'Unlimited'}">Unlimited</strong>
+                                <small th:text="${subscriptionView.subscriptionEndDate != null ? #temporals.format(subscriptionView.subscriptionEndDate, 'dd MMM yyyy') : 'No expiry date'}">No expiry</small>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="subscription-command-band">
+                        <a th:href="@{/upgrade}" class="subscription-command-btn primary">
+                            <i class="fas fa-arrow-trend-up"></i>
+                            <span>Open Upgrade Desk</span>
+                        </a>
+                        <a th:href="@{/products}" class="subscription-command-btn">
+                            <i class="fas fa-capsules"></i>
+                            <span>Review Product Usage</span>
+                        </a>
+                        <a th:href="@{/staff}" class="subscription-command-btn" th:if="${role == 'OWNER'}">
+                            <i class="fas fa-users"></i>
+                            <span>Review Staff Usage</span>
+                        </a>
+                    </section>
+
+                    <section class="subscription-current-grid">
+                        <div class="subscription-current-card">
+                            <div class="subscription-section-head">
+                                <div>
+                                    <h3>Current Plan Summary</h3>
+                                    <p>Know your active plan, commercial status, and subscription window.</p>
+                                </div>
+                                <span class="subscription-plan-pill" th:text="${subscriptionView.currentPlanName}">FREE</span>
+                            </div>
+
+                            <div class="subscription-summary-grid">
+                                <div class="subscription-summary-item">
+                                    <span>Status</span>
+                                    <strong th:text="${subscriptionView.subscriptionActive} ? 'Active' : 'Expired'">Active</strong>
+                                </div>
+                                <div class="subscription-summary-item">
+                                    <span>Price</span>
+                                    <strong th:text="${subscriptionView.currentPlanPrice != null ? '₹' + #numbers.formatDecimal(subscriptionView.currentPlanPrice, 1, 'COMMA', 0, 'POINT') : 'Custom'}">₹0</strong>
+                                </div>
+                                <div class="subscription-summary-item">
+                                    <span>Started</span>
+                                    <strong th:text="${subscriptionView.subscriptionStartDate != null ? #temporals.format(subscriptionView.subscriptionStartDate, 'dd MMM yyyy') : '—'}">—</strong>
+                                </div>
+                                <div class="subscription-summary-item">
+                                    <span>Ends</span>
+                                    <strong th:text="${subscriptionView.subscriptionEndDate != null ? #temporals.format(subscriptionView.subscriptionEndDate, 'dd MMM yyyy') : 'No expiry'}">No expiry</strong>
+                                </div>
+                            </div>
+
+                            <div class="subscription-feature-note">
+                                <i class="fas fa-circle-info"></i>
+                                <span th:text="${subscriptionView.currentPlanDescription != null ? subscriptionView.currentPlanDescription : 'Usage and limits are enforced from your current plan.'}">Usage and limits are enforced from your current plan.</span>
+                            </div>
+                        </div>
+
+                        <div class="subscription-action-card">
+                            <div class="subscription-section-head">
+                                <div>
+                                    <h3>Commercial Actions</h3>
+                                    <p>Take the next subscription step when your store is ready to scale.</p>
+                                </div>
+                            </div>
+                            <div class="subscription-action-list">
+                                <a th:href="@{/upgrade}" class="subscription-action-btn primary">
+                                    <i class="fas fa-arrow-trend-up"></i>
+                                    <span>View Upgrade Options</span>
+                                </a>
+                                <a th:href="@{/products}" class="subscription-action-btn">
+                                    <i class="fas fa-capsules"></i>
+                                    <span>Open Product Usage</span>
+                                </a>
+                                <a th:href="@{/staff}" class="subscription-action-btn" th:if="${role == 'OWNER'}">
+                                    <i class="fas fa-users"></i>
+                                    <span>Open Staff Usage</span>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="subscription-usage-grid">
+                        <article class="usage-card" th:each="metric : ${subscriptionView.metrics}" th:classappend="${metric.tone}">
+                            <div class="usage-card-top">
+                                <span th:text="${metric.label}">Products</span>
+                                <i th:class="${metric.key == 'products' ? 'fas fa-capsules' : 'fas fa-users'}"></i>
+                            </div>
+                            <div class="usage-card-value">
+                                <strong th:text="${metric.used}">0</strong>
+                                <span th:text="${metric.unlimited} ? '/ Unlimited' : '/ ' + metric.limit">/ 0</span>
+                            </div>
+                            <div class="usage-progress" th:if="${!metric.unlimited}">
+                                <div class="usage-progress-fill" th:style="'width:' + ${metric.percentage} + '%'"></div>
+                            </div>
+                            <div class="usage-meta">
+                                <span th:text="${metric.unlimited} ? 'Unlimited capacity' : metric.remaining + ' slots remaining'">0 slots remaining</span>
+                                <span th:text="${metric.unlimited} ? 'No usage ceiling' : metric.percentage + '% used'">0% used</span>
+                            </div>
+                            <p th:text="${metric.helperText}">Helper text</p>
+                        </article>
+                    </section>
+
+                    <section class="subscription-plan-table-card">
+                        <div class="subscription-section-head">
+                            <div>
+                                <h3>Plan Comparison</h3>
+                                <p>Compare available plans against your current usage and future growth needs.</p>
+                            </div>
+                        </div>
+                        <div class="subscription-table-wrap">
+                            <table class="subscription-table">
+                                <thead>
+                                    <tr>
+                                        <th>Plan</th>
+                                        <th>Price</th>
+                                        <th>Users</th>
+                                        <th>Medicines</th>
+                                        <th>Duration</th>
+                                        <th>Features</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="plan : ${subscriptionView.availablePlans}" th:classappend="${plan.planName == subscriptionView.currentPlanName} ? 'is-current'">
+                                        <td>
+                                            <strong th:text="${plan.planName}">FREE</strong>
+                                        </td>
+                                        <td th:text="${plan.price != null && plan.price > 0 ? '₹' + #numbers.formatDecimal(plan.price, 1, 'COMMA', 0, 'POINT') : 'Free'}">Free</td>
+                                        <td th:text="${plan.maxUsers != null && plan.maxUsers == -1 ? 'Unlimited' : plan.maxUsers}">1</td>
+                                        <td th:text="${plan.maxProducts != null && plan.maxProducts == -1 ? 'Unlimited' : plan.maxProducts}">10</td>
+                                        <td th:text="${plan.durationInDays != null && plan.durationInDays > 0 ? plan.durationInDays + ' days' : 'No expiry'}">365 days</td>
+                                        <td class="subscription-feature-cell" th:text="${plan.description != null ? plan.description : plan.features}">Description</td>
+                                        <td>
+                                            <span class="subscription-current-badge" th:if="${plan.planName == subscriptionView.currentPlanName}">Current</span>
+                                            <a th:if="${plan.planName != subscriptionView.currentPlanName}" th:href="@{/upgrade/request/{planName}(planName=${plan.planName})}" class="subscription-table-link">Choose</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <div th:replace="~{fragments/shop-footer :: footer}"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Add Purchase • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title>Add Purchase • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -30,12 +30,12 @@
                     <div class="purchase-form-intro">
                         <div class="purchase-form-copy">
                             <span class="purchase-form-kicker">Batch Inward Entry</span>
-                            <h2>Record a supplier purchase and create live medicine batches</h2>
-                            <p>Save invoice details once, then capture each batch with expiry, purchase rate, and sellable quantity so billing can use it safely.</p>
+                            <h2>Record supplier inward and create live batches</h2>
+                            <p>Capture invoice details once, then add batch rows with expiry, inward rate, and sellable stock.</p>
                             <div class="purchase-form-pills">
                                 <span><i class="fas fa-boxes-stacked"></i> Batch-managed stock</span>
                                 <span><i class="fas fa-calendar-day"></i> Expiry date control</span>
-                                <span><i class="fas fa-receipt"></i> Supplier invoice history</span>
+                                <span><i class="fas fa-receipt"></i> Invoice-linked inward</span>
                             </div>
                         </div>
                         <div class="purchase-form-top-actions">
@@ -58,8 +58,8 @@
                         <div class="purchase-form-card">
                             <div class="purchase-form-title">
                                 <div>
-                                    <h3>Purchase Header</h3>
-                                    <p>Who supplied the stock, when it came in, and which invoice it belongs to.</p>
+                                    <h3>Supplier & Invoice</h3>
+                                    <p>Capture supplier, inward date, invoice number, and any optional notes.</p>
                                 </div>
                                 <div class="purchase-form-badge">Pharmacy Purchase</div>
                             </div>
@@ -90,7 +90,7 @@
                                 <div class="line-items-head">
                                     <div>
                                         <h4>Batch Line Items</h4>
-                                        <p>Every line creates sellable stock against a medicine batch.</p>
+                                        <p>Each line creates a live batch for billing, expiry, and stock visibility.</p>
                                     </div>
                                     <button type="button" class="line-add-btn" id="addPurchaseLine">
                                         <i class="fas fa-plus"></i> Add Line
@@ -161,7 +161,7 @@
 
                         <aside class="purchase-form-side">
                             <div class="purchase-side-card">
-                                <h4>Good pharmacy purchase data</h4>
+                                <h4>Purchase checks</h4>
                                 <ul>
                                     <li>Always record real batch numbers from the supplier invoice.</li>
                                     <li>Keep expiry date and MRP accurate so unsafe stock is visible before billing.</li>
@@ -169,7 +169,7 @@
                                 </ul>
                             </div>
                             <div class="purchase-side-card">
-                                <h4>What happens after save?</h4>
+                                <h4>After save</h4>
                                 <div class="side-step"><span>1</span><strong>Medicine stock increases immediately</strong></div>
                                 <div class="side-step"><span>2</span><strong>Each line becomes a live batch in the ledger</strong></div>
                                 <div class="side-step"><span>3</span><strong>Billing can start consuming those batches in expiry order</strong></div>

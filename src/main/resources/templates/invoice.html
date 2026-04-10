@@ -2,199 +2,185 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${'Invoice_' + sale.id + ' • RxArogya'}">Invoice_123 • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
+    <title th:text="${'Invoice_' + sale.id + ' • Expygen'}">Invoice_123 • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
-    <!-- Shop CSS -->
-    <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
-    <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
-    <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
-    <link rel="stylesheet" th:href="@{/css/components/shop-sidebar.css}">
-    <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
-    <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
     <link rel="stylesheet" th:href="@{/css/pages/shop-invoice.css}">
 </head>
 
 <body>
-
-    <div class="invoice-wrapper">
-
-        <!-- HEADER -->
-        <div class="invoice-header">
-            <div class="logo-section">
-                <img th:src="@{/images/rxarogya-mark.svg}" alt="RxArogya" class="logo-mark-image" style="width: 42px; height: 42px;">
-                <div class="brand-text">
-                    <div class="brand-name">RxArogya</div>
-                    <div class="brand-tagline">SIMPLIFY PHARMACY</div>
-                </div>
+    <div class="invoice-shell">
+        <section class="invoice-toolbar">
+            <div class="invoice-toolbar-copy">
+                <span class="invoice-kicker">Invoice Preview</span>
+                <h1>Review invoice, then print thermal or share PDF</h1>
+                <p>HTML is your preview screen. Thermal is the primary counter print, and PDF is the official shareable copy.</p>
             </div>
-            <div class="invoice-badge">
-                <div class="label">INVOICE</div>
-                <div class="number" th:text="${'Invoice_' + sale.id}">Invoice_12345</div>
-                <div class="invoice-date" th:text="${#temporals.format(sale.saleDate, 'dd MMM yyyy • hh:mm a')}">01 Jan 2026 • 10:30 AM</div>
+            <div class="invoice-toolbar-actions">
+                <a th:href="@{/sales/history}" class="invoice-toolbar-btn secondary"><i class="fas fa-arrow-left"></i><span>Sales History</span></a>
+                <a th:href="@{/sales/invoice/{saleId}/thermal(saleId=${sale.id},autoprint=true)}" target="_blank" class="invoice-toolbar-btn primary"><i class="fas fa-print"></i><span>Print Thermal</span></a>
+                <button class="invoice-toolbar-btn secondary" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i><span>Download PDF</span></button>
+                <button class="invoice-toolbar-btn secondary" onclick="showWhatsAppModal()"><i class="fab fa-whatsapp"></i><span>Send PDF</span></button>
             </div>
-        </div>
+        </section>
 
-        <!-- SELLER & CUSTOMER INFO -->
-        <div class="info-grid">
-            <div class="info-card">
-                <div class="info-title"><i class="fas fa-store"></i> SELLER</div>
-                <div class="info-content">
-                    <div class="info-row"><span class="icon"><i class="fas fa-store"></i></span><span class="value" th:text="${sale.shop.name}">Shop Name</span></div>
-                    <div class="info-row"><span class="icon"><i class="fas fa-map-pin"></i></span><span class="value" th:text="${sale.shop.address}">Shop Address</span></div>
-                    <div class="info-row"><span class="icon"><i class="fas fa-tag"></i></span><span class="value" th:text="${sale.shop.gstNumber ?: 'N/A'}">GST</span></div>
-                </div>
-            </div>
-            <div class="info-card">
-                <div class="info-title"><i class="fas fa-user"></i> CUSTOMER</div>
-                <div class="info-content">
-                    <div class="info-row"><span class="icon"><i class="fas fa-user"></i></span><span class="value" th:text="${sale.customerName != null ? sale.customerName : 'Walk-in'}">Walk-in</span></div>
-                    <div class="info-row"><span class="icon"><i class="fas fa-phone"></i></span><span class="value" th:text="${sale.customerPhone != null ? sale.customerPhone : '—'}">—</span></div>
-                    <div class="info-row"><span class="icon"><i class="fas fa-calendar"></i></span><span class="value"><span th:text="${#temporals.format(sale.saleDate, 'dd MMM yyyy')}">01 Jan 2026</span> <span th:text="${#temporals.format(sale.saleDate, 'hh:mm a')}">10:30 AM</span></span></div>
-                </div>
-            </div>
-        </div>
+        <section class="invoice-workspace">
+            <main class="invoice-document">
+                <header class="document-head">
+                    <div class="document-brand">
+                        <img th:src="@{/images/expygen-logo-dark.png}" alt="Expygen">
+                        <div class="document-brand-copy">
+                            <strong>Invoice</strong>
+                            <span>Official billing preview</span>
+                        </div>
+                    </div>
+                    <div class="document-meta">
+                        <span class="document-meta-label">Invoice No</span>
+                        <strong th:text="${'INV-' + sale.id}">INV-123</strong>
+                        <small th:text="${#temporals.format(sale.saleDate, 'dd MMM yyyy • hh:mm a')}">01 Jan 2026 • 10:30 AM</small>
+                    </div>
+                </header>
 
-        <!-- ITEMS TABLE -->
-        <div class="items-section">
-            <div class="section-header">
-                <h3><i class="fas fa-shopping-bag"></i> ORDER ITEMS</h3>
-                <span class="badge" th:text="${#lists.size(items)} + ' items'">0 items</span>
-            </div>
+                <section class="document-parties">
+                    <article class="party-card">
+                        <span class="party-title">Seller</span>
+                        <strong th:text="${sale.shop.name}">Shop Name</strong>
+                        <p th:text="${sale.shop.address}">Shop Address</p>
+                        <p>GST: <span th:text="${sale.shop.gstNumber ?: 'N/A'}">N/A</span></p>
+                    </article>
+                    <article class="party-card">
+                        <span class="party-title">Customer</span>
+                        <strong th:text="${sale.customerName != null ? sale.customerName : 'Walk-in Customer'}">Walk-in Customer</strong>
+                        <p>Phone: <span th:text="${sale.customerPhone != null ? sale.customerPhone : '—'}">—</span></p>
+                        <p>Payment: <span th:text="${sale.paymentMode}">Cash</span></p>
+                    </article>
+                </section>
 
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th class="col-sno">#</th>
-                        <th class="col-product">PRODUCT</th>
-                        <th class="col-price">PRICE (₹)</th>
-                        <th class="col-qty">QTY</th>
-                        <th class="col-gst">GST</th>
-                        <th class="col-cgst">CGST (₹)</th>
-                        <th class="col-sgst">SGST (₹)</th>
-                        <th class="col-total">TOTAL (₹)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="item, stat : ${items}">
-                        <td class="col-sno" th:text="${stat.index + 1}">1</td>
-                        <td class="col-product">
-                            <div class="product-name-cell" th:with="batchTrace=${batchTraceBySaleItemId[item.id]}">
-                                <span class="product-main" th:text="${item.product.name}">Product Name</span>
-                                <div class="product-batch-trace" th:if="${batchTrace != null and !#lists.isEmpty(batchTrace)}">
-                                    <div class="product-batch-line" th:each="batch : ${batchTrace}">
-                                        <span class="product-batch-tag" th:text="${batch.batchNumber}">BATCH-01</span>
-                                        <span class="product-batch-meta">
-                                            Qty <span th:text="${batch.quantity}">1</span>
-                                            <span th:if="${batch.expiryDate != null}">
-                                                • Exp <span th:text="${#temporals.format(batch.expiryDate, 'dd MMM yyyy')}">20 Apr 2026</span>
-                                            </span>
-                                        </span>
+                <section class="document-table-wrap">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th class="col-sno">#</th>
+                                <th class="col-product">Medicine</th>
+                                <th class="col-price">Price</th>
+                                <th class="col-qty">Qty</th>
+                                <th class="col-gst">GST</th>
+                                <th class="col-cgst">CGST</th>
+                                <th class="col-sgst">SGST</th>
+                                <th class="col-total">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item, stat : ${items}">
+                                <td class="col-sno" th:text="${stat.index + 1}">1</td>
+                                <td class="col-product">
+                                    <div class="product-name-cell" th:with="batchTrace=${batchTraceBySaleItemId[item.id]}">
+                                        <span class="product-main" th:text="${item.product.name}">Product Name</span>
+                                        <div class="product-batch-trace" th:if="${batchTrace != null and !#lists.isEmpty(batchTrace)}">
+                                            <div class="product-batch-line" th:each="batch : ${batchTrace}">
+                                                <span class="product-batch-tag" th:text="${batch.batchNumber}">BATCH-01</span>
+                                                <span class="product-batch-meta">
+                                                    Qty <span th:text="${batch.quantity}">1</span>
+                                                    <span th:if="${batch.expiryDate != null}">
+                                                        • Exp <span th:text="${#temporals.format(batch.expiryDate, 'dd MMM yyyy')}">20 Apr 2026</span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="product-batch-empty" th:if="${batchTrace == null or #lists.isEmpty(batchTrace)}">
+                                            Opening or manual stock
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="product-batch-empty" th:if="${batchTrace == null or #lists.isEmpty(batchTrace)}">
-                                    Opening or manual stock
-                                </div>
-                            </div>
-                        </td>
-                        <td class="col-price">₹<span th:text="${#numbers.formatDecimal(item.priceAtSale, 0, 'COMMA', 2, 'POINT')}">100.00</span></td>
-                        <td class="col-qty" th:text="${item.quantity}">2</td>
-                        <td class="col-gst"><span th:text="${item.gstPercent}">18</span>%</td>
-                        <td class="col-cgst">
-                            ₹<span th:text="${#numbers.formatDecimal(item.gstAmount / 2, 0, 'COMMA', 2, 'POINT')}">0.00</span>
-                            <small>(<span th:text="${item.gstPercent / 2}"></span>%)</small>
-                        </td>
-                        <td class="col-sgst">
-                            ₹<span th:text="${#numbers.formatDecimal(item.gstAmount / 2, 0, 'COMMA', 2, 'POINT')}">0.00</span>
-                            <small>(<span th:text="${item.gstPercent / 2}"></span>%)</small>
-                        </td>
-                        <td class="col-total">₹<span th:text="${#numbers.formatDecimal(item.totalWithGst, 0, 'COMMA', 2, 'POINT')}">0.00</span></td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(items)}">
-                        <td colspan="8" class="empty-state">No items in this invoice</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                                </td>
+                                <td class="col-price">₹<span th:text="${#numbers.formatDecimal(item.priceAtSale, 0, 'COMMA', 2, 'POINT')}">100.00</span></td>
+                                <td class="col-qty" th:text="${item.quantity}">2</td>
+                                <td class="col-gst"><span th:text="${item.gstPercent}">18</span>%</td>
+                                <td class="col-cgst">₹<span th:text="${#numbers.formatDecimal(item.gstAmount / 2, 0, 'COMMA', 2, 'POINT')}">0.00</span></td>
+                                <td class="col-sgst">₹<span th:text="${#numbers.formatDecimal(item.gstAmount / 2, 0, 'COMMA', 2, 'POINT')}">0.00</span></td>
+                                <td class="col-total">₹<span th:text="${#numbers.formatDecimal(item.totalWithGst, 0, 'COMMA', 2, 'POINT')}">0.00</span></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(items)}">
+                                <td colspan="8" class="empty-state">No items in this invoice</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
 
-        <!-- BOTTOM SECTION -->
-        <div class="bottom-section">
-            <div class="signature-area">
-                <div class="terms-line"><i class="fas fa-file-signature"></i> TERMS</div>
-                <div class="signature-block">
-                    <div class="signature-row"><span class="signature-label">AUTHORISED</span><span class="signature-line"></span><span class="signature-text">(Sign)</span></div>
-                    <div class="signature-row"><span class="signature-label">RECEIVED</span><span class="signature-line"></span><span class="signature-text">(Sign)</span></div>
-                </div>
-                <div class="stamp-placeholder">
-                    <div class="stamp-circle">STAMP</div>
-                    <div class="stamp-text">(Seal)</div>
-                </div>
-                <div class="computer-note"><i class="fas fa-print"></i> Computer generated</div>
-            </div>
+                <footer class="document-footer">
+                    <div class="document-footer-note">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Batch trace shows exactly which inward stock was billed.</span>
+                    </div>
+                    <div class="document-footer-note">
+                        <i class="fas fa-percent"></i>
+                        <span>GST is presented as CGST and SGST for pharmacy-compliant billing.</span>
+                    </div>
+                </footer>
+            </main>
 
-            <div class="summary-card">
-                <div class="summary-row">
-                    <span class="summary-label">Subtotal</span>
-                    <span class="summary-value">
-                        ₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![subtotal]), 0, 'COMMA', 2, 'POINT')}">0.00</span>
-                    </span>
-                </div>
-                
-                <div class="gst-row">
-                    <span>CGST</span>
-                    <span>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount != null ? sale.totalGstAmount / 2 : 0, 0, 'COMMA', 2, 'POINT')}">0.00</span></span>
-                </div>
-                
-                <div class="gst-row">
-                    <span>SGST</span>
-                    <span>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount != null ? sale.totalGstAmount / 2 : 0, 0, 'COMMA', 2, 'POINT')}">0.00</span></span>
-                </div>
+            <aside class="invoice-rail">
+                <section class="invoice-panel">
+                    <div class="invoice-panel-head">
+                        <h3>Bill Summary</h3>
+                        <span>Live totals</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong>₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![subtotal]), 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>CGST</span>
+                        <strong>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount != null ? sale.totalGstAmount / 2 : 0, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>SGST</span>
+                        <strong>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount != null ? sale.totalGstAmount / 2 : 0, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Tax</span>
+                        <strong>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount != null ? sale.totalGstAmount : 0, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                    </div>
+                    <div class="summary-row" th:if="${sale.discountAmount != null and sale.discountAmount > 0}">
+                        <span>Discount</span>
+                        <strong>- ₹<span th:text="${#numbers.formatDecimal(sale.discountAmount, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total Payable</span>
+                        <strong>₹<span th:text="${#numbers.formatDecimal(sale.totalAmount, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong>
+                    </div>
+                </section>
 
-                <div class="summary-row">
-                    <span class="summary-label">Total Tax</span>
-                    <span class="summary-value">₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount != null ? sale.totalGstAmount : 0, 0, 'COMMA', 2, 'POINT')}">0.00</span></span>
-                </div>
+                <section class="invoice-panel">
+                    <div class="invoice-panel-head">
+                        <h3>Payment</h3>
+                        <span>Closure</span>
+                    </div>
+                    <div class="summary-row"><span>Mode</span><strong th:text="${sale.paymentMode}">Cash</strong></div>
+                    <div class="summary-row"><span>Received</span><strong>₹<span th:text="${#numbers.formatDecimal(sale.amountReceived, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong></div>
+                    <div class="summary-row"><span>Change</span><strong>₹<span th:text="${#numbers.formatDecimal(sale.changeReturned, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong></div>
+                    <div class="summary-row"><span>Status</span><strong th:text="${sale.status != null ? sale.status : 'Paid'}">Paid</strong></div>
+                </section>
 
-                <div class="summary-row" th:if="${sale.discountAmount != null and sale.discountAmount > 0}">
-                    <span class="summary-label">Discount</span>
-                    <span class="summary-value">- ₹<span th:text="${#numbers.formatDecimal(sale.discountAmount, 0, 'COMMA', 2, 'POINT')}">0.00</span> (<span th:text="${sale.discountPercent}"></span>%)</span>
-                </div>
-
-                <div class="summary-row total">
-                    <span class="summary-label">Total Payable</span>
-                    <span class="summary-value highlight">₹<span th:text="${#numbers.formatDecimal(sale.totalAmount, 0, 'COMMA', 2, 'POINT')}">0.00</span></span>
-                </div>
-
-                <div class="payment-details">
-                    <div class="payment-item"><div class="label">PAYMENT</div><div class="value" th:text="${sale.paymentMode}">Cash</div></div>
-                    <div class="payment-item"><div class="label">RECEIVED</div><div class="value">₹<span th:text="${#numbers.formatDecimal(sale.amountReceived, 0, 'COMMA', 2, 'POINT')}">0.00</span></div></div>
-                    <div class="payment-item"><div class="label">CHANGE</div><div class="value">₹<span th:text="${#numbers.formatDecimal(sale.changeReturned, 0, 'COMMA', 2, 'POINT')}">0.00</span></div></div>
-                    <div class="payment-item"><div class="label">STATUS</div><div class="value">Paid</div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="invoice-footer">
-            <div class="footer-note"><span class="heart">❤️</span><span>Thank you for your business</span></div>
-            <div class="print-actions">
-                <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
-                <button class="btn btn-pdf" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
-                <button class="btn btn-whatsapp" onclick="showWhatsAppModal()"><i class="fab fa-whatsapp"></i> Send</button>
-            </div>
-        </div>
+                <section class="invoice-panel">
+                    <div class="invoice-panel-head">
+                        <h3>Preview Role</h3>
+                        <span>How to use</span>
+                    </div>
+                    <div class="invoice-note">Use this HTML page to review, verify, and trigger next actions.</div>
+                    <div class="invoice-note">Use thermal for counter print and PDF for WhatsApp, email, or records.</div>
+                </section>
+            </aside>
+        </section>
     </div>
 
-    <!-- WhatsApp Modal -->
     <div id="whatsappModal" class="whatsapp-modal">
         <div class="modal-content">
-            <h3><i class="fab fa-whatsapp" style="color: #25D366;"></i> Send Invoice</h3>
+            <h3><i class="fab fa-whatsapp"></i> Send Invoice</h3>
             <input type="text" id="whatsappPhone" class="modal-input" placeholder="Enter phone number" th:value="${sale.customerPhone}">
             <div class="modal-note"><i class="fas fa-info-circle"></i> PDF will be sent as attachment via WhatsApp</div>
             <div class="modal-actions">
@@ -207,99 +193,70 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        function showWhatsAppModal() { 
-            document.getElementById('whatsappModal').style.display = 'flex'; 
+        function showWhatsAppModal() {
+            document.getElementById('whatsappModal').style.display = 'flex';
         }
-        
-        function closeWhatsAppModal() { 
-            document.getElementById('whatsappModal').style.display = 'none'; 
+        function closeWhatsAppModal() {
+            document.getElementById('whatsappModal').style.display = 'none';
         }
-        
-        function getInvoiceNumber() {
-            const el = document.querySelector('.invoice-badge .number');
-            return el ? el.innerText.trim() : 'invoice';
-        }
-        
         function showToast(message, type) {
             type = type || 'success';
-            const toast = document.getElementById('toast'); 
-            toast.style.display = 'block'; 
-            toast.style.background = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'; 
-            toast.textContent = message; 
-            setTimeout(function() { toast.style.display = 'none'; }, 5000); 
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            toast.style.background = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
+            toast.textContent = message;
+            setTimeout(function() { toast.style.display = 'none'; }, 5000);
         }
-        
-        // PDF Download - Using Backend
         function downloadPDF() {
             const saleId = window.location.pathname.split('/').pop();
             showToast('Downloading PDF...', 'info');
             window.location.href = '/sales/invoice/' + saleId + '/pdf';
         }
-        
-        // Send WhatsApp PDF - Using Backend PDF
         async function sendWhatsAppPDF() {
             const phone = document.getElementById('whatsappPhone').value;
             if (!phone) {
                 showToast('Please enter phone number', 'error');
                 return;
             }
-            
             const phoneRegex = /^[0-9]{10}$/;
             if (!phoneRegex.test(phone.replace(/[^0-9]/g, ''))) {
                 showToast('Please enter valid 10-digit phone number', 'error');
                 return;
             }
-            
             showToast('Generating PDF...', 'info');
-            
             try {
                 const saleId = window.location.pathname.split('/').pop();
-                
-                // Fetch PDF from backend
                 const pdfResponse = await fetch('/sales/invoice/' + saleId + '/pdf');
-                
-                if (!pdfResponse.ok) {
-                    throw new Error('Failed to generate PDF');
-                }
-                
+                if (!pdfResponse.ok) throw new Error('Failed to generate PDF');
                 const pdfBlob = await pdfResponse.blob();
-                
                 showToast('Sending PDF...', 'info');
-                
                 const formData = new FormData();
                 formData.append('file', pdfBlob, 'invoice_' + saleId + '.pdf');
                 formData.append('phoneNumber', phone);
-                
                 const token = document.querySelector('meta[name="_csrf"]').content;
                 const header = document.querySelector('meta[name="_csrf_header"]').content;
-                
                 const sendResponse = await fetch('/sales/invoice/' + saleId + '/send-whatsapp-pdf', {
                     method: 'POST',
                     headers: { [header]: token },
                     body: formData
                 });
-                
                 const data = await sendResponse.json();
-                
                 if (data.success) {
-                    showToast('✓ Invoice sent via WhatsApp!', 'success');
+                    showToast('Invoice sent via WhatsApp!', 'success');
                     closeWhatsAppModal();
                 } else {
-                    showToast('❌ Failed: ' + (data.error || 'Unknown error'), 'error');
+                    showToast('Failed: ' + (data.error || 'Unknown error'), 'error');
                 }
-                
             } catch (error) {
                 console.error('Error:', error);
-                showToast('❌ Failed to send invoice', 'error');
+                showToast('Failed to send invoice', 'error');
             }
         }
-        
-        window.onclick = function(event) { 
-            const modal = document.getElementById('whatsappModal'); 
-            if (event.target == modal) { modal.style.display = 'none'; } 
+        window.onclick = function(event) {
+            const modal = document.getElementById('whatsappModal');
+            if (event.target == modal) modal.style.display = 'none';
         }
     </script>
-
 </body>
 
 </html>

@@ -1,5 +1,180 @@
 /* ===== SHOP PROFILE - COMPACT ===== */
 
+.shop-main {
+    background:
+        radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 26%),
+        radial-gradient(circle at top right, rgba(242, 122, 33, 0.08), transparent 22%),
+        linear-gradient(180deg, #f3f7fc 0%, #eef3f9 100%);
+}
+
+.profile-hero,
+.info-panel, .edit-panel, .whatsapp-panel, .faq-panel {
+    background: var(--shop-surface);
+    border: 1px solid var(--shop-panel-border);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.06);
+}
+
+.profile-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 18px 20px;
+    border-radius: var(--shop-radius-xl);
+    background:
+        radial-gradient(circle at top right, rgba(242, 122, 33, 0.12), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(31, 111, 235, 0.1), transparent 28%),
+        linear-gradient(90deg, rgba(242, 122, 33, 0.96) 0 5px, transparent 5px),
+        linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    overflow: hidden;
+}
+
+.profile-hero-copy {
+    max-width: 760px;
+}
+
+.profile-kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(31, 111, 235, 0.08);
+    color: #1f6feb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.profile-hero h1 {
+    margin: 8px 0 4px;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: #0f172a;
+}
+
+.profile-hero p {
+    margin: 0;
+    max-width: 760px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #64748b;
+}
+
+.profile-hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.profile-hero-pills span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(206, 219, 233, 0.82);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    color: #435266;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.profile-hero-pills i {
+    color: #1f6feb;
+}
+
+.profile-hero-side {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    min-width: 320px;
+}
+
+.profile-hero-avatar-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(227, 235, 244, 0.96);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 249, 253, 0.96) 100%);
+    backdrop-filter: blur(8px);
+}
+
+.profile-hero-avatar-wrap {
+    width: 58px;
+    height: 58px;
+    padding: 5px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(242, 122, 33, 0.18) 0%, rgba(31, 111, 235, 0.18) 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-hero-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.profile-hero-avatar-copy strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #152132;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.profile-hero-avatar-copy span {
+    display: block;
+    color: #748195;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.profile-hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(84px, 1fr));
+    gap: 10px;
+}
+
+.profile-hero-stat {
+    min-width: 0;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(227, 235, 244, 0.96);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 249, 253, 0.96) 100%);
+}
+
+.profile-hero-stat span {
+    display: block;
+    margin-bottom: 6px;
+    color: #748195;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.profile-hero-stat strong {
+    display: block;
+    color: #152132;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
 /* Page Header */
 .profile-header {
     display: flex;
@@ -35,60 +210,52 @@
 
 /* Panels */
 .info-panel, .edit-panel, .whatsapp-panel, .faq-panel {
-    background: var(--shop-surface);
     border-radius: var(--shop-radius-xl);
-    border: 1px solid var(--shop-panel-border);
-    box-shadow: var(--shop-shadow-sm);
     overflow: hidden;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
 }
 .panel-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid #eef2f6;
-    background: var(--shop-surface-soft);
+    background:
+        linear-gradient(90deg, rgba(31, 111, 235, 0.08), rgba(242, 122, 33, 0.06)),
+        var(--shop-surface-soft);
 }
 .panel-header i { font-size: 16px; color: #2563eb; }
-.panel-header h2 { font-size: 14px; font-weight: 600; color: #0f172a; margin: 0; }
+.panel-header h2 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; }
 
 /* Info List */
-.info-list { padding: 12px 20px; }
+.info-list { padding: 14px 18px; }
 .info-row {
     display: flex;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 1px solid #f1f5f9;
+}
+.info-row:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 .info-row.full { flex-direction: column; gap: 4px; }
 .info-label {
-    width: 100px;
-    font-size: 11px;
-    font-weight: 500;
+    width: 110px;
+    font-size: 10px;
+    font-weight: 800;
     color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.08em;
     flex-shrink: 0;
 }
-.info-value { flex: 1; font-size: 13px; font-weight: 500; color: #0f172a; }
+.info-value { flex: 1; font-size: 13px; font-weight: 600; color: #0f172a; }
 .info-value.mono { font-family: monospace; font-size: 12px; color: #475569; }
-.password-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: #f1f5f9;
-    border-radius: 30px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #0f172a;
-    text-decoration: none;
-}
-.password-link:hover { background: #e2e8f0; }
 
 /* Edit Form */
 .edit-form {
-    padding: 16px 20px;
+    padding: 16px 18px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
@@ -116,7 +283,7 @@
     border-radius: 12px;
     font-size: 12px;
     font-family: 'Inter', sans-serif;
-    background: var(--shop-surface-soft);
+    background: linear-gradient(180deg, #fbfdff 0%, #f5f8fc 100%);
 }
 .form-field input:focus {
     outline: none;
@@ -127,9 +294,9 @@
 .form-actions {
     display: flex;
     gap: 10px;
-    padding: 12px 20px 16px;
+    padding: 12px 18px 16px;
     border-top: 1px solid #eef2f6;
-    background: #fafcff;
+    background: linear-gradient(180deg, #fbfdff 0%, #f7faff 100%);
 }
 .btn-save, .btn-cancel {
     flex: 1;
@@ -145,12 +312,13 @@
     transition: all 0.2s;
 }
 .btn-save {
-    background: #0f172a;
+    background: linear-gradient(135deg, #f27a21 0%, #1f6feb 100%);
     color: white;
     border: none;
     cursor: pointer;
+    box-shadow: 0 16px 26px rgba(31, 111, 235, 0.18);
 }
-.btn-save:hover { background: #1e293b; }
+.btn-save:hover { filter: brightness(1.02); }
 .btn-cancel {
     background: #f1f5f9;
     color: #475569;
@@ -298,6 +466,79 @@
 }
 .faq-tip i { font-size: 14px; flex-shrink: 0; }
 
+:root[data-theme="dark"] .shop-main {
+    background:
+        radial-gradient(circle at top left, rgba(31, 111, 235, 0.12), transparent 24%),
+        radial-gradient(circle at top right, rgba(242, 122, 33, 0.12), transparent 20%),
+        linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
+:root[data-theme="dark"] .profile-hero,
+:root[data-theme="dark"] .info-panel,
+:root[data-theme="dark"] .edit-panel,
+:root[data-theme="dark"] .whatsapp-panel,
+:root[data-theme="dark"] .faq-panel {
+    border-color: rgba(99, 115, 129, 0.28);
+    box-shadow: 0 22px 38px rgba(2, 6, 23, 0.24);
+}
+
+:root[data-theme="dark"] .profile-hero {
+    background:
+        radial-gradient(circle at top right, rgba(242, 122, 33, 0.12), transparent 32%),
+        radial-gradient(circle at bottom left, rgba(31, 111, 235, 0.14), transparent 28%),
+        linear-gradient(90deg, rgba(242, 122, 33, 0.92) 0 5px, transparent 5px),
+        linear-gradient(180deg, rgba(21, 29, 41, 0.96) 0%, rgba(15, 23, 42, 0.96) 100%);
+}
+
+:root[data-theme="dark"] .profile-hero h1,
+:root[data-theme="dark"] .panel-header h2,
+:root[data-theme="dark"] .info-value,
+:root[data-theme="dark"] .profile-hero-avatar-copy strong,
+:root[data-theme="dark"] .profile-hero-stat strong,
+:root[data-theme="dark"] .faq-question h4 {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .profile-hero p,
+:root[data-theme="dark"] .profile-hero-avatar-copy span,
+:root[data-theme="dark"] .profile-hero-stat span,
+:root[data-theme="dark"] .info-label,
+:root[data-theme="dark"] .faq-item p,
+:root[data-theme="dark"] .whatsapp-hint {
+    color: rgba(226, 232, 240, 0.72);
+}
+
+:root[data-theme="dark"] .profile-hero-pills span,
+:root[data-theme="dark"] .profile-hero-avatar-card,
+:root[data-theme="dark"] .profile-hero-stat,
+:root[data-theme="dark"] .form-field input,
+:root[data-theme="dark"] .panel-header,
+:root[data-theme="dark"] .form-actions,
+:root[data-theme="dark"] .whatsapp-number,
+:root[data-theme="dark"] .btn-outline {
+    background: rgba(15, 23, 42, 0.74);
+    border-color: rgba(99, 115, 129, 0.28);
+}
+
+:root[data-theme="dark"] .profile-hero-pills span {
+    color: rgba(226, 232, 240, 0.82);
+}
+
+:root[data-theme="dark"] .profile-hero-pills i,
+:root[data-theme="dark"] .panel-header i,
+:root[data-theme="dark"] .form-field label i {
+    color: #93c5fd;
+}
+
+:root[data-theme="dark"] .form-field input {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .btn-cancel {
+    background: rgba(15, 23, 42, 0.74);
+    color: #cbd5e1;
+}
+
 /* Modal */
 .whatsapp-modal {
     position: fixed;
@@ -383,6 +624,8 @@
 
 /* Responsive */
 @media (max-width: 900px) {
+    .profile-hero { flex-direction: column; }
+    .profile-hero-side { min-width: 0; width: 100%; }
     .profile-two-col { grid-template-columns: 1fr; gap: 16px; }
     .edit-form { grid-template-columns: 1fr; }
     .form-field.full { grid-column: span 1; }

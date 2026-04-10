@@ -2,15 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Dashboard • RxArogya</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/rxarogya-mark.svg}">
-    <script src="/js/chart.min.js"></script>
+    <title>Dashboard • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Shop CSS -->
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-layout.css}">
@@ -24,688 +22,423 @@
 </head>
 
 <body class="shop-body">
-
     <div class="shop-layout">
         <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
         <div class="shop-main">
             <div class="shop-content-wrapper">
-
-                <!-- Header -->
                 <div th:replace="~{fragments/shop-header :: header}"></div>
 
-                <div th:if="${activeSessionsCount != null and activeSessionsCount > 1}" class="dashboard-session-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>You are active on another device. This session may expire soon.</span>
-                </div>
+                <div class="dashboard-shell">
+                    <div th:if="${activeSessionsCount != null and activeSessionsCount > 1}" class="dashboard-session-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>You are active on another device. This session may expire soon.</span>
+                    </div>
 
-                <div class="dashboard-live-strip">
-                    <article class="dashboard-metric-card tone-green">
-                        <div class="metric-top"><span>Today's Revenue</span><i class="fas fa-rupee-sign"></i></div>
-                        <div class="metric-value">₹<span id="todayRevenue" th:text="${#numbers.formatDecimal(todayRevenue, 1, 2)}">0.00</span></div>
-                        <div class="metric-note">Live sales billed today</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-violet">
-                        <div class="metric-top"><span>Invoices</span><i class="fas fa-file-invoice"></i></div>
-                        <div class="metric-value"><span id="totalInvoices" th:text="${todayInvoices}">0</span></div>
-                        <div class="metric-note">Bills issued today</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-pink">
-                        <div class="metric-top"><span>Items Sold</span><i class="fas fa-boxes"></i></div>
-                        <div class="metric-value"><span id="itemsSold" th:text="${todayItems}">0</span></div>
-                        <div class="metric-note">Units moved today</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-blue">
-                        <div class="metric-top"><span>Completed</span><i class="fas fa-check-circle"></i></div>
-                        <div class="metric-value">₹<span id="completedRevenue" th:text="${#numbers.formatDecimal(completedRevenue, 1, 2)}">0.00</span></div>
-                        <div class="metric-note">Successful sales value</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-red">
-                        <div class="metric-top"><span>Cancelled</span><i class="fas fa-ban"></i></div>
-                        <div class="metric-value">₹<span id="cancelledAmount" th:text="${#numbers.formatDecimal(cancelledAmount, 1, 2)}">0.00</span></div>
-                        <div class="metric-note">Refund/cancel amount</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-sky">
-                        <div class="metric-top"><span>Net Revenue</span><i class="fas fa-chart-line"></i></div>
-                        <div class="metric-value">₹<span id="netRevenue" th:text="${#numbers.formatDecimal(netRevenue, 1, 2)}">0.00</span></div>
-                        <div class="metric-note">After cancellations</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-amber">
-                        <div class="metric-top"><span>Returns</span><i class="fas fa-rotate-left"></i></div>
-                        <div class="metric-value"><span id="returnedItems" th:text="${returnedItems}">0</span></div>
-                        <div class="metric-note">Items returned today</div>
-                    </article>
-                    <article class="dashboard-metric-card tone-teal">
-                        <div class="metric-top"><span>Staff</span><i class="fas fa-users"></i></div>
-                        <div class="metric-value"><span id="totalStaff" th:text="${totalStaff}">0</span></div>
-                        <div class="metric-note">Active team members</div>
-                    </article>
-                </div>
-
-                <div class="dashboard-summary-strip">
-                    <div class="dashboard-summary-card">
-                        <span>Avg Order Value</span>
-                        <strong id="avgOrderValue">₹0</strong>
-                        <small>Today's billing average</small>
-                    </div>
-                    <div class="dashboard-summary-card">
-                        <span>Conversion Rate</span>
-                        <strong id="conversionRate">0%</strong>
-                        <small>Completed vs total sales</small>
-                    </div>
-                    <div class="dashboard-summary-card">
-                        <span>Unique Customers</span>
-                        <strong id="customerCount">0</strong>
-                        <small>Served today</small>
-                    </div>
-                    <div class="dashboard-summary-card">
-                        <span>Items per Invoice</span>
-                        <strong id="itemsPerInvoice">0</strong>
-                        <small>Average basket size</small>
-                    </div>
-                </div>
-
-                <div class="dashboard-cockpit-grid">
-                    <section class="dashboard-panel panel-trend">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-chart-line"></i> Revenue Trend</h3>
-                                <p>Last 7 days performance</p>
+                    <section class="dashboard-hero">
+                        <div class="dashboard-hero-copy">
+                            <span class="dashboard-kicker">Operate The Day</span>
+                            <h1>Run billing, purchases, and pharmacy actions from one command center.</h1>
+                            <p>Keep the dashboard focused on what needs action now. Open Insights only when you want deeper performance analysis.</p>
+                        </div>
+                        <div class="dashboard-hero-status">
+                            <div class="dashboard-status-card">
+                                <span>Store</span>
+                                <strong th:text="${shop.name}">Store Name</strong>
+                                <small th:text="${planType} + ' Plan'">ACTIVE</small>
                             </div>
-                            <span class="panel-chip">Live</span>
+                            <div class="dashboard-status-card">
+                                <span>Live Risk</span>
+                                <strong><span id="expiredBatchCount" th:text="${batchDashboard.expiredBatchCount}">0</span> expired</strong>
+                                <small><span id="nearExpiryBatchCount" th:text="${batchDashboard.nearExpiryBatchCount}">0</span> near expiry batches</small>
+                            </div>
                         </div>
-                        <div class="panel-canvas-wrap">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                        <div class="shop-chart-legend" id="lineLegend"></div>
                     </section>
 
-                    <section class="dashboard-panel panel-split">
-                        <div class="panel-header">
+                    <section class="dashboard-command-strip">
+                        <a th:href="@{/sales/new}" class="dashboard-command-card command-primary">
+                            <i class="fas fa-cash-register"></i>
                             <div>
-                                <h3><i class="fas fa-chart-pie"></i> Revenue Split</h3>
-                                <p>Completed, cancelled, and net share</p>
+                                <strong>Start Billing</strong>
+                                <span>Open the counter and bill medicines fast.</span>
                             </div>
-                            <span class="panel-chip">Today</span>
-                        </div>
-                        <div class="dashboard-split-meta">
+                        </a>
+                        <a th:href="@{/purchases/new}" class="dashboard-command-card">
+                            <i class="fas fa-truck-loading"></i>
                             <div>
-                                <span>Completed</span>
-                                <strong th:text="'₹' + ${#numbers.formatDecimal(completedRevenue, 1, 2)}">₹0.00</strong>
+                                <strong>New Purchase</strong>
+                                <span>Add supplier invoice, batch, and expiry stock.</span>
                             </div>
+                        </a>
+                        <a th:href="@{/products/new}" class="dashboard-command-card">
+                            <i class="fas fa-capsules"></i>
                             <div>
-                                <span>Cancelled</span>
-                                <strong th:text="'₹' + ${#numbers.formatDecimal(cancelledAmount, 1, 2)}">₹0.00</strong>
+                                <strong>Add Medicine</strong>
+                                <span>Create a new product for sales and inventory.</span>
                             </div>
+                        </a>
+                        <a th:href="@{/purchases/adjustments/new}" class="dashboard-command-card">
+                            <i class="fas fa-sliders-h"></i>
                             <div>
-                                <span>Net</span>
-                                <strong th:text="'₹' + ${#numbers.formatDecimal(netRevenue, 1, 2)}">₹0.00</strong>
+                                <strong>Stock Adjustment</strong>
+                                <span>Correct damaged, lost, or counted stock.</span>
                             </div>
-                        </div>
-                        <div class="panel-canvas-wrap compact">
-                            <canvas id="pieChart"></canvas>
-                        </div>
-                        <div class="shop-chart-legend" id="pieLegend"></div>
+                        </a>
+                        <a th:href="@{/purchases/returns/new}" class="dashboard-command-card">
+                            <i class="fas fa-rotate-left"></i>
+                            <div>
+                                <strong>Purchase Return</strong>
+                                <span>Return supplier stock batch-wise with audit trail.</span>
+                            </div>
+                        </a>
+                        <a th:href="@{/insights}" class="dashboard-command-card command-insights">
+                            <i class="fas fa-chart-pie"></i>
+                            <div>
+                                <strong>Open Insights</strong>
+                                <span>Review trends, risk, audit, and revenue intelligence.</span>
+                            </div>
+                        </a>
                     </section>
 
-                    <section class="dashboard-panel panel-products">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-capsules"></i> Top Medicines</h3>
-                                <p>Best moving items by sales value</p>
-                            </div>
-                            <a href="/products" class="panel-link">Open catalogue</a>
+                    <section class="dashboard-live-strip">
+                        <article class="dashboard-metric-card tone-primary">
+                            <div class="metric-top"><span>Today's Revenue</span><i class="fas fa-rupee-sign"></i></div>
+                            <div class="metric-value">₹<span id="todayRevenue" th:text="${#numbers.formatDecimal(todayRevenue, 1, 2)}">0.00</span></div>
+                            <div class="metric-note">Live counter revenue captured today</div>
+                        </article>
+                        <article class="dashboard-metric-card tone-blue">
+                            <div class="metric-top"><span>Invoices</span><i class="fas fa-file-invoice"></i></div>
+                            <div class="metric-value"><span id="totalInvoices" th:text="${todayInvoices}">0</span></div>
+                            <div class="metric-note">Bills completed from the shop counter</div>
+                        </article>
+                        <article class="dashboard-metric-card tone-sky">
+                            <div class="metric-top"><span>Items Sold</span><i class="fas fa-boxes"></i></div>
+                            <div class="metric-value"><span id="itemsSold" th:text="${todayItems}">0</span></div>
+                            <div class="metric-note">Units moved through today’s billing</div>
+                        </article>
+                        <article class="dashboard-metric-card tone-amber">
+                            <div class="metric-top"><span>Returns Today</span><i class="fas fa-rotate-left"></i></div>
+                            <div class="metric-value"><span id="returnedItems" th:text="${returnedItems}">0</span></div>
+                            <div class="metric-note">Cancelled sales and supplier returns</div>
+                        </article>
+                        <article class="dashboard-metric-card tone-red">
+                            <div class="metric-top"><span>Low Stock</span><i class="fas fa-triangle-exclamation"></i></div>
+                            <div class="metric-value"><span th:text="${#lists.size(lowStockProducts)}">0</span></div>
+                            <div class="metric-note">Medicines that need quick follow-up</div>
+                        </article>
+                        <article class="dashboard-metric-card tone-violet">
+                            <div class="metric-top"><span>Near Expiry</span><i class="fas fa-hourglass-half"></i></div>
+                            <div class="metric-value"><span id="nearExpiryBatchesCard" th:text="${batchDashboard.nearExpiryBatchCount}">0</span></div>
+                            <div class="metric-note">Live batches inside the next 30 days</div>
+                        </article>
+                    </section>
+
+                    <section class="dashboard-summary-strip">
+                        <div class="dashboard-summary-card">
+                            <span>Avg Order Value</span>
+                            <strong id="avgOrderValue">₹0.00</strong>
+                            <small>Average completed bill value today</small>
                         </div>
-                        <div class="panel-list">
-                            <div th:if="${not #lists.isEmpty(topProducts)}" th:each="product, productStat : ${topProducts}"
-                                th:with="index=${productStat.index}" class="dashboard-list-item">
-                                <div class="list-rank" th:text="${index + 1}">1</div>
-                                <div class="list-primary">
-                                    <div class="list-title" th:text="${product.name != null ? product.name : 'Unknown Medicine'}">Medicine</div>
-                                    <div class="list-subtitle" th:text="${product.quantity} + ' sold'">0 sold</div>
+                        <div class="dashboard-summary-card">
+                            <span>Conversion Rate</span>
+                            <strong id="conversionRate">0%</strong>
+                            <small>Completed vs total billing attempts</small>
+                        </div>
+                        <div class="dashboard-summary-card">
+                            <span>Unique Customers</span>
+                            <strong id="customerCount" th:text="${uniqueCustomers}">0</strong>
+                            <small>Customers served at the counter today</small>
+                        </div>
+                        <div class="dashboard-summary-card">
+                            <span>Items per Invoice</span>
+                            <strong id="itemsPerInvoice">0</strong>
+                            <small>Average basket density per bill</small>
+                        </div>
+                    </section>
+
+                    <div class="dashboard-cockpit-grid">
+                        <section class="dashboard-panel panel-low-stock">
+                            <div class="panel-header">
+                                <div>
+                                    <h3><i class="fas fa-triangle-exclamation"></i> Low Stock Watch</h3>
+                                    <p>Medicines that need inwarding or product review soon.</p>
                                 </div>
-                                <div class="list-amount" th:text="'₹' + ${#numbers.formatDecimal(product.revenue, 0, 'COMMA', 2, 'POINT')}">₹0</div>
+                                <a th:href="@{/products}" class="panel-link">Open medicines</a>
                             </div>
-                            <div th:if="${#lists.isEmpty(topProducts)}" class="empty-state"><p>No sales yet</p></div>
-                        </div>
-                    </section>
-
-                    <section class="dashboard-panel panel-customers">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-user-group"></i> Top Customers</h3>
-                                <p>Most valuable repeat customers</p>
-                            </div>
-                            <a href="/sales/history" class="panel-link">Open sales</a>
-                        </div>
-                        <div class="panel-list">
-                            <div th:if="${not #lists.isEmpty(topCustomers)}" th:each="customer : ${topCustomers}" class="dashboard-list-item">
-                                <div class="customer-avatar" th:text="${customer.name != null and customer.name != '' ? #strings.substring(customer.name, 0, 1) : '?'}">R</div>
-                                <div class="list-primary">
-                                    <div class="list-title" th:text="${customer.name != null ? customer.name : 'Walk-in Customer'}">Customer</div>
-                                    <div class="list-subtitle" th:text="${customer.orders} + ' orders'">0 orders</div>
-                                </div>
-                                <div class="list-amount" th:text="'₹' + ${#numbers.formatDecimal(customer.total, 0, 'COMMA', 2, 'POINT')}">₹0</div>
-                            </div>
-                            <div th:if="${#lists.isEmpty(topCustomers)}" class="empty-state"><p>No customers yet</p></div>
-                        </div>
-                    </section>
-
-                    <section class="dashboard-panel panel-activity">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
-                                <p>Latest billing and operator updates</p>
-                            </div>
-                            <a href="/sales/history" class="panel-link">View all</a>
-                        </div>
-                        <div class="panel-list activity-list">
-                            <div th:if="${not #lists.isEmpty(recentActivities)}" th:each="activity : ${recentActivities}" class="activity-item">
-                                <div class="activity-icon"><i th:class="${activity.icon != null ? activity.icon : 'fas fa-bell'}"></i></div>
-                                <div class="activity-details">
-                                    <div class="activity-text" th:text="${activity.text != null ? activity.text : 'Activity'}">Activity</div>
-                                    <div class="activity-time" th:text="${activity.time != null ? activity.time : 'Just now'}">Just now</div>
-                                </div>
-                                <div class="activity-amount" th:classappend="${activity.urgent != null and activity.urgent ? 'urgent' : ''}" th:text="${activity.amount != null ? activity.amount : ''}">₹0</div>
-                            </div>
-                            <div th:if="${#lists.isEmpty(recentActivities)}" class="empty-state"><p>No recent activity</p></div>
-                        </div>
-                    </section>
-
-                    <section class="dashboard-panel panel-lifetime">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-chart-simple"></i> Lifetime Overview</h3>
-                                <p>Long-term pharmacy performance</p>
-                            </div>
-                            <span class="panel-chip subtle">Since launch</span>
-                        </div>
-                        <div class="dashboard-lifetime-grid">
-                            <div class="lifetime-metric">
-                                <span>Total Revenue</span>
-                                <strong>₹<span id="totalRevenue">0</span></strong>
-                            </div>
-                            <div class="lifetime-metric">
-                                <span>Total Invoices</span>
-                                <strong><span id="totalInvoicesLifetime">0</span></strong>
-                            </div>
-                            <div class="lifetime-metric">
-                                <span>Items Sold</span>
-                                <strong><span id="totalItemsSold">0</span></strong>
-                            </div>
-                            <div class="lifetime-metric">
-                                <span>Customers</span>
-                                <strong><span id="totalCustomers">0</span></strong>
-                            </div>
-                            <div class="lifetime-metric">
-                                <span>Avg Order Value</span>
-                                <strong>₹<span id="avgOrderValueLifetime">0</span></strong>
-                            </div>
-                            <div class="lifetime-metric">
-                                <span>Customer LTV</span>
-                                <strong>₹<span id="customerLTV">0</span></strong>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="dashboard-panel panel-low-stock">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-triangle-exclamation"></i> Low Stock Watch</h3>
-                                <p>Items that need attention soon</p>
-                            </div>
-                            <span class="panel-badge-alert" id="lowStockTotal" th:text="${#lists.size(lowStockProducts)}">0</span>
-                        </div>
-                        <div class="panel-list stock-list">
-                            <div th:if="${not #lists.isEmpty(lowStockProducts)}"
-                                 th:each="product : ${lowStockProducts}"
-                                 th:with="visibility=${lowStockVisibility[product.id]}"
-                                 class="stock-item">
-                                <div class="stock-info">
-                                    <div class="stock-icon" th:classappend="${visibility != null and visibility.sellableStock <= 2} ? 'critical' : 'warning'">
-                                        <i th:if="${visibility != null and visibility.sellableStock == 0}" class="fas fa-times-circle"></i>
-                                        <i th:if="${visibility != null and visibility.sellableStock > 0 and visibility.sellableStock <= 2}" class="fas fa-exclamation-circle"></i>
-                                        <i th:if="${visibility == null or visibility.sellableStock > 2}" class="fas fa-chart-line"></i>
-                                    </div>
-                                    <div class="stock-details">
-                                        <div class="stock-name" th:text="${product.name}">Medicine</div>
-                                        <div class="stock-meta">
-                                            <span class="stock-badge" th:classappend="${visibility != null and visibility.sellableStock <= 2} ? 'critical' : 'warning'">
-                                                <span th:if="${visibility != null and visibility.sellableStock == 0}">Out</span>
-                                                <span th:if="${visibility != null and visibility.sellableStock > 0 and visibility.sellableStock <= 2}">Critical</span>
-                                                <span th:if="${visibility == null or visibility.sellableStock > 2}">Low</span>
-                                            </span>
-                                            <span class="stock-qty"><span th:text="${visibility != null ? visibility.sellableStock : product.stockQuantity}">0</span> sellable</span>
-                                            <span class="stock-extra" th:if="${visibility != null and visibility.batchManaged}">
-                                                <i class="fas fa-layer-group"></i>
-                                                <span th:text="${visibility.activeBatchCount} + ' batch' + (${visibility.activeBatchCount} == 1 ? '' : 'es')">0 batches</span>
-                                            </span>
-                                            <span class="stock-extra stock-extra-warn" th:if="${visibility != null and visibility.nearExpiryBatchCount > 0}">
-                                                <i class="fas fa-hourglass-half"></i>
-                                                <span th:text="${visibility.nearExpiryBatchCount} + ' near expiry'">0 near expiry</span>
-                                            </span>
+                            <div class="panel-list stock-list">
+                                <div th:if="${not #lists.isEmpty(lowStockProducts)}"
+                                     th:each="product : ${lowStockProducts}"
+                                     th:with="visibility=${lowStockVisibility[product.id]}"
+                                     class="stock-item">
+                                    <div class="stock-info">
+                                        <div class="stock-icon" th:classappend="${visibility != null and visibility.sellableStock <= 2} ? 'critical' : 'warning'">
+                                            <i th:if="${visibility != null and visibility.sellableStock == 0}" class="fas fa-times-circle"></i>
+                                            <i th:if="${visibility != null and visibility.sellableStock > 0 and visibility.sellableStock <= 2}" class="fas fa-exclamation-circle"></i>
+                                            <i th:if="${visibility == null or visibility.sellableStock > 2}" class="fas fa-chart-line"></i>
                                         </div>
-                                        <div class="stock-note" th:if="${visibility != null and visibility.nextSellableExpiryDate != null}">
-                                            Next expiry <span th:text="${#temporals.format(visibility.nextSellableExpiryDate, 'dd MMM yyyy')}">15 Apr 2026</span>
-                                        </div>
-                                        <div class="stock-note stock-note-danger" th:if="${visibility != null and visibility.expiredBatchCount > 0}">
-                                            <i class="fas fa-triangle-exclamation"></i>
-                                            <span th:text="${visibility.expiredBatchCount} + ' expired batch' + (${visibility.expiredBatchCount} == 1 ? '' : 'es') + ' need review'">Expired batches</span>
+                                        <div class="stock-details">
+                                            <div class="stock-name" th:text="${product.name}">Medicine</div>
+                                            <div class="stock-meta">
+                                                <span class="stock-badge" th:classappend="${visibility != null and visibility.sellableStock <= 2} ? 'critical' : 'warning'">
+                                                    <span th:if="${visibility != null and visibility.sellableStock == 0}">Out</span>
+                                                    <span th:if="${visibility != null and visibility.sellableStock > 0 and visibility.sellableStock <= 2}">Critical</span>
+                                                    <span th:if="${visibility == null or visibility.sellableStock > 2}">Low</span>
+                                                </span>
+                                                <span class="stock-qty"><span th:text="${visibility != null ? visibility.sellableStock : product.stockQuantity}">0</span> sellable</span>
+                                                <span class="stock-extra" th:if="${visibility != null and visibility.batchManaged}">
+                                                    <i class="fas fa-layer-group"></i>
+                                                    <span th:text="${visibility.activeBatchCount} + ' batch' + (${visibility.activeBatchCount} == 1 ? '' : 'es')">0 batches</span>
+                                                </span>
+                                            </div>
+                                            <div class="stock-note" th:if="${visibility != null and visibility.nextSellableExpiryDate != null}">
+                                                Next expiry <span th:text="${#temporals.format(visibility.nextSellableExpiryDate, 'dd MMM yyyy')}">15 Apr 2026</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="stock-action">
+                                        <a th:href="@{/purchases/new}" class="restock-btn">
+                                            <i class="fas fa-boxes-packing"></i> Restock
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="stock-action">
-                                    <a th:href="@{/purchases}" class="restock-btn" th:if="${visibility != null and visibility.batchManaged}">
-                                        <i class="fas fa-boxes-packing"></i> Review
-                                    </a>
-                                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="restock-btn" th:unless="${visibility != null and visibility.batchManaged}">
-                                        <i class="fas fa-pen"></i> Edit
-                                    </a>
+                                <div th:if="${#lists.isEmpty(lowStockProducts)}" class="empty-stock">
+                                    <i class="fas fa-check-circle"></i>
+                                    <p>All medicines are comfortably stocked.</p>
                                 </div>
                             </div>
-                            <div th:if="${#lists.isEmpty(lowStockProducts)}" class="empty-stock">
-                                <i class="fas fa-check-circle"></i>
-                                <p>All medicines are comfortably stocked.</p>
-                            </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <section class="dashboard-panel panel-business">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-store"></i> Store Overview</h3>
-                                <p>Business identity and billing setup</p>
+                        <section class="dashboard-panel panel-expiry">
+                            <div class="panel-header">
+                                <div>
+                                    <h3><i class="fas fa-wave-square"></i> Near Expiry Watch</h3>
+                                    <p>Prioritize supplier return or stock adjustment before loss.</p>
+                                </div>
+                                <a th:href="@{/insights/inventory/near-expiry}" class="panel-link">Review risk</a>
                             </div>
-                            <span class="panel-chip subtle">Active</span>
-                        </div>
-                        <div class="business-content-wrapper">
+                            <div class="signals-grid">
+                                <div class="signal-tile">
+                                    <span class="signal-label">Near Expiry</span>
+                                    <strong class="signal-value" th:text="${batchDashboard.nearExpiryBatchCount}">0</strong>
+                                    <small class="signal-sub">Batches inside the next 30 days</small>
+                                </div>
+                                <div class="signal-tile">
+                                    <span class="signal-label">Expired Risk</span>
+                                    <strong class="signal-value" th:text="${batchDashboard.expiredBatchCount}">0</strong>
+                                    <small class="signal-sub">Live batches already expired</small>
+                                </div>
+                            </div>
+                            <div class="expiry-watch-list">
+                                <div th:if="${not #lists.isEmpty(batchDashboard.expiringBatches)}"
+                                     th:each="batch : ${batchDashboard.expiringBatches}"
+                                     class="expiry-watch-item">
+                                    <div class="expiry-watch-copy">
+                                        <div class="expiry-watch-title" th:text="${batch.productName}">Medicine</div>
+                                        <div class="expiry-watch-meta">
+                                            <span th:text="'Batch ' + ${batch.batchNumber}">Batch ABC123</span>
+                                            <span>•</span>
+                                            <span th:text="${batch.availableQuantity} + ' units'">0 units</span>
+                                        </div>
+                                    </div>
+                                    <div class="expiry-watch-date" th:text="${#temporals.format(batch.expiryDate, 'dd MMM')}">15 Apr</div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(batchDashboard.expiringBatches)}" class="expiry-watch-empty">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>No near-expiry batches in the next 30 days.</span>
+                                </div>
+                            </div>
+                            <div class="signals-actions">
+                                <a th:href="@{/purchases/returns/new}" class="signal-action-link">
+                                    <i class="fas fa-rotate-left"></i>
+                                    <span>Start Return</span>
+                                </a>
+                                <a th:href="@{/purchases/adjustments/new}" class="signal-action-link">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <span>Adjust Stock</span>
+                                </a>
+                            </div>
+                        </section>
+
+                        <section class="dashboard-panel panel-activity">
+                            <div class="panel-header">
+                                <div>
+                                    <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
+                                    <p>Latest billing and operator updates across the shop.</p>
+                                </div>
+                                <a href="/sales/history" class="panel-link">Sales history</a>
+                            </div>
+                            <div class="panel-list activity-list">
+                                <div th:if="${not #lists.isEmpty(recentActivities)}" th:each="activity : ${recentActivities}" class="activity-item">
+                                    <div class="activity-icon"><i th:class="${activity.icon != null ? activity.icon : 'fas fa-bell'}"></i></div>
+                                    <div class="activity-details">
+                                        <div class="activity-text" th:text="${activity.text != null ? activity.text : 'Activity'}">Activity</div>
+                                        <div class="activity-time" th:text="${activity.time != null ? activity.time : 'Just now'}">Just now</div>
+                                    </div>
+                                    <div class="activity-amount" th:classappend="${activity.urgent != null and activity.urgent ? 'urgent' : ''}" th:text="${activity.amount != null ? activity.amount : ''}">₹0</div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(recentActivities)}" class="empty-state">
+                                    <p>No recent activity yet.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="dashboard-panel panel-health">
+                            <div class="panel-header">
+                                <div>
+                                    <h3><i class="fas fa-store"></i> Shop Health</h3>
+                                    <p>Configuration and readiness indicators for daily operations.</p>
+                                </div>
+                                <span class="panel-chip subtle">Ready</span>
+                            </div>
+                            <div class="dashboard-health-grid">
+                                <div class="health-stat-card">
+                                    <span>GST</span>
+                                    <strong th:text="${shop.gstNumber != null and !#strings.isEmpty(shop.gstNumber) ? 'Configured' : 'Pending'}">Configured</strong>
+                                    <small th:text="${shop.gstNumber != null and !#strings.isEmpty(shop.gstNumber) ? shop.gstNumber : 'Add GST for compliant billing'}">Add GST</small>
+                                </div>
+                                <div class="health-stat-card">
+                                    <span>UPI</span>
+                                    <strong th:text="${shop.upiId != null and !#strings.isEmpty(shop.upiId) ? 'Active' : 'Pending'}">Active</strong>
+                                    <small th:text="${shop.upiId != null and !#strings.isEmpty(shop.upiId) ? shop.upiId : 'Add UPI for faster collection'}">UPI</small>
+                                </div>
+                                <div class="health-stat-card">
+                                    <span>Staff</span>
+                                    <strong id="totalStaff" th:text="${totalStaff}">0</strong>
+                                    <small>Active team members on this workspace</small>
+                                </div>
+                                <div class="health-stat-card">
+                                    <span>Batch Medicines</span>
+                                    <strong id="batchManagedMedicines" th:text="${batchDashboard.batchManagedMedicines}">0</strong>
+                                    <small><span id="sellableBatchUnits" th:text="${batchDashboard.sellableBatchUnits}">0</span> sellable units ready</small>
+                                </div>
+                            </div>
                             <div class="business-info-row">
-                                <div class="info-chip">
-                                    <i class="fas fa-store"></i>
-                                    <span th:text="${shop.name}">Business Name</span>
-                                </div>
                                 <div class="info-chip">
                                     <i class="fas fa-calendar-alt"></i>
                                     <span th:text="${#temporals.format(shop.createdAt, 'dd MMM yyyy')}">15 Jan 2024</span>
                                 </div>
                                 <div class="info-chip">
                                     <i class="fas fa-tag"></i>
-                                    <span th:text="${@appConfig.appShortCode + '-' + shop.id}">RXA-12345</span>
+                                    <span th:text="${@appConfig.appShortCode + '-' + shop.id}">EXP-12345</span>
                                 </div>
-                            </div>
-
-                            <div class="business-detail-item">
-                                <div class="detail-icon">
+                                <div class="info-chip">
                                     <i class="fas fa-location-dot"></i>
-                                </div>
-                                <div class="detail-content">
-                                    <div class="detail-label">Address</div>
-                                    <div class="detail-value" th:text="${shop.address ?: 'Not set'}">123 Business Street</div>
-                                    <div class="detail-sub" th:if="${shop.city != null or shop.state != null or shop.pincode != null}">
-                                        <span th:text="${shop.city ?: ''}">Mumbai</span>
-                                        <span th:if="${shop.city != null and shop.state != null}">, </span>
-                                        <span th:text="${shop.state ?: ''}">Maharashtra</span>
-                                        <span th:if="${shop.pincode != null}"> - </span>
-                                        <span th:text="${shop.pincode ?: ''}">400001</span>
-                                    </div>
+                                    <span th:text="${shop.city != null ? shop.city : 'Location not set'}">Mumbai</span>
                                 </div>
                             </div>
+                        </section>
 
-                            <div class="business-detail-row">
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-file-invoice"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">PAN Number</div>
-                                        <div class="detail-value" th:text="${shop.panNumber}">ABCDE1234F</div>
-                                    </div>
+                        <section class="dashboard-panel panel-insights">
+                            <div class="panel-header">
+                                <div>
+                                    <h3><i class="fas fa-chart-pie"></i> Insights Gateway</h3>
+                                    <p>Use the intelligence workspace for deep trends, exports, audits, and performance analysis.</p>
                                 </div>
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-percent"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">GST Number</div>
-                                        <div class="detail-value" th:text="${shop.gstNumber != null and !#strings.isEmpty(shop.gstNumber) ? shop.gstNumber : 'Not Added'}">27ABCDE1234F1Z5</div>
-                                    </div>
-                                </div>
+                                <a th:href="@{/insights}" class="panel-link">Open Insights</a>
                             </div>
-
-                            <div class="business-detail-row">
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">UPI ID</div>
-                                        <div class="detail-value upi" th:text="${shop.upiId ?: 'Not Configured'}">shop@okhdfcbank</div>
-                                    </div>
+                            <div class="dashboard-insights-hero">
+                                <div class="dashboard-insights-copy">
+                                    <span class="dashboard-kicker">Dedicated Intelligence Center</span>
+                                    <h4>Understand the pharmacy without slowing down operations.</h4>
+                                    <p>Revenue trends, purchase performance, stock intelligence, expiry risk, adjustments, and audit activity now live in one separate workspace.</p>
                                 </div>
-                                <div class="business-detail-item half">
-                                    <div class="detail-icon">
-                                        <i class="fas fa-user-group"></i>
+                                <div class="dashboard-insights-points">
+                                    <div class="insights-point">
+                                        <strong>Sales & Revenue</strong>
+                                        <span>Trends, invoices, payment mix, and product movement</span>
                                     </div>
-                                    <div class="detail-content">
-                                        <div class="detail-label">Staff Count</div>
-                                        <div class="detail-value" th:text="${totalStaff}">5</div>
+                                    <div class="insights-point">
+                                        <strong>Inventory & Expiry</strong>
+                                        <span>Current stock, near expiry, low stock, and risk follow-up</span>
+                                    </div>
+                                    <div class="insights-point">
+                                        <strong>Audit & Control</strong>
+                                        <span>Operational activity, adjustment review, and export-ready views</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </section>
-
-                    <section class="dashboard-panel panel-signals">
-                        <div class="panel-header">
-                            <div>
-                                <h3><i class="fas fa-wave-square"></i> Batch & Expiry Signals</h3>
-                                <p>Live pharmacy inventory risk indicators</p>
+                            <div class="signals-actions insights-gateway-actions">
+                                <a th:href="@{/insights/sales/summary}" class="signal-action-link">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Sales Summary</span>
+                                </a>
+                                <a th:href="@{/insights/inventory/near-expiry}" class="signal-action-link">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    <span>Expiry Risks</span>
+                                </a>
+                                <a th:href="@{/insights/audit/activity}" class="signal-action-link">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Activity Audit</span>
+                                </a>
                             </div>
-                            <span class="panel-chip subtle">Batch Aware</span>
-                        </div>
-                        <div class="signals-grid">
-                            <div class="signal-tile">
-                                <span class="signal-label">Batch Medicines</span>
-                                <strong class="signal-value" id="batchManagedMedicines" th:text="${batchDashboard.batchManagedMedicines}">0</strong>
-                                <small class="signal-sub">Medicines on live batches</small>
-                            </div>
-                            <div class="signal-tile">
-                                <span class="signal-label">Sellable Units</span>
-                                <strong class="signal-value" id="sellableBatchUnits" th:text="${batchDashboard.sellableBatchUnits}">0</strong>
-                                <small class="signal-sub">Safe batch units ready to bill</small>
-                            </div>
-                            <div class="signal-tile">
-                                <span class="signal-label">Near Expiry</span>
-                                <strong class="signal-value" id="nearExpiryBatchCount" th:text="${batchDashboard.nearExpiryBatchCount}">0</strong>
-                                <small class="signal-sub">Live batches inside 30 days</small>
-                            </div>
-                            <div class="signal-tile">
-                                <span class="signal-label">Expired Risk</span>
-                                <strong class="signal-value" id="expiredBatchCount" th:text="${batchDashboard.expiredBatchCount}">0</strong>
-                                <small class="signal-sub">Expired live batches requiring review</small>
-                            </div>
-                        </div>
-                        <div class="expiry-watch-list">
-                            <div th:if="${not #lists.isEmpty(batchDashboard.expiringBatches)}"
-                                 th:each="batch : ${batchDashboard.expiringBatches}"
-                                 class="expiry-watch-item">
-                                <div class="expiry-watch-copy">
-                                    <div class="expiry-watch-title" th:text="${batch.productName}">Medicine</div>
-                                    <div class="expiry-watch-meta">
-                                        <span th:text="'Batch ' + ${batch.batchNumber}">Batch ABC123</span>
-                                        <span>•</span>
-                                        <span th:text="${batch.availableQuantity} + ' units'">0 units</span>
-                                    </div>
-                                </div>
-                                <div class="expiry-watch-date" th:text="${#temporals.format(batch.expiryDate, 'dd MMM')}">15 Apr</div>
-                            </div>
-                            <div th:if="${#lists.isEmpty(batchDashboard.expiringBatches)}" class="expiry-watch-empty">
-                                <i class="fas fa-check-circle"></i>
-                                <span>No near-expiry batches in the next 30 days.</span>
-                            </div>
-                        </div>
-                        <div class="signals-actions">
-                            <a th:href="@{/sales/new}" class="signal-action-link">
-                                <i class="fas fa-cash-register"></i>
-                                <span>Open Billing</span>
-                            </a>
-                            <a th:href="@{/purchases}" class="signal-action-link">
-                                <i class="fas fa-boxes-packing"></i>
-                                <span>Purchases</span>
-                            </a>
-                            <a th:href="@{/products}" class="signal-action-link">
-                                <i class="fas fa-capsules"></i>
-                                <span>Medicines</span>
-                            </a>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
                 </div>
-
             </div>
 
-            <!-- FOOTER -->
             <div th:replace="~{fragments/shop-footer :: footer}"></div>
         </div>
     </div>
 
+    <script>
+        function formatMoney(val) {
+            return parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
-    <script th:inline="javascript">
-        const dashboardPalette = {
-            primary: '#2f74da',
-            accent: '#f28c28',
-            softBlue: '#7eb5ff',
-            aqua: '#6ac9d5',
-            grid: 'rgba(82, 109, 146, 0.14)',
-            tick: '#708096'
-        };
+        function updateDashboardMetrics(data) {
+            var todayRevenue = document.getElementById('todayRevenue');
+            var totalInvoices = document.getElementById('totalInvoices');
+            var itemsSold = document.getElementById('itemsSold');
+            var returnedItems = document.getElementById('returnedItems');
+            var totalStaff = document.getElementById('totalStaff');
+            var avgOrderValue = document.getElementById('avgOrderValue');
+            var conversionRate = document.getElementById('conversionRate');
+            var customerCount = document.getElementById('customerCount');
+            var itemsPerInvoice = document.getElementById('itemsPerInvoice');
+            var batchManagedMedicines = document.getElementById('batchManagedMedicines');
+            var sellableBatchUnits = document.getElementById('sellableBatchUnits');
+            var nearExpiryBatchesCard = document.getElementById('nearExpiryBatchesCard');
+            var nearExpiryBatchCount = document.getElementById('nearExpiryBatchCount');
+            var expiredBatchCount = document.getElementById('expiredBatchCount');
 
-        const serverData = {
-            labels: /*[[${labels}]]*/['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            revenues: /*[[${revenues}]]*/[0, 0, 0, 0, 0, 0, 0],
-            todayRevenue: /*[[${todayRevenue}]]*/ 0,
-            todayInvoices: /*[[${todayInvoices}]]*/ 0,
-            todayItems: /*[[${todayItems}]]*/ 0,
-            completedRevenue: /*[[${completedRevenue}]]*/ 0,
-            cancelledAmount: /*[[${cancelledAmount}]]*/ 0,
-            netRevenue: /*[[${netRevenue}]]*/ 0,
-            returnedItems: /*[[${returnedItems}]]*/ 0,
-            totalStaff: /*[[${totalStaff}]]*/ 0,
-            totalSales: /*[[${totalSales}]]*/ 0,
-            uniqueCustomers: /*[[${uniqueCustomers}]]*/ 0,
-            batchManagedMedicines: /*[[${batchDashboard.batchManagedMedicines}]]*/ 0,
-            liveBatchCount: /*[[${batchDashboard.liveBatchCount}]]*/ 0,
-            sellableBatchUnits: /*[[${batchDashboard.sellableBatchUnits}]]*/ 0,
-            nearExpiryBatchCount: /*[[${batchDashboard.nearExpiryBatchCount}]]*/ 0,
-            expiredBatchCount: /*[[${batchDashboard.expiredBatchCount}]]*/ 0
-        };
+            if (todayRevenue) todayRevenue.innerText = formatMoney(data.todayRevenue);
+            if (totalInvoices) totalInvoices.innerText = data.todayInvoices || 0;
+            if (itemsSold) itemsSold.innerText = data.todayItems || 0;
+            if (returnedItems) returnedItems.innerText = data.returnedItems || 0;
+            if (totalStaff) totalStaff.innerText = data.totalStaff || 0;
+            if (customerCount) customerCount.innerText = data.uniqueCustomers || 0;
+            if (batchManagedMedicines) batchManagedMedicines.innerText = data.batchManagedMedicines || 0;
+            if (sellableBatchUnits) sellableBatchUnits.innerText = data.sellableBatchUnits || 0;
+            if (nearExpiryBatchesCard) nearExpiryBatchesCard.innerText = data.nearExpiryBatchCount || 0;
+            if (nearExpiryBatchCount) nearExpiryBatchCount.innerText = data.nearExpiryBatchCount || 0;
+            if (expiredBatchCount) expiredBatchCount.innerText = data.expiredBatchCount || 0;
 
-        function initCharts(data) {
-            if (!document.getElementById('revenueChart') || !document.getElementById('pieChart')) return;
-            const completedRev = data.revenues.map(r => r * 0.9);
-            const cancelledRev = data.revenues.map(r => r * 0.1);
-            const netRev = data.revenues.map(r => r * 0.8);
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            window.revenueChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [
-                        {
-                            label: 'Completed',
-                            data: completedRev,
-                            borderColor: dashboardPalette.primary,
-                            backgroundColor: 'rgba(47,116,218,0.08)',
-                            pointBackgroundColor: dashboardPalette.primary,
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            pointRadius: 3,
-                            pointHoverRadius: 4,
-                            borderWidth: 2.5,
-                            tension: 0.35
-                        },
-                        {
-                            label: 'Cancelled',
-                            data: cancelledRev,
-                            borderColor: dashboardPalette.accent,
-                            backgroundColor: 'rgba(242,140,40,0.08)',
-                            pointBackgroundColor: dashboardPalette.accent,
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            pointRadius: 3,
-                            pointHoverRadius: 4,
-                            borderWidth: 2.5,
-                            tension: 0.35
-                        },
-                        {
-                            label: 'Net',
-                            data: netRev,
-                            borderColor: dashboardPalette.softBlue,
-                            backgroundColor: 'rgba(126,181,255,0.08)',
-                            pointBackgroundColor: dashboardPalette.softBlue,
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            pointRadius: 3,
-                            pointHoverRadius: 4,
-                            borderWidth: 2.5,
-                            tension: 0.35
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#1f2937',
-                            titleColor: '#ffffff',
-                            bodyColor: '#e5eef9',
-                            padding: 10,
-                            displayColors: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: dashboardPalette.tick, font: { size: 11, weight: '600' } }
-                        },
-                        y: {
-                            grid: { color: dashboardPalette.grid },
-                            ticks: { color: dashboardPalette.tick, font: { size: 11, weight: '600' } },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            const lineLegend = document.getElementById('lineLegend');
-            if (lineLegend) {
-                lineLegend.innerHTML = '';
-                window.revenueChart.data.datasets.forEach((dataset, i) => {
-                    const item = document.createElement('div');
-                    item.className = 'shop-legend-item';
-                    item.innerHTML = `<span class="shop-legend-color" style="background: ${dataset.borderColor}"></span><span>${dataset.label}</span>`;
-                    item.onclick = () => {
-                        const meta = window.revenueChart.getDatasetMeta(i);
-                        meta.hidden = !meta.hidden;
-                        item.classList.toggle('shop-inactive', meta.hidden);
-                        window.revenueChart.update();
-                    };
-                    lineLegend.appendChild(item);
-                });
+            if (avgOrderValue) {
+                var avg = data.todayInvoices > 0 ? (data.completedRevenue || 0) / data.todayInvoices : 0;
+                avgOrderValue.innerText = '₹' + formatMoney(avg);
             }
-            const pieCtx = document.getElementById('pieChart').getContext('2d');
-            window.pieChart = new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Completed', 'Cancelled', 'Net'],
-                    datasets: [{
-                        data: [data.completedRevenue || 10, data.cancelledAmount || 10, data.netRevenue || 10],
-                        backgroundColor: [dashboardPalette.primary, dashboardPalette.accent, dashboardPalette.softBlue],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '68%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#1f2937',
-                            titleColor: '#ffffff',
-                            bodyColor: '#e5eef9',
-                            padding: 10,
-                            displayColors: false
-                        }
-                    }
-                }
-            });
-            const pieLegend = document.getElementById('pieLegend');
-            if (pieLegend) {
-                pieLegend.innerHTML = '';
-                ['Completed', 'Cancelled', 'Net'].forEach((label, i) => {
-                    const colors = [dashboardPalette.primary, dashboardPalette.accent, dashboardPalette.softBlue];
-                    const item = document.createElement('div');
-                    item.className = 'shop-legend-item';
-                    item.innerHTML = `<span class="shop-legend-color" style="background: ${colors[i]}"></span><span>${label}</span>`;
-                    item.onclick = () => togglePieSlice(i, item);
-                    pieLegend.appendChild(item);
-                });
+
+            if (conversionRate) {
+                var conversion = data.todaySalesCount > 0 ? ((data.completedCount || 0) / data.todaySalesCount * 100) : 0;
+                conversionRate.innerText = conversion.toFixed(1) + '%';
+            }
+
+            if (itemsPerInvoice) {
+                var density = data.todayInvoices > 0 ? (data.todayItems || 0) / data.todayInvoices : 0;
+                itemsPerInvoice.innerText = density.toFixed(1);
             }
         }
 
-        function fetchRealData() {
+        function fetchDashboardMetrics() {
             fetch('/app/metrics')
-                .then(res => res.json())
-                .then(data => {
-                    // Today's data
-                    document.getElementById("todayRevenue").innerText = formatMoney(data.todayRevenue);
-                    document.getElementById("totalInvoices").innerText = data.todayInvoices || 0;
-                    document.getElementById("itemsSold").innerText = data.todayItems || 0;
-                    document.getElementById("completedRevenue").innerText = formatMoney(data.completedRevenue);
-                    document.getElementById("cancelledAmount").innerText = formatMoney(data.cancelledAmount);
-                    document.getElementById("netRevenue").innerText = formatMoney(data.netRevenue);
-                    document.getElementById("returnedItems").innerText = data.returnedItems || 0;
-                    document.getElementById("totalStaff").innerText = data.totalStaff || 0;
-                    
-                    // Extended stats
-                    const avgOrderValue = data.todayInvoices > 0 ? data.completedRevenue / data.todayInvoices : 0;
-                    document.getElementById("avgOrderValue").innerText = '₹' + formatMoney(avgOrderValue);
-                    
-                    const conversionRate = data.todaySalesCount > 0 ? (data.completedCount / data.todaySalesCount * 100) : 0;
-                    document.getElementById("conversionRate").innerText = conversionRate.toFixed(1) + '%';
-                    
-                    document.getElementById("customerCount").innerText = data.uniqueCustomers || 0;
-                    
-                    const itemsPerInvoice = data.todayInvoices > 0 ? data.todayItems / data.todayInvoices : 0;
-                    document.getElementById("itemsPerInvoice").innerText = itemsPerInvoice.toFixed(1);
-
-                    const batchManagedMedicines = document.getElementById("batchManagedMedicines");
-                    const sellableBatchUnits = document.getElementById("sellableBatchUnits");
-                    const nearExpiryBatchCount = document.getElementById("nearExpiryBatchCount");
-                    const expiredBatchCount = document.getElementById("expiredBatchCount");
-                    if (batchManagedMedicines) batchManagedMedicines.innerText = data.batchManagedMedicines || 0;
-                    if (sellableBatchUnits) sellableBatchUnits.innerText = data.sellableBatchUnits || 0;
-                    if (nearExpiryBatchCount) nearExpiryBatchCount.innerText = data.nearExpiryBatchCount || 0;
-                    if (expiredBatchCount) expiredBatchCount.innerText = data.expiredBatchCount || 0;
-                    
-                    // Lifetime overall data
-                    document.getElementById("totalRevenue").innerText = formatMoney(data.totalRevenue);
-                    document.getElementById("totalInvoicesLifetime").innerText = data.totalInvoicesLifetime || 0;
-                    document.getElementById("totalItemsSold").innerText = data.totalItemsSold || 0;
-                    document.getElementById("totalCustomers").innerText = data.totalCustomers || 0;
-                    
-                    const avgOrderValueLifetime = data.totalInvoicesLifetime > 0 ? data.totalRevenue / data.totalInvoicesLifetime : 0;
-                    document.getElementById("avgOrderValueLifetime").innerText = formatMoney(avgOrderValueLifetime);
-                    
-                    const customerLTV = data.totalCustomers > 0 ? data.totalRevenue / data.totalCustomers : 0;
-                    document.getElementById("customerLTV").innerText = formatMoney(customerLTV);
-                    
-                    if (window.pieChart) {
-                        window.pieChart.data.datasets[0].data = [data.completedRevenue || 0, data.cancelledAmount || 0, data.netRevenue || 0];
-                        window.pieChart.update();
-                    }
-                })
-                .catch(err => console.error("Metrics error:", err));
+                .then(function (res) { return res.json(); })
+                .then(function (data) { updateDashboardMetrics(data); })
+                .catch(function (err) { console.error('Dashboard metrics error:', err); });
         }
 
-        function formatMoney(val) { 
-            return parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
-        }
-        
-        function togglePieSlice(index, element) {
-            if (window.pieChart) {
-                const meta = window.pieChart.getDatasetMeta(0);
-                meta.data[index].hidden = !meta.data[index].hidden;
-                element.classList.toggle('shop-inactive', meta.data[index].hidden);
-                window.pieChart.update();
-            }
-        }
-        
         document.addEventListener('DOMContentLoaded', function () {
-            initCharts(serverData);
-            fetchRealData();
-            setInterval(fetchRealData, 30000);
+            fetchDashboardMetrics();
+            setInterval(fetchDashboardMetrics, 30000);
         });
     </script>
 </body>
