@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import com.expygen.dto.CartItem;
+import com.expygen.dto.CustomerHistoryDTO;
 import com.expygen.dto.ProductLookupResult;
 import com.expygen.dto.SaleBatchTraceSummaryDTO;
 import com.expygen.dto.SaleHistoryDTO;
@@ -117,13 +119,16 @@ class SaleControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(session.getAttribute("cart")).thenReturn(cart);
-        when(saleService.completeSale(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+        when(saleService.completeSale(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()))
                 .thenReturn(savedSale);
 
         String view = saleController.completeSale(
                 "Walk In",
                 "98765 43210",
                 null,
+                null,
+                null,
+                false,
                 "CASH",
                 235.0,
                 25.0,
@@ -178,6 +183,7 @@ class SaleControllerTest {
         assertEquals("sales-history", view);
         SaleHistoryDTO firstSale = (SaleHistoryDTO) ((List<?>) model.getAttribute("sales")).get(0);
         assertEquals("9999999999", firstSale.getCustomerPhone());
+        assertEquals(null, firstSale.getDoctorName());
         assertTrue(firstSale.isBatchManaged());
         assertEquals(2, firstSale.getTracedBatchCount());
     }
@@ -272,6 +278,59 @@ class SaleControllerTest {
         assertEquals(List.of(item), model.getAttribute("items"));
         Map<?, ?> batchTrace = (Map<?, ?>) model.getAttribute("batchTraceBySaleItemId");
         assertTrue(batchTrace.containsKey(item.getId()));
+    }
+
+    @Test
+    void customerHistoryReturnsRecentCustomerSnapshot() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .id(77L)
+                .name("Pantocid DSR")
+                .build();
+
+        Sale sale = Sale.builder()
+                .shop(shop)
+                .createdBy(owner)
+                .saleDate(LocalDateTime.now().minusDays(2))
+                .totalAmount(new BigDecimal("245.00"))
+                .customerName("Aarav")
+                .customerPhone("9999999999")
+                .doctorName("Dr. Shah")
+                .prescriptionRequired(true)
+                .status(SaleStatus.COMPLETED)
+                .build();
+        sale.setId(51L);
+
+        SaleItem saleItem = SaleItem.builder()
+                .sale(sale)
+                .product(product)
+                .quantity(1)
+                .priceAtSale(new BigDecimal("245.00"))
+                .subtotal(new BigDecimal("245.00"))
+                .gstPercent(12)
+                .gstAmount(new BigDecimal("29.40"))
+                .totalWithGst(new BigDecimal("274.40"))
+                .build();
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(saleRepository.findTop5ByShopAndCustomerPhoneAndStatusOrderBySaleDateDesc(shop, "9999999999", SaleStatus.COMPLETED))
+                .thenReturn(List.of(sale));
+        when(saleRepository.countByShopAndCustomerPhoneAndStatus(shop, "9999999999", SaleStatus.COMPLETED))
+                .thenReturn(4L);
+        when(saleRepository.getLifetimeSpendByCustomerPhoneAndStatus(shop, "9999999999", SaleStatus.COMPLETED))
+                .thenReturn(new BigDecimal("1220.00"));
+        when(saleItemRepository.findBySaleIn(List.of(sale))).thenReturn(List.of(saleItem));
+
+        CustomerHistoryDTO response = saleController.getCustomerHistory("9999999999", authentication);
+
+        assertTrue(response.isFound());
+        assertEquals("Aarav", response.getCustomerName());
+        assertEquals("Dr. Shah", response.getLastDoctorName());
+        assertEquals(4L, response.getVisitCount());
+        assertEquals("Pantocid DSR", response.getRecentMedicines().get(0));
+        assertEquals(51L, response.getRecentSales().get(0).getSaleId());
     }
 
     @Test

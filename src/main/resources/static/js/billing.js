@@ -23,6 +23,23 @@ const cancelPopup = document.getElementById("cancelPopup");
 const paymentMode = document.getElementById("paymentMode");
 const customerNameInput = document.querySelector('input[name="customerName"]');
 const customerPhoneInput = document.querySelector('input[name="customerPhone"]');
+const doctorNameInput = document.querySelector('input[name="doctorName"]');
+const customerHistoryCard = document.getElementById("customerHistoryCard");
+const customerHistoryBadge = document.getElementById("customerHistoryBadge");
+const customerHistoryName = document.getElementById("customerHistoryName");
+const customerHistoryMeta = document.getElementById("customerHistoryMeta");
+const customerHistorySpend = document.getElementById("customerHistorySpend");
+const customerHistoryDoctor = document.getElementById("customerHistoryDoctor");
+const customerHistoryMedicinesWrap = document.getElementById("customerHistoryMedicinesWrap");
+const customerHistoryMedicines = document.getElementById("customerHistoryMedicines");
+const customerHistorySalesWrap = document.getElementById("customerHistorySalesWrap");
+const customerHistorySales = document.getElementById("customerHistorySales");
+const prescriptionVerifiedInput = document.getElementById("prescriptionVerified");
+const prescriptionDateInput = document.getElementById("prescriptionDate");
+const prescriptionReferenceInput = document.getElementById("prescriptionReference");
+const prescriptionModePill = document.getElementById("prescriptionModePill");
+const prescriptionBannerTitle = document.getElementById("prescriptionBannerTitle");
+const prescriptionBannerText = document.getElementById("prescriptionBannerText");
 const amountReceived = document.getElementById("amountReceived");
 const discountAmount = document.getElementById("discountAmount");
 const discountPercent = document.getElementById("discountPercent");
@@ -30,6 +47,8 @@ const successToast = document.getElementById("successToast");
 const invoiceBtn = document.getElementById("invoiceBtn");
 const printInvoiceBtn = document.getElementById("printInvoiceBtn");
 const whatsappInvoiceBtn = document.getElementById("whatsappInvoiceBtn");
+const lastInvoicePrintBtn = document.getElementById("lastInvoicePrintBtn");
+const lastInvoiceWhatsappBtn = document.getElementById("lastInvoiceWhatsappBtn");
 const successToastMessage = document.getElementById("successToastMessage");
 const lastInvoiceBar = document.getElementById("lastInvoiceBar");
 const lastInvoiceList = document.getElementById("lastInvoiceList");
@@ -49,6 +68,10 @@ let lastSavedPhone = null;
 let recentInvoices = [];
 let audioContext = null;
 let entryMode = "search";
+let lookupTimer = null;
+let lookupRequestSequence = 0;
+let customerHistoryTimer = null;
+let customerHistoryRequestSequence = 0;
 window.currentCart = [];
 
 function persistLastInvoiceContext() {
@@ -301,6 +324,124 @@ function setScanStatus(type, title, message) {
     }
 }
 
+function hideCustomerHistory() {
+    if (customerHistoryCard) {
+        customerHistoryCard.hidden = true;
+    }
+    if (customerHistoryMedicines) {
+        customerHistoryMedicines.innerHTML = "";
+    }
+    if (customerHistorySales) {
+        customerHistorySales.innerHTML = "";
+    }
+    if (customerHistoryMedicinesWrap) {
+        customerHistoryMedicinesWrap.hidden = true;
+    }
+    if (customerHistorySalesWrap) {
+        customerHistorySalesWrap.hidden = true;
+    }
+}
+
+function formatHistoryDate(dateValue) {
+    if (!dateValue) return "—";
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "—";
+    return new Intl.DateTimeFormat("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    }).format(date);
+}
+
+function renderCustomerHistory(history) {
+    if (!history?.found || !customerHistoryCard) {
+        hideCustomerHistory();
+        return;
+    }
+
+    customerHistoryCard.hidden = false;
+    if (customerHistoryBadge) {
+        customerHistoryBadge.textContent = `${history.visitCount || 0} visits`;
+    }
+    if (customerHistoryName) {
+        customerHistoryName.textContent = history.customerName || "Known customer";
+    }
+    if (customerHistoryMeta) {
+        const parts = [];
+        if (history.lastVisitDate) {
+            parts.push(`Last visit ${formatHistoryDate(history.lastVisitDate)}`);
+        }
+        if (history.recentSales?.length) {
+            parts.push(`Recent invoice #${history.recentSales[0].saleId}`);
+        }
+        customerHistoryMeta.textContent = parts.join(" • ") || "Recent customer history available";
+    }
+    if (customerHistorySpend) {
+        customerHistorySpend.textContent = `₹${Number(history.lifetimeSpend || 0).toFixed(2)}`;
+    }
+    if (customerHistoryDoctor) {
+        customerHistoryDoctor.textContent = history.lastDoctorName || "—";
+    }
+
+    if (customerHistoryMedicines && customerHistoryMedicinesWrap) {
+        const medicines = Array.isArray(history.recentMedicines) ? history.recentMedicines : [];
+        customerHistoryMedicines.innerHTML = medicines.map(name => `<span>${escapeHtml(name)}</span>`).join("");
+        customerHistoryMedicinesWrap.hidden = medicines.length === 0;
+    }
+
+    if (customerHistorySales && customerHistorySalesWrap) {
+        const sales = Array.isArray(history.recentSales) ? history.recentSales : [];
+        customerHistorySales.innerHTML = sales.map(sale => `
+            <div class="customer-history-sale">
+                <div>
+                    <strong>Invoice #${sale.saleId}</strong>
+                    <span>${formatHistoryDate(sale.saleDate)}${sale.doctorName ? ` • ${escapeHtml(sale.doctorName)}` : ""}</span>
+                </div>
+                <strong>₹${Number(sale.totalAmount || 0).toFixed(2)}</strong>
+            </div>
+        `).join("");
+        customerHistorySalesWrap.hidden = sales.length === 0;
+    }
+
+    if (customerNameInput && !customerNameInput.value?.trim() && history.customerName) {
+        customerNameInput.value = history.customerName;
+    }
+    if (doctorNameInput && !doctorNameInput.value?.trim() && history.lastDoctorName) {
+        doctorNameInput.value = history.lastDoctorName;
+    }
+}
+
+function scheduleCustomerHistoryLookup() {
+    const digits = (customerPhoneInput?.value || "").replace(/[^0-9]/g, "");
+    if (customerHistoryTimer) {
+        window.clearTimeout(customerHistoryTimer);
+        customerHistoryTimer = null;
+    }
+
+    if (digits.length < 10) {
+        hideCustomerHistory();
+        return;
+    }
+
+    const requestId = ++customerHistoryRequestSequence;
+    customerHistoryTimer = window.setTimeout(() => {
+        fetch(`/sales/customer-history?phone=${encodeURIComponent(digits)}`)
+            .then(response => response.ok ? response.json() : Promise.reject("history lookup failed"))
+            .then(history => {
+                if (requestId !== customerHistoryRequestSequence) {
+                    return;
+                }
+                renderCustomerHistory(history);
+            })
+            .catch(() => {
+                if (requestId !== customerHistoryRequestSequence) {
+                    return;
+                }
+                hideCustomerHistory();
+            });
+    }, 260);
+}
+
 function refreshAddButton() {
     if (!addBtn) return;
     addBtn.innerHTML = entryMode === "scan"
@@ -423,11 +564,13 @@ async function handleBarcodeEntry(keyword) {
         return;
     }
 
+    selectedProduct = null;
     setScanStatus("info", "Matching Barcode", "Checking the exact barcode against sellable pharmacy stock...");
 
     try {
         const exactMatch = await resolveExactBarcodeProduct(value);
         if (!exactMatch) {
+            selectedProduct = null;
             setScanStatus("warning", "Barcode Not Found", "No sellable medicine matched this barcode. Check the code or use Search mode.");
             showTempToast("No exact barcode match found", "warning");
             return;
@@ -435,6 +578,7 @@ async function handleBarcodeEntry(keyword) {
 
         const sellableStock = getProductSellableStock(exactMatch);
         if (sellableStock <= 0) {
+            selectedProduct = null;
             setScanStatus("warning", "Barcode Found, Stock Locked", `${exactMatch.name} matched, but there is no sellable batch stock available right now.`);
             showTempToast("Matched medicine has no sellable stock", "warning");
             return;
@@ -559,6 +703,14 @@ function hidePopup() {
 function resetBillingFields() {
     if (customerNameInput) customerNameInput.value = "";
     if (customerPhoneInput) customerPhoneInput.value = "";
+    hideCustomerHistory();
+    if (doctorNameInput) {
+        doctorNameInput.value = "";
+        delete doctorNameInput.dataset.touched;
+    }
+    if (prescriptionVerifiedInput) prescriptionVerifiedInput.checked = false;
+    if (prescriptionDateInput) prescriptionDateInput.value = "";
+    if (prescriptionReferenceInput) prescriptionReferenceInput.value = "";
     if (paymentMode) paymentMode.value = "CASH";
     if (amountReceived) amountReceived.value = "";
     if (discountAmount) discountAmount.value = "0";
@@ -664,6 +816,38 @@ function calculateChange() {
     return { totalWithTax, discount, netPayable, received, change };
 }
 
+function cartRequiresPrescription() {
+    return Array.isArray(window.currentCart) && window.currentCart.some(item => !!item.prescriptionRequired);
+}
+
+function refreshPrescriptionState() {
+    const requiresPrescription = cartRequiresPrescription();
+    if (!prescriptionModePill || !prescriptionBannerTitle || !prescriptionBannerText) {
+        return requiresPrescription;
+    }
+
+    prescriptionModePill.textContent = requiresPrescription ? "Required" : "Optional";
+    prescriptionModePill.classList.toggle("billing-pill-rx", requiresPrescription);
+    const prescriptionBanner = document.getElementById("prescriptionBanner");
+    if (prescriptionBanner) {
+        prescriptionBanner.hidden = !requiresPrescription;
+    }
+
+    if (requiresPrescription) {
+        prescriptionBannerTitle.textContent = "Rx medicine present in this bill";
+        prescriptionBannerText.textContent = "Verify the prescription before completing the sale. Record prescription date and doctor name or prescription reference for proper traceability.";
+    } else {
+        if (prescriptionVerifiedInput) prescriptionVerifiedInput.checked = false;
+        if (prescriptionDateInput) prescriptionDateInput.value = "";
+        if (prescriptionReferenceInput) prescriptionReferenceInput.value = "";
+        if (doctorNameInput && !doctorNameInput.dataset.touched) {
+            doctorNameInput.value = "";
+        }
+    }
+
+    return requiresPrescription;
+}
+
 window.updateCartUI = function updateCartUI(cart) {
     window.currentCart = cart || [];
     if (!cartContainer) return;
@@ -676,6 +860,7 @@ window.updateCartUI = function updateCartUI(cart) {
             cartItemCountValue.innerText = "0";
         }
         calculateChange();
+        refreshPrescriptionState();
         return;
     }
 
@@ -698,6 +883,7 @@ window.updateCartUI = function updateCartUI(cart) {
                             <div class="cart-item-name">${escapeHtml(item.productName)}</div>
                             <div class="cart-item-tags">
                                 <span class="gst-badge ${gstClass}">${gst}%</span>
+                                ${item.prescriptionRequired ? '<span class="suggestion-tag suggestion-tag-rx"><i class="fas fa-file-medical"></i> Rx</span>' : ''}
                             </div>
                         </div>
                         <div class="cart-item-gst-breakdown">
@@ -728,6 +914,7 @@ window.updateCartUI = function updateCartUI(cart) {
         cartItemCountValue.innerText = String(window.currentCart.length);
     }
     calculateChange();
+    refreshPrescriptionState();
 };
 
 window.changeQty = function changeQty(index, delta) {
@@ -782,7 +969,25 @@ function addProduct() {
 
     const addedProductName = selectedProduct.name || "Product";
     const qty = parseInt(qtyInput?.value || "1", 10);
-    if (qty < 1) {
+    addProductToCart(selectedProduct, qty, {
+        successMessage: `${addedProductName} added to cart`
+    });
+}
+
+function addProductToCart(product, quantity = 1, options = {}) {
+    const {
+        successMessage = `${product?.name || "Product"} added to cart`,
+        onSuccess = null
+    } = options;
+
+    if (!product) {
+        showTempToast("Select a product first", "warning");
+        focusSearch();
+        return;
+    }
+
+    const normalizedQuantity = Number.parseInt(quantity, 10);
+    if (!Number.isFinite(normalizedQuantity) || normalizedQuantity < 1) {
         showTempToast("Quantity must be at least 1", "warning");
         focusAndSelect(qtyInput);
         return;
@@ -790,8 +995,8 @@ function addProduct() {
 
     const formData = new URLSearchParams();
     formData.append("_csrf", csrfToken);
-    formData.append("productId", selectedProduct.id);
-    formData.append("quantity", qty);
+    formData.append("productId", product.id);
+    formData.append("quantity", normalizedQuantity);
 
     fetch("/sales/add", {
         method: "POST",
@@ -805,9 +1010,12 @@ function addProduct() {
             if (searchInput) searchInput.value = "";
             if (qtyInput) qtyInput.value = "1";
             playCartAddedSound();
-            showTempToast(`${addedProductName} added to cart`, "success");
+            showTempToast(successMessage, "success");
             setEntryMode(entryMode, { persist: false });
             focusSearch();
+            if (typeof onSuccess === "function") {
+                onSuccess();
+            }
         })
         .catch(error => showTempToast(`Failed to add product: ${error}`, "error"));
 }
@@ -820,11 +1028,21 @@ function isExactBarcodeMatch(product, keyword) {
 
 function autoAddScannedProduct(product) {
     if (!product) return;
-    selectSuggestion(product);
-    if (qtyInput) {
-        qtyInput.value = "1";
-    }
-    addProduct();
+    const alreadyInCart = window.currentCart.find(item => item.productId === product.id);
+    addProductToCart(product, 1, {
+        successMessage: alreadyInCart
+            ? `${product.name} quantity increased by 1`
+            : `${product.name} scanned into cart`,
+        onSuccess: () => {
+            setScanStatus(
+                "success",
+                "Scan Added",
+                alreadyInCart
+                    ? `${product.name} was already in the bill, so the quantity was increased by 1.`
+                    : `${product.name} was added to the bill. Scan the same barcode again to increase quantity quickly.`
+            );
+        }
+    });
 }
 
 function renderSuggestions(products, keyword = searchInput?.value || "") {
@@ -884,24 +1102,32 @@ if (searchInput) {
     searchInput.addEventListener("input", () => {
         const keyword = searchInput.value.trim();
         selectedProduct = null;
+        if (lookupTimer) {
+            window.clearTimeout(lookupTimer);
+            lookupTimer = null;
+        }
         if (!keyword) {
             closeSuggestions();
             setEntryMode(entryMode, { persist: false });
             return;
         }
 
-        fetchLookupResults(keyword)
-            .then(products => {
-                if (searchInput.value.trim() !== keyword) {
-                    return;
-                }
-                renderSuggestions(products, keyword);
-            })
-            .catch(error => {
-                console.error(error);
-                setScanStatus("error", "Lookup Failed", "Medicine lookup failed. Please try again.");
-                showTempToast("Product search failed. Please try again.", "error");
-            });
+        const delay = entryMode === "scan" ? 80 : 160;
+        lookupTimer = window.setTimeout(() => {
+            const requestId = ++lookupRequestSequence;
+            fetchLookupResults(keyword)
+                .then(products => {
+                    if (searchInput.value.trim() !== keyword || requestId !== lookupRequestSequence) {
+                        return;
+                    }
+                    renderSuggestions(products, keyword);
+                })
+                .catch(error => {
+                    console.error(error);
+                    setScanStatus("error", "Lookup Failed", "Medicine lookup failed. Please try again.");
+                    showTempToast("Product search failed. Please try again.", "error");
+                });
+        }, delay);
     });
 
     searchInput.addEventListener("keydown", async event => {
@@ -915,7 +1141,7 @@ if (searchInput) {
             event.preventDefault();
             selectedIndex = (selectedIndex - 1 + items.length) % items.length;
             highlight(items);
-        } else if (event.key === "Enter") {
+        } else if (event.key === "Enter" || (entryMode === "scan" && event.key === "Tab" && searchInput.value.trim())) {
             event.preventDefault();
             const keyword = searchInput.value.trim();
             const exactMatch = findExactBarcodeProduct(keyword);
@@ -954,13 +1180,24 @@ if (searchInput) {
     });
 }
 
-if (addBtn) addBtn.addEventListener("click", addProduct);
+if (addBtn) {
+    addBtn.addEventListener("click", async () => {
+        if (entryMode === "scan") {
+            await handleBarcodeEntry(searchInput?.value || "");
+            return;
+        }
+        addProduct();
+    });
+}
 searchModeBtn?.addEventListener("click", () => setEntryMode("search", { focus: true }));
 scanModeBtn?.addEventListener("click", () => setEntryMode("scan", { focus: true }));
 
 if (qtyInput) {
     qtyInput.addEventListener("keydown", event => {
         if (event.key === "Enter") {
+            event.preventDefault();
+            addProduct();
+        } else if (entryMode === "scan" && event.key === "Tab" && selectedProduct) {
             event.preventDefault();
             addProduct();
         }
@@ -977,11 +1214,23 @@ if (customerNameInput) {
 }
 
 if (customerPhoneInput) {
+    customerPhoneInput.addEventListener("input", () => {
+        scheduleCustomerHistoryLookup();
+    });
+    customerPhoneInput.addEventListener("blur", () => {
+        scheduleCustomerHistoryLookup();
+    });
     customerPhoneInput.addEventListener("keydown", event => {
         if (event.key === "Enter") {
             event.preventDefault();
             paymentMode?.focus();
         }
+    });
+}
+
+if (doctorNameInput) {
+    doctorNameInput.addEventListener("input", () => {
+        doctorNameInput.dataset.touched = "true";
     });
 }
 
@@ -1055,6 +1304,32 @@ if (billingForm) {
             showTempToast(`Amount received must cover ₹${netPayable.toFixed(2)} for ${paymentValue} payments`, "warning");
             focusAndSelect(amountReceived);
             return;
+        }
+
+        const requiresPrescription = refreshPrescriptionState();
+        if (requiresPrescription) {
+            if (!prescriptionVerifiedInput?.checked) {
+                event.preventDefault();
+                showTempToast("Verify the prescription before completing an Rx bill", "warning");
+                prescriptionVerifiedInput?.focus();
+                return;
+            }
+
+            if (!prescriptionDateInput?.value) {
+                event.preventDefault();
+                showTempToast("Prescription date is required for Rx medicines", "warning");
+                focusAndSelect(prescriptionDateInput);
+                return;
+            }
+
+            const doctorValue = doctorNameInput?.value?.trim() || "";
+            const referenceValue = prescriptionReferenceInput?.value?.trim() || "";
+            if (!doctorValue && !referenceValue) {
+                event.preventDefault();
+                showTempToast("Doctor name or prescription reference is required for Rx medicines", "warning");
+                focusAndSelect(doctorNameInput || prescriptionReferenceInput);
+                return;
+            }
         }
 
         if (completeBtn) {
@@ -1291,6 +1566,12 @@ window.onload = () => {
     if (params.get("saved") === "true") {
         lastSavedInvoiceId = params.get("invoiceId");
         lastSavedPhone = params.get("phone");
+        if (lastSavedInvoiceId) {
+            recentInvoices = [{
+                invoiceId: lastSavedInvoiceId,
+                phone: lastSavedPhone || null
+            }, ...recentInvoices.filter(item => String(item?.invoiceId) !== String(lastSavedInvoiceId))].slice(0, 3);
+        }
         persistLastInvoiceContext();
         if (invoiceBtn && lastSavedInvoiceId) {
             invoiceBtn.href = getInvoiceViewUrl(lastSavedInvoiceId);
@@ -1305,6 +1586,7 @@ window.onload = () => {
         setTimeout(() => successToast?.classList.remove("show"), 5000);
     }
     refreshLastInvoiceBar();
+    refreshPrescriptionState();
     setEntryMode(restoreEntryMode(), { persist: false });
     focusSearch();
 };

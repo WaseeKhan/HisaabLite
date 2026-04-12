@@ -59,6 +59,11 @@
             <i class="fas fa-sliders-h"></i>
             <span>Stock Adjustments</span>
         </a>
+        <a th:href="@{/insights/inventory/barcodes}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Barcode Desk'} ? ' active' : ''">
+            <i class="fas fa-barcode"></i>
+            <span>Barcode Desk</span>
+        </a>
     </div>
 
     <div class="insights-sidebar-group">

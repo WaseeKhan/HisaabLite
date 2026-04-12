@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Barcode Desk • Expygen</title>
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+            <div class="report-shell">
+                <div class="report-header">
+                    <div>
+                        <div class="report-badge">Inventory Operations</div>
+                        <h1>Barcode Desk</h1>
+                        <p>
+                            Run barcode setup, label printing, and sheet-ready sticker work from one operational workspace instead of bouncing between product records.
+                        </p>
+                    </div>
+
+                    <div class="report-header-actions">
+                        <a class="table-action-btn" th:href="@{/products}">Open Products</a>
+                        <a class="table-action-btn" th:href="@{/insights/inventory/current-stock}">Current Stock</a>
+                    </div>
+                </div>
+
+                <form class="insights-filter-form insights-filter-command" th:action="@{/insights/inventory/barcodes}" method="get">
+                    <div class="filter-command-top">
+                        <div class="filter-command-title">
+                            <span class="filter-command-kicker">Barcode Console</span>
+                        </div>
+                        <strong class="filter-command-inline-note">Filter by readiness, brand, barcode, or manufacturer before generating or printing.</strong>
+                    </div>
+                    <div class="filter-row filter-row-command-stock">
+                        <div class="filter-group filter-group-search">
+                            <label for="keyword">Search</label>
+                            <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                                   placeholder="Search medicine, salt, barcode, or pack size...">
+                        </div>
+
+                        <div class="filter-group filter-group-compact">
+                            <label for="barcodeStatus">Barcode Status</label>
+                            <select id="barcodeStatus" name="barcodeStatus">
+                                <option value="">All</option>
+                                <option value="READY" th:selected="${barcodeStatus == 'READY'}">Barcode Ready</option>
+                                <option value="MISSING" th:selected="${barcodeStatus == 'MISSING'}">Missing Barcode</option>
+                                <option value="RX_READY" th:selected="${barcodeStatus == 'RX_READY'}">Rx + Barcode</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group filter-group-compact">
+                            <label for="manufacturer">Manufacturer</label>
+                            <input type="text" id="manufacturer" name="manufacturer" th:value="${manufacturer}" placeholder="Search manufacturer">
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="filter-btn primary-btn">Apply</button>
+                            <a class="filter-btn secondary-btn" th:href="@{/insights/inventory/barcodes}">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="report-action-strip">
+                    <button type="button" class="report-action-card report-action-card-button" onclick="bulkGenerateMissingBarcodes()">
+                        <span class="report-action-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Generate Selected Missing</strong>
+                            <span>Create internal barcodes only for the selected products that are still missing one.</span>
+                        </span>
+                    </button>
+                    <button type="button" class="report-action-card report-action-card-button" onclick="printSelectedBarcodeLabels()">
+                        <span class="report-action-icon"><i class="fas fa-print"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Print Selected Labels</strong>
+                            <span>Open one barcode sheet for all selected barcode-ready products.</span>
+                        </span>
+                    </button>
+                    <button type="button" class="report-action-card report-action-card-button" onclick="clearBarcodeSelection()">
+                        <span class="report-action-icon"><i class="fas fa-xmark"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Clear Selection</strong>
+                            <span>Reset the current working set before switching barcode tasks.</span>
+                        </span>
+                    </button>
+                </div>
+
+                <div class="kpi-strip">
+                    <div th:each="card, stat : ${kpis}" class="kpi-card" th:classappend="${stat.count == 2} ? ' kpi-card-primary'">
+                        <span th:text="${card.label}">Visible Medicines</span>
+                        <h3 th:text="${card.value}">0</h3>
+                        <small th:text="${card.description}">Description</small>
+                    </div>
+                </div>
+
+                <div class="report-table-shell">
+                    <div class="report-table-header">
+                        <h3>Barcode Work Queue</h3>
+                        <div class="report-table-actions">
+                            <span class="table-inline-note"><span id="barcodeDeskSelectedCount">0</span> selected</span>
+                        </div>
+                    </div>
+
+                    <div class="report-table-wrapper">
+                        <table class="report-table">
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox" id="barcodeDeskSelectAll"></th>
+                                <th>Medicine</th>
+                                <th>Manufacturer</th>
+                                <th>Barcode</th>
+                                <th>Pricing</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                                <td colspan="8" style="text-align:center;">No medicines found for this barcode desk view.</td>
+                            </tr>
+                            <tr th:each="product : ${rows}">
+                                <td>
+                                    <input type="checkbox"
+                                           class="barcode-desk-checkbox"
+                                           th:data-id="${product.id}"
+                                           th:data-name="${product.name}"
+                                           th:data-has-barcode="${product.barcode != null and !#strings.isEmpty(product.barcode)}">
+                                </td>
+                                <td>
+                                    <div th:text="${product.name}" style="font-weight:800;">Dolo 650</div>
+                                    <div th:text="${product.genericName != null ? product.genericName : 'Generic not set'}" style="color:#667085;font-size:12px;">Paracetamol</div>
+                                    <div th:if="${product.packSize != null}" th:text="${product.packSize}" style="color:#94a3b8;font-size:12px;">15 tablets</div>
+                                </td>
+                                <td th:text="${product.manufacturer != null ? product.manufacturer : 'Not set'}">Micro Labs</td>
+                                <td th:text="${product.barcode != null ? product.barcode : 'Missing'}">8901234567001</td>
+                                <td>
+                                    <div th:text="${'SP ₹' + product.price}">SP ₹32.00</div>
+                                    <div th:text="${product.mrp != null ? 'MRP ₹' + product.mrp : 'MRP not set'}" style="color:#667085;font-size:12px;">MRP ₹34.00</div>
+                                </td>
+                                <td>
+                                    <div th:text="${product.stockQuantity}">20</div>
+                                    <div th:text="${'Min ' + product.minStock}" style="color:#667085;font-size:12px;">Min 5</div>
+                                </td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="${product.barcode != null and !#strings.isEmpty(product.barcode)} ? ' status-success' : ' status-warning'"
+                                          th:text="${product.barcode != null and !#strings.isEmpty(product.barcode)} ? 'Barcode Ready' : 'Missing Barcode'">Barcode Ready</span>
+                                </td>
+                                <td>
+                                    <div class="row-actions">
+                                        <button type="button"
+                                                class="row-action-link row-action-link-button"
+                                                th:if="${product.barcode == null or #strings.isEmpty(product.barcode)}"
+                                                th:attr="data-product-id=${product.id},data-product-name=${product.name}"
+                                                onclick="generateBarcodeFromDesk(this)">
+                                            <i class="fas fa-wand-magic-sparkles"></i><span>Generate</span>
+                                        </button>
+                                        <a class="row-action-link"
+                                           th:if="${product.barcode != null and !#strings.isEmpty(product.barcode)}"
+                                           th:href="@{/products/{id}/barcode-label(id=${product.id})}"
+                                           target="_blank">
+                                            <i class="fas fa-barcode"></i><span>Label</span>
+                                        </a>
+                                        <button type="button"
+                                                class="row-action-link row-action-link-button"
+                                                th:if="${product.barcode != null and !#strings.isEmpty(product.barcode)}"
+                                                th:attr="data-product-id=${product.id},data-product-name=${product.name}"
+                                                onclick="openInsightsLabelModal(this)">
+                                            <i class="fas fa-copy"></i><span>Many</span>
+                                        </button>
+                                        <a class="row-action-link" th:href="@{/products/edit/{id}(id=${product.id})}">
+                                            <i class="fas fa-pen"></i><span>Edit</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="report-pagination" th:if="${totalRows > pageSize}">
+                        <a class="pagination-btn"
+                           th:classappend="${!hasPreviousPage} ? ' disabled'"
+                           th:href="${hasPreviousPage} ? @{/insights/inventory/barcodes(page=${previousPage}, keyword=${keyword}, barcodeStatus=${barcodeStatus}, manufacturer=${manufacturer})} : '#'">Previous</a>
+                        <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                        <a class="pagination-btn"
+                           th:classappend="${!hasNextPage} ? ' disabled'"
+                           th:href="${hasNextPage} ? @{/insights/inventory/barcodes(page=${nextPage}, keyword=${keyword}, barcodeStatus=${barcodeStatus}, manufacturer=${manufacturer})} : '#'">Next</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<div id="insightsLabelSheetModal" class="repeat-label-modal">
+    <div class="repeat-label-dialog">
+        <div class="repeat-label-head">
+            <div>
+                <h3>Print Many Labels</h3>
+                <p>Choose how many labels to print and which sticker sheet type matches your paper.</p>
+            </div>
+            <button type="button" class="repeat-label-close" onclick="closeInsightsLabelModal()">×</button>
+        </div>
+        <form id="insightsLabelForm" class="repeat-label-form">
+            <input type="hidden" id="insightsLabelProductId">
+            <div class="form-group">
+                <label>Medicine</label>
+                <div id="insightsLabelProductName" class="repeat-label-product-name">Selected medicine</div>
+            </div>
+            <div class="repeat-label-grid">
+                <div class="form-group">
+                    <label for="insightsLabelQuantity">Label Count</label>
+                    <input type="number" id="insightsLabelQuantity" min="1" max="500" value="40" required>
+                </div>
+                <div class="form-group">
+                    <label for="insightsLabelSize">Sheet Type</label>
+                    <select id="insightsLabelSize">
+                        <option value="SHEET_20">20 per sheet</option>
+                        <option value="SHEET_24">24 per sheet</option>
+                        <option value="SHEET_40" selected>40 per sheet</option>
+                        <option value="SHEET_48">48 per sheet</option>
+                        <option value="SHEET_65">65 per sheet</option>
+                        <option value="SHEET_80">80 per sheet</option>
+                    </select>
+                </div>
+            </div>
+            <div class="repeat-label-note" id="insightsLabelNote">1 A4 sheet fits 40 stickers. Best for small product stickers and common barcode paper.</div>
+            <div class="repeat-label-note repeat-label-note-subtle" id="insightsLabelCountInfo">Printing 40 labels will use 1 A4 sheet.</div>
+            <div class="repeat-label-actions">
+                <button type="button" class="shop-cancel-btn" onclick="closeInsightsLabelModal()">Cancel</button>
+                <button type="submit" class="shop-btn-label-sheet"><i class="fas fa-barcode"></i> Generate PDF</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+<script th:inline="javascript">
+    const barcodeDeskCsrfToken = document.querySelector("meta[name='_csrf']")?.content;
+    const barcodeDeskCsrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+    const barcodeDeskSelection = new Set();
+    const insightsLabelSheetPresets = {
+        SHEET_20: { count: 20, label: '20 per sheet', description: '1 A4 sheet fits 20 stickers. Best for bigger labels, boxes, and shelf labels.' },
+        SHEET_24: { count: 24, label: '24 per sheet', description: '1 A4 sheet fits 24 stickers. Good medium-size labels for bottles and general packs.' },
+        SHEET_40: { count: 40, label: '40 per sheet', description: '1 A4 sheet fits 40 stickers. Best for small product stickers and common barcode paper.' },
+        SHEET_48: { count: 48, label: '48 per sheet', description: '1 A4 sheet fits 48 stickers. Good for compact barcode tagging with limited text.' },
+        SHEET_65: { count: 65, label: '65 per sheet', description: '1 A4 sheet fits 65 stickers. Small labels with tighter barcode and text space.' },
+        SHEET_80: { count: 80, label: '80 per sheet', description: '1 A4 sheet fits 80 stickers. Very small labels, best when you need maximum density.' }
+    };
+
+    function showDeskToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = isError ? 'shop-toast-error' : 'shop-toast-success';
+        toast.textContent = isError ? message : `✓ ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 3200);
+    }
+
+    function updateBarcodeDeskSelectionState() {
+        const selectedCount = document.getElementById('barcodeDeskSelectedCount');
+        if (selectedCount) {
+            selectedCount.textContent = String(barcodeDeskSelection.size);
+        }
+    }
+
+    function collectSelectedRows() {
+        return Array.from(document.querySelectorAll('.barcode-desk-checkbox:checked')).map((checkbox) => ({
+            id: checkbox.dataset.id,
+            hasBarcode: checkbox.dataset.hasBarcode === 'true'
+        }));
+    }
+
+    async function generateBarcodeFromDesk(button) {
+        const productId = button.dataset.productId;
+        const productName = button.dataset.productName || 'medicine';
+        if (!productId) return;
+
+        button.disabled = true;
+        try {
+            const response = await fetch(`/products/${productId}/generate-barcode`, {
+                method: 'POST',
+                headers: barcodeDeskCsrfHeader && barcodeDeskCsrfToken ? { [barcodeDeskCsrfHeader]: barcodeDeskCsrfToken } : {}
+            });
+            if (!response.ok) throw new Error();
+            const payload = await response.json();
+            showDeskToast(`${productName}: ${payload.barcode}`);
+            if (payload.labelUrl) {
+                window.open(payload.labelUrl, '_blank', 'noopener,noreferrer');
+            }
+            window.location.reload();
+        } catch (_) {
+            showDeskToast(`Could not generate barcode for ${productName}`, true);
+            button.disabled = false;
+        }
+    }
+
+    async function bulkGenerateMissingBarcodes() {
+        const selected = collectSelectedRows().filter(row => !row.hasBarcode);
+        if (!selected.length) {
+            showDeskToast('Select at least one missing-barcode product first', true);
+            return;
+        }
+
+        let generated = 0;
+        for (const row of selected) {
+            try {
+                const response = await fetch(`/products/${row.id}/generate-barcode`, {
+                    method: 'POST',
+                    headers: barcodeDeskCsrfHeader && barcodeDeskCsrfToken ? { [barcodeDeskCsrfHeader]: barcodeDeskCsrfToken } : {}
+                });
+                if (response.ok) {
+                    generated += 1;
+                }
+            } catch (_) {
+                // Keep going so the rest of the queue still progresses.
+            }
+        }
+
+        if (!generated) {
+            showDeskToast('No barcodes were generated. Please retry once.', true);
+            return;
+        }
+        showDeskToast(`Generated ${generated} barcode${generated === 1 ? '' : 's'}. Refreshing the desk...`);
+        window.location.reload();
+    }
+
+    function printSelectedBarcodeLabels() {
+        const readyIds = collectSelectedRows()
+            .filter(row => row.hasBarcode)
+            .map(row => row.id);
+
+        if (!readyIds.length) {
+            showDeskToast('Select at least one barcode-ready product first', true);
+            return;
+        }
+
+        const query = readyIds.map(id => `ids=${encodeURIComponent(id)}`).join('&');
+        window.open(`/products/barcode-sheet?${query}`, '_blank', 'noopener,noreferrer');
+        showDeskToast(`Opening ${readyIds.length} barcode-ready label${readyIds.length === 1 ? '' : 's'}.`);
+    }
+
+    function clearBarcodeSelection() {
+        barcodeDeskSelection.clear();
+        document.querySelectorAll('.barcode-desk-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        const selectAll = document.getElementById('barcodeDeskSelectAll');
+        if (selectAll) {
+            selectAll.checked = false;
+        }
+        updateBarcodeDeskSelectionState();
+    }
+
+    function closeInsightsLabelModal() {
+        document.getElementById('insightsLabelSheetModal')?.classList.remove('show');
+    }
+
+    function updateInsightsLabelHelper() {
+        const quantityInput = document.getElementById('insightsLabelQuantity');
+        const sizeSelect = document.getElementById('insightsLabelSize');
+        const note = document.getElementById('insightsLabelNote');
+        const countInfo = document.getElementById('insightsLabelCountInfo');
+        const preset = insightsLabelSheetPresets[sizeSelect?.value || 'SHEET_40'] || insightsLabelSheetPresets.SHEET_40;
+        const quantity = Number.parseInt(quantityInput?.value || '0', 10);
+        const safeQuantity = Number.isFinite(quantity) && quantity > 0 ? quantity : 0;
+        const sheetCount = safeQuantity ? Math.ceil(safeQuantity / preset.count) : 0;
+
+        if (note) note.textContent = preset.description;
+        if (countInfo) {
+            countInfo.textContent = safeQuantity
+                ? `Printing ${safeQuantity} labels will use ${sheetCount} A4 sheet${sheetCount === 1 ? '' : 's'}.`
+                : `1 A4 sheet fits ${preset.count} stickers.`;
+        }
+    }
+
+    function setInsightsLabelQuantityFromPreset() {
+        const quantityInput = document.getElementById('insightsLabelQuantity');
+        const sizeSelect = document.getElementById('insightsLabelSize');
+        const preset = insightsLabelSheetPresets[sizeSelect?.value || 'SHEET_40'] || insightsLabelSheetPresets.SHEET_40;
+        if (quantityInput) {
+            quantityInput.value = String(preset.count);
+        }
+        updateInsightsLabelHelper();
+    }
+
+    function openInsightsLabelModal(button) {
+        const modal = document.getElementById('insightsLabelSheetModal');
+        const productIdInput = document.getElementById('insightsLabelProductId');
+        const productName = document.getElementById('insightsLabelProductName');
+        const sizeSelect = document.getElementById('insightsLabelSize');
+        if (!modal || !productIdInput || !productName || !sizeSelect) return;
+
+        productIdInput.value = button.dataset.productId || '';
+        productName.textContent = button.dataset.productName || 'Selected medicine';
+        sizeSelect.value = 'SHEET_40';
+        setInsightsLabelQuantityFromPreset();
+        modal.classList.add('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.barcode-desk-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    barcodeDeskSelection.add(checkbox.dataset.id);
+                } else {
+                    barcodeDeskSelection.delete(checkbox.dataset.id);
+                }
+                updateBarcodeDeskSelectionState();
+            });
+        });
+
+        document.getElementById('barcodeDeskSelectAll')?.addEventListener('change', (event) => {
+            const checked = event.target.checked;
+            document.querySelectorAll('.barcode-desk-checkbox').forEach(checkbox => {
+                checkbox.checked = checked;
+                if (checked) {
+                    barcodeDeskSelection.add(checkbox.dataset.id);
+                } else {
+                    barcodeDeskSelection.delete(checkbox.dataset.id);
+                }
+            });
+            updateBarcodeDeskSelectionState();
+        });
+
+        document.getElementById('insightsLabelSheetModal')?.addEventListener('click', (event) => {
+            if (event.target.id === 'insightsLabelSheetModal') {
+                closeInsightsLabelModal();
+            }
+        });
+
+        document.getElementById('insightsLabelQuantity')?.addEventListener('input', updateInsightsLabelHelper);
+        document.getElementById('insightsLabelSize')?.addEventListener('change', setInsightsLabelQuantityFromPreset);
+        setInsightsLabelQuantityFromPreset();
+
+        document.getElementById('insightsLabelForm')?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const productId = document.getElementById('insightsLabelProductId')?.value;
+            const quantity = Number.parseInt(document.getElementById('insightsLabelQuantity')?.value || '', 10);
+            const size = document.getElementById('insightsLabelSize')?.value || 'SHEET_40';
+
+            if (!productId || !Number.isFinite(quantity) || quantity < 1 || quantity > 500) {
+                showDeskToast('Choose a valid product and label quantity between 1 and 500', true);
+                return;
+            }
+
+            const preset = insightsLabelSheetPresets[size] || insightsLabelSheetPresets.SHEET_40;
+            showDeskToast(`Opening ${quantity} labels on ${preset.label}.`);
+            window.open(`/products/${encodeURIComponent(productId)}/barcode-sheet?quantity=${encodeURIComponent(quantity)}&size=${encodeURIComponent(size)}`, '_blank', 'noopener,noreferrer');
+            closeInsightsLabelModal();
+        });
+    });
+</script>
+</body>
+</html>

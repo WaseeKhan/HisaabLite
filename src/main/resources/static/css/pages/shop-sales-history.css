@@ -298,6 +298,47 @@
     color: #0f172a;
 }
 
+.sales-customer-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sales-customer-name {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.sales-customer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 10px;
+    color: #64748b;
+}
+
+.sales-customer-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sales-rx-chip {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.sales-rx-chip.is-verified {
+    background: #ecfdf3;
+    color: #15803d;
+}
+
+.sales-rx-chip.is-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
 .sales-batch-summary {
     display: flex;
     flex-direction: column;

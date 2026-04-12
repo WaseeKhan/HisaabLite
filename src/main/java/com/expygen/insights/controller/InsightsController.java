@@ -28,6 +28,7 @@ import com.expygen.insights.service.PurchaseInsightsService;
 import com.expygen.insights.service.SalesInsightsService;
 import com.expygen.repository.UserRepository;
 import com.expygen.repository.StockAdjustmentRepository;
+import com.expygen.repository.ProductRepository;
 import com.expygen.service.ShopService;
 import lombok.RequiredArgsConstructor;
 
@@ -49,6 +50,7 @@ public class InsightsController {
     private final InventoryInsightsService inventoryInsightsService;
     private final AuditInsightsService auditInsightsService;
     private final StockAdjustmentRepository stockAdjustmentRepository;
+    private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ShopService shopService;
 
@@ -325,6 +327,63 @@ public class InsightsController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("paginationBasePath", "/insights/inventory/stock-adjustments");
         return "insights/stock-adjustments";
+    }
+
+    @GetMapping("/inventory/barcodes")
+    public String barcodeDesk(@RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String barcodeStatus,
+                              @RequestParam(required = false) String manufacturer,
+                              @RequestParam(defaultValue = "1") int page,
+                              Model model,
+                              Principal principal) {
+        Shop currentShop = currentShop(principal);
+        List<com.expygen.entity.Product> filteredProducts = productRepository.findByShopAndActiveTrue(currentShop)
+                .stream()
+                .filter(product -> keyword == null || keyword.isBlank()
+                        || contains(product.getName(), keyword)
+                        || contains(product.getGenericName(), keyword)
+                        || contains(product.getBarcode(), keyword)
+                        || contains(product.getManufacturer(), keyword)
+                        || contains(product.getPackSize(), keyword))
+                .filter(product -> manufacturer == null || manufacturer.isBlank()
+                        || contains(product.getManufacturer(), manufacturer))
+                .filter(product -> {
+                    if (barcodeStatus == null || barcodeStatus.isBlank()) {
+                        return true;
+                    }
+                    boolean hasBarcode = product.getBarcode() != null && !product.getBarcode().isBlank();
+                    return switch (barcodeStatus) {
+                        case "READY" -> hasBarcode;
+                        case "MISSING" -> !hasBarcode;
+                        case "RX_READY" -> hasBarcode && product.isPrescriptionRequired();
+                        default -> true;
+                    };
+                })
+                .sorted(java.util.Comparator.comparing(com.expygen.entity.Product::getName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+
+        long totalProducts = filteredProducts.size();
+        long barcodeReadyCount = filteredProducts.stream().filter(product -> product.getBarcode() != null && !product.getBarcode().isBlank()).count();
+        long missingBarcodeCount = filteredProducts.stream().filter(product -> product.getBarcode() == null || product.getBarcode().isBlank()).count();
+        long rxReadyCount = filteredProducts.stream().filter(product -> product.isPrescriptionRequired() && product.getBarcode() != null && !product.getBarcode().isBlank()).count();
+        long lowStockTagged = filteredProducts.stream().filter(product -> product.getStockQuantity() != null && product.getMinStock() != null && product.getStockQuantity() <= product.getMinStock()).count();
+
+        model.addAttribute("rows", paginate(filteredProducts, page, model));
+        model.addAttribute("kpis", List.of(
+                new InsightsSummaryCardDto("Visible Medicines", String.valueOf(totalProducts), "Products in current barcode desk scope"),
+                new InsightsSummaryCardDto("Barcode Ready", String.valueOf(barcodeReadyCount), "Medicines ready for scanner billing and printing"),
+                new InsightsSummaryCardDto("Missing Barcode", String.valueOf(missingBarcodeCount), "Products that still need internal or manufacturer barcode setup"),
+                new InsightsSummaryCardDto("Rx + Barcode", String.valueOf(rxReadyCount), "Prescription medicines already ready for barcode work"),
+                new InsightsSummaryCardDto("Low Stock Tagged", String.valueOf(lowStockTagged), "Low-stock medicines that already have barcode records"),
+                new InsightsSummaryCardDto("Bulk Print Pages", totalProducts == 0 ? "0" : String.valueOf((int) Math.ceil(barcodeReadyCount / 40.0)), "Approx. 40-per-sheet print pages if you print all ready labels")
+        ));
+        model.addAttribute("pageTitle", "Barcode Desk");
+        model.addAttribute("activeMenu", "insights");
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("barcodeStatus", barcodeStatus);
+        model.addAttribute("manufacturer", manufacturer);
+        model.addAttribute("paginationBasePath", "/insights/inventory/barcodes");
+        return "insights/barcode-desk";
     }
 
     @GetMapping(value = "/inventory/stock-adjustments/export", produces = "text/csv")

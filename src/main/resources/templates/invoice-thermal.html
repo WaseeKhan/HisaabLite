@@ -169,6 +169,9 @@ body {
         </div>
         <div class="meta-line"><span>Customer</span><span th:text="${sale.customerName ?: 'Walk-in'}">Walk-in</span></div>
         <div class="meta-line"><span>Phone</span><span th:text="${sale.customerPhone ?: '-'}">-</span></div>
+        <div class="meta-line" th:if="${sale.doctorName != null}"><span>Doctor</span><span th:text="${sale.doctorName}">Dr. Mehta</span></div>
+        <div class="meta-line" th:if="${sale.prescriptionDate != null}"><span>Rx Date</span><span th:text="${#temporals.format(sale.prescriptionDate,'dd MMM yyyy')}">12 Apr 2026</span></div>
+        <div class="meta-line" th:if="${sale.prescriptionRequired}"><span>Rx Check</span><span th:text="${sale.prescriptionVerified ? 'Verified' : 'Pending'}">Verified</span></div>
     </div>
 
     <div class="dash"></div>

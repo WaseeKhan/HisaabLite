@@ -61,6 +61,22 @@
 
                             <form th:action="@{/purchases/adjustments/save}" th:object="${stockAdjustmentForm}" method="post">
                                 <div class="purchase-form-grid">
+                                    <div class="form-group full-width">
+                                        <label>Scan / Lookup Medicine</label>
+                                        <div class="stock-adjustment-scan-card">
+                                            <div class="stock-adjustment-scan-copy">
+                                                <strong>Use barcode first when you are standing with physical stock.</strong>
+                                                <span>We will match the medicine instantly, suggest the batch when there is only one live batch, and help convert physical count into an audited delta.</span>
+                                            </div>
+                                            <input type="text"
+                                                   id="adjustmentScanInput"
+                                                   class="stock-adjustment-scan-input"
+                                                   placeholder="Scan or type barcode and press Enter">
+                                            <div id="adjustmentScanStatus" class="stock-adjustment-scan-status">
+                                                Ready for barcode lookup.
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label>Adjustment Date</label>
                                         <input type="date" th:field="*{adjustmentDate}" required>
@@ -70,11 +86,34 @@
                                         <input type="number" th:field="*{quantityDelta}" placeholder="-2 or 5" required>
                                     </div>
                                     <div class="form-group full-width">
+                                        <label>Physical Count Helper</label>
+                                        <div class="stock-adjustment-count-card">
+                                            <div class="stock-adjustment-count-grid">
+                                                <div class="stock-adjustment-count-metric">
+                                                    <span class="metric-label">Recorded Stock</span>
+                                                    <strong id="recordedStockValue">Select medicine or batch</strong>
+                                                    <small id="recordedStockScope">We will show batch stock first, or product stock for manual adjustments.</small>
+                                                </div>
+                                                <div class="stock-adjustment-count-input-wrap">
+                                                    <label class="metric-label" for="physicalCountInput">Physical Count</label>
+                                                    <input type="number"
+                                                           id="physicalCountInput"
+                                                           class="stock-adjustment-count-input"
+                                                           placeholder="Counted units on shelf">
+                                                </div>
+                                            </div>
+                                            <div id="countHelperStatus" class="stock-adjustment-count-status">
+                                                Enter a physical count to calculate the delta automatically.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group full-width">
                                         <label>Batch (preferred)</label>
-                                        <select th:field="*{purchaseBatchId}">
+                                        <select th:field="*{purchaseBatchId}" id="purchaseBatchId">
                                             <option value="">Select batch for batch-wise adjustment</option>
                                             <option th:each="batch : ${batches}"
                                                     th:value="${batch.id}"
+                                                    th:attr="data-product-id=${batch.product.id},data-barcode=${batch.product.barcode},data-product-name=${batch.product.name},data-batch-number=${batch.batchNumber},data-available-quantity=${batch.availableQuantity}"
                                                     th:text="${batch.product.name + ' • ' + batch.batchNumber + ' • ' + batch.availableQuantity + ' available' + (batch.expiryDate != null ? ' • Exp ' + #temporals.format(batch.expiryDate, 'dd MMM yyyy') : '')}">
                                                 Batch
                                             </option>
@@ -82,10 +121,11 @@
                                     </div>
                                     <div class="form-group full-width">
                                         <label>Medicine (only for opening/manual stock adjustment)</label>
-                                        <select th:field="*{productId}">
+                                        <select th:field="*{productId}" id="productId">
                                             <option value="">Select medicine if no batch applies</option>
                                             <option th:each="product : ${products}"
                                                     th:value="${product.id}"
+                                                    th:attr="data-barcode=${product.barcode},data-product-name=${product.name},data-stock-quantity=${product.stockQuantity}"
                                                     th:text="${product.name + ' • Stock ' + product.stockQuantity + (product.packSize != null ? ' • ' + product.packSize : '')}">
                                                 Medicine
                                             </option>
@@ -135,6 +175,235 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const scanInput = document.getElementById('adjustmentScanInput');
+            const status = document.getElementById('adjustmentScanStatus');
+            const batchSelect = document.getElementById('purchaseBatchId');
+            const productSelect = document.getElementById('productId');
+            const quantityInput = document.querySelector('input[name="quantityDelta"]');
+            const physicalCountInput = document.getElementById('physicalCountInput');
+            const recordedStockValue = document.getElementById('recordedStockValue');
+            const recordedStockScope = document.getElementById('recordedStockScope');
+            const countHelperStatus = document.getElementById('countHelperStatus');
+
+            if (!scanInput || !status || !batchSelect || !productSelect || !quantityInput || !physicalCountInput) {
+                return;
+            }
+
+            function normalizeBarcode(value) {
+                return (value || '').replace(/\s+/g, '').trim();
+            }
+
+            function setStatus(message, state) {
+                status.textContent = message;
+                status.classList.remove('is-ready', 'is-warning');
+                if (state) {
+                    status.classList.add(state);
+                }
+            }
+
+            function setCountStatus(message, state) {
+                countHelperStatus.textContent = message;
+                countHelperStatus.classList.remove('is-ready', 'is-warning');
+                if (state) {
+                    countHelperStatus.classList.add(state);
+                }
+            }
+
+            function getRecordedStockContext() {
+                const selectedBatch = batchSelect.selectedOptions[0];
+                if (selectedBatch && selectedBatch.value) {
+                    return {
+                        quantity: parseInt(selectedBatch.dataset.availableQuantity || '0', 10),
+                        scope: `Batch ${selectedBatch.dataset.batchNumber} recorded quantity`,
+                        label: selectedBatch.dataset.productName || 'Selected batch'
+                    };
+                }
+
+                const selectedProduct = productSelect.selectedOptions[0];
+                if (selectedProduct && selectedProduct.value) {
+                    return {
+                        quantity: parseInt(selectedProduct.dataset.stockQuantity || '0', 10),
+                        scope: 'Product stock recorded in system',
+                        label: selectedProduct.dataset.productName || 'Selected medicine'
+                    };
+                }
+
+                return null;
+            }
+
+            function refreshCountHelper() {
+                const context = getRecordedStockContext();
+                if (!context) {
+                    recordedStockValue.textContent = 'Select medicine or batch';
+                    recordedStockScope.textContent = 'We will show batch stock first, or product stock for manual adjustments.';
+                    setCountStatus('Enter a physical count to calculate the delta automatically.', null);
+                    return;
+                }
+
+                recordedStockValue.textContent = `${context.quantity} units`;
+                recordedStockScope.textContent = `${context.scope} for ${context.label}.`;
+
+                const physicalCountRaw = physicalCountInput.value.trim();
+                if (!physicalCountRaw) {
+                    setCountStatus('Enter the counted quantity on shelf and we will fill the adjustment delta for you.', null);
+                    return;
+                }
+
+                const physicalCount = parseInt(physicalCountRaw, 10);
+                if (Number.isNaN(physicalCount)) {
+                    setCountStatus('Physical count must be a valid whole number.', 'is-warning');
+                    return;
+                }
+
+                const delta = physicalCount - context.quantity;
+                quantityInput.value = delta;
+                if (delta === 0) {
+                    setCountStatus('Physical count matches recorded stock. Save only if you still want an audit entry.', 'is-ready');
+                } else if (delta > 0) {
+                    setCountStatus(`Physical count is ${delta} unit${delta === 1 ? '' : 's'} higher than recorded stock. Delta updated automatically.`, 'is-ready');
+                } else {
+                    const absoluteDelta = Math.abs(delta);
+                    setCountStatus(`Physical count is ${absoluteDelta} unit${absoluteDelta === 1 ? '' : 's'} lower than recorded stock. Delta updated automatically.`, 'is-ready');
+                }
+            }
+
+            function batchOptionsForProduct(productId) {
+                return Array.from(batchSelect.options).filter(option =>
+                    option.value && String(option.dataset.productId) === String(productId));
+            }
+
+            function findProductOptionByBarcode(barcode) {
+                return Array.from(productSelect.options).find(option =>
+                    option.value && normalizeBarcode(option.dataset.barcode) === barcode);
+            }
+
+            function syncProductFromBatch() {
+                const selectedBatch = batchSelect.selectedOptions[0];
+                if (!selectedBatch || !selectedBatch.value) {
+                    return;
+                }
+                const productId = selectedBatch.dataset.productId;
+                if (!productId) {
+                    return;
+                }
+                productSelect.value = productId;
+                scanInput.value = normalizeBarcode(selectedBatch.dataset.barcode);
+                setStatus(`Batch ${selectedBatch.dataset.batchNumber} selected for ${selectedBatch.dataset.productName}.`, 'is-ready');
+                refreshCountHelper();
+            }
+
+            function syncBatchStateFromProduct() {
+                const productId = productSelect.value;
+                const selectedBatch = batchSelect.selectedOptions[0];
+                if (!selectedBatch || !selectedBatch.value) {
+                    return;
+                }
+                if (selectedBatch.dataset.productId !== productId) {
+                    batchSelect.value = '';
+                }
+                refreshCountHelper();
+            }
+
+            function handleBarcodeLookup() {
+                const barcode = normalizeBarcode(scanInput.value);
+                scanInput.value = barcode;
+
+                if (!barcode) {
+                    setStatus('Ready for barcode lookup.', null);
+                    return;
+                }
+
+                const productOption = findProductOptionByBarcode(barcode);
+                if (!productOption) {
+                    productSelect.value = '';
+                    batchSelect.value = '';
+                    setStatus('No medicine matched this barcode. You can still choose product and batch manually.', 'is-warning');
+                    refreshCountHelper();
+                    return;
+                }
+
+                productSelect.value = productOption.value;
+                const relatedBatches = batchOptionsForProduct(productOption.value);
+
+                if (relatedBatches.length === 1) {
+                    batchSelect.value = relatedBatches[0].value;
+                    setStatus(`Matched ${productOption.dataset.productName}. Batch ${relatedBatches[0].dataset.batchNumber} is selected automatically.`, 'is-ready');
+                    refreshCountHelper();
+                    quantityInput?.focus();
+                    quantityInput?.select();
+                    return;
+                }
+
+                batchSelect.value = '';
+                if (relatedBatches.length > 1) {
+                    setStatus(`Matched ${productOption.dataset.productName}. Choose the correct batch before saving this adjustment.`, 'is-ready');
+                    refreshCountHelper();
+                    batchSelect.focus();
+                    return;
+                }
+
+                setStatus(`Matched ${productOption.dataset.productName}. No live batch found, so this will stay as a manual/opening stock adjustment.`, 'is-ready');
+                refreshCountHelper();
+                quantityInput?.focus();
+                quantityInput?.select();
+            }
+
+            scanInput.addEventListener('input', function () {
+                this.value = normalizeBarcode(this.value);
+            });
+
+            scanInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || (event.key === 'Tab' && scanInput.value.trim())) {
+                    event.preventDefault();
+                    handleBarcodeLookup();
+                }
+            });
+
+            batchSelect.addEventListener('change', syncProductFromBatch);
+            productSelect.addEventListener('change', function () {
+                const selectedProduct = productSelect.selectedOptions[0];
+                syncBatchStateFromProduct();
+                if (!selectedProduct || !selectedProduct.value) {
+                    scanInput.value = '';
+                    setStatus('Ready for barcode lookup.', null);
+                    refreshCountHelper();
+                    return;
+                }
+                scanInput.value = normalizeBarcode(selectedProduct.dataset.barcode);
+                setStatus(`Medicine selected: ${selectedProduct.dataset.productName}.`, 'is-ready');
+                refreshCountHelper();
+            });
+
+            physicalCountInput.addEventListener('input', refreshCountHelper);
+            physicalCountInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    document.querySelector('input[name="reason"]')?.focus();
+                }
+            });
+            quantityInput.addEventListener('input', function () {
+                if (physicalCountInput.value.trim()) {
+                    setCountStatus('Delta changed manually after physical count. Clear and re-enter physical count if you want automatic calculation again.', 'is-warning');
+                }
+            });
+
+            if (scanInput.value.trim()) {
+                handleBarcodeLookup();
+            } else if (batchSelect.value) {
+                syncProductFromBatch();
+            } else if (productSelect.value) {
+                const selectedProduct = productSelect.selectedOptions[0];
+                scanInput.value = normalizeBarcode(selectedProduct?.dataset.barcode);
+                setStatus(`Medicine selected: ${selectedProduct?.dataset.productName || 'ready'}.`, 'is-ready');
+                refreshCountHelper();
+            } else {
+                refreshCountHelper();
+            }
+        })();
+    </script>
 </body>
 
 </html>

@@ -279,6 +279,31 @@ public class PdfService {
                 .setFontSize(8)
                 .setFontColor(new DeviceRgb(71, 85, 105))
                 .setMarginBottom(2));
+        if (sale.getDoctorName() != null) {
+            customerBox.add(new Paragraph("Doctor: " + sale.getDoctorName())
+                    .setFontSize(8)
+                    .setFontColor(new DeviceRgb(71, 85, 105))
+                    .setMarginBottom(2));
+        }
+        if (sale.isPrescriptionRequired()) {
+            customerBox.add(new Paragraph("Rx     : " + (sale.isPrescriptionVerified() ? "Verified" : "Not verified"))
+                    .setFontSize(8)
+                    .setFontColor(BRAND_ORANGE)
+                    .setBold()
+                    .setMarginBottom(2));
+        }
+        if (sale.getPrescriptionDate() != null) {
+            customerBox.add(new Paragraph("Rx Date: " + sale.getPrescriptionDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy")))
+                    .setFontSize(8)
+                    .setFontColor(new DeviceRgb(71, 85, 105))
+                    .setMarginBottom(2));
+        }
+        if (sale.getPrescriptionReference() != null) {
+            customerBox.add(new Paragraph("Rx Ref : " + sale.getPrescriptionReference())
+                    .setFontSize(8)
+                    .setFontColor(new DeviceRgb(71, 85, 105))
+                    .setMarginBottom(0));
+        }
 
         infoTable.addCell(sellerBox);
         infoTable.addCell(customerBox);

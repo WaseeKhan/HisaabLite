@@ -144,6 +144,123 @@
     gap: 16px 18px;
 }
 
+.stock-adjustment-scan-card {
+    display: grid;
+    gap: 10px;
+    padding: 16px 18px;
+    border: 1px solid #dce5ef;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.stock-adjustment-scan-copy {
+    display: grid;
+    gap: 4px;
+}
+
+.stock-adjustment-scan-copy strong {
+    font-size: 13px;
+    color: #162131;
+}
+
+.stock-adjustment-scan-copy span {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #607084;
+}
+
+.stock-adjustment-scan-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid #cfdceb;
+    border-radius: 14px;
+    background: #ffffff;
+    font-size: 14px;
+    color: #152030;
+}
+
+.stock-adjustment-scan-status {
+    min-height: 18px;
+    font-size: 12px;
+    color: #627083;
+}
+
+.stock-adjustment-scan-status.is-ready {
+    color: #166534;
+}
+
+.stock-adjustment-scan-status.is-warning {
+    color: #b45309;
+}
+
+.stock-adjustment-count-card {
+    display: grid;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px dashed #cddaea;
+    border-radius: 18px;
+    background: #fbfdff;
+}
+
+.stock-adjustment-count-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
+    gap: 14px;
+    align-items: end;
+}
+
+.stock-adjustment-count-metric,
+.stock-adjustment-count-input-wrap {
+    display: grid;
+    gap: 6px;
+}
+
+.metric-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #607084;
+}
+
+.stock-adjustment-count-metric strong {
+    font-size: 22px;
+    letter-spacing: -0.03em;
+    color: #162131;
+}
+
+.stock-adjustment-count-metric small {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #607084;
+}
+
+.stock-adjustment-count-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid #cfdceb;
+    border-radius: 14px;
+    background: #ffffff;
+    font-size: 14px;
+    color: #152030;
+}
+
+.stock-adjustment-count-status {
+    min-height: 18px;
+    font-size: 12px;
+    color: #627083;
+}
+
+.stock-adjustment-count-status.is-ready {
+    color: #166534;
+}
+
+.stock-adjustment-count-status.is-warning {
+    color: #b45309;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -163,6 +280,7 @@
 }
 
 .form-group input,
+.form-group select,
 .form-group textarea,
 .line-items-table input,
 .line-items-table select {
@@ -178,6 +296,11 @@
 }
 
 .form-group input {
+    height: 44px;
+    padding: 0 14px;
+}
+
+.form-group select {
     height: 44px;
     padding: 0 14px;
 }
@@ -216,6 +339,19 @@
     margin: 0;
     font-size: 12px;
     color: #68768b;
+}
+
+.purchase-scan-tip {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #607084;
+}
+
+.purchase-scan-tip i {
+    color: var(--primary);
 }
 
 .line-add-btn,
@@ -277,6 +413,30 @@
     height: 40px;
     padding: 0 12px;
     border-radius: 12px;
+}
+
+.line-medicine-cell {
+    display: grid;
+    gap: 8px;
+    min-width: 220px;
+}
+
+.line-scan-input {
+    min-width: 220px;
+}
+
+.line-scan-status {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.line-scan-status.is-ready {
+    color: #047857;
+}
+
+.line-scan-status.is-warning {
+    color: #b45309;
 }
 
 .line-items-table tbody tr:hover {
@@ -444,6 +604,10 @@
         grid-template-columns: 1fr;
     }
 
+    .stock-adjustment-count-grid {
+        grid-template-columns: 1fr;
+    }
+
     .purchase-total-bar,
     .purchase-form-actions,
     .line-items-head {
@@ -502,18 +666,22 @@
 :root[data-theme="dark"] .purchase-form-badge,
 :root[data-theme="dark"] .purchase-total-bar,
 :root[data-theme="dark"] .side-step span,
-:root[data-theme="dark"] .line-add-btn {
+:root[data-theme="dark"] .line-add-btn,
+:root[data-theme="dark"] .stock-adjustment-count-card {
     background: #172033;
     border-color: rgba(148, 163, 184, 0.14);
     color: #cbd5e1;
 }
 
 :root[data-theme="dark"] .form-group input,
+:root[data-theme="dark"] .form-group select,
 :root[data-theme="dark"] .form-group textarea,
 :root[data-theme="dark"] .line-items-table input,
 :root[data-theme="dark"] .line-items-table select,
 :root[data-theme="dark"] .purchase-form-back,
-:root[data-theme="dark"] .btn-secondary {
+:root[data-theme="dark"] .btn-secondary,
+:root[data-theme="dark"] .stock-adjustment-scan-input,
+:root[data-theme="dark"] .stock-adjustment-count-input {
     background: #172033;
     border-color: rgba(148, 163, 184, 0.16);
     color: #f8fafc;
@@ -523,6 +691,17 @@
     background: #172033;
     border-color: rgba(148, 163, 184, 0.16);
     color: #f8fafc;
+}
+
+:root[data-theme="dark"] .stock-adjustment-count-metric strong {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .stock-adjustment-count-metric small,
+:root[data-theme="dark"] .metric-label,
+:root[data-theme="dark"] .stock-adjustment-count-status,
+:root[data-theme="dark"] .stock-adjustment-scan-status {
+    color: #94a3b8;
 }
 
 :root[data-theme="dark"] .line-items-wrap,

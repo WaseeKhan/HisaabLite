@@ -154,6 +154,65 @@ class SaleServiceTest {
     }
 
     @Test
+    void completeSalePersistsPrescriptionDetailsForRxMedicines() {
+        Shop shop = createShop("RX");
+        User owner = createOwner(shop, "RX");
+        Product product = createProduct(shop, "Azithral 500", "96.00", 10, 12);
+        product.setPrescriptionRequired(true);
+        productRepository.save(product);
+
+        Sale savedSale = saleService.completeSale(
+                List.of(CartItem.builder().productId(product.getId()).quantity(1).build()),
+                shop,
+                owner,
+                "Ravi",
+                "9999999999",
+                "Dr. Shah",
+                LocalDate.now(),
+                "RX-1001",
+                true,
+                "CASH",
+                108.0,
+                0.0,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO);
+
+        assertTrue(savedSale.isPrescriptionRequired());
+        assertTrue(savedSale.isPrescriptionVerified());
+        assertEquals("Dr. Shah", savedSale.getDoctorName());
+        assertEquals("RX-1001", savedSale.getPrescriptionReference());
+        assertEquals(LocalDate.now(), savedSale.getPrescriptionDate());
+    }
+
+    @Test
+    void completeSaleRejectsRxMedicinesWithoutVerifiedPrescription() {
+        Shop shop = createShop("RX2");
+        User owner = createOwner(shop, "RX2");
+        Product product = createProduct(shop, "Antibiotic", "120.00", 5, 12);
+        product.setPrescriptionRequired(true);
+        productRepository.save(product);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> saleService.completeSale(
+                        List.of(CartItem.builder().productId(product.getId()).quantity(1).build()),
+                        shop,
+                        owner,
+                        "Ravi",
+                        "9999999999",
+                        null,
+                        LocalDate.now(),
+                        null,
+                        false,
+                        "CASH",
+                        120.0,
+                        0.0,
+                        BigDecimal.ZERO,
+                        BigDecimal.ZERO));
+
+        assertEquals("Prescription must be verified before billing Rx medicines", exception.getMessage());
+    }
+
+    @Test
     void completeSaleRejectsDiscountGreaterThanTotal() {
         Shop shop = createShop("G");
         User owner = createOwner(shop, "G");

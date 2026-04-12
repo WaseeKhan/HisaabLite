@@ -57,6 +57,12 @@
 
                     <div class="product-form-layout">
                         <div class="form-card">
+                            <div th:if="${error != null}" class="product-form-alert product-form-alert-error" th:text="${error}">
+                                Product form error
+                            </div>
+                            <div th:if="${success != null}" class="product-form-alert product-form-alert-success" th:text="${success}">
+                                Product form success
+                            </div>
 
                             <div class="form-title-block">
                                 <div class="form-title">
@@ -69,7 +75,7 @@
                                 <div class="form-status-chip" th:text="${product.id != null} ? 'Editing Existing Record' : 'New Medicine Record'">New Medicine Record</div>
                             </div>
 
-                            <form th:action="@{/products/save}" th:object="${product}" method="post">
+                            <form th:action="@{/products/save}" th:object="${product}" method="post" id="productForm">
                                 <input type="hidden" th:field="*{id}" />
 
                                 <section class="form-section">
@@ -101,9 +107,32 @@
 
                                         <div class="form-group">
                                             <label><i class="fas fa-barcode"></i> Barcode</label>
-                                            <input type="text" th:field="*{barcode}" placeholder="Scan or enter barcode" />
+                                            <input type="text" th:field="*{barcode}" id="barcodeInput"
+                                                placeholder="Scan or enter barcode" autocomplete="off" spellcheck="false" />
+                                            <div th:if="${product.id != null}" class="barcode-actions">
+                                                <button type="button" id="generateBarcodeBtn" class="barcode-action-btn"
+                                                    th:if="${product.barcode == null or #strings.isEmpty(product.barcode)}"
+                                                    th:attr="data-product-id=${product.id}">
+                                                    <i class="fas fa-wand-magic-sparkles"></i> Generate Internal Barcode
+                                                </button>
+                                                <a th:if="${product.barcode != null and !#strings.isEmpty(product.barcode)}"
+                                                    th:href="@{/products/{id}/barcode-label(id=${product.id})}" target="_blank"
+                                                    class="barcode-action-btn barcode-action-btn-secondary">
+                                                    <i class="fas fa-print"></i> Print Current Label
+                                                </a>
+                                                <button type="button"
+                                                    class="barcode-action-btn barcode-action-btn-secondary"
+                                                    th:if="${product.barcode != null and !#strings.isEmpty(product.barcode)}"
+                                                    th:attr="data-repeat-labels-product-id=${product.id},data-repeat-labels-product-name=${product.name}">
+                                                    <i class="fas fa-copy"></i> Print Many Labels
+                                                </button>
+                                            </div>
+                                            <div id="barcodeStatus" class="barcode-status barcode-status-idle" aria-live="polite">
+                                                <i class="fas fa-wave-square"></i>
+                                                <span>Use the manufacturer barcode when available. We will check if it is unique inside this shop.</span>
+                                            </div>
                                             <div class="hint-text">
-                                                <i class="fas fa-info-circle"></i> Unique barcode for scanner billing
+                                                <i class="fas fa-info-circle"></i> Spaces are removed automatically. Use one unique barcode per medicine record.
                                             </div>
                                         </div>
 
@@ -228,6 +257,16 @@
                                         <i class="fas fa-save"></i>
                                         <span th:text="${product.id != null} ? 'Update Medicine' : 'Save Medicine'">Save Medicine</span>
                                     </button>
+                                    <a th:if="${product.id != null and product.barcode != null and !#strings.isEmpty(product.barcode)}"
+                                        th:href="@{/products/{id}/barcode-label(id=${product.id})}" target="_blank" class="btn-secondary">
+                                        <i class="fas fa-barcode"></i> Print Label
+                                    </a>
+                                    <button type="button"
+                                        th:if="${product.id != null and product.barcode != null and !#strings.isEmpty(product.barcode)}"
+                                        th:attr="data-repeat-labels-product-id=${product.id},data-repeat-labels-product-name=${product.name}"
+                                        class="btn-secondary">
+                                        <i class="fas fa-copy"></i> Print Many Labels
+                                    </button>
                                     <a th:href="@{/products}" class="btn-secondary">
                                         <i class="fas fa-times"></i> Cancel
                                     </a>
@@ -270,24 +309,51 @@
         </div>
     </div>
 
-    <script>
-        // Auto-focus on first input
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstInput = document.querySelector('input[type="text"]');
-            if (firstInput) {
-                firstInput.focus();
-            }
-        });
-        
-        // Format all money inputs on blur
-        document.querySelectorAll('input[name="price"], input[name="mrp"], input[name="purchasePrice"]').forEach((field) => {
-            field.addEventListener('blur', function() {
-                if (this.value) {
-                    this.value = parseFloat(this.value).toFixed(2);
-                }
-            });
-        });
-    </script>
+    <div id="labelSheetModal" class="label-sheet-modal">
+        <div class="label-sheet-dialog">
+            <div class="label-sheet-head">
+                <div>
+                    <h4>Print Many Labels</h4>
+                    <p>Choose label count and sticker sheet type for <strong id="labelSheetProductName">this medicine</strong>.</p>
+                </div>
+                <button type="button" class="label-sheet-close" onclick="closeLabelSheetModal()">×</button>
+            </div>
+            <form id="labelSheetForm" class="label-sheet-form">
+                <input type="hidden" id="labelSheetProductId">
+                <div class="label-sheet-grid">
+                    <div class="form-group">
+                        <label>Label Count</label>
+                        <input type="number" id="labelSheetQuantity" min="1" max="500" value="40" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sheet Type</label>
+                        <select id="labelSheetSize">
+                            <option value="SHEET_20">20 per sheet</option>
+                            <option value="SHEET_24">24 per sheet</option>
+                            <option value="SHEET_40" selected>40 per sheet</option>
+                            <option value="SHEET_48">48 per sheet</option>
+                            <option value="SHEET_65">65 per sheet</option>
+                            <option value="SHEET_80">80 per sheet</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="label-sheet-note" id="labelSheetNote">
+                    1 A4 sheet fits 40 stickers. Best for small product stickers and common barcode paper.
+                </div>
+                <div class="label-sheet-note label-sheet-note-subtle" id="labelSheetCountInfo">
+                    Printing 40 labels will use 1 A4 sheet.
+                </div>
+                <div class="label-sheet-actions">
+                    <button type="submit" class="barcode-action-btn barcode-action-btn-secondary">
+                        <i class="fas fa-print"></i> Generate PDF
+                    </button>
+                    <button type="button" class="barcode-action-btn" onclick="closeLabelSheetModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/product-form.js"></script>
 
 </body>
 

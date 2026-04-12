@@ -57,6 +57,9 @@
                         <span class="party-title">Customer</span>
                         <strong th:text="${sale.customerName != null ? sale.customerName : 'Walk-in Customer'}">Walk-in Customer</strong>
                         <p>Phone: <span th:text="${sale.customerPhone != null ? sale.customerPhone : '—'}">—</span></p>
+                        <p th:if="${sale.doctorName != null}">Doctor: <span th:text="${sale.doctorName}">Dr. Mehta</span></p>
+                        <p th:if="${sale.prescriptionDate != null}">Prescription Date: <span th:text="${#temporals.format(sale.prescriptionDate, 'dd MMM yyyy')}">12 Apr 2026</span></p>
+                        <p th:if="${sale.prescriptionReference != null}">Prescription Ref: <span th:text="${sale.prescriptionReference}">RX-001</span></p>
                         <p>Payment: <span th:text="${sale.paymentMode}">Cash</span></p>
                     </article>
                 </section>
@@ -164,6 +167,18 @@
                     <div class="summary-row"><span>Received</span><strong>₹<span th:text="${#numbers.formatDecimal(sale.amountReceived, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong></div>
                     <div class="summary-row"><span>Change</span><strong>₹<span th:text="${#numbers.formatDecimal(sale.changeReturned, 0, 'COMMA', 2, 'POINT')}">0.00</span></strong></div>
                     <div class="summary-row"><span>Status</span><strong th:text="${sale.status != null ? sale.status : 'Paid'}">Paid</strong></div>
+                </section>
+
+                <section class="invoice-panel" th:if="${sale.prescriptionRequired}">
+                    <div class="invoice-panel-head">
+                        <h3>Prescription</h3>
+                        <span th:text="${sale.prescriptionVerified ? 'Verified' : 'Pending'}">Verified</span>
+                    </div>
+                    <div class="summary-row"><span>Rx Medicines</span><strong>Included</strong></div>
+                    <div class="summary-row"><span>Verification</span><strong th:text="${sale.prescriptionVerified ? 'Verified at counter' : 'Not verified'}">Verified at counter</strong></div>
+                    <div class="summary-row" th:if="${sale.doctorName != null}"><span>Doctor</span><strong th:text="${sale.doctorName}">Dr. Mehta</strong></div>
+                    <div class="summary-row" th:if="${sale.prescriptionDate != null}"><span>Date</span><strong th:text="${#temporals.format(sale.prescriptionDate, 'dd MMM yyyy')}">12 Apr 2026</strong></div>
+                    <div class="summary-row" th:if="${sale.prescriptionReference != null}"><span>Reference</span><strong th:text="${sale.prescriptionReference}">RX-001</strong></div>
                 </section>
 
                 <section class="invoice-panel">

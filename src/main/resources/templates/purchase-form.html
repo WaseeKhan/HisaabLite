@@ -91,6 +91,10 @@
                                     <div>
                                         <h4>Batch Line Items</h4>
                                         <p>Each line creates a live batch for billing, expiry, and stock visibility.</p>
+                                        <div class="purchase-scan-tip">
+                                            <i class="fas fa-barcode"></i>
+                                            <span>Type or scan an exact barcode to auto-select the medicine in that inward row.</span>
+                                        </div>
                                     </div>
                                     <button type="button" class="line-add-btn" id="addPurchaseLine">
                                         <i class="fas fa-plus"></i> Add Line
@@ -114,15 +118,20 @@
                                         <tbody id="purchaseLineTable">
                                             <tr class="purchase-line-row" th:each="item, iter : *{items}">
                                                 <td>
-                                                    <select class="line-field" data-field="productId" th:name="${'items[' + iter.index + '].productId'}" required>
-                                                        <option value="">Select medicine</option>
+                                                    <div class="line-medicine-cell">
+                                                        <input type="text" class="line-scan-input" placeholder="Scan / type barcode">
+                                                        <select class="line-field line-product-select" data-field="productId" th:name="${'items[' + iter.index + '].productId'}" required>
+                                                            <option value="">Select medicine</option>
                                                         <option th:each="product : ${products}"
                                                                 th:value="${product.id}"
                                                                 th:selected="${item.productId != null and item.productId == product.id}"
+                                                                th:attr="data-barcode=${product.barcode},data-pack-size=${product.packSize},data-manufacturer=${product.manufacturer},data-sale-price=${product.price},data-mrp=${product.mrp},data-purchase-price=${product.purchasePrice}"
                                                                 th:text="${product.name + (product.packSize != null ? ' • ' + product.packSize : '')}">
                                                             Medicine
                                                         </option>
-                                                    </select>
+                                                        </select>
+                                                        <div class="line-scan-status">Search manually or scan exact barcode to match a medicine.</div>
+                                                    </div>
                                                 </td>
                                                 <td><input type="text" class="line-field" data-field="batchNumber" th:name="${'items[' + iter.index + '].batchNumber'}" th:value="${item.batchNumber}" placeholder="BATCH-01" required></td>
                                                 <td><input type="date" class="line-field" data-field="expiryDate" th:name="${'items[' + iter.index + '].expiryDate'}" th:value="${item.expiryDate}"></td>
@@ -195,13 +204,106 @@
 
             function buildProductOptions() {
                 const options = ['<option value="">Select medicine</option>'];
-                document.querySelectorAll('#purchaseLineTable select option').forEach((option, index) => {
+                document.querySelectorAll('#purchaseLineTable .line-product-select option').forEach((option, index) => {
                     if (index === 0) {
                         return;
                     }
                     options.push(option.outerHTML.replace(' selected=""', '').replace(' selected', ''));
                 });
                 return options.join('');
+            }
+
+            function updateRowStatus(row, state, message) {
+                const status = row.querySelector('.line-scan-status');
+                if (!status) {
+                    return;
+                }
+                status.classList.remove('is-ready', 'is-warning');
+                if (state === 'ready') {
+                    status.classList.add('is-ready');
+                } else if (state === 'warning') {
+                    status.classList.add('is-warning');
+                }
+                status.textContent = message;
+            }
+
+            function normalizeBarcode(value) {
+                return (value || '').replace(/\s+/g, '').trim().toLowerCase();
+            }
+
+            function findOptionByBarcode(select, barcode) {
+                const normalized = normalizeBarcode(barcode);
+                if (!normalized) {
+                    return null;
+                }
+                return Array.from(select.options).find(option => normalizeBarcode(option.dataset.barcode) === normalized) || null;
+            }
+
+            function applyProductDefaults(row, option) {
+                if (!option) {
+                    return;
+                }
+                const purchasePriceInput = row.querySelector('[data-field="purchasePrice"]');
+                const salePriceInput = row.querySelector('[data-field="salePrice"]');
+                const mrpInput = row.querySelector('[data-field="mrp"]');
+
+                if (purchasePriceInput && !purchasePriceInput.value && option.dataset.purchasePrice) {
+                    purchasePriceInput.value = option.dataset.purchasePrice;
+                }
+                if (salePriceInput && !salePriceInput.value && option.dataset.salePrice) {
+                    salePriceInput.value = option.dataset.salePrice;
+                }
+                if (mrpInput && !mrpInput.value && option.dataset.mrp) {
+                    mrpInput.value = option.dataset.mrp;
+                }
+            }
+
+            function syncScanWithSelect(row) {
+                const select = row.querySelector('.line-product-select');
+                const scanInput = row.querySelector('.line-scan-input');
+                if (!select || !scanInput) {
+                    return;
+                }
+
+                const selectedOption = select.options[select.selectedIndex];
+                if (!selectedOption || !selectedOption.value) {
+                    updateRowStatus(row, '', 'Search manually or scan exact barcode to match a medicine.');
+                    return;
+                }
+
+                if (selectedOption.dataset.barcode) {
+                    scanInput.value = selectedOption.dataset.barcode;
+                    updateRowStatus(row, 'ready', `${selectedOption.textContent.trim()} matched. Continue batch, expiry, and pricing entry.`);
+                } else {
+                    scanInput.value = '';
+                    updateRowStatus(row, '', 'Medicine selected manually. Add barcode later if you want scan-first inward entry.');
+                }
+                applyProductDefaults(row, selectedOption);
+            }
+
+            function handleBarcodeMatch(row) {
+                const select = row.querySelector('.line-product-select');
+                const scanInput = row.querySelector('.line-scan-input');
+                if (!select || !scanInput) {
+                    return;
+                }
+
+                const match = findOptionByBarcode(select, scanInput.value);
+                if (!normalizeBarcode(scanInput.value)) {
+                    updateRowStatus(row, '', 'Search manually or scan exact barcode to match a medicine.');
+                    return;
+                }
+                if (!match) {
+                    select.value = '';
+                    updateRowStatus(row, 'warning', 'No exact barcode match found in this shop. Check the code or select medicine manually.');
+                    updateTotal();
+                    return;
+                }
+
+                select.value = match.value;
+                applyProductDefaults(row, match);
+                updateRowStatus(row, 'ready', `${match.textContent.trim()} selected from barcode match.`);
+                updateTotal();
             }
 
             function reindexRows() {
@@ -231,9 +333,13 @@
                 row.className = 'purchase-line-row';
                 row.innerHTML = `
                     <td>
-                        <select class="line-field" data-field="productId" required>
-                            ${buildProductOptions()}
-                        </select>
+                        <div class="line-medicine-cell">
+                            <input type="text" class="line-scan-input" placeholder="Scan / type barcode">
+                            <select class="line-field line-product-select" data-field="productId" required>
+                                ${buildProductOptions()}
+                            </select>
+                            <div class="line-scan-status">Search manually or scan exact barcode to match a medicine.</div>
+                        </div>
                     </td>
                     <td><input type="text" class="line-field" data-field="batchNumber" placeholder="BATCH-01" required></td>
                     <td><input type="date" class="line-field" data-field="expiryDate"></td>
@@ -270,10 +376,33 @@
                 if (event.target.classList.contains('line-field')) {
                     updateTotal();
                 }
+                if (event.target.classList.contains('line-scan-input')) {
+                    event.target.value = event.target.value.replace(/\s+/g, '').trim();
+                    handleBarcodeMatch(event.target.closest('.purchase-line-row'));
+                }
+            });
+
+            tableBody.addEventListener('change', function(event) {
+                if (event.target.classList.contains('line-product-select')) {
+                    syncScanWithSelect(event.target.closest('.purchase-line-row'));
+                    updateTotal();
+                }
+            });
+
+            tableBody.addEventListener('keydown', function(event) {
+                if (!event.target.classList.contains('line-scan-input')) {
+                    return;
+                }
+                if (event.key === 'Enter' || (event.key === 'Tab' && event.target.value.trim())) {
+                    event.preventDefault();
+                    handleBarcodeMatch(event.target.closest('.purchase-line-row'));
+                    event.target.closest('.purchase-line-row')?.querySelector('[data-field="batchNumber"]')?.focus();
+                }
             });
 
             addButton.addEventListener('click', addRow);
             reindexRows();
+            tableBody.querySelectorAll('.purchase-line-row').forEach(syncScanWithSelect);
             updateTotal();
         })();
     </script>

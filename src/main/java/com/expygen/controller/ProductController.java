@@ -21,6 +21,8 @@ import com.expygen.repository.UserRepository;
 import com.expygen.admin.service.AuditService;
 import com.expygen.dto.ProductBatchVisibility;
 import com.expygen.service.BatchInventoryVisibilityService;
+import com.expygen.service.BarcodeLabelService;
+import com.expygen.service.ProductBarcodeService;
 import com.expygen.service.ProductService;
 import com.expygen.service.PlanLimitService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
@@ -46,6 +49,8 @@ public class ProductController {
     private final AuditService auditService;
     private final PurchaseBatchRepository purchaseBatchRepository;
     private final BatchInventoryVisibilityService batchInventoryVisibilityService;
+    private final BarcodeLabelService barcodeLabelService;
+    private final ProductBarcodeService productBarcodeService;
 
     private static final int PAGE_SIZE = 20;
 
@@ -359,6 +364,7 @@ public class ProductController {
     // SAVE OR UPDATE PRODUCT - WITH LIMIT CHECK FOR NEW PRODUCTS (FIXED for unlimited)
     @PostMapping("/save")
     public String saveOrUpdateProduct(@ModelAttribute Product product,
+            Model model,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
 
@@ -388,9 +394,10 @@ public class ProductController {
 
             applyEditableFields(product, product);
             if (hasDuplicateBarcode(product, shop)) {
-                redirectAttributes.addFlashAttribute("error",
-                        "Barcode already exists for another medicine in your shop.");
-                return "redirect:/products/new";
+                model.addAttribute("error",
+                        "Barcode already exists for another medicine in your shop. Use a unique code before saving.");
+                populateProductFormModel(model, user, shop, product);
+                return "product-form";
             }
         } else {
             Product existingProduct = loadVersionSafeProduct(product.getId());
@@ -403,16 +410,18 @@ public class ProductController {
             applyEditableFields(product, existingProduct);
             int liveBatchStock = safeBatchStock(existingProduct);
             if (existingProduct.getStockQuantity() < liveBatchStock) {
-                redirectAttributes.addFlashAttribute(
+                model.addAttribute(
                         "error",
                         "Stock quantity cannot be lower than live batch stock (" + liveBatchStock
                                 + "). Use Purchases to manage batch inventory.");
-                return "redirect:/products/edit/" + existingProduct.getId();
+                populateProductFormModel(model, user, shop, existingProduct);
+                return "product-form";
             }
             if (hasDuplicateBarcode(existingProduct, shop)) {
-                redirectAttributes.addFlashAttribute("error",
-                        "Barcode already exists for another medicine in your shop.");
-                return "redirect:/products/edit/" + existingProduct.getId();
+                model.addAttribute("error",
+                        "Barcode already exists for another medicine in your shop. Use a unique code before saving.");
+                populateProductFormModel(model, user, shop, existingProduct);
+                return "product-form";
             }
 
             productToSave = existingProduct;
@@ -445,6 +454,39 @@ public class ProductController {
             isNewProduct ? "Product added successfully!" : "Product updated successfully!");
 
         return "redirect:/products";
+    }
+
+    @GetMapping("/barcode-check")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> checkBarcodeAvailability(
+            @RequestParam(required = false) String barcode,
+            @RequestParam(required = false) Long productId,
+            Authentication authentication) {
+
+        User user = getUser(authentication);
+        Shop shop = user.getShop();
+        String normalizedBarcode = normalizeBarcode(barcode);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("normalizedBarcode", normalizedBarcode);
+
+        if (!StringUtils.hasText(normalizedBarcode)) {
+            response.put("available", true);
+            response.put("state", "empty");
+            response.put("message", "Add a manufacturer barcode now, or leave it blank and fill it later when stock arrives.");
+            return ResponseEntity.ok(response);
+        }
+
+        boolean duplicate = productId == null
+                ? productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrue(shop, normalizedBarcode)
+                : productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrueAndIdNot(shop, normalizedBarcode, productId);
+
+        response.put("available", !duplicate);
+        response.put("state", duplicate ? "duplicate" : "ready");
+        response.put("message", duplicate
+                ? "This barcode is already assigned to another active medicine in your shop."
+                : "Barcode is unique for this shop and ready for scanner billing.");
+        return ResponseEntity.ok(response);
     }
 
     // EDIT PRODUCT
@@ -522,6 +564,153 @@ public class ProductController {
             "Product '" + productName + "' deleted successfully!");
 
         return "redirect:/products";
+    }
+
+    @GetMapping("/{id}/barcode-label")
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadBarcodeLabel(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        User user = getUser(authentication);
+        Product product = loadVersionSafeProduct(id);
+
+        if (!product.getShop().getId().equals(user.getShop().getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+        if (!StringUtils.hasText(product.getBarcode())) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "text/plain; charset=UTF-8")
+                    .body("Barcode is missing for this medicine.".getBytes());
+        }
+
+        byte[] pdfBytes = barcodeLabelService.generateProductLabel(product);
+        String safeName = product.getName()
+                .trim()
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/pdf")
+                .header("Content-Disposition", "inline; filename=\"" + safeName + "-barcode-label.pdf\"")
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/barcode-sheet")
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadBarcodeSheet(
+            @RequestParam List<Long> ids,
+            Authentication authentication) {
+
+        User user = getUser(authentication);
+        List<Product> selectedProducts = productRepository.findByShopAndActiveTrueAndIdIn(user.getShop(), ids).stream()
+                .filter(product -> StringUtils.hasText(product.getBarcode()))
+                .toList();
+
+        if (selectedProducts.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "text/plain; charset=UTF-8")
+                    .body("Select at least one barcode-ready medicine to print labels.".getBytes());
+        }
+
+        byte[] pdfBytes = barcodeLabelService.generateProductLabelSheet(selectedProducts);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/pdf")
+                .header("Content-Disposition", "inline; filename=\"barcode-sheet.pdf\"")
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/{id}/barcode-sheet")
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadRepeatedBarcodeSheet(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "1") int quantity,
+            @RequestParam(defaultValue = "SHEET_40") String size,
+            Authentication authentication) {
+
+        User user = getUser(authentication);
+        Product product = loadVersionSafeProduct(id);
+
+        if (!product.getShop().getId().equals(user.getShop().getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+        if (!StringUtils.hasText(product.getBarcode())) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "text/plain; charset=UTF-8")
+                    .body("Barcode is missing for this medicine.".getBytes());
+        }
+        if (quantity < 1 || quantity > 500) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "text/plain; charset=UTF-8")
+                    .body("Choose a label quantity between 1 and 500.".getBytes());
+        }
+
+        BarcodeLabelService.LabelSheetSize sheetSize;
+        try {
+            sheetSize = BarcodeLabelService.LabelSheetSize.fromInput(size);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest()
+                    .header("Content-Type", "text/plain; charset=UTF-8")
+                    .body("Choose a valid label sheet: 20, 24, 40, 48, 65, or 80 per sheet.".getBytes());
+        }
+
+        byte[] pdfBytes = barcodeLabelService.generateRepeatedProductLabelSheet(product, quantity, sheetSize);
+        String safeName = product.getName()
+                .trim()
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/pdf")
+                .header("Content-Disposition", "inline; filename=\"" + safeName + "-labels-" + quantity + "-" + sheetSize.getLabelsPerSheet() + "-per-sheet.pdf\"")
+                .body(pdfBytes);
+    }
+
+    @PostMapping("/{id}/generate-barcode")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generateInternalBarcode(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        User user = getUser(authentication);
+        Product product = loadVersionSafeProduct(id);
+
+        if (!product.getShop().getId().equals(user.getShop().getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+        if (StringUtils.hasText(product.getBarcode())) {
+            return ResponseEntity.ok(Map.of(
+                    "barcode", product.getBarcode(),
+                    "message", "This medicine already has a barcode.",
+                    "labelUrl", "/products/" + product.getId() + "/barcode-label",
+                    "generated", false));
+        }
+
+        Map<String, Object> oldState = snapshotProduct(product);
+        String generatedBarcode = productBarcodeService.generateInternalBarcode(product);
+        product.setBarcode(generatedBarcode);
+        Product savedProduct = productRepository.save(product);
+
+        auditService.logAction(
+                user.getUsername(),
+                user.getRole().name(),
+                user.getShop(),
+                "PRODUCT_BARCODE_GENERATED",
+                "Product",
+                savedProduct.getId(),
+                "SUCCESS",
+                oldState,
+                snapshotProduct(savedProduct),
+                "Internal barcode generated for product");
+
+        return ResponseEntity.ok(Map.of(
+                "barcode", generatedBarcode,
+                "message", "Internal barcode generated successfully.",
+                "labelUrl", "/products/" + savedProduct.getId() + "/barcode-label",
+                "generated", true));
     }
 
     private Map<String, Object> snapshotProduct(Product product) {
@@ -622,5 +811,25 @@ public class ProductController {
         }
 
         return product;
+    }
+
+    private void populateProductFormModel(Model model, User user, Shop shop, Product product) {
+        long currentCount = productRepository.countByShopAndActiveTrue(shop);
+        int maxLimit = planLimitService.getProductLimit(shop);
+        boolean isUnlimited = (maxLimit == -1);
+
+        model.addAttribute("product", product);
+        model.addAttribute("shop", shop);
+        model.addAttribute("user", user);
+        model.addAttribute("role", user.getRole().name());
+        model.addAttribute("currentPage", "products");
+        model.addAttribute("currentProductCount", currentCount);
+        model.addAttribute("productLimit", isUnlimited ? "Unlimited" : maxLimit);
+        model.addAttribute("productLimitRaw", maxLimit);
+        model.addAttribute("canAddMore", isUnlimited || currentCount < maxLimit || product.getId() != null);
+
+        PlanType planType = shop.getPlanType();
+        String planTypeDisplay = planType != null ? planType.name() : "FREE";
+        model.addAttribute("planType", planTypeDisplay);
     }
 }

@@ -3,6 +3,7 @@ package com.expygen.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,6 +47,13 @@ public class Sale {
     // CUSTOMER DETAILS
     private String customerName;
     private String customerPhone;
+    private String doctorName;
+    private LocalDate prescriptionDate;
+    private String prescriptionReference;
+    @Builder.Default
+    private boolean prescriptionRequired = false;
+    @Builder.Default
+    private boolean prescriptionVerified = false;
 
     // PAYMENT DETAILS
     private String paymentMode; // CASH / UPI / CARD

@@ -164,7 +164,7 @@
             th:title="${productLimitRaw != -1 and currentProductCount >= productLimitRaw} ? 'Medicine limit reached. Upgrade to add more.' : 'Add new medicine'">
             <i class="fas fa-plus"></i> Add Medicine
             <span th:if="${productLimitRaw == -1 or planType == 'ENTERPRISE'}" class="btn-unlimited-badge">
-                ∞ Unlimited
+                ∞
             </span>
         </a>
     </div>
@@ -204,6 +204,8 @@
                     </div>
                     <div id="bulkActions" class="shop-bulk-actions">
                         <span id="selectedCount">0</span> selected
+                        <button class="shop-btn-label-sheet" onclick="printSelectedLabels()"><i class="fas fa-barcode"></i>
+                            Print Labels</button>
                         <button th:if="${role == 'OWNER'}" class="shop-btn-delete" onclick="bulkDelete()"><i class="fas fa-trash"></i>
                             Delete</button>
                         <button onclick="clearSelection()" class="shop-cancel-btn">Cancel</button>
@@ -225,6 +227,14 @@
         const canDeleteProducts = /*[[${role == 'OWNER'}]]*/ false;
         let currentProductCount = /*[[${currentProductCount}]]*/ 0;
         const isUnlimited = productLimitRaw === -1;
+        const labelSheetPresets = {
+            SHEET_20: { count: 20, label: '20 per sheet', description: '1 A4 sheet fits 20 stickers. Best for bigger labels, boxes, and shelf labels.' },
+            SHEET_24: { count: 24, label: '24 per sheet', description: '1 A4 sheet fits 24 stickers. Good medium-size labels for bottles and general packs.' },
+            SHEET_40: { count: 40, label: '40 per sheet', description: '1 A4 sheet fits 40 stickers. Best for small product stickers and common barcode paper.' },
+            SHEET_48: { count: 48, label: '48 per sheet', description: '1 A4 sheet fits 48 stickers. Good for compact barcode tagging with limited text.' },
+            SHEET_65: { count: 65, label: '65 per sheet', description: '1 A4 sheet fits 65 stickers. Small labels with tighter barcode and text space.' },
+            SHEET_80: { count: 80, label: '80 per sheet', description: '1 A4 sheet fits 80 stickers. Very small labels, best when you need maximum density.' }
+        };
         
         let currentPage = 0, currentKeyword = '', currentFilter = 'all';
         let selectedProducts = new Set(), allProductsData = [];
@@ -400,7 +410,7 @@
                         <td>${batchCell}</td>
                         <td><span class="shop-gst-badge ${p.gstPercent === 0 ? 'shop-gst-badge-zero' : ''}">${p.gstPercent || 0}%</span></td>
                         <td><div class="shop-stock-cell"><span class="shop-stock-quantity">${sellableStock}</span><span class="${isLowStock ? 'shop-low-stock-badge' : 'shop-in-stock-badge'}"><i class="fas ${isLowStock ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${isLowStock ? 'Low' : 'Healthy'}</span></div><div class="shop-stock-note">Sellable stock • Min alert ${p.minStock}</div>${p.batchManaged ? `<div class="shop-stock-note">Raw total ${p.stockQuantity}</div>` : ''}</td>
-                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a><button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${(!isUnlimited && currentProductCount >= productLimitRaw) ? 'disabled' : ''}><i class="fas fa-copy"></i></button>${canDeleteProducts ? `<form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form>` : ''}</div></td>
+                        <td><div class="shop-action-buttons-group"><a href="/products/edit/${p.id}" class="shop-btn-edit"><i class="fas fa-edit"></i> Edit</a>${p.barcode ? `<a href="/products/${p.id}/barcode-label" target="_blank" class="shop-btn-label" title="Open printable barcode label PDF"><i class="fas fa-barcode"></i> Label</a><button type="button" class="shop-btn-label" onclick="openRepeatLabelModal(${p.id}, '${escapeHtml(p.name)}')" title="Print repeated labels for this medicine"><i class="fas fa-copy"></i> Many</button>` : `<button type="button" class="shop-btn-generate" onclick="generateBarcode(${p.id}, '${escapeHtml(p.name)}')"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>`}<button onclick="duplicateProduct(${p.id})" class="shop-btn-duplicate" ${(!isUnlimited && currentProductCount >= productLimitRaw) ? 'disabled' : ''}><i class="fas fa-copy"></i></button>${canDeleteProducts ? `<form action="/products/delete/${p.id}" method="post" style="display:inline;"><input type="hidden" name="_csrf" value="${getCsrfToken()}"><button type="submit" class="shop-btn-delete" onclick="return confirm('Delete ${escapeHtml(p.name)}?')"><i class="fas fa-trash"></i></button></form>` : ''}</div></td>
                     </tr>
                 `);
             });
@@ -414,6 +424,29 @@
 
         function updateBulkActions() { selectedProducts.size ? $('#bulkActions').addClass('show').find('#selectedCount').text(selectedProducts.size) : $('#bulkActions').removeClass('show'); }
         function clearSelection() { selectedProducts.clear(); updateBulkActions(); $('#selectAllCheckbox').prop('checked', false); loadProducts(); }
+
+        function printSelectedLabels() {
+            if (!selectedProducts.size) {
+                showError('Select at least one medicine first');
+                return;
+            }
+
+            const printableIds = allProductsData
+                .filter(product => selectedProducts.has(product.id) && product.barcode)
+                .map(product => product.id);
+
+            if (!printableIds.length) {
+                showError('Selected medicines need barcodes before label printing');
+                return;
+            }
+
+            if (printableIds.length < selectedProducts.size) {
+                showSuccess(`Printing ${printableIds.length} barcode-ready label${printableIds.length === 1 ? '' : 's'}`);
+            }
+
+            const query = printableIds.map(id => `ids=${encodeURIComponent(id)}`).join('&');
+            window.open(`/products/barcode-sheet?${query}`, '_blank', 'noopener,noreferrer');
+        }
         
         function bulkDelete() {
             if (!canDeleteProducts) {
@@ -458,6 +491,118 @@
             });
         }
 
+        function generateBarcode(id, name) {
+            $.ajax({
+                url: `/products/${id}/generate-barcode`,
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': getCsrfToken() },
+                data: { _csrf: getCsrfToken() },
+                success: function(res) {
+                    showSuccess(`${name}: ${res.barcode}`);
+                    if (res.labelUrl) {
+                        window.open(res.labelUrl, '_blank', 'noopener,noreferrer');
+                    }
+                    loadProducts();
+                },
+                error: xhr => showError(xhr.responseJSON?.error || 'Barcode generation failed')
+            });
+        }
+
+        function openRepeatLabelModal(id, name) {
+            const modal = document.getElementById('repeatLabelModal');
+            const productIdInput = document.getElementById('repeatLabelProductId');
+            const productName = document.getElementById('repeatLabelProductName');
+            const quantityInput = document.getElementById('repeatLabelQuantity');
+            const sizeSelect = document.getElementById('repeatLabelSize');
+
+            if (!modal || !productIdInput || !productName || !quantityInput || !sizeSelect) {
+                showError('Label popup is not ready yet');
+                return;
+            }
+
+            productIdInput.value = id;
+            productName.textContent = name;
+            sizeSelect.value = 'SHEET_40';
+            setRepeatLabelQuantityFromPreset();
+            modal.classList.add('show');
+        }
+
+        function closeRepeatLabelModal() {
+            document.getElementById('repeatLabelModal')?.classList.remove('show');
+        }
+
+        function updateRepeatLabelHelper() {
+            const quantityInput = document.getElementById('repeatLabelQuantity');
+            const sizeSelect = document.getElementById('repeatLabelSize');
+            const note = document.getElementById('repeatLabelNote');
+            const countInfo = document.getElementById('repeatLabelCountInfo');
+            const preset = labelSheetPresets[sizeSelect?.value || 'SHEET_40'] || labelSheetPresets.SHEET_40;
+            const quantity = Number.parseInt(quantityInput?.value || '0', 10);
+            const safeQuantity = Number.isFinite(quantity) && quantity > 0 ? quantity : 0;
+            const sheetCount = safeQuantity ? Math.ceil(safeQuantity / preset.count) : 0;
+
+            if (note) {
+                note.textContent = preset.description;
+            }
+            if (countInfo) {
+                countInfo.textContent = safeQuantity
+                    ? `Printing ${safeQuantity} labels will use ${sheetCount} A4 sheet${sheetCount === 1 ? '' : 's'}.`
+                    : `1 A4 sheet fits ${preset.count} stickers.`;
+            }
+        }
+
+        function setRepeatLabelQuantityFromPreset() {
+            const quantityInput = document.getElementById('repeatLabelQuantity');
+            const sizeSelect = document.getElementById('repeatLabelSize');
+            const preset = labelSheetPresets[sizeSelect?.value || 'SHEET_40'] || labelSheetPresets.SHEET_40;
+            if (quantityInput) {
+                quantityInput.value = String(preset.count);
+            }
+            updateRepeatLabelHelper();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('repeatLabelModal');
+            const form = document.getElementById('repeatLabelForm');
+            const quantityInput = document.getElementById('repeatLabelQuantity');
+            const sizeSelect = document.getElementById('repeatLabelSize');
+            const productIdInput = document.getElementById('repeatLabelProductId');
+            const productName = document.getElementById('repeatLabelProductName');
+
+            modal?.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    closeRepeatLabelModal();
+                }
+            });
+
+            quantityInput?.addEventListener('input', updateRepeatLabelHelper);
+            sizeSelect?.addEventListener('change', setRepeatLabelQuantityFromPreset);
+            setRepeatLabelQuantityFromPreset();
+
+            form?.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const productId = productIdInput?.value;
+                const productNameText = productName?.textContent || 'medicine';
+                const quantity = Number.parseInt(quantityInput?.value || '', 10);
+                const size = sizeSelect?.value || 'SHEET_40';
+
+                if (!productId) {
+                    showError('Choose a medicine first');
+                    return;
+                }
+
+                if (!Number.isFinite(quantity) || quantity < 1 || quantity > 500) {
+                    showError('Enter a label quantity between 1 and 500');
+                    return;
+                }
+
+                const preset = labelSheetPresets[size] || labelSheetPresets.SHEET_40;
+                showSuccess(`Opening ${quantity} labels for ${productNameText} on ${preset.label}`);
+                window.open(`/products/${encodeURIComponent(productId)}/barcode-sheet?quantity=${encodeURIComponent(quantity)}&size=${encodeURIComponent(size)}`, '_blank', 'noopener,noreferrer');
+                closeRepeatLabelModal();
+            });
+        });
+
         function exportProducts() { window.location.href = '/products/export'; showSuccess('Exporting...'); }
         
         function renderPagination(data) {
@@ -483,6 +628,48 @@
         function showError(m) { let d = $('<div>', { class: 'shop-toast-error', text: m }).appendTo('body'); setTimeout(() => d.fadeOut(300, () => d.remove()), 3000); }
         function showSuccess(m) { let d = $('<div>', { class: 'shop-toast-success', text: '✓ ' + m }).appendTo('body'); setTimeout(() => d.fadeOut(300, () => d.remove()), 3000); }
     </script>
+
+    <div id="repeatLabelModal" class="repeat-label-modal">
+        <div class="repeat-label-dialog">
+            <div class="repeat-label-head">
+                <div>
+                    <h3>Print Many Labels</h3>
+                    <p>Choose how many labels to print and which sticker sheet type matches your paper.</p>
+                </div>
+                <button type="button" class="repeat-label-close" onclick="closeRepeatLabelModal()">×</button>
+            </div>
+            <form id="repeatLabelForm" class="repeat-label-form">
+                <input type="hidden" id="repeatLabelProductId">
+                <div class="form-group">
+                    <label>Medicine</label>
+                    <div id="repeatLabelProductName" class="repeat-label-product-name">Selected medicine</div>
+                </div>
+                <div class="repeat-label-grid">
+                    <div class="form-group">
+                        <label for="repeatLabelQuantity">Label Count</label>
+                        <input type="number" id="repeatLabelQuantity" min="1" max="500" value="40" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="repeatLabelSize">Sheet Type</label>
+                        <select id="repeatLabelSize">
+                            <option value="SHEET_20">20 per sheet</option>
+                            <option value="SHEET_24">24 per sheet</option>
+                            <option value="SHEET_40" selected>40 per sheet</option>
+                            <option value="SHEET_48">48 per sheet</option>
+                            <option value="SHEET_65">65 per sheet</option>
+                            <option value="SHEET_80">80 per sheet</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="repeat-label-note" id="repeatLabelNote">1 A4 sheet fits 40 stickers. Best for small product stickers and common barcode paper.</div>
+                <div class="repeat-label-note repeat-label-note-subtle" id="repeatLabelCountInfo">Printing 40 labels will use 1 A4 sheet.</div>
+                <div class="repeat-label-actions">
+                    <button type="button" class="shop-cancel-btn" onclick="closeRepeatLabelModal()">Cancel</button>
+                    <button type="submit" class="shop-btn-label-sheet"><i class="fas fa-barcode"></i> Generate PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

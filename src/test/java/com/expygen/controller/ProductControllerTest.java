@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import com.expygen.admin.service.AuditService;
@@ -34,8 +35,10 @@ import com.expygen.entity.User;
 import com.expygen.repository.ProductRepository;
 import com.expygen.repository.PurchaseBatchRepository;
 import com.expygen.service.BatchInventoryVisibilityService;
+import com.expygen.service.BarcodeLabelService;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.PlanLimitService;
+import com.expygen.service.ProductBarcodeService;
 import com.expygen.service.ProductService;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +64,12 @@ class ProductControllerTest {
 
     @Mock
     private BatchInventoryVisibilityService batchInventoryVisibilityService;
+
+    @Mock
+    private BarcodeLabelService barcodeLabelService;
+
+    @Mock
+    private ProductBarcodeService productBarcodeService;
 
     @Mock
     private Authentication authentication;
@@ -100,6 +109,7 @@ class ProductControllerTest {
 
         String view = productController.saveOrUpdateProduct(
                 formProduct,
+                new ExtendedModelMap(),
                 authentication,
                 new RedirectAttributesModelMap());
 
@@ -171,6 +181,7 @@ class ProductControllerTest {
 
         String view = productController.saveOrUpdateProduct(
                 submittedProduct,
+                new ExtendedModelMap(),
                 authentication,
                 new RedirectAttributesModelMap());
 
@@ -210,13 +221,191 @@ class ProductControllerTest {
         when(planLimitService.canAddProduct(shop)).thenReturn(true);
         when(productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrue(shop, "890100000111")).thenReturn(true);
 
-        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
-        String view = productController.saveOrUpdateProduct(formProduct, authentication, redirectAttributes);
+        ExtendedModelMap model = new ExtendedModelMap();
+        String view = productController.saveOrUpdateProduct(formProduct, model, authentication, new RedirectAttributesModelMap());
 
-        assertEquals("redirect:/products/new", view);
-        assertEquals("Barcode already exists for another medicine in your shop.",
-                redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("product-form", view);
+        assertEquals("Barcode already exists for another medicine in your shop. Use a unique code before saving.",
+                model.getAttribute("error"));
         verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    void checkBarcodeAvailabilityNormalizesAndRejectsDuplicateForCurrentShop() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrue(shop, "890100000111"))
+                .thenReturn(true);
+
+        ResponseEntity<Map<String, Object>> response = productController.checkBarcodeAvailability(" 8901 0000 0111 ", null, authentication);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("890100000111", response.getBody().get("normalizedBarcode"));
+        assertEquals(false, response.getBody().get("available"));
+        assertEquals("duplicate", response.getBody().get("state"));
+    }
+
+    @Test
+    void downloadBarcodeLabelReturnsPdfForAuthorizedProduct() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .name("Dolo 650")
+                .barcode("8901234567001")
+                .price(new BigDecimal("32.00"))
+                .shop(shop)
+                .stockQuantity(4)
+                .build();
+        product.setId(21L);
+        product.setVersion(1L);
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.findById(21L)).thenReturn(Optional.of(product));
+        when(barcodeLabelService.generateProductLabel(product)).thenReturn(new byte[] { 1, 2, 3 });
+
+        ResponseEntity<byte[]> response = productController.downloadBarcodeLabel(21L, authentication);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("application/pdf", response.getHeaders().getFirst("Content-Type"));
+        assertEquals(3, response.getBody().length);
+    }
+
+    @Test
+    void downloadBarcodeSheetReturnsPdfForSelectedBarcodeReadyProducts() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product printable = Product.builder()
+                .id(41L)
+                .name("Dolo 650")
+                .barcode("8901234567001")
+                .price(new BigDecimal("32.00"))
+                .shop(shop)
+                .active(true)
+                .build();
+        Product skipped = Product.builder()
+                .id(42L)
+                .name("No Barcode")
+                .price(new BigDecimal("54.00"))
+                .shop(shop)
+                .active(true)
+                .build();
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.findByShopAndActiveTrueAndIdIn(shop, List.of(41L, 42L)))
+                .thenReturn(List.of(printable, skipped));
+        when(barcodeLabelService.generateProductLabelSheet(List.of(printable))).thenReturn(new byte[] { 9, 8, 7 });
+
+        ResponseEntity<byte[]> response = productController.downloadBarcodeSheet(List.of(41L, 42L), authentication);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("application/pdf", response.getHeaders().getFirst("Content-Type"));
+        assertEquals(3, response.getBody().length);
+    }
+
+    @Test
+    void downloadRepeatedBarcodeSheetReturnsPdfForSingleProductQuantity() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .name("Dolo 650")
+                .barcode("8901234567001")
+                .price(new BigDecimal("32.00"))
+                .shop(shop)
+                .active(true)
+                .build();
+        product.setId(61L);
+        product.setVersion(1L);
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.findById(61L)).thenReturn(Optional.of(product));
+        when(barcodeLabelService.generateRepeatedProductLabelSheet(product, 24, BarcodeLabelService.LabelSheetSize.SHEET_40))
+                .thenReturn(new byte[] { 4, 5, 6 });
+
+        ResponseEntity<byte[]> response = productController.downloadRepeatedBarcodeSheet(61L, 24, "40", authentication);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("application/pdf", response.getHeaders().getFirst("Content-Type"));
+        assertEquals(3, response.getBody().length);
+    }
+
+    @Test
+    void downloadRepeatedBarcodeSheetRejectsOutOfRangeQuantity() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .name("Dolo 650")
+                .barcode("8901234567001")
+                .price(new BigDecimal("32.00"))
+                .shop(shop)
+                .active(true)
+                .build();
+        product.setId(62L);
+        product.setVersion(1L);
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.findById(62L)).thenReturn(Optional.of(product));
+
+        ResponseEntity<byte[]> response = productController.downloadRepeatedBarcodeSheet(62L, 0, "medium", authentication);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("text/plain; charset=UTF-8", response.getHeaders().getFirst("Content-Type"));
+    }
+
+    @Test
+    void downloadBarcodeSheetRejectsSelectionWithoutBarcodeReadyProducts() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product skipped = Product.builder()
+                .id(52L)
+                .name("No Barcode")
+                .price(new BigDecimal("54.00"))
+                .shop(shop)
+                .active(true)
+                .build();
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.findByShopAndActiveTrueAndIdIn(shop, List.of(52L)))
+                .thenReturn(List.of(skipped));
+
+        ResponseEntity<byte[]> response = productController.downloadBarcodeSheet(List.of(52L), authentication);
+
+        assertEquals(400, response.getStatusCode().value());
+        assertEquals("text/plain; charset=UTF-8", response.getHeaders().getFirst("Content-Type"));
+    }
+
+    @Test
+    void generateInternalBarcodeSavesBarcodeAndReturnsLabelUrl() {
+        Shop shop = testShop();
+        User owner = testOwner(shop);
+        Product product = Product.builder()
+                .name("Shelcal 500")
+                .price(new BigDecimal("145.00"))
+                .shop(shop)
+                .stockQuantity(8)
+                .build();
+        product.setId(31L);
+        product.setVersion(1L);
+
+        when(authentication.getName()).thenReturn(owner.getUsername());
+        when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
+        when(productRepository.findById(31L)).thenReturn(Optional.of(product));
+        when(productBarcodeService.generateInternalBarcode(product)).thenReturn("2900000000318");
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ResponseEntity<Map<String, Object>> response = productController.generateInternalBarcode(31L, authentication);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("2900000000318", response.getBody().get("barcode"));
+        assertEquals("/products/31/barcode-label", response.getBody().get("labelUrl"));
+        assertEquals("2900000000318", product.getBarcode());
     }
 
     @Test

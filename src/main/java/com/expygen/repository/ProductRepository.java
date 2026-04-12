@@ -21,6 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByShopAndActiveTrue(Shop shop);
 
+    List<Product> findByShopAndActiveTrueAndIdIn(Shop shop, List<Long> ids);
+
     Page<Product> findByShopAndActiveTrue(Shop shop, Pageable pageable);
     
     @Query("""

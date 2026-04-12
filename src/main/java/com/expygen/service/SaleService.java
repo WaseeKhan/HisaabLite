@@ -46,7 +46,7 @@ public class SaleService {
 
     @Transactional
     public Sale completeSale(List<CartItem> cartItems, Shop shop, User createdBy) {
-        return completeSale(cartItems, shop, createdBy, null, null, null, null, null, null, null);
+        return completeSale(cartItems, shop, createdBy, null, null, null, null, null, false, null, null, null, null, null);
     }
 
     @Transactional
@@ -61,10 +61,45 @@ public class SaleService {
             Double changeReturned,
             BigDecimal discountAmount,
             BigDecimal discountPercent) {
+        return completeSale(
+                cartItems,
+                shop,
+                createdBy,
+                customerName,
+                customerPhone,
+                null,
+                null,
+                null,
+                false,
+                paymentMode,
+                amountReceived,
+                changeReturned,
+                discountAmount,
+                discountPercent);
+    }
+
+    @Transactional
+    public Sale completeSale(
+            List<CartItem> cartItems,
+            Shop shop,
+            User createdBy,
+            String customerName,
+            String customerPhone,
+            String doctorName,
+            LocalDate prescriptionDate,
+            String prescriptionReference,
+            boolean prescriptionVerified,
+            String paymentMode,
+            Double amountReceived,
+            Double changeReturned,
+            BigDecimal discountAmount,
+            BigDecimal discountPercent) {
         try {
             validateSaleRequest(cartItems, shop, createdBy);
             List<CartItem> normalizedCartItems = normalizeCartItems(cartItems);
             List<LockedProductQuantity> lockedProducts = lockAndValidateProducts(normalizedCartItems, shop);
+            boolean containsPrescriptionItems = lockedProducts.stream()
+                    .anyMatch(lockedProduct -> lockedProduct.product().isPrescriptionRequired());
 
             Sale sale = new Sale();
             sale.setSaleDate(LocalDateTime.now());
@@ -118,8 +153,9 @@ public class SaleService {
             savedSale.setTotalGstAmount(totalGstAmount);
             savedSale.setTaxableAmount(totalAmount.subtract(totalGstAmount));
             savedSale.setItems(savedItems);
-            applySaleFinalization(savedSale, customerName, customerPhone, paymentMode, amountReceived, changeReturned,
-                    discountAmount, discountPercent);
+            applySaleFinalization(savedSale, customerName, customerPhone, doctorName, prescriptionDate,
+                    prescriptionReference, containsPrescriptionItems, prescriptionVerified, paymentMode, amountReceived,
+                    changeReturned, discountAmount, discountPercent);
 
             saleRepository.save(savedSale);
             Map<String, Object> auditDetails = new HashMap<>();
@@ -313,6 +349,11 @@ public class SaleService {
             Sale sale,
             String customerName,
             String customerPhone,
+            String doctorName,
+            LocalDate prescriptionDate,
+            String prescriptionReference,
+            boolean containsPrescriptionItems,
+            boolean prescriptionVerified,
             String paymentMode,
             Double amountReceived,
             Double changeReturned,
@@ -345,11 +386,51 @@ public class SaleService {
         sale.setDiscountAmount(normalizedDiscountAmount);
         sale.setDiscountPercent(normalizedDiscountPercent);
         sale.setTotalAmount(originalTotal.subtract(normalizedDiscountAmount));
-        sale.setCustomerName(customerName);
-        sale.setCustomerPhone(customerPhone);
-        sale.setPaymentMode(paymentMode);
+        sale.setCustomerName(normalizeText(customerName));
+        sale.setCustomerPhone(normalizeText(customerPhone));
+        sale.setDoctorName(normalizeText(doctorName));
+        sale.setPrescriptionDate(prescriptionDate);
+        sale.setPrescriptionReference(normalizeText(prescriptionReference));
+        sale.setPrescriptionRequired(containsPrescriptionItems);
+        sale.setPrescriptionVerified(containsPrescriptionItems && prescriptionVerified);
+        validatePrescriptionWorkflow(sale);
+        sale.setPaymentMode(normalizeText(paymentMode));
         sale.setAmountReceived(amountReceived != null ? amountReceived : 0.0);
         sale.setChangeReturned(changeReturned != null ? changeReturned : 0.0);
+    }
+
+    private void validatePrescriptionWorkflow(Sale sale) {
+        if (!sale.isPrescriptionRequired()) {
+            sale.setPrescriptionVerified(false);
+            sale.setDoctorName(null);
+            sale.setPrescriptionDate(null);
+            sale.setPrescriptionReference(null);
+            return;
+        }
+
+        if (!sale.isPrescriptionVerified()) {
+            throw new RuntimeException("Prescription must be verified before billing Rx medicines");
+        }
+
+        if (sale.getPrescriptionDate() == null) {
+            throw new RuntimeException("Prescription date is required for Rx medicines");
+        }
+
+        if (isBlank(sale.getDoctorName()) && isBlank(sale.getPrescriptionReference())) {
+            throw new RuntimeException("Doctor name or prescription reference is required for Rx medicines");
+        }
+    }
+
+    private String normalizeText(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     private void logSaleFailure(User actor, String action, String message, Object details) {

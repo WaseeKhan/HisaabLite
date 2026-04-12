@@ -50,6 +50,15 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     
     // Find by date after with pagination
     Page<Sale> findByShopAndSaleDateAfter(Shop shop, LocalDateTime date, Pageable pageable);
+
+    List<Sale> findTop5ByShopAndCustomerPhoneAndStatusOrderBySaleDateDesc(Shop shop, String customerPhone, SaleStatus status);
+
+    Long countByShopAndCustomerPhoneAndStatus(Shop shop, String customerPhone, SaleStatus status);
+
+    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s WHERE s.shop = :shop AND s.customerPhone = :customerPhone AND s.status = :status")
+    BigDecimal getLifetimeSpendByCustomerPhoneAndStatus(@Param("shop") Shop shop,
+                                                        @Param("customerPhone") String customerPhone,
+                                                        @Param("status") SaleStatus status);
     
     // Count by status
     @Query("SELECT COUNT(s) FROM Sale s WHERE s.shop = :shop AND s.status = :status")
@@ -338,7 +347,6 @@ List<Sale> findByShopAndSaleDateBetweenOrderBySaleDateDesc(
 
 
 }
-
 
 
 

@@ -3,12 +3,15 @@ package com.expygen.controller;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +37,8 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.expygen.dto.CartItem;
+import com.expygen.dto.CustomerHistoryDTO;
+import com.expygen.dto.CustomerHistorySaleDTO;
 import com.expygen.dto.ProductLookupResult;
 import com.expygen.dto.SaleBatchTraceSummaryDTO;
 import com.expygen.dto.SaleHistoryDTO;
@@ -180,6 +185,7 @@ public class SaleController {
                 item.setGstPercent(gstPercent);
                 item.setGstAmount(gstAmount);
                 item.setTotalWithGst(totalWithGst);
+                item.setPrescriptionRequired(product.isPrescriptionRequired());
 
                 found = true;
                 break;
@@ -206,6 +212,7 @@ public class SaleController {
                     .gstPercent(gstPercent)
                     .gstAmount(gstAmount)
                     .totalWithGst(totalWithGst)
+                    .prescriptionRequired(product.isPrescriptionRequired())
                     .build();
 
             cart.add(cartItem);
@@ -231,6 +238,9 @@ public class SaleController {
             @RequestParam(required = false) String customerName,
             @RequestParam(required = false) String customerPhone,
             @RequestParam(required = false) String doctorName,
+            @RequestParam(required = false) LocalDate prescriptionDate,
+            @RequestParam(required = false) String prescriptionReference,
+            @RequestParam(defaultValue = "false") boolean prescriptionVerified,
             @RequestParam(required = false) String paymentMode,
             @RequestParam(required = false) Double amountReceived,
             @RequestParam(required = false) Double changeReturned,
@@ -261,6 +271,10 @@ public class SaleController {
                     user,
                     customerName,
                     customerPhone,
+                    doctorName,
+                    prescriptionDate,
+                    prescriptionReference,
+                    prescriptionVerified,
                     paymentMode,
                     amountReceived,
                     changeReturned,
@@ -493,6 +507,11 @@ public class SaleController {
                     .totalAmount(sale.getTotalAmount())
                     .customerName(sale.getCustomerName() != null ? sale.getCustomerName() : "Walk-in")
                     .customerPhone(sale.getCustomerPhone())
+                    .doctorName(sale.getDoctorName())
+                    .prescriptionDate(sale.getPrescriptionDate())
+                    .prescriptionReference(sale.getPrescriptionReference())
+                    .prescriptionRequired(sale.isPrescriptionRequired())
+                    .prescriptionVerified(sale.isPrescriptionVerified())
                     .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
                     .status(sale.getStatus() != null ? sale.getStatus().name() : "UNKNOWN")
                     .batchManaged(batchSummary != null && batchSummary.isBatchManaged())
@@ -550,6 +569,66 @@ public class SaleController {
                         .prescriptionRequired(product.isPrescriptionRequired())
                         .build())
                 .toList();
+    }
+
+    @GetMapping("/customer-history")
+    @ResponseBody
+    public CustomerHistoryDTO getCustomerHistory(
+            @RequestParam String phone,
+            Authentication authentication) {
+
+        User user = getAuthenticatedUser(authentication);
+        String normalizedPhone = normalizePhone(phone);
+        if (normalizedPhone == null || normalizedPhone.length() != 10) {
+            return CustomerHistoryDTO.builder()
+                    .found(false)
+                    .customerPhone(normalizedPhone)
+                    .build();
+        }
+
+        List<Sale> recentSales = saleRepository.findTop5ByShopAndCustomerPhoneAndStatusOrderBySaleDateDesc(
+                user.getShop(),
+                normalizedPhone,
+                SaleStatus.COMPLETED);
+
+        if (recentSales.isEmpty()) {
+            return CustomerHistoryDTO.builder()
+                    .found(false)
+                    .customerPhone(normalizedPhone)
+                    .build();
+        }
+
+        Sale latestSale = recentSales.get(0);
+        Long visitCount = saleRepository.countByShopAndCustomerPhoneAndStatus(user.getShop(), normalizedPhone, SaleStatus.COMPLETED);
+        Set<String> medicineNames = new LinkedHashSet<>();
+        for (SaleItem item : saleItemRepository.findBySaleIn(recentSales)) {
+            if (item.getProduct() != null && item.getProduct().getName() != null) {
+                medicineNames.add(item.getProduct().getName());
+            }
+            if (medicineNames.size() >= 6) {
+                break;
+            }
+        }
+
+        return CustomerHistoryDTO.builder()
+                .found(true)
+                .customerName(latestSale.getCustomerName())
+                .customerPhone(normalizedPhone)
+                .visitCount(visitCount != null ? visitCount : 0L)
+                .lifetimeSpend(saleRepository.getLifetimeSpendByCustomerPhoneAndStatus(user.getShop(), normalizedPhone, SaleStatus.COMPLETED))
+                .lastVisitDate(latestSale.getSaleDate())
+                .lastDoctorName(findLastDoctorName(recentSales))
+                .recentMedicines(new ArrayList<>(medicineNames))
+                .recentSales(recentSales.stream()
+                        .map(sale -> CustomerHistorySaleDTO.builder()
+                                .saleId(sale.getId())
+                                .saleDate(sale.getSaleDate())
+                                .totalAmount(sale.getTotalAmount())
+                                .doctorName(sale.getDoctorName())
+                                .prescriptionRequired(sale.isPrescriptionRequired())
+                                .build())
+                        .toList())
+                .build();
     }
 
     @RequestMapping("/cart")
@@ -687,5 +766,25 @@ public class SaleController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
+    }
+
+    private String normalizePhone(String phone) {
+        if (phone == null) {
+            return null;
+        }
+        String digits = phone.replaceAll("[^0-9]", "");
+        if (digits.length() > 10) {
+            digits = digits.substring(digits.length() - 10);
+        }
+        return digits;
+    }
+
+    private String findLastDoctorName(List<Sale> sales) {
+        for (Sale sale : sales) {
+            if (sale.getDoctorName() != null && !sale.getDoctorName().isBlank()) {
+                return sale.getDoctorName();
+            }
+        }
+        return null;
     }
 }

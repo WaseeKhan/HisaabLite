@@ -92,7 +92,8 @@ public class PurchaseService {
             totalAmount = totalAmount.add(line.getPurchasePrice().multiply(BigDecimal.valueOf(line.getQuantity())));
         }
 
-        savedEntry.setBatches(savedBatches);
+        savedEntry.getBatches().clear();
+        savedEntry.getBatches().addAll(savedBatches);
         savedEntry.setTotalAmount(totalAmount);
         PurchaseEntry finalEntry = purchaseEntryRepository.save(savedEntry);
 

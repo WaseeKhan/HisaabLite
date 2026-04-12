@@ -323,7 +323,18 @@
                     <tr>
                         <td><span class="invoice-number">#${sale.id}</span></td>
                         <td><i class="far fa-calendar"></i> ${formatDate(sale.saleDate)}</td>
-                        <td><i class="fas fa-user"></i> ${escapeHtml(sale.customerName || 'Walk-in')}</td>
+                        <td>
+                            <div class="sales-customer-summary">
+                                <div class="sales-customer-name"><i class="fas fa-user"></i> ${escapeHtml(sale.customerName || 'Walk-in')}</div>
+                                ${(sale.customerPhone || sale.doctorName || sale.prescriptionRequired) ? `
+                                    <div class="sales-customer-meta">
+                                        ${sale.customerPhone ? `<span><i class="fas fa-phone"></i> ${escapeHtml(sale.customerPhone)}</span>` : ``}
+                                        ${sale.doctorName ? `<span><i class="fas fa-user-doctor"></i> ${escapeHtml(sale.doctorName)}</span>` : ``}
+                                        ${sale.prescriptionRequired ? `<span class="sales-rx-chip ${sale.prescriptionVerified ? 'is-verified' : 'is-pending'}"><i class="fas fa-file-medical"></i> ${sale.prescriptionVerified ? 'Rx verified' : 'Rx pending'}</span>` : ``}
+                                    </div>
+                                ` : ``}
+                            </div>
+                        </td>
                         <td>${renderBatchTrace(sale)}</td>
                         <td><i class="far fa-user-circle"></i> ${escapeHtml(sale.cashierName || 'N/A')}</td>
                         <td><span class="sale-amount">₹${formatNumber(sale.totalAmount)}</span></td>

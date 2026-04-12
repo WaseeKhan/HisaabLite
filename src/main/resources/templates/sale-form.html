@@ -76,6 +76,21 @@
                                 </div>
                             </div>
 
+                            <div id="scanStatusCard" class="scan-status-card scan-status-info" aria-live="polite">
+                                <div class="scan-status-icon">
+                                    <i class="fas fa-wave-square"></i>
+                                </div>
+                                <div class="scan-status-copy">
+                                    <strong id="scanStatusTitle">Search Ready</strong>
+                                    <p id="scanStatusText">Search by medicine, salt, or manufacturer. Switch to Scan mode for exact barcode billing.</p>
+                                </div>
+                            </div>
+
+                            <div class="billing-search-tip">
+                                <i class="fas fa-keyboard"></i>
+                                <span>Phase 1 scanner mode works with keyboard input too. Type an exact barcode and press Enter, or plug in a USB scanner later.</span>
+                            </div>
+
                         </section>
 
                         <form id="billingForm" th:action="@{/sales/complete}" method="post" class="billing-console-form">
@@ -84,10 +99,10 @@
                             <div class="billing-console-grid">
                                 <section class="customer-section">
                                     <div class="billing-block-head">
-                                    <div class="billing-block-title">
+                                        <div class="billing-block-title">
                                             <div class="billing-block-icon"><i class="fas fa-user-circle"></i></div>
                                             <div>
-                                        <span>Patient / Customer</span>
+                                                <span>Patient / Customer</span>
                                             </div>
                                         </div>
                                         <span class="billing-pill">Optional</span>
@@ -111,6 +126,76 @@
                                         </div>
                                     </div>
 
+                                    <div class="customer-history-card" id="customerHistoryCard" hidden>
+                                        <div class="customer-history-head">
+                                            <div class="customer-history-title">
+                                                <i class="fas fa-clock-rotate-left"></i>
+                                                <span>Known Customer Snapshot</span>
+                                            </div>
+                                            <span class="customer-history-badge" id="customerHistoryBadge">0 visits</span>
+                                        </div>
+                                        <div class="customer-history-copy">
+                                            <strong id="customerHistoryName">Returning customer</strong>
+                                            <p id="customerHistoryMeta">Last visit and spend summary will appear here.</p>
+                                        </div>
+                                        <div class="customer-history-grid">
+                                            <div class="customer-history-chip">
+                                                <span>Lifetime Spend</span>
+                                                <strong id="customerHistorySpend">₹0.00</strong>
+                                            </div>
+                                            <div class="customer-history-chip">
+                                                <span>Last Doctor</span>
+                                                <strong id="customerHistoryDoctor">—</strong>
+                                            </div>
+                                        </div>
+                                        <div class="customer-history-section" id="customerHistoryMedicinesWrap" hidden>
+                                            <span class="customer-history-label">Recent Medicines</span>
+                                            <div class="customer-history-tags" id="customerHistoryMedicines"></div>
+                                        </div>
+                                        <div class="customer-history-section" id="customerHistorySalesWrap" hidden>
+                                            <span class="customer-history-label">Recent Bills</span>
+                                            <div class="customer-history-sales" id="customerHistorySales"></div>
+                                        </div>
+                                    </div>
+
+                                </section>
+
+                                <section class="customer-section prescription-section" id="prescriptionPanel">
+                                    <div class="billing-block-head">
+                                        <div class="billing-block-title">
+                                            <div class="billing-block-icon"><i class="fas fa-file-medical"></i></div>
+                                            <div>
+                                                <span>Prescription Desk</span>
+                                            </div>
+                                        </div>
+                                        <span class="billing-pill billing-pill-rx" id="prescriptionModePill">Optional</span>
+                                    </div>
+
+                                    <div class="prescription-banner" id="prescriptionBanner" hidden>
+                                        <div class="prescription-banner-icon"><i class="fas fa-file-medical"></i></div>
+                                        <div class="prescription-banner-copy">
+                                            <strong id="prescriptionBannerTitle">No Rx medicine in cart</strong>
+                                            <p id="prescriptionBannerText">If this bill includes prescription medicines, verify the prescription and record the doctor or reference before completing the sale.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="customer-fields prescription-fields">
+                                        <div class="field-group field-group-checkbox">
+                                            <label class="field-label-checkbox">
+                                                <input type="checkbox" name="prescriptionVerified" id="prescriptionVerified">
+                                                <span>I checked the prescription at the counter</span>
+                                            </label>
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label-icon"><i class="fas fa-calendar-check"></i><span>Prescription Date</span></label>
+                                            <input type="date" name="prescriptionDate" id="prescriptionDate" class="customer-input">
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label-icon"><i class="fas fa-hashtag"></i><span>Prescription Reference</span></label>
+                                            <input type="text" name="prescriptionReference" id="prescriptionReference" placeholder="Rx no., file no., or note"
+                                                class="customer-input">
+                                        </div>
+                                    </div>
                                 </section>
 
                                 <section class="payment-section">

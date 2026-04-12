@@ -21,4 +21,5 @@ public class CartItem {
     private Integer gstPercent;
     private BigDecimal gstAmount;
     private BigDecimal totalWithGst;
+    private Boolean prescriptionRequired;
 }

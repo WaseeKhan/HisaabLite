@@ -302,6 +302,14 @@
     flex-direction: column;
 }
 
+.billing-stage-left {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: calc(100vh - 24px);
+    overflow: hidden;
+}
+
 .billing-search-shell,
 .billing-console-form {
     border: 1px solid var(--billing-panel-border);
@@ -318,6 +326,9 @@
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .billing-block-head {
@@ -380,6 +391,12 @@
     background: var(--billing-orange-soft);
     border-color: rgba(242, 140, 40, 0.24);
     color: #bf5a09;
+}
+
+.billing-pill-rx {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.18);
+    color: #1d4ed8;
 }
 
 .search-mode-switch {
@@ -611,6 +628,91 @@
     align-items: flex-end;
 }
 
+.scan-status-card {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 12px 14px;
+    border-radius: 18px;
+    border: 1px solid var(--billing-panel-border-strong);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(244, 247, 251, 0.96));
+}
+
+.scan-status-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(47, 116, 218, 0.12);
+    color: var(--billing-blue);
+    font-size: 15px;
+}
+
+.scan-status-copy strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--billing-text);
+}
+
+.scan-status-copy p {
+    margin: 4px 0 0;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--billing-text-secondary);
+}
+
+.scan-status-info {
+    border-color: rgba(47, 116, 218, 0.18);
+}
+
+.scan-status-success {
+    border-color: rgba(5, 150, 105, 0.22);
+    background: linear-gradient(135deg, rgba(236, 253, 245, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.scan-status-success .scan-status-icon {
+    background: rgba(5, 150, 105, 0.14);
+    color: #047857;
+}
+
+.scan-status-warning {
+    border-color: rgba(217, 119, 6, 0.24);
+    background: linear-gradient(135deg, rgba(255, 251, 235, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.scan-status-warning .scan-status-icon {
+    background: rgba(217, 119, 6, 0.14);
+    color: #b45309;
+}
+
+.scan-status-error {
+    border-color: rgba(220, 38, 38, 0.2);
+    background: linear-gradient(135deg, rgba(254, 242, 242, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.scan-status-error .scan-status-icon {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+}
+
+.billing-search-tip {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--billing-text-secondary);
+}
+
+.billing-search-tip i {
+    color: var(--billing-blue);
+}
+
 .quantity-field {
     width: 76px;
     flex: 0 0 76px;
@@ -722,7 +824,7 @@
 
 .billing-console-grid {
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     align-content: start;
 }
@@ -746,6 +848,213 @@
 
 .customer-fields {
     grid-template-columns: 1fr;
+}
+
+.customer-history-card {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(47, 116, 218, 0.14);
+    background: linear-gradient(135deg, rgba(47, 116, 218, 0.05) 0%, rgba(242, 140, 40, 0.05) 100%);
+}
+
+.customer-history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.customer-history-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--billing-text);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.customer-history-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(47, 116, 218, 0.1);
+    color: #1d4ed8;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.customer-history-copy strong {
+    display: block;
+    font-size: 13px;
+    color: var(--billing-text);
+    margin-bottom: 4px;
+}
+
+.customer-history-copy p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--billing-text-secondary);
+}
+
+.customer-history-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.customer-history-chip {
+    display: grid;
+    gap: 4px;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.52);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.customer-history-chip span,
+.customer-history-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--billing-text-muted);
+}
+
+.customer-history-chip strong {
+    font-size: 13px;
+    color: var(--billing-text);
+}
+
+.customer-history-section {
+    margin-top: 12px;
+}
+
+.customer-history-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.customer-history-tags span {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--billing-text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.customer-history-sales {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.customer-history-sale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.customer-history-sale strong {
+    display: block;
+    font-size: 11px;
+    color: var(--billing-text);
+}
+
+.customer-history-sale span {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--billing-text-secondary);
+}
+
+.prescription-section {
+    margin-top: 0;
+}
+
+.payment-section {
+    grid-column: 1 / -1;
+}
+
+.prescription-banner {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(37, 99, 235, 0.12);
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(16, 185, 129, 0.04) 100%);
+}
+
+.prescription-banner-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    flex: 0 0 auto;
+}
+
+.prescription-banner-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.prescription-banner-copy strong {
+    font-size: 12px;
+    color: var(--billing-text);
+}
+
+.prescription-banner-copy p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--billing-text-secondary);
+}
+
+.prescription-fields {
+    gap: 12px;
+}
+
+.field-group-checkbox {
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px dashed rgba(37, 99, 235, 0.22);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+.field-label-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--billing-text);
+    cursor: pointer;
+}
+
+.field-label-checkbox input {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
 }
 
 .discount-row,
@@ -858,11 +1167,11 @@
     background: var(--billing-monitor-bg);
     color: var(--billing-monitor-text);
     position: sticky;
-    top: 86px;
+    top: 0;
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-height: calc(100vh - 108px);
+    max-height: calc(100vh - 24px);
     box-shadow: 0 24px 50px rgba(15, 23, 42, 0.12);
 }
 
@@ -1393,6 +1702,13 @@
         min-height: auto;
     }
 
+    .billing-stage-left {
+        position: static;
+        top: auto;
+        height: auto;
+        overflow: visible;
+    }
+
     .invoice-shell {
         position: static;
         top: auto;
@@ -1551,4 +1867,28 @@
 :root[data-theme="dark"] .search-results-dropdown .suggestion-item:hover,
 :root[data-theme="dark"] .search-results-dropdown .suggestion-item.active {
     background: linear-gradient(90deg, rgba(47, 116, 218, 0.12), transparent 56%);
+}
+
+:root[data-theme="dark"] .billing-pill-rx {
+    background: rgba(59, 130, 246, 0.16);
+    border-color: rgba(96, 165, 250, 0.26);
+    color: #bfdbfe;
+}
+
+:root[data-theme="dark"] .prescription-banner {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, rgba(16, 185, 129, 0.08) 100%);
+    border-color: rgba(96, 165, 250, 0.2);
+}
+
+:root[data-theme="dark"] .prescription-banner-icon,
+:root[data-theme="dark"] .field-group-checkbox {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(96, 165, 250, 0.22);
+}
+
+:root[data-theme="dark"] .customer-history-card,
+:root[data-theme="dark"] .customer-history-chip,
+:root[data-theme="dark"] .customer-history-sale {
+    background: linear-gradient(180deg, rgba(17, 27, 44, 0.94) 0%, rgba(23, 34, 53, 0.96) 100%);
+    border-color: rgba(148, 163, 184, 0.18);
 }

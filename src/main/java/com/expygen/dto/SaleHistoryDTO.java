@@ -19,6 +19,11 @@ public class SaleHistoryDTO {
     private BigDecimal totalAmount;
     private String customerName;
     private String customerPhone;
+    private String doctorName;
+    private LocalDate prescriptionDate;
+    private String prescriptionReference;
+    private boolean prescriptionRequired;
+    private boolean prescriptionVerified;
     private String cashierName;
     private String status;
     private boolean batchManaged;
