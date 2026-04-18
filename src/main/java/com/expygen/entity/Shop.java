@@ -21,9 +21,6 @@ public class Shop {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private String panNumber;
-
     private String gstNumber;
 
     private String address;

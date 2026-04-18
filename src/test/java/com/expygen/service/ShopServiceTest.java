@@ -37,7 +37,6 @@ class ShopServiceTest {
         Shop shop = Shop.builder()
                 .id(8L)
                 .name("My Shop")
-                .panNumber("ABCDE1234F")
                 .city("Lucknow")
                 .state("UP")
                 .planType(PlanType.BASIC)

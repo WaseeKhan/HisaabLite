@@ -7,14 +7,20 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.expygen.admin.service.AuditService;
 import com.expygen.entity.Sale;
 import com.expygen.entity.Shop;
 import com.expygen.entity.StockAdjustment;
 import com.expygen.entity.User;
 import com.expygen.insights.dto.CurrentStockRowDto;
+import com.expygen.insights.dto.DeadStockRowDto;
+import com.expygen.insights.dto.ExpiryLossRowDto;
 import com.expygen.insights.dto.InsightsSummaryCardDto;
 import com.expygen.insights.dto.NearExpiryRowDto;
 import com.expygen.insights.dto.PaymentModeSummaryDto;
@@ -23,7 +29,12 @@ import com.expygen.insights.dto.SalesSummaryPageDto;
 import com.expygen.insights.dto.StockAdjustmentRowDto;
 import com.expygen.insights.dto.ActivityAuditRowDto;
 import com.expygen.insights.service.AuditInsightsService;
+import com.expygen.insights.service.DataImportService;
+import com.expygen.insights.service.DeadStockInsightsService;
+import com.expygen.insights.service.ExpiryLossInsightsService;
+import com.expygen.insights.service.FastSlowMovementInsightsService;
 import com.expygen.insights.service.InventoryInsightsService;
+import com.expygen.insights.service.ProfitInsightsService;
 import com.expygen.insights.service.PurchaseInsightsService;
 import com.expygen.insights.service.SalesInsightsService;
 import com.expygen.repository.UserRepository;
@@ -48,7 +59,13 @@ public class InsightsController {
     private final SalesInsightsService salesInsightsService;
     private final PurchaseInsightsService purchaseInsightsService;
     private final InventoryInsightsService inventoryInsightsService;
+    private final DeadStockInsightsService deadStockInsightsService;
+    private final ExpiryLossInsightsService expiryLossInsightsService;
+    private final FastSlowMovementInsightsService fastSlowMovementInsightsService;
+    private final ProfitInsightsService profitInsightsService;
     private final AuditInsightsService auditInsightsService;
+    private final DataImportService dataImportService;
+    private final AuditService auditService;
     private final StockAdjustmentRepository stockAdjustmentRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
@@ -92,6 +109,150 @@ public class InsightsController {
         model.addAttribute("paginationBasePath", "/insights/sales/summary");
 
         return "insights/sales-summary";
+    }
+
+    @GetMapping("/business/profit-margin")
+    public String profitMargin(@RequestParam(required = false) LocalDate fromDate,
+                               @RequestParam(required = false) LocalDate toDate,
+                               @RequestParam(required = false) String keyword,
+                               @RequestParam(required = false) String manufacturer,
+                               @RequestParam(defaultValue = "1") int page,
+                               Model model,
+                               Principal principal) {
+        Shop currentShop = currentShop(principal);
+        var report = profitInsightsService.buildReport(currentShop, fromDate, toDate, keyword, manufacturer);
+
+        model.addAttribute("kpis", report.getKpis());
+        model.addAttribute("manufacturerProfitSplit", report.getManufacturerProfitSplit());
+        model.addAttribute("topProfitProducts", report.getTopProfitProducts());
+        model.addAttribute("rows", paginate(report.getRows(), page, model));
+        model.addAttribute("pageTitle", "Profit & Margin");
+        model.addAttribute("activeMenu", "insights");
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("manufacturer", manufacturer);
+        model.addAttribute("paginationBasePath", "/insights/business/profit-margin");
+        return "insights/profit-margin";
+    }
+
+    @GetMapping("/inventory/dead-stock")
+    public String deadStock(@RequestParam(required = false) Integer inactivityDays,
+                            @RequestParam(required = false) String keyword,
+                            @RequestParam(required = false) String manufacturer,
+                            @RequestParam(defaultValue = "1") int page,
+                            Model model,
+                            Principal principal) {
+        Shop currentShop = currentShop(principal);
+        var report = deadStockInsightsService.buildReport(currentShop, inactivityDays, keyword, manufacturer);
+
+        model.addAttribute("kpis", report.getKpis());
+        model.addAttribute("manufacturerSplit", report.getManufacturerSplit());
+        model.addAttribute("stockAgeSplit", report.getStockAgeSplit());
+        model.addAttribute("rows", paginate(report.getRows(), page, model));
+        model.addAttribute("pageTitle", "Dead Stock");
+        model.addAttribute("activeMenu", "insights");
+        model.addAttribute("inactivityDays", inactivityDays == null || inactivityDays <= 0 ? 90 : inactivityDays);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("manufacturer", manufacturer);
+        model.addAttribute("paginationBasePath", "/insights/inventory/dead-stock");
+        return "insights/dead-stock";
+    }
+
+    @GetMapping(value = "/inventory/dead-stock/export", produces = "text/csv")
+    public ResponseEntity<String> exportDeadStock(@RequestParam(required = false) Integer inactivityDays,
+                                                  @RequestParam(required = false) String keyword,
+                                                  @RequestParam(required = false) String manufacturer,
+                                                  Principal principal) {
+        Shop currentShop = currentShop(principal);
+        List<DeadStockRowDto> rows = deadStockInsightsService.buildReport(currentShop, inactivityDays, keyword, manufacturer).getRows();
+        return csvResponse("insights-dead-stock.csv",
+                "Product,Manufacturer,Barcode,Current Stock,Purchase Price,Sale Price,Stock Value,Last Sold At,Days Since Last Sale,Status\n" +
+                        rows.stream().map(row -> csvRow(
+                                row.getProductName(),
+                                row.getManufacturer(),
+                                row.getBarcode(),
+                                row.getCurrentStock(),
+                                row.getPurchasePrice(),
+                                row.getSalePrice(),
+                                row.getStockValue(),
+                                formatDateTime(row.getLastSoldAt()),
+                                row.getDaysSinceLastSale(),
+                                row.getStatus())).reduce("", String::concat));
+    }
+
+    @GetMapping(value = "/business/profit-margin/export", produces = "text/csv")
+    public ResponseEntity<String> exportProfitMargin(@RequestParam(required = false) LocalDate fromDate,
+                                                     @RequestParam(required = false) LocalDate toDate,
+                                                     @RequestParam(required = false) String keyword,
+                                                     @RequestParam(required = false) String manufacturer,
+                                                     Principal principal) {
+        Shop currentShop = currentShop(principal);
+        var rows = profitInsightsService.buildReport(currentShop, fromDate, toDate, keyword, manufacturer).getRows();
+        return csvResponse("insights-profit-margin.csv",
+                "Product,Manufacturer,Quantity Sold,Revenue,Estimated Cost,Gross Profit,Margin %,Last Sold At\n" +
+                        rows.stream().map(row -> csvRow(
+                                row.getProductName(),
+                                row.getManufacturer(),
+                                row.getQuantitySold(),
+                                row.getRevenue(),
+                                row.getEstimatedCost(),
+                                row.getGrossProfit(),
+                                row.getMarginPercent(),
+                                formatDateTime(row.getLastSoldAt()))).reduce("", String::concat));
+    }
+
+    @GetMapping("/business/fast-slow-moving")
+    public String fastSlowMoving(@RequestParam(required = false) LocalDate fromDate,
+                                 @RequestParam(required = false) LocalDate toDate,
+                                 @RequestParam(required = false) String movementStatus,
+                                 @RequestParam(required = false) String keyword,
+                                 @RequestParam(required = false) String manufacturer,
+                                 @RequestParam(defaultValue = "1") int page,
+                                 Model model,
+                                 Principal principal) {
+        Shop currentShop = currentShop(principal);
+        var report = fastSlowMovementInsightsService.buildReport(currentShop, fromDate, toDate, movementStatus, keyword, manufacturer);
+
+        model.addAttribute("kpis", report.getKpis());
+        model.addAttribute("movementStatusSplit", report.getMovementStatusSplit());
+        model.addAttribute("manufacturerUnitsSplit", report.getManufacturerUnitsSplit());
+        model.addAttribute("topMovers", report.getTopMovers());
+        model.addAttribute("rows", paginate(report.getRows(), page, model));
+        model.addAttribute("pageTitle", "Fast / Slow Moving");
+        model.addAttribute("activeMenu", "insights");
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        model.addAttribute("movementStatus", movementStatus == null || movementStatus.isBlank() ? "ALL" : movementStatus);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("manufacturer", manufacturer);
+        model.addAttribute("paginationBasePath", "/insights/business/fast-slow-moving");
+        return "insights/fast-slow-moving";
+    }
+
+    @GetMapping(value = "/business/fast-slow-moving/export", produces = "text/csv")
+    public ResponseEntity<String> exportFastSlowMoving(@RequestParam(required = false) LocalDate fromDate,
+                                                       @RequestParam(required = false) LocalDate toDate,
+                                                       @RequestParam(required = false) String movementStatus,
+                                                       @RequestParam(required = false) String keyword,
+                                                       @RequestParam(required = false) String manufacturer,
+                                                       Principal principal) {
+        Shop currentShop = currentShop(principal);
+        var rows = fastSlowMovementInsightsService.buildReport(currentShop, fromDate, toDate, movementStatus, keyword, manufacturer).getRows();
+        return csvResponse("insights-fast-slow-moving.csv",
+                "Product,Manufacturer,Barcode,Current Stock,Units Sold,Invoice Count,Revenue,Avg Daily Units,Last Sold At,Stock Cover Days,Movement Status\n" +
+                        rows.stream().map(row -> csvRow(
+                                row.getProductName(),
+                                row.getManufacturer(),
+                                row.getBarcode(),
+                                row.getCurrentStock(),
+                                row.getUnitsSold(),
+                                row.getInvoiceCount(),
+                                row.getRevenue(),
+                                row.getAvgDailyUnits(),
+                                formatDateTime(row.getLastSoldAt()),
+                                row.getStockCoverDays(),
+                                row.getMovementStatus())).reduce("", String::concat));
     }
 
     @GetMapping("/sales/invoices")
@@ -290,6 +451,54 @@ public class InsightsController {
                                 row.getDaysLeft(),
                                 row.getMrp(),
                                 row.getStockValue(),
+                        row.getStatus())).reduce("", String::concat));
+    }
+
+    @GetMapping("/inventory/expiry-loss")
+    public String expiryLoss(@RequestParam(required = false) String expiryBucket,
+                             @RequestParam(required = false) String manufacturer,
+                             @RequestParam(required = false) String keyword,
+                             @RequestParam(defaultValue = "1") int page,
+                             Model model,
+                             Principal principal) {
+        Shop currentShop = currentShop(principal);
+        String effectiveBucket = (expiryBucket == null || expiryBucket.isBlank()) ? "90" : expiryBucket;
+        var report = expiryLossInsightsService.buildReport(currentShop, effectiveBucket, keyword, manufacturer);
+        model.addAttribute("kpis", report.getKpis());
+        model.addAttribute("bucketValueSplit", report.getBucketValueSplit());
+        model.addAttribute("manufacturerLossSplit", report.getManufacturerLossSplit());
+        model.addAttribute("rows", paginate(report.getRows(), page, model));
+        model.addAttribute("pageTitle", "Expiry Loss");
+        model.addAttribute("activeMenu", "insights");
+        model.addAttribute("expiryBucket", effectiveBucket);
+        model.addAttribute("manufacturer", manufacturer);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("paginationBasePath", "/insights/inventory/expiry-loss");
+        return "insights/expiry-loss";
+    }
+
+    @GetMapping(value = "/inventory/expiry-loss/export", produces = "text/csv")
+    public ResponseEntity<String> exportExpiryLoss(@RequestParam(required = false) String expiryBucket,
+                                                   @RequestParam(required = false) String manufacturer,
+                                                   @RequestParam(required = false) String keyword,
+                                                   Principal principal) {
+        Shop currentShop = currentShop(principal);
+        String effectiveBucket = (expiryBucket == null || expiryBucket.isBlank()) ? "90" : expiryBucket;
+        List<ExpiryLossRowDto> rows = expiryLossInsightsService.buildReport(currentShop, effectiveBucket, keyword, manufacturer).getRows();
+        return csvResponse("insights-expiry-loss.csv",
+                "Product,Batch No,Manufacturer,Available Qty,Expiry Date,Days From Today,Purchase Price,MRP,Sale Price,Estimated Cost Loss,Retail Value At Risk,Status\n" +
+                        rows.stream().map(row -> csvRow(
+                                row.getProductName(),
+                                row.getBatchNumber(),
+                                row.getManufacturer(),
+                                row.getAvailableQty(),
+                                row.getExpiryDate(),
+                                row.getDaysFromToday(),
+                                row.getPurchasePrice(),
+                                row.getMrp(),
+                                row.getSalePrice(),
+                                row.getEstimatedCostLoss(),
+                                row.getRetailValueAtRisk(),
                                 row.getStatus())).reduce("", String::concat));
     }
 
@@ -384,6 +593,172 @@ public class InsightsController {
         model.addAttribute("manufacturer", manufacturer);
         model.addAttribute("paginationBasePath", "/insights/inventory/barcodes");
         return "insights/barcode-desk";
+    }
+
+    @GetMapping("/setup/data-import")
+    public String dataImportDesk(Model model, Principal principal) {
+        Shop currentShop = currentShop(principal);
+        long activeProducts = productRepository.countByShopAndActiveTrue(currentShop);
+
+        model.addAttribute("pageTitle", "Data Import Desk");
+        model.addAttribute("activeMenu", "insights");
+        model.addAttribute("kpis", List.of(
+                new InsightsSummaryCardDto("Products Live", String.valueOf(activeProducts), "Current active medicines ready for import comparison"),
+                new InsightsSummaryCardDto("CSV Template", "1", "Starter template for product master import"),
+                new InsightsSummaryCardDto("Flow Ready", "Product Import", "Opening stock and supplier lanes are staged next in this workspace"),
+                new InsightsSummaryCardDto("Recommended Batch", "Up to 500", "Best import size per run for clean validation and rollback comfort")
+        ));
+        return "insights/data-import-desk";
+    }
+
+    @GetMapping(value = "/setup/data-import/products/template", produces = "text/csv")
+    public ResponseEntity<String> downloadProductImportTemplate() {
+        return csvResponse("expygen-product-import-template.csv", dataImportService.buildProductTemplateCsv());
+    }
+
+    @GetMapping(value = "/setup/data-import/opening-stock/template", produces = "text/csv")
+    public ResponseEntity<String> downloadOpeningStockImportTemplate() {
+        return csvResponse("expygen-opening-stock-import-template.csv", dataImportService.buildOpeningStockTemplateCsv());
+    }
+
+    @GetMapping(value = "/setup/data-import/suppliers/template", produces = "text/csv")
+    public ResponseEntity<String> downloadSupplierImportTemplate() {
+        return csvResponse("expygen-supplier-import-template.csv", dataImportService.buildSupplierTemplateCsv());
+    }
+
+    @PostMapping("/setup/data-import/products")
+    public String importProductsFromCsv(@RequestParam("file") MultipartFile file,
+                                        RedirectAttributes redirectAttributes,
+                                        Principal principal) {
+        User currentUser = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Shop currentShop = currentUser.getShop();
+
+        try {
+            var result = dataImportService.importProducts(currentShop, file);
+            redirectAttributes.addFlashAttribute("productImportResult", result);
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Product import completed: " + result.getImportedCount() + " imported, "
+                            + result.getSkippedCount() + " skipped, "
+                            + result.getFailedCount() + " failed.");
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentShop,
+                    "PRODUCT_IMPORT_RUN",
+                    "ProductImport",
+                    null,
+                    "SUCCESS",
+                    null,
+                    result,
+                    "CSV product import completed from Insights Data Import Desk");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("importError", ex.getMessage());
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentShop,
+                    "PRODUCT_IMPORT_RUN",
+                    "ProductImport",
+                    null,
+                    "FAILED",
+                    null,
+                    null,
+                    ex.getMessage());
+        }
+
+        return "redirect:/insights/setup/data-import";
+    }
+
+    @PostMapping("/setup/data-import/opening-stock")
+    public String importOpeningStockFromCsv(@RequestParam("file") MultipartFile file,
+                                            RedirectAttributes redirectAttributes,
+                                            Principal principal) {
+        User currentUser = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Shop currentShop = currentUser.getShop();
+
+        try {
+            var result = dataImportService.importOpeningStock(currentShop, currentUser, file);
+            redirectAttributes.addFlashAttribute("openingStockImportResult", result);
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Opening stock import completed: " + result.getImportedCount() + " imported, "
+                            + result.getSkippedCount() + " skipped, "
+                            + result.getFailedCount() + " failed.");
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentShop,
+                    "OPENING_STOCK_IMPORT_RUN",
+                    "OpeningStockImport",
+                    null,
+                    "SUCCESS",
+                    null,
+                    result,
+                    "CSV opening stock import completed from Insights Data Import Desk");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("importError", ex.getMessage());
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentShop,
+                    "OPENING_STOCK_IMPORT_RUN",
+                    "OpeningStockImport",
+                    null,
+                    "FAILED",
+                    null,
+                    null,
+                    ex.getMessage());
+        }
+
+        return "redirect:/insights/setup/data-import";
+    }
+
+    @PostMapping("/setup/data-import/suppliers")
+    public String importSuppliersFromCsv(@RequestParam("file") MultipartFile file,
+                                         RedirectAttributes redirectAttributes,
+                                         Principal principal) {
+        User currentUser = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Shop currentShop = currentUser.getShop();
+
+        try {
+            var result = dataImportService.importSuppliers(currentShop, file);
+            redirectAttributes.addFlashAttribute("supplierImportResult", result);
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Supplier import completed: " + result.getImportedCount() + " imported, "
+                            + result.getSkippedCount() + " skipped, "
+                            + result.getFailedCount() + " failed.");
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentShop,
+                    "SUPPLIER_IMPORT_RUN",
+                    "SupplierImport",
+                    null,
+                    "SUCCESS",
+                    null,
+                    result,
+                    "CSV supplier import completed from Insights Data Import Desk");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("importError", ex.getMessage());
+            auditService.logAction(
+                    currentUser.getUsername(),
+                    currentUser.getRole().name(),
+                    currentShop,
+                    "SUPPLIER_IMPORT_RUN",
+                    "SupplierImport",
+                    null,
+                    "FAILED",
+                    null,
+                    null,
+                    ex.getMessage());
+        }
+
+        return "redirect:/insights/setup/data-import";
     }
 
     @GetMapping(value = "/inventory/stock-adjustments/export", produces = "text/csv")

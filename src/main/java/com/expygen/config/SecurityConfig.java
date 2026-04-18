@@ -21,8 +21,12 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import com.expygen.controller.CustomAuthFailureHandler;
+import com.expygen.entity.User;
+import com.expygen.repository.UserRepository;
 import com.expygen.security.CustomUserDetailsService;
 import com.expygen.security.AuthAuditHelper;
+import com.expygen.service.WorkspaceAccessService;
+import com.expygen.service.WorkspaceAccessState;
 
 import java.io.IOException;
 
@@ -33,6 +37,8 @@ public class SecurityConfig {
         private final CustomUserDetailsService userDetailsService;
         private final CustomAuthFailureHandler failureHandler;
         private final AuthAuditHelper authAuditHelper;
+        private final UserRepository userRepository;
+        private final WorkspaceAccessService workspaceAccessService;
         @Value("${app.security.enforce-single-session:true}")
         private boolean enforceSingleSession;
 
@@ -61,6 +67,7 @@ public class SecurityConfig {
                                 .requestMatchers("/manager/**").hasAnyRole("OWNER", "MANAGER")
                                 .requestMatchers("/cashier/**").hasAnyRole("OWNER", "CASHIER")
                                 .requestMatchers("/dashboard").hasAnyRole("OWNER", "MANAGER", "CASHIER")
+                                .requestMatchers("/workspace-status").authenticated()
                                 .requestMatchers("/sales/**").hasAnyRole("OWNER", "MANAGER", "CASHIER")
                                 .requestMatchers("/products/**").hasAnyRole("OWNER", "MANAGER")
                                 .requestMatchers("/purchases/**").hasAnyRole("OWNER", "MANAGER")
@@ -143,7 +150,15 @@ public class SecurityConfig {
                         sessionRegistry().registerNewSession(request.getSession().getId(), authentication.getPrincipal());
                         authAuditHelper.logLoginSuccess(authentication, request);
 
-                        response.sendRedirect("/dashboard");
+                        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+                        WorkspaceAccessState accessState = workspaceAccessService.getAccessState(user);
+
+                        if (accessState == WorkspaceAccessState.ACTIVE) {
+                                response.sendRedirect("/dashboard");
+                                return;
+                        }
+
+                        response.sendRedirect("/workspace-status");
                 };
         }
 

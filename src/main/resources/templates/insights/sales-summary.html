@@ -3,6 +3,7 @@
 
 <head>
     <title th:text="${pageTitle} + ' • Expygen'">Sales Summary • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
     <link rel="stylesheet" th:href="@{/css/insights/report.css}">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
@@ -346,6 +347,9 @@
     const topProductValues = [[${summary.topProducts.![amount]}]];
     window.__topProductsInitialized = true;
     initTopProductsChart(topProductLabels, topProductValues);
+
+    window.__billingPerformanceInitialized = true;
+    initBillingPerformanceChart([[${summary.kpis.invoiceCount}]], [[${summary.kpis.cancelledBills}]]);
 </script>
 
 </body>

@@ -62,7 +62,6 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(5L)
                 .name("Support Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .build();
@@ -102,7 +101,6 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(6L)
                 .name("Support Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.BASIC)
                 .active(true)
                 .build();
@@ -140,7 +138,6 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(6L)
                 .name("Support Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.BASIC)
                 .active(true)
                 .build();
@@ -180,7 +177,6 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(7L)
                 .name("Support Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .build();
@@ -219,7 +215,6 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(8L)
                 .name("Support Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.BASIC)
                 .active(true)
                 .build();

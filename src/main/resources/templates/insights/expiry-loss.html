@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Expiry Loss • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+            <div class="report-shell">
+
+                <div class="report-header">
+                    <div>
+                        <div class="report-badge">Loss Intelligence</div>
+                        <h1>Expiry Loss</h1>
+                        <p>
+                            Quantify how much inventory cost is already lost or likely to be lost because of expiry pressure across live batches.
+                        </p>
+                    </div>
+
+                    <div class="report-header-actions">
+                        <a class="table-action-btn"
+                           th:href="@{/insights/inventory/expiry-loss/export(expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})}">Export CSV</a>
+                        <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                    </div>
+                </div>
+
+                <form class="insights-filter-form insights-filter-command" th:action="@{/insights/inventory/expiry-loss}" method="get">
+                    <div class="filter-command-top">
+                        <div class="filter-command-title">
+                            <span class="filter-command-kicker">Loss Filter Console</span>
+                        </div>
+                        <strong class="filter-command-inline-note">Review expiry loss by bucket, manufacturer, and batch or product search.</strong>
+                    </div>
+                    <div class="filter-row filter-row-command filter-row-command-expiry">
+                        <div class="filter-group filter-group-compact">
+                            <label for="expiryBucket">Expiry Bucket</label>
+                            <select id="expiryBucket" name="expiryBucket">
+                                <option value="EXPIRED" th:selected="${expiryBucket == 'EXPIRED'}">Expired</option>
+                                <option value="30" th:selected="${expiryBucket == '30'}">Within 30 Days</option>
+                                <option value="60" th:selected="${expiryBucket == '60'}">Within 60 Days</option>
+                                <option value="90" th:selected="${expiryBucket == '90'}">Within 90 Days</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group filter-group-compact">
+                            <label for="manufacturer">Manufacturer</label>
+                            <input type="text" id="manufacturer" name="manufacturer" th:value="${manufacturer}" placeholder="Search manufacturer">
+                        </div>
+
+                        <div class="filter-group filter-group-search">
+                            <label for="keyword">Search</label>
+                            <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                                   placeholder="Search product, batch, barcode...">
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="filter-btn primary-btn">Apply</button>
+                            <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="report-action-strip">
+                    <a class="report-action-card" th:href="@{/insights/inventory/near-expiry}">
+                        <span class="report-action-icon"><i class="fas fa-hourglass-half"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Open Near Expiry</strong>
+                            <span>Move from money view to batch urgency view for faster operational decisions.</span>
+                        </span>
+                    </a>
+                    <a class="report-action-card" th:href="@{/purchases/returns}">
+                        <span class="report-action-icon"><i class="fas fa-rotate-left"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Open Purchase Returns</strong>
+                            <span>Start supplier return work from the batches creating the highest loss pressure.</span>
+                        </span>
+                    </a>
+                    <a class="report-action-card" th:href="@{/purchases/adjustments/new}">
+                        <span class="report-action-icon"><i class="fas fa-pencil-alt"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Open Stock Adjustment</strong>
+                            <span>Clear or correct expired inventory after physical confirmation.</span>
+                        </span>
+                    </a>
+                </div>
+
+                <div class="report-alert-strip">
+                    <div class="report-alert-card report-alert-card-danger">
+                        <span class="report-alert-icon"><i class="fas fa-skull-crossbones"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[0].value + ' batches already expired'}">Expired batches</strong>
+                            <span>These are no longer just risky. They are already loss exposure and need action.</span>
+                        </div>
+                    </div>
+                    <div class="report-alert-card report-alert-card-warning">
+                        <span class="report-alert-icon"><i class="fas fa-rupee-sign"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[3].value + ' estimated cost loss detected'}">Estimated cost loss</strong>
+                            <span>Use cost loss for owner decisions and retail value for pricing or clearance prioritization.</span>
+                        </div>
+                    </div>
+                    <div class="report-alert-card">
+                        <span class="report-alert-icon"><i class="fas fa-money-bill-wave"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[4].value + ' retail value still exposed'}">Retail value at risk</strong>
+                            <span>High retail value batches often deserve return, clearance, or front-counter push decisions.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-strip">
+                    <div th:each="card : ${kpis}" class="kpi-card">
+                        <span th:text="${card.label}">Expired Batches</span>
+                        <h3 th:text="${card.value}">0</h3>
+                        <small th:text="${card.description}">Description</small>
+                    </div>
+                </div>
+
+                <div class="analytics-grid analytics-grid-stock">
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3>Loss by Expiry Bucket</h3>
+                                <p>Estimated cost exposure split by expiry window</p>
+                            </div>
+                            <span class="analytics-chip">Loss Mix</span>
+                        </div>
+                        <div class="chart-box chart-box-md">
+                            <canvas id="expiryLossBucketChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3>Manufacturer Loss Split</h3>
+                                <p>Which manufacturers are contributing the highest expiry cost exposure</p>
+                            </div>
+                            <span class="analytics-chip analytics-chip-accent">Manufacturer Risk</span>
+                        </div>
+                        <div class="chart-box chart-box-md">
+                            <canvas id="expiryLossManufacturerChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-table-shell">
+                    <div class="report-table-header">
+                        <h3>Expiry Loss Detail</h3>
+                        <div class="report-table-actions">
+                            <a class="table-action-btn"
+                               th:href="@{/insights/inventory/expiry-loss/export(expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})}">Export CSV</a>
+                            <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                        </div>
+                    </div>
+
+                    <div class="report-table-wrapper">
+                        <table class="report-table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Batch No</th>
+                                <th>Manufacturer</th>
+                                <th>Available Qty</th>
+                                <th>Expiry Date</th>
+                                <th>Days From Today</th>
+                                <th>Purchase Price</th>
+                                <th>MRP</th>
+                                <th>Sale Price</th>
+                                <th>Estimated Cost Loss</th>
+                                <th>Retail Value At Risk</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                                <td colspan="13" style="text-align:center;">No expiry loss data found for this filter range.</td>
+                            </tr>
+                            <tr th:each="row, stat : ${rows}">
+                                <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                                <td><a class="report-drill-link" th:href="@{/products(keyword=${row.productName})}" th:text="${row.productName}">Amoxicillin 500</a></td>
+                                <td><a class="report-drill-link" th:href="@{/purchases/returns/new(batchId=${row.batchId})}" th:text="${row.batchNumber}">AMX-2401</a></td>
+                                <td th:text="${row.manufacturer}">MedLife Labs</td>
+                                <td th:text="${row.availableQty}">18</td>
+                                <td th:text="${row.expiryDate}">2026-04-18</td>
+                                <td th:text="${row.daysFromToday}">12</td>
+                                <td th:text="${row.purchasePrice != null && row.purchasePrice > 0 ? '₹' + row.purchasePrice : '—'}">₹80.00</td>
+                                <td th:text="${row.mrp != null && row.mrp > 0 ? '₹' + row.mrp : '—'}">₹92.00</td>
+                                <td th:text="${row.salePrice != null && row.salePrice > 0 ? '₹' + row.salePrice : '—'}">₹88.00</td>
+                                <td th:text="'₹' + ${row.estimatedCostLoss}">₹1,440.00</td>
+                                <td th:text="'₹' + ${row.retailValueAtRisk}">₹1,656.00</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="${row.status == 'Expired'} ? ' status-dark' : (${row.status == 'Within 30 Days'} ? ' status-danger' : (${row.status == 'Within 60 Days'} ? ' status-warning' : ' status-info'))"
+                                          th:text="${row.status}">Within 30 Days</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="report-pagination" th:if="${totalRows > pageSize}">
+                        <a class="pagination-btn"
+                           th:classappend="${!hasPreviousPage} ? ' disabled'"
+                           th:href="${hasPreviousPage} ? @{/insights/inventory/expiry-loss(page=${previousPage}, expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})} : '#'">Previous</a>
+                        <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                        <a class="pagination-btn"
+                           th:classappend="${!hasNextPage} ? ' disabled'"
+                           th:href="${hasNextPage} ? @{/insights/inventory/expiry-loss(page=${nextPage}, expiryBucket=${expiryBucket}, manufacturer=${manufacturer}, keyword=${keyword})} : '#'">Next</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        primary: ['#0f766e', '#0ea5e9', '#14b8a6', '#f59e0b', '#ef4444', '#6366f1'],
+        axis: '#6b7280',
+        grid: 'rgba(148, 163, 184, 0.16)'
+    };
+
+    function buildBarChart(canvasId, labels, values) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: chartPalette.primary,
+                    borderRadius: 12,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        ticks: { color: chartPalette.axis },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: chartPalette.axis },
+                        grid: { color: chartPalette.grid }
+                    }
+                }
+            }
+        });
+    }
+
+    buildBarChart(
+        'expiryLossBucketChart',
+        /*[[${bucketValueSplit.![label]}]]*/ [],
+        /*[[${bucketValueSplit.![amount]}]]*/ []
+    );
+
+    buildBarChart(
+        'expiryLossManufacturerChart',
+        /*[[${manufacturerLossSplit.![label]}]]*/ [],
+        /*[[${manufacturerLossSplit.![amount]}]]*/ []
+    );
+</script>
+</body>
+</html>

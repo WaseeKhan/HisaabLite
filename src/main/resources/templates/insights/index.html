@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="${pageTitle} + ' • Expygen'">Insights • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
     <link rel="stylesheet" th:href="@{/css/insights/report.css}">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -83,7 +84,7 @@
                     <span class="cockpit-panel-kicker">Flight Controls</span>
                     <h2>Operational decks</h2>
                 </div>
-                <span class="cockpit-panel-chip">8 modules</span>
+                    <span class="cockpit-panel-chip">12 modules</span>
             </div>
 
             <div class="cockpit-modules-grid">
@@ -119,6 +120,22 @@
                     </div>
                 </a>
 
+                <a class="cockpit-module-card" th:href="@{/insights/business/profit-margin}">
+                    <div class="cockpit-module-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Profit & Margin</h3>
+                        <p>Track revenue, estimated cost, gross profit, and margin by medicine.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/business/fast-slow-moving}">
+                    <div class="cockpit-module-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Fast / Slow Moving</h3>
+                        <p>See which medicines are moving fast, slowing down, or not moving at all.</p>
+                    </div>
+                </a>
+
                 <a class="cockpit-module-card" th:href="@{/insights/inventory/current-stock}">
                     <div class="cockpit-module-icon"><i class="fas fa-boxes-stacked"></i></div>
                     <div class="cockpit-module-copy">
@@ -135,6 +152,14 @@
                     </div>
                 </a>
 
+                <a class="cockpit-module-card" th:href="@{/insights/inventory/dead-stock}">
+                    <div class="cockpit-module-icon"><i class="fas fa-box-archive"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Dead Stock</h3>
+                        <p>Track products that are holding stock but not moving at the counter.</p>
+                    </div>
+                </a>
+
                 <a class="cockpit-module-card" th:href="@{/insights/inventory/stock-adjustments}">
                     <div class="cockpit-module-icon"><i class="fas fa-sliders-h"></i></div>
                     <div class="cockpit-module-copy">
@@ -148,6 +173,14 @@
                     <div class="cockpit-module-copy">
                         <h3>Audit Insights</h3>
                         <p>User accountability, module activity, and event tracking.</p>
+                    </div>
+                </a>
+
+                <a class="cockpit-module-card" th:href="@{/insights/setup/data-import}">
+                    <div class="cockpit-module-icon"><i class="fas fa-file-upload"></i></div>
+                    <div class="cockpit-module-copy">
+                        <h3>Data Import Desk</h3>
+                        <p>Move products into Expygen faster with CSV-based onboarding and guided validation.</p>
                     </div>
                 </a>
             </div>
@@ -198,8 +231,11 @@
                     <a th:href="@{/insights/purchases/summary}" class="quick-link-chip">Purchase Summary</a>
                     <a th:href="@{/insights/inventory/current-stock}" class="quick-link-chip">Current Stock</a>
                     <a th:href="@{/insights/inventory/near-expiry}" class="quick-link-chip">Near Expiry</a>
+                    <a th:href="@{/insights/inventory/dead-stock}" class="quick-link-chip">Dead Stock</a>
+                    <a th:href="@{/insights/business/fast-slow-moving}" class="quick-link-chip">Fast / Slow Moving</a>
                     <a th:href="@{/insights/inventory/stock-adjustments}" class="quick-link-chip">Stock Adjustments</a>
                     <a th:href="@{/insights/audit/activity}" class="quick-link-chip">Activity Audit</a>
+                    <a th:href="@{/insights/setup/data-import}" class="quick-link-chip">Data Import Desk</a>
                 </div>
             </div>
         </div>

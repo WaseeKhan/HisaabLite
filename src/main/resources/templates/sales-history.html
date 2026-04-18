@@ -3,7 +3,7 @@
 
 <head>
     <title>Sales History • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -326,11 +326,12 @@
                         <td>
                             <div class="sales-customer-summary">
                                 <div class="sales-customer-name"><i class="fas fa-user"></i> ${escapeHtml(sale.customerName || 'Walk-in')}</div>
-                                ${(sale.customerPhone || sale.doctorName || sale.prescriptionRequired) ? `
+                                ${(sale.customerPhone || sale.doctorName || sale.prescriptionRequired || sale.prescriptionDocumentPresent) ? `
                                     <div class="sales-customer-meta">
                                         ${sale.customerPhone ? `<span><i class="fas fa-phone"></i> ${escapeHtml(sale.customerPhone)}</span>` : ``}
                                         ${sale.doctorName ? `<span><i class="fas fa-user-doctor"></i> ${escapeHtml(sale.doctorName)}</span>` : ``}
                                         ${sale.prescriptionRequired ? `<span class="sales-rx-chip ${sale.prescriptionVerified ? 'is-verified' : 'is-pending'}"><i class="fas fa-file-medical"></i> ${sale.prescriptionVerified ? 'Rx verified' : 'Rx pending'}</span>` : ``}
+                                        ${sale.prescriptionDocumentPresent ? `<a href="/sales/invoice/${sale.id}/prescription" target="_blank" class="sales-rx-chip is-verified"><i class="fas fa-paperclip"></i> Rx file</a>` : ``}
                                     </div>
                                 ` : ``}
                             </div>

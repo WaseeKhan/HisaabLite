@@ -3,7 +3,7 @@
 
 <head>
     <title>Shop Profile • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -86,8 +86,6 @@
                                     th:text="${shop.name}">Shop Name</span></div>
                             <div class="info-row"><span class="info-label">Business ID</span><span
                                     class="info-value mono" th:text="${@appConfig.appShortCode} + ${shop.id}">RXA12345</span></div>
-                            <div class="info-row"><span class="info-label">PAN Number</span><span
-                                    class="info-value mono" th:text="${shop.panNumber}">ABCDE1234F</span></div>
                             <div class="info-row"><span class="info-label">GST Number</span><span class="info-value"
                                     th:text="${shop.gstNumber != null ? shop.gstNumber : '—'}">27ABCDE1234F1Z5</span>
                             </div>

@@ -101,7 +101,6 @@ class ShopPageIntegrationTest {
 
         Shop shop = shopRepository.save(Shop.builder()
                 .name("Integration Shop")
-                .panNumber("ABCDE1234F")
                 .gstNumber("29ABCDE1234F1Z5")
                 .address("Main Road")
                 .city("Bengaluru")
@@ -147,7 +146,6 @@ class ShopPageIntegrationTest {
 
         Shop otherShop = shopRepository.save(Shop.builder()
                 .name("Second Shop")
-                .panNumber("OTHER1234P")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .subscriptionStartDate(LocalDateTime.now().minusDays(5))

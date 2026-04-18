@@ -186,7 +186,6 @@ class ForgotPasswordControllerTest {
         Shop shop = Shop.builder()
                 .id(1L)
                 .name("Recovery Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .build();

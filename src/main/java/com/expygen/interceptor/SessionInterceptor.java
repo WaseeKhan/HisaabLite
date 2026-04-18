@@ -1,5 +1,8 @@
 package com.expygen.interceptor;
 
+import com.expygen.entity.User;
+import com.expygen.repository.UserRepository;
+import com.expygen.service.WorkspaceAccessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -21,39 +24,53 @@ public class SessionInterceptor implements HandlerInterceptor {
     @Autowired
     private SessionRegistry sessionRegistry;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private WorkspaceAccessService workspaceAccessService;
+
     @Value("${app.security.enforce-single-session:true}")
     private boolean enforceSingleSession;
     
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!enforceSingleSession) {
-            return true;
-        }
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication != null && authentication.isAuthenticated() 
             && !authentication.getPrincipal().equals("anonymousUser")) {
-            
-            String currentSessionId = request.getSession().getId();
-            Object principal = authentication.getPrincipal();
-            
-            java.util.List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
-            if (sessions.isEmpty()) {
-                return true;
+
+            User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+            if (user != null && !workspaceAccessService.canAccessWorkspace(user)) {
+                String path = request.getRequestURI();
+                if (!path.startsWith("/workspace-status")
+                        && !path.startsWith("/logout")
+                        && !path.startsWith("/subscription")
+                        && !path.startsWith("/upgrade")
+                        && !path.startsWith("/support")) {
+                    response.sendRedirect("/workspace-status");
+                    return false;
+                }
             }
             
-            boolean sessionValid = sessions.stream()
-                .anyMatch(s -> s.getSessionId().equals(currentSessionId) && !s.isExpired());
-            
-            if (!sessionValid) {
-                // Invalidate current session
-                request.getSession().invalidate();
-                SecurityContextHolder.clearContext();
-                
-                // Redirect to login with expired message
-                response.sendRedirect("/login?expired");
-                return false;
+            if (enforceSingleSession) {
+                String currentSessionId = request.getSession().getId();
+                Object principal = authentication.getPrincipal();
+
+                java.util.List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+                if (sessions.isEmpty()) {
+                    return true;
+                }
+
+                boolean sessionValid = sessions.stream()
+                    .anyMatch(s -> s.getSessionId().equals(currentSessionId) && !s.isExpired());
+
+                if (!sessionValid) {
+                    request.getSession().invalidate();
+                    SecurityContextHolder.clearContext();
+                    response.sendRedirect("/login?expired");
+                    return false;
+                }
             }
         }
         

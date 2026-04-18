@@ -38,10 +38,9 @@ public class HomeController {
     }
 
      // Contact Page
-    @GetMapping("/contact")
-    public String contact() {
-        return "contact"; // contact.html template
-    }
+    // moved to ContactController 
+
+
     
     // Careers Page
     @GetMapping("/careers")

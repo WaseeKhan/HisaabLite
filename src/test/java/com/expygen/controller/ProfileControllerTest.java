@@ -96,7 +96,6 @@ class ProfileControllerTest {
         return Shop.builder()
                 .id(11L)
                 .name("Reliable Store")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .createdAt(LocalDateTime.now().minusDays(30))

@@ -58,7 +58,6 @@ public class AdminInitializer implements CommandLineRunner {
                 .state("Maharashtra")
                 .pincode("400001")
                 .gstNumber("ADMIN00GST001")
-                .panNumber("ADMINPAN001")
                 .upiId("admin@expygen")
                 .planType(PlanType.ENTERPRISE)  
                 .createdAt(LocalDateTime.now())

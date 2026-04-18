@@ -103,7 +103,6 @@ class ExpiryAlertServiceTest {
     private Shop createShop(String suffix) {
         return shopRepository.save(Shop.builder()
                 .name("Expiry Shop " + suffix)
-                .panNumber("PAN" + suffix + "9988")
                 .city("Pune")
                 .state("MH")
                 .planType(PlanType.PREMIUM)

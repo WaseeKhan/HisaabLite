@@ -128,7 +128,6 @@ class PurchaseServiceTest {
     private Shop createShop(String suffix) {
         return shopRepository.save(Shop.builder()
                 .name("Purchase Shop " + suffix)
-                .panNumber("PAN" + suffix + "12345")
                 .city("Mumbai")
                 .state("MH")
                 .planType(PlanType.PREMIUM)

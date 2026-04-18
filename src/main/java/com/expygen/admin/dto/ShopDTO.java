@@ -15,7 +15,6 @@ public class ShopDTO {
     private String state;
     private String pincode;
     private String gstNumber;
-    private String panNumber;
     private String upiId;
     private String planType;
     private boolean active;

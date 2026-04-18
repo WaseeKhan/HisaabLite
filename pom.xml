@@ -28,6 +28,9 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<flyway.url>jdbc:mysql://localhost:3306/expygen?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=Asia/Kolkata</flyway.url>
+		<flyway.user>expygen</flyway.user>
+		<flyway.password>expygen123</flyway.password>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -154,6 +157,19 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>11.7.2</version>
+				<configuration>
+					<url>${flyway.url}</url>
+					<user>${flyway.user}</user>
+					<password>${flyway.password}</password>
+					<locations>
+						<location>classpath:db/migration</location>
+					</locations>
 				</configuration>
 			</plugin>
 		</plugins>

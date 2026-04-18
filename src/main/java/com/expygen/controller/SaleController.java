@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,7 @@ import com.expygen.repository.SaleRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.PdfService;
 import com.expygen.service.ProductService;
+import com.expygen.service.PrescriptionDocumentService;
 import com.expygen.service.SaleBatchTraceService;
 import com.expygen.service.SaleService;
 import com.expygen.service.WhatsAppService;
@@ -75,6 +77,7 @@ public class SaleController {
     private final WhatsAppService whatsAppService;
     private final PdfService pdfService;
     private final SaleBatchTraceService saleBatchTraceService;
+    private final PrescriptionDocumentService prescriptionDocumentService;
 
     private User getAuthenticatedUser(Authentication authentication) {
         return userRepository.findByUsername(authentication.getName())
@@ -241,6 +244,7 @@ public class SaleController {
             @RequestParam(required = false) LocalDate prescriptionDate,
             @RequestParam(required = false) String prescriptionReference,
             @RequestParam(defaultValue = "false") boolean prescriptionVerified,
+            @RequestParam(required = false) MultipartFile prescriptionDocument,
             @RequestParam(required = false) String paymentMode,
             @RequestParam(required = false) Double amountReceived,
             @RequestParam(required = false) Double changeReturned,
@@ -288,6 +292,16 @@ public class SaleController {
             return "redirect:/sales/new";
         }
 
+        if (prescriptionDocument != null && !prescriptionDocument.isEmpty()) {
+            try {
+                savedSale = prescriptionDocumentService.storeForSale(savedSale, prescriptionDocument);
+            } catch (RuntimeException ex) {
+                log.warn("Prescription document upload failed for sale {}: {}", savedSale.getId(), ex.getMessage());
+                redirectAttributes.addFlashAttribute("whatsappWarning",
+                        "Sale saved, but prescription file could not be uploaded.");
+            }
+        }
+
         if (sendWhatsApp && savedSale != null && savedSale.getCustomerPhone() != null
                 && !savedSale.getCustomerPhone().isEmpty()) {
             try {
@@ -304,8 +318,14 @@ public class SaleController {
         }
 
         String redirectUrl = "redirect:/sales/new?saved=true&invoiceId=" + savedSale.getId();
+
         if (savedSale.getCustomerPhone() != null && !savedSale.getCustomerPhone().isBlank()) {
             redirectUrl += "&phone=" + UriUtils.encode(savedSale.getCustomerPhone(), StandardCharsets.UTF_8);
+        }
+
+        if (savedSale.getCustomerName() != null && !savedSale.getCustomerName().isBlank()) {
+            redirectUrl += "&customerName="
+                    + UriUtils.encode(savedSale.getCustomerName().trim(), StandardCharsets.UTF_8);
         }
 
         return redirectUrl;
@@ -323,6 +343,32 @@ public class SaleController {
         model.addAttribute("batchTraceBySaleItemId", saleBatchTraceService.getBatchTraceBySaleItem(items));
 
         return "invoice";
+    }
+
+    @GetMapping("/invoice/{saleId}/prescription")
+    public ResponseEntity<Resource> viewPrescriptionDocument(@PathVariable Long saleId, Authentication authentication) {
+        Sale sale = getAuthorizedSale(saleId, authentication);
+
+        if (sale.getPrescriptionDocumentPath() == null || sale.getPrescriptionDocumentPath().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Prescription document not found");
+        }
+
+        Resource resource = prescriptionDocumentService.loadForSale(sale);
+        String contentType = sale.getPrescriptionDocumentContentType() != null
+                && !sale.getPrescriptionDocumentContentType().isBlank()
+                        ? sale.getPrescriptionDocumentContentType()
+                        : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline()
+                                .filename(
+                                        sale.getPrescriptionDocumentName() != null ? sale.getPrescriptionDocumentName()
+                                                : "prescription")
+                                .build()
+                                .toString())
+                .body(resource);
     }
 
     // ======Thermal Invoice =====//
@@ -510,6 +556,8 @@ public class SaleController {
                     .doctorName(sale.getDoctorName())
                     .prescriptionDate(sale.getPrescriptionDate())
                     .prescriptionReference(sale.getPrescriptionReference())
+                    .prescriptionDocumentPresent(
+                            sale.getPrescriptionDocumentPath() != null && !sale.getPrescriptionDocumentPath().isBlank())
                     .prescriptionRequired(sale.isPrescriptionRequired())
                     .prescriptionVerified(sale.isPrescriptionVerified())
                     .cashierName(sale.getCreatedBy() != null ? sale.getCreatedBy().getName() : "N/A")
@@ -599,7 +647,8 @@ public class SaleController {
         }
 
         Sale latestSale = recentSales.get(0);
-        Long visitCount = saleRepository.countByShopAndCustomerPhoneAndStatus(user.getShop(), normalizedPhone, SaleStatus.COMPLETED);
+        Long visitCount = saleRepository.countByShopAndCustomerPhoneAndStatus(user.getShop(), normalizedPhone,
+                SaleStatus.COMPLETED);
         Set<String> medicineNames = new LinkedHashSet<>();
         for (SaleItem item : saleItemRepository.findBySaleIn(recentSales)) {
             if (item.getProduct() != null && item.getProduct().getName() != null) {
@@ -615,7 +664,8 @@ public class SaleController {
                 .customerName(latestSale.getCustomerName())
                 .customerPhone(normalizedPhone)
                 .visitCount(visitCount != null ? visitCount : 0L)
-                .lifetimeSpend(saleRepository.getLifetimeSpendByCustomerPhoneAndStatus(user.getShop(), normalizedPhone, SaleStatus.COMPLETED))
+                .lifetimeSpend(saleRepository.getLifetimeSpendByCustomerPhoneAndStatus(user.getShop(), normalizedPhone,
+                        SaleStatus.COMPLETED))
                 .lastVisitDate(latestSale.getSaleDate())
                 .lastDoctorName(findLastDoctorName(recentSales))
                 .recentMedicines(new ArrayList<>(medicineNames))

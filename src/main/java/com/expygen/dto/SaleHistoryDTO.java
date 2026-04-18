@@ -22,6 +22,7 @@ public class SaleHistoryDTO {
     private String doctorName;
     private LocalDate prescriptionDate;
     private String prescriptionReference;
+    private boolean prescriptionDocumentPresent;
     private boolean prescriptionRequired;
     private boolean prescriptionVerified;
     private String cashierName;

@@ -456,7 +456,6 @@ class ProductControllerTest {
         return Shop.builder()
                 .id(1L)
                 .name("Core Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .build();

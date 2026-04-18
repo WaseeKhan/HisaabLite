@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
 
 
-<link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+<link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
 
 <style>
     body{
@@ -69,14 +69,36 @@
 <div class="card">
 
 
-<h2>Subscription Required</h2>
+<h2 th:text="${accessState == 'APPROVAL_PENDING'} ? 'Approval Pending' : (${accessState == 'SUBSCRIPTION_EXPIRED'} ? 'Subscription Expired' : (${accessState == 'SHOP_INACTIVE'} ? 'Workspace Inactive' : 'Workspace Access Required'))">Subscription Required</h2>
 
-<p>
-    Your <span th:text="${plan}"></span> plan is not active yet.
-    Please complete your subscription to continue using <b>Expygen</b>.
+<p th:if="${accessState == 'APPROVAL_PENDING'}">
+    Your email is verified and your <span th:text="${plan}"></span> plan workspace is waiting for approval.
+    Please complete the approval or payment confirmation process to continue using <b>Expygen</b>.
 </p>
 
-<a href="/pricing" class="btn">Choose a Plan</a>
+<p th:if="${accessState == 'SUBSCRIPTION_EXPIRED'}">
+    Your <span th:text="${plan}"></span> plan has expired.
+    Renew or upgrade your subscription to continue using <b>Expygen</b>.
+</p>
+
+<p th:if="${accessState == 'SHOP_INACTIVE'}">
+    This shop workspace is currently inactive.
+    Please contact Expygen support or your shop owner for help.
+</p>
+
+<p th:if="${accessState != 'APPROVAL_PENDING' and accessState != 'SUBSCRIPTION_EXPIRED' and accessState != 'SHOP_INACTIVE'}">
+    Your workspace is not ready for access yet.
+    Please complete the next required step to continue using <b>Expygen</b>.
+</p>
+
+<p th:if="${daysRemaining != null and accessState == 'SUBSCRIPTION_EXPIRED'}">
+    Subscription days remaining: <strong th:text="${daysRemaining}">0</strong>
+</p>
+
+<a th:if="${accessState == 'SUBSCRIPTION_EXPIRED'}" href="/upgrade" class="btn">Renew or Upgrade</a>
+<a th:if="${accessState == 'APPROVAL_PENDING'}" href="/upgrade" class="btn">Open Upgrade Desk</a>
+<a th:if="${accessState == 'SHOP_INACTIVE'}" href="/contact" class="btn">Contact Support</a>
+<a th:if="${accessState != 'APPROVAL_PENDING' and accessState != 'SUBSCRIPTION_EXPIRED' and accessState != 'SHOP_INACTIVE'}" href="/pricing" class="btn">Choose a Plan</a>
 
 <form th:action="@{/logout}" method="post" style="display:inline;">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">

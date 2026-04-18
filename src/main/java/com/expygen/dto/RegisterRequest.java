@@ -1,8 +1,11 @@
 package com.expygen.dto;
 
 import java.time.LocalDateTime;
-import com.expygen.entity.PlanType;
-import jakarta.validation.constraints.*;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -26,10 +29,6 @@ public class RegisterRequest {
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
 
-    @NotBlank(message = "PAN is required")
-    @Pattern(regexp = "^[A-Z]{5}[0-9]{4}[A-Z]{1}$", message = "Invalid PAN format")
-    private String panNumber;
-
     private String gstNumber;
     private String address;
     private String city;
@@ -37,10 +36,5 @@ public class RegisterRequest {
     private String pincode;
     private String upiId;
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @NotNull(message = "Please select a subscription plan")
-    private PlanType planType = PlanType.FREE; // Default to FREE
-
-  
 
 }

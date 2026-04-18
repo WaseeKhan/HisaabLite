@@ -27,10 +27,6 @@ public class AdminShopRequest {
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits")
     private String phone;
     
-    @NotBlank(message = "PAN is required")
-    @Pattern(regexp = "^[A-Z]{5}[0-9]{4}[A-Z]{1}$", message = "Invalid PAN format")
-    private String panNumber;
-    
     private String gstNumber;
     private String address;
     private String city;

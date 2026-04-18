@@ -38,8 +38,9 @@ public class RegistrationService {
 
     @Transactional(rollbackFor = Exception.class)
     public void registerShop(RegisterRequest request, String appUrl) {
+        PlanType registrationPlan = PlanType.FREE;
 
-        log.info("Starting registration for email: {} with plan: {}", request.getUsername(), request.getPlanType());
+        log.info("Starting registration for email: {} with auto trial plan: {}", request.getUsername(), registrationPlan);
 
         try {
             // Duplicate checks
@@ -47,17 +48,13 @@ public class RegistrationService {
                 throw new DuplicateResourceException("Email already registered");
             }
 
-            if (shopRepository.existsByPanNumber(request.getPanNumber())) {
-                throw new DuplicateResourceException("PAN already registered.");
-            }
-
             if (userRepository.existsByPhone(request.getPhone())) {
                 throw new DuplicateResourceException("Phone Number already registered.");
             }
 
             // Fetch plan details from database using the selected plan type
-            SubscriptionPlan selectedPlan = subscriptionPlanRepository.findByPlanName(request.getPlanType().name())
-                    .orElseThrow(() -> new RuntimeException("Selected plan not found in database: " + request.getPlanType()));
+            SubscriptionPlan selectedPlan = subscriptionPlanRepository.findByPlanName(registrationPlan.name())
+                    .orElseThrow(() -> new RuntimeException("Selected registration plan not found in database: " + registrationPlan));
 
             log.info("Fetched plan from DB: {} ({} days, ₹{}, Max Users: {}, Max Products: {})", 
                      selectedPlan.getPlanName(), 
@@ -75,12 +72,11 @@ public class RegistrationService {
             // Save shop with subscription details
             Shop shop = Shop.builder()
                     .name(request.getShopName())
-                    .panNumber(request.getPanNumber())
                     .address(request.getAddress())
                     .city(request.getCity())
                     .state(request.getState())
                     .staffLimit(selectedPlan.getMaxUsers() != -1 ? selectedPlan.getMaxUsers() : 5)
-                    .planType(request.getPlanType())
+                    .planType(registrationPlan)
                     .subscriptionStartDate(LocalDateTime.now())
                     .subscriptionEndDate(expiryDate)
                     .active(true)
@@ -100,11 +96,11 @@ public class RegistrationService {
                     .role(Role.OWNER)
                     .shop(shop)
                     .active(false) // Will be true after email verification
-                    .approved(request.getPlanType() == PlanType.FREE) // Auto-approve only FREE plans
-                    .currentPlan(request.getPlanType())
+                    .approved(true)
+                    .currentPlan(registrationPlan)
                     .subscriptionStartDate(LocalDateTime.now())
                     .subscriptionEndDate(expiryDate)
-                    .approvalDate(request.getPlanType() == PlanType.FREE ? LocalDateTime.now() : null)
+                    .approvalDate(LocalDateTime.now())
                     .createdAt(LocalDateTime.now())
                     .build();
 
@@ -126,20 +122,10 @@ public class RegistrationService {
             // Generate verification link
             String verifyLink = appUrl + "/verify?token=" + token;
             
-            // Send appropriate email based on plan type
-            if (request.getPlanType() == PlanType.FREE) {
-                // For FREE plan - send welcome email (auto-approved)
-                emailService.sendWelcomeEmail(owner, selectedPlan);
-                log.info("Welcome email sent to: {} (FREE plan - auto-approved)", owner.getUsername());
-            } else {
-                // For paid plans - send verification email
-                emailService.sendVerificationEmail(owner, verifyLink, selectedPlan);
-                log.info("Verification email sent to: {} ({} plan - pending approval)", 
-                         owner.getUsername(), selectedPlan.getPlanName());
-                
-                // Notify admin about pending approval (optional)
-                emailService.notifyAdminAboutPendingApproval(owner, selectedPlan);
-            }
+            emailService.sendVerificationEmail(owner, verifyLink, selectedPlan);
+
+            log.info("Verification email sent to: {} (free trial activates after verification + login)",
+                    owner.getUsername());
 
             log.info("Registration completed successfully for shop: {} with plan: {}", 
                      shop.getName(), selectedPlan.getPlanName());

@@ -118,49 +118,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const billingPerformanceCtx = document.getElementById('billingPerformanceChart');
-    if (billingPerformanceCtx) {
-        new Chart(billingPerformanceCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Completed', 'Cancelled'],
-                datasets: [
-                    {
-                        label: 'Bills',
-                        data: [144, 4],
-                        backgroundColor: [primaryBlue, accentOrange],
-                        borderRadius: 12,
-                        maxBarThickness: 52
-                    }
-                ]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: getChartThemePalette().textColor
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: getChartThemePalette().gridColor
-                        },
-                        ticks: {
-                            color: getChartThemePalette().axisColor
-                        }
-                    }
-                }
-            }
-        });
+    if (billingPerformanceCtx && !window.__billingPerformanceInitialized) {
+        initBillingPerformanceChart(144, 4);
     }
 });
 
@@ -264,6 +223,54 @@ function initTopProductsChart(labels, values) {
                 y: {
                     grid: { display: false },
                     ticks: { color: getChartThemePalette().textColor }
+                }
+            }
+        }
+    });
+}
+
+function initBillingPerformanceChart(completedCount, cancelledCount) {
+    const billingPerformanceCtx = document.getElementById('billingPerformanceChart');
+    if (!billingPerformanceCtx) return;
+
+    new Chart(billingPerformanceCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Completed', 'Cancelled'],
+            datasets: [
+                {
+                    label: 'Bills',
+                    data: [completedCount, cancelledCount],
+                    backgroundColor: [primaryBlue, accentOrange],
+                    borderRadius: 12,
+                    maxBarThickness: 52
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: getChartThemePalette().textColor
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: getChartThemePalette().gridColor
+                    },
+                    ticks: {
+                        color: getChartThemePalette().axisColor
+                    }
                 }
             }
         }

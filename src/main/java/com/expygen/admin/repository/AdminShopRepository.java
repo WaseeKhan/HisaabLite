@@ -23,10 +23,6 @@ public interface AdminShopRepository extends JpaRepository<Shop, Long> {
     long countByPlanType(PlanType planType);
     List<Shop> findByPlanType(PlanType planType);
     
-    // ===== PAN VALIDATION =====
-    boolean existsByPanNumber(String panNumber);
-    Optional<Shop> findByPanNumber(String panNumber);
-    
     // ===== GST VALIDATION =====
     boolean existsByGstNumber(String gstNumber);
     Optional<Shop> findByGstNumber(String gstNumber);

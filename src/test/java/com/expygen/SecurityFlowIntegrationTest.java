@@ -80,7 +80,6 @@ class SecurityFlowIntegrationTest {
 
         Shop shop = shopRepository.save(Shop.builder()
                 .name("Auth Test Shop")
-                .panNumber("AUTH1234P")
                 .planType(PlanType.PREMIUM)
                 .build());
 

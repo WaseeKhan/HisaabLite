@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Profit & Margin • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+            <div class="report-shell">
+                <div class="report-header">
+                    <div>
+                        <div class="report-badge">Business Insights</div>
+                        <h1>Profit & Margin</h1>
+                        <p>
+                            Understand how much money each medicine is actually making by comparing completed sales revenue with estimated cost from sold batches.
+                        </p>
+                    </div>
+
+                    <div class="report-header-actions">
+                        <a class="table-action-btn"
+                           th:href="@{/insights/business/profit-margin/export(fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword}, manufacturer=${manufacturer})}">Export CSV</a>
+                        <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                    </div>
+                </div>
+
+                <form class="insights-filter-form insights-filter-command" th:action="@{/insights/business/profit-margin}" method="get">
+                    <div class="filter-command-top">
+                        <div class="filter-command-title">
+                            <span class="filter-command-kicker">Filter Console</span>
+                        </div>
+                        <strong class="filter-command-inline-note">Refine margin insight by time range, medicine keyword, and manufacturer.</strong>
+                        <div class="quick-filter-row quick-filter-row-inline">
+                            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('today')">Today</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisWeek')">This Week</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('thisMonth')">This Month</button>
+                            <button type="button" class="quick-filter-chip" onclick="setQuickDateRange('lastMonth')">Last Month</button>
+                        </div>
+                    </div>
+                    <div class="filter-row filter-row-command filter-row-command-stock">
+                        <div class="filter-group filter-group-compact">
+                            <label for="fromDate">From</label>
+                            <input type="date" id="fromDate" name="fromDate" th:value="${fromDate}">
+                        </div>
+
+                        <div class="filter-group filter-group-compact">
+                            <label for="toDate">To</label>
+                            <input type="date" id="toDate" name="toDate" th:value="${toDate}">
+                        </div>
+
+                        <div class="filter-group filter-group-search">
+                            <label for="keyword">Search</label>
+                            <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                                   placeholder="Search medicine, barcode, or generic name...">
+                        </div>
+
+                        <div class="filter-group filter-group-compact">
+                            <label for="manufacturer">Manufacturer</label>
+                            <input type="text" id="manufacturer" name="manufacturer" th:value="${manufacturer}" placeholder="Search manufacturer">
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="filter-btn primary-btn">Apply</button>
+                            <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="report-action-strip">
+                    <a class="report-action-card" th:href="@{/sales/new}">
+                        <span class="report-action-icon"><i class="fas fa-cash-register"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Open Billing</strong>
+                            <span>Move back to the counter when you want to act on margin-driven price checks fast.</span>
+                        </span>
+                    </a>
+                    <a class="report-action-card" th:href="@{/insights/sales/summary}">
+                        <span class="report-action-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Sales Summary</strong>
+                            <span>Compare pure revenue movement with cost-aware margin visibility.</span>
+                        </span>
+                    </a>
+                    <a class="report-action-card" th:href="@{/insights/inventory/current-stock}">
+                        <span class="report-action-icon"><i class="fas fa-boxes-stacked"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Current Stock</strong>
+                            <span>Jump into inventory when a high-margin or low-margin product needs stock review.</span>
+                        </span>
+                    </a>
+                </div>
+
+                <div class="report-alert-strip">
+                    <div class="report-alert-card">
+                        <span class="report-alert-icon"><i class="fas fa-sack-dollar"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[2].value + ' gross profit tracked'}">Gross profit tracked</strong>
+                            <span>Profit is estimated using sold batch cost where available, with product purchase price fallback.</span>
+                        </div>
+                    </div>
+                    <div class="report-alert-card report-alert-card-warning">
+                        <span class="report-alert-icon"><i class="fas fa-percent"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[3].value + ' overall margin in range'}">0% overall margin</strong>
+                            <span>Use this signal to spot pricing issues before they hurt repeat billing.</span>
+                        </div>
+                    </div>
+                    <div class="report-alert-card">
+                        <span class="report-alert-icon"><i class="fas fa-capsules"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[4].value + ' products contributed'}">0 products contributed</strong>
+                            <span>Filter by manufacturer or medicine keyword to isolate profit pockets quickly.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-strip">
+                    <div th:each="card : ${kpis}" class="kpi-card">
+                        <span th:text="${card.label}">Revenue</span>
+                        <h3 th:text="${card.value}">₹0.00</h3>
+                        <small th:text="${card.description}">Description</small>
+                    </div>
+                </div>
+
+                <div class="analytics-grid analytics-grid-purchase">
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3>Top Profit Products</h3>
+                                <p>Products contributing the highest gross profit in the selected range</p>
+                            </div>
+                            <span class="analytics-chip">Profit Stack</span>
+                        </div>
+                        <div class="chart-box chart-box-md">
+                            <canvas id="profitProductsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3>Manufacturer Profit Split</h3>
+                                <p>Gross profit contribution grouped by manufacturer</p>
+                            </div>
+                            <span class="analytics-chip analytics-chip-accent">Brand Mix</span>
+                        </div>
+                        <div class="chart-box chart-box-md">
+                            <canvas id="manufacturerProfitChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-table-shell">
+                    <div class="report-table-header">
+                        <h3>Profit by Product</h3>
+                        <div class="report-table-actions">
+                            <a class="table-action-btn"
+                               th:href="@{/insights/business/profit-margin/export(fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword}, manufacturer=${manufacturer})}">Export CSV</a>
+                            <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                        </div>
+                    </div>
+
+                    <div class="report-table-wrapper">
+                        <table class="report-table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Manufacturer</th>
+                                <th>Units Sold</th>
+                                <th>Revenue</th>
+                                <th>Estimated Cost</th>
+                                <th>Gross Profit</th>
+                                <th>Margin %</th>
+                                <th>Last Sold</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                                <td colspan="9" style="text-align:center;">No profit data found for this filter range.</td>
+                            </tr>
+                            <tr th:each="row, stat : ${rows}">
+                                <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                                <td><a class="report-drill-link" th:href="@{/products(keyword=${row.productName})}" th:text="${row.productName}">Dolo 650</a></td>
+                                <td th:text="${row.manufacturer}">Micro Labs</td>
+                                <td th:text="${row.quantitySold}">20</td>
+                                <td th:text="'₹' + ${row.revenue}">₹640.00</td>
+                                <td th:text="'₹' + ${row.estimatedCost}">₹480.00</td>
+                                <td th:text="'₹' + ${row.grossProfit}">₹160.00</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="${row.marginPercent >= 25} ? ' status-success' : (${row.marginPercent >= 10} ? ' status-warning' : ' status-danger')"
+                                          th:text="${row.marginPercent + '%'}">25%</span>
+                                </td>
+                                <td th:text="${row.lastSoldAt != null ? #temporals.format(row.lastSoldAt, 'dd MMM yyyy hh:mm a') : '-'}">13 Apr 2026 03:15 PM</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="report-pagination" th:if="${totalRows > pageSize}">
+                        <a class="pagination-btn"
+                           th:classappend="${!hasPreviousPage} ? ' disabled'"
+                           th:href="${hasPreviousPage} ? @{/insights/business/profit-margin(page=${previousPage}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword}, manufacturer=${manufacturer})} : '#'">Previous</a>
+                        <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                        <a class="pagination-btn"
+                           th:classappend="${!hasNextPage} ? ' disabled'"
+                           th:href="${hasNextPage} ? @{/insights/business/profit-margin(page=${nextPage}, fromDate=${fromDate}, toDate=${toDate}, keyword=${keyword}, manufacturer=${manufacturer})} : '#'">Next</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        axisColor: '#667085',
+        gridColor: 'rgba(15, 23, 42, 0.08)',
+        tooltipBg: '#0f172a',
+        tooltipText: '#ffffff'
+    };
+
+    const topProfitProducts = /*[[${topProfitProducts}]]*/ [];
+    const manufacturerProfitSplit = /*[[${manufacturerProfitSplit}]]*/ [];
+
+    const profitProductsCtx = document.getElementById('profitProductsChart');
+    if (profitProductsCtx) {
+        new Chart(profitProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: topProfitProducts.map(entry => entry.productName),
+                datasets: [{
+                    label: 'Gross Profit',
+                    data: topProfitProducts.map(entry => entry.amount),
+                    backgroundColor: '#1f6feb',
+                    borderRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: chartPalette.axisColor },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: { color: chartPalette.axisColor },
+                        grid: { color: chartPalette.gridColor }
+                    }
+                }
+            }
+        });
+    }
+
+    const manufacturerProfitCtx = document.getElementById('manufacturerProfitChart');
+    if (manufacturerProfitCtx) {
+        new Chart(manufacturerProfitCtx, {
+            type: 'doughnut',
+            data: {
+                labels: manufacturerProfitSplit.map(entry => entry.paymentMode),
+                datasets: [{
+                    data: manufacturerProfitSplit.map(entry => entry.amount),
+                    backgroundColor: ['#1f6feb', '#f27a21', '#0f9d58', '#a855f7', '#ef4444', '#14b8a6']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: chartPalette.axisColor }
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -172,7 +172,6 @@ class InventoryControlServiceTest {
     private Shop createShop(String suffix) {
         return shopRepository.save(Shop.builder()
                 .name("Inventory Shop " + suffix)
-                .panNumber("PAN" + suffix + "12345")
                 .city("Mumbai")
                 .state("MH")
                 .planType(PlanType.PREMIUM)

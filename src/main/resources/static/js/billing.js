@@ -73,28 +73,39 @@ let lookupRequestSequence = 0;
 let customerHistoryTimer = null;
 let customerHistoryRequestSequence = 0;
 window.currentCart = [];
+window.lastSavedInvoiceId = null;
+window.lastSavedPhone = null;
 
 function persistLastInvoiceContext() {
     if (!window.sessionStorage) return;
+
     if (!lastSavedInvoiceId) {
         window.sessionStorage.removeItem(LAST_INVOICE_KEY);
     } else {
         window.sessionStorage.setItem(LAST_INVOICE_KEY, JSON.stringify({
             invoiceId: lastSavedInvoiceId,
-            phone: lastSavedPhone || null
+            phone: lastSavedPhone || null,
+            customerName: customerNameInput?.value?.trim() || "Walk-in"
         }));
     }
-    window.sessionStorage.setItem(LAST_INVOICES_KEY, JSON.stringify(recentInvoices.slice(0, 3)));
+
+    window.sessionStorage.setItem(
+        LAST_INVOICES_KEY,
+        JSON.stringify(recentInvoices.slice(0, 3))
+    );
 }
 
 function restoreLastInvoiceContext() {
     if (!window.sessionStorage) return;
+
     try {
         const recentRaw = window.sessionStorage.getItem(LAST_INVOICES_KEY);
         recentInvoices = recentRaw ? JSON.parse(recentRaw) : [];
+
         if (!Array.isArray(recentInvoices)) {
             recentInvoices = [];
         }
+
         if (!lastSavedInvoiceId && recentInvoices.length) {
             lastSavedInvoiceId = recentInvoices[0].invoiceId || null;
             lastSavedPhone = recentInvoices[0].phone || null;
@@ -103,13 +114,16 @@ function restoreLastInvoiceContext() {
         if (!lastSavedInvoiceId) {
             const raw = window.sessionStorage.getItem(LAST_INVOICE_KEY);
             if (!raw) return;
+
             const parsed = JSON.parse(raw);
             lastSavedInvoiceId = parsed.invoiceId || null;
             lastSavedPhone = parsed.phone || null;
+
             if (lastSavedInvoiceId) {
                 recentInvoices = [{
                     invoiceId: lastSavedInvoiceId,
-                    phone: lastSavedPhone || null
+                    phone: lastSavedPhone || null,
+                    customerName: parsed.customerName || "Walk-in"
                 }, ...recentInvoices.filter(item => item?.invoiceId !== lastSavedInvoiceId)].slice(0, 3);
             }
         }
@@ -119,7 +133,11 @@ function restoreLastInvoiceContext() {
     }
 }
 
+
 function refreshLastInvoiceBar() {
+    window.lastSavedInvoiceId = lastSavedInvoiceId;
+    window.lastSavedPhone = lastSavedPhone;
+
     if (!lastInvoiceBar || !lastInvoiceList || !recentInvoices.length) {
         if (lastInvoiceBar) {
             lastInvoiceBar.hidden = true;
@@ -128,33 +146,38 @@ function refreshLastInvoiceBar() {
     }
 
     lastInvoiceBar.hidden = false;
-    lastInvoiceList.innerHTML = recentInvoices.slice(0, 3).map((entry, index) => {
+
+    lastInvoiceList.innerHTML = recentInvoices.slice(0, 3).map((entry) => {
         const invoiceId = entry.invoiceId;
-        const phone = entry.phone || "";
+        const phone = entry.phone || "—";
+        const customerName = entry.customerName || "Walk-in";
         const invoiceUrl = getInvoiceViewUrl(invoiceId);
-        const hint = phone
-            ? `Phone ${escapeHtml(phone)}`
-            : "No phone saved";
+
         return `
-            <div class="last-invoice-item ${index === 0 ? 'is-latest' : ''}">
-                <div class="last-invoice-info">
-                    <div class="last-invoice-meta">
-                        <strong>Invoice_${invoiceId}</strong>
-                        <span>${hint}</span>
-                    </div>
+            <div class="latest-bill-row">
+                <div class="latest-bill-left">
+                    <span class="latest-bill-invoice">Invoice_${invoiceId}</span>
+                    <span class="latest-bill-separator">|</span>
+                    <span class="latest-bill-phone">${escapeHtml(phone)}</span>
+                    <span class="latest-bill-separator">|</span>
+                    <span class="latest-bill-customer">${escapeHtml(customerName)}</span>
                 </div>
-                <div class="last-invoice-actions">
-                    <a href="${invoiceUrl}" target="_blank" class="last-invoice-btn last-invoice-btn-secondary">
-                        <i class="fas fa-file-invoice"></i> View
+
+                <div class="latest-bill-actions">
+                    <a href="${invoiceUrl}" target="_blank" class="latest-bill-action" title="View">
+                        <i class="fas fa-eye"></i>
                     </a>
-                    <a href="/sales/invoice/${invoiceId}/thermal" target="_blank" class="last-invoice-btn last-invoice-btn-secondary">
-                        <i class="fas fa-receipt"></i> Thermal
+
+                    <a href="/sales/invoice/${invoiceId}/thermal" target="_blank" class="latest-bill-action" title="Thermal">
+                        <i class="fas fa-receipt"></i>
                     </a>
-                    <button type="button" class="last-invoice-btn last-invoice-btn-primary" data-print-invoice="${invoiceId}">
-                        <i class="fas fa-print"></i> Print
+
+                    <button type="button" class="latest-bill-action" data-print-invoice="${invoiceId}" title="Print">
+                        <i class="fas fa-print"></i>
                     </button>
-                    <button type="button" class="last-invoice-btn last-invoice-btn-success" data-whatsapp-invoice="${invoiceId}" ${phone ? "" : "disabled"}>
-                        <i class="fab fa-whatsapp"></i> WhatsApp
+
+                    <button type="button" class="latest-bill-action latest-bill-action-whatsapp" data-whatsapp-invoice="${invoiceId}" title="WhatsApp" ${entry.phone ? "" : "disabled"}>
+                        <i class="fab fa-whatsapp"></i>
                     </button>
                 </div>
             </div>
@@ -176,6 +199,7 @@ function refreshLastInvoiceBar() {
     if (invoiceBtn && lastSavedInvoiceId) {
         invoiceBtn.href = getInvoiceViewUrl(lastSavedInvoiceId);
     }
+
     if (whatsappInvoiceBtn) {
         whatsappInvoiceBtn.disabled = false;
     }
@@ -445,8 +469,8 @@ function scheduleCustomerHistoryLookup() {
 function refreshAddButton() {
     if (!addBtn) return;
     addBtn.innerHTML = entryMode === "scan"
-        ? '<i class="fas fa-barcode"></i> Scan Add'
-        : '<i class="fas fa-cart-plus"></i> Add';
+        ? '<i class="fas fa-barcode"></i>  ADD'
+        : '<i class="fas fa-search"></i>  ADD';
 }
 
 function updateModePresentation() {
@@ -873,34 +897,50 @@ window.updateCartUI = function updateCartUI(cart) {
         const gstAmount = basePrice * (gst / 100);
         const totalWithGst = basePrice + gstAmount;
         const gstClass = gst === 0 ? "gst-zero" : gst <= 5 ? "gst-low" : gst <= 12 ? "gst-medium" : "gst-high";
+        const metaBits = [];
+        if (item.prescriptionRequired) metaBits.push("Rx medicine");
+        metaBits.push(`${gst}% GST`);
+        metaBits.push(`₹${price.toFixed(2)} each`);
 
         html += `
         <div class="cart-item" data-index="${index}">
-            <div class="cart-item-main">
-                <div class="cart-item-head">
-                    <div class="cart-item-info">
-                        <div class="cart-item-title-row">
-                            <div class="cart-item-name">${escapeHtml(item.productName)}</div>
-                            <div class="cart-item-tags">
-                                <span class="gst-badge ${gstClass}">${gst}%</span>
-                                ${item.prescriptionRequired ? '<span class="suggestion-tag suggestion-tag-rx"><i class="fas fa-file-medical"></i> Rx</span>' : ''}
+            <div class="cart-item-main cart-item-main-compact">
+                <div class="cart-item-col cart-item-col-product">
+                    <div class="cart-item-product">
+                        <span class="cart-item-dot ${item.prescriptionRequired ? "cart-item-dot-rx" : ""}"></span>
+                        <div class="cart-item-info">
+                            <div class="cart-item-title-row">
+                                <div class="cart-item-name">${escapeHtml(item.productName)}</div>
+                                <div class="cart-item-tags">
+                                    <span class="gst-badge ${gstClass}">${gst}%</span>
+                                    ${item.prescriptionRequired ? '<span class="suggestion-tag suggestion-tag-rx"><i class="fas fa-file-medical"></i> Rx</span>' : ''}
+                                </div>
                             </div>
-                        </div>
-                        <div class="cart-item-gst-breakdown">
-                            <span class="gst-pill gst-pill-base">Base ₹${basePrice.toFixed(2)}</span>
-                            <span class="gst-pill gst-pill-split">CGST ₹${(gstAmount / 2).toFixed(2)}</span>
-                            <span class="gst-pill gst-pill-split">SGST ₹${(gstAmount / 2).toFixed(2)}</span>
-                            <span class="gst-pill gst-pill-total">GST ₹${gstAmount.toFixed(2)}</span>
+                            <div class="cart-item-meta">${metaBits.join(" • ")}</div>
                         </div>
                     </div>
-                    <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
                 </div>
-                <div class="cart-item-controls">
+
+                <div class="cart-item-col cart-item-col-qty">
                     <div class="cart-item-qty">
                         <button class="qty-btn" onclick="window.changeQty(${index}, -1)" tabindex="-1">-</button>
                         <span>${qty}</span>
                         <button class="qty-btn" onclick="window.changeQty(${index}, 1)" tabindex="-1">+</button>
                     </div>
+                </div>
+
+                <div class="cart-item-col cart-item-col-price">₹${price.toFixed(2)}</div>
+
+                <div class="cart-item-col cart-item-col-gst">
+                    <span class="cart-item-gst-rate">${gst}%</span>
+                    <small>₹${gstAmount.toFixed(2)}</small>
+                </div>
+
+                <div class="cart-item-col cart-item-col-total">
+                    <div class="cart-item-total">₹${totalWithGst.toFixed(2)}</div>
+                </div>
+
+                <div class="cart-item-col cart-item-col-actions">
                     <button class="cart-item-remove" onclick="window.removeItem(${index})" tabindex="-1"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
@@ -1563,28 +1603,40 @@ fetch("/sales/cart")
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     restoreLastInvoiceContext();
+    
+ 
+
     if (params.get("saved") === "true") {
-        lastSavedInvoiceId = params.get("invoiceId");
-        lastSavedPhone = params.get("phone");
-        if (lastSavedInvoiceId) {
-            recentInvoices = [{
-                invoiceId: lastSavedInvoiceId,
-                phone: lastSavedPhone || null
-            }, ...recentInvoices.filter(item => String(item?.invoiceId) !== String(lastSavedInvoiceId))].slice(0, 3);
-        }
-        persistLastInvoiceContext();
-        if (invoiceBtn && lastSavedInvoiceId) {
-            invoiceBtn.href = getInvoiceViewUrl(lastSavedInvoiceId);
-        }
-        if (successToastMessage) {
-            successToastMessage.textContent = lastSavedPhone
-                ? "Use F10 to print or F9 to send on WhatsApp."
-                : "Use F10 to print. F9 lets you enter a phone number for WhatsApp.";
-        }
-        playSaleCompletedSound();
-        successToast?.classList.add("show");
-        setTimeout(() => successToast?.classList.remove("show"), 5000);
+    lastSavedInvoiceId = params.get("invoiceId");
+    lastSavedPhone = params.get("phone");
+
+    const latestCustomerName = customerNameInput?.value?.trim() || "Walk-in";
+
+    if (lastSavedInvoiceId) {
+        recentInvoices = [{
+            invoiceId: lastSavedInvoiceId,
+            phone: lastSavedPhone || null,
+            customerName: latestCustomerName
+        }, ...recentInvoices.filter(item => String(item?.invoiceId) !== String(lastSavedInvoiceId))].slice(0, 3);
     }
+
+    persistLastInvoiceContext();
+
+    if (invoiceBtn && lastSavedInvoiceId) {
+        invoiceBtn.href = getInvoiceViewUrl(lastSavedInvoiceId);
+    }
+
+    if (successToastMessage) {
+        successToastMessage.textContent = lastSavedPhone
+            ? "Use F10 to print or F9 to send on WhatsApp."
+            : "Use F10 to print. F9 lets you enter a phone number for WhatsApp.";
+    }
+
+    playSaleCompletedSound();
+    successToast?.classList.add("show");
+    setTimeout(() => successToast?.classList.remove("show"), 5000);
+}
+
     refreshLastInvoiceBar();
     refreshPrescriptionState();
     setEntryMode(restoreEntryMode(), { persist: false });

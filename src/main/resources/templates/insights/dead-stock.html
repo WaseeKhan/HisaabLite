@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle} + ' • Expygen'">Dead Stock • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <link rel="stylesheet" th:href="@{/css/insights/insights.css}">
+    <link rel="stylesheet" th:href="@{/css/insights/report.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="insights-body">
+<div class="insights-app">
+    <aside th:replace="~{insights/fragments/shell :: sidebar(${pageTitle})}"></aside>
+    <div class="insights-stage">
+        <header th:replace="~{insights/fragments/shell :: topbar(${pageTitle})}"></header>
+        <div class="insights-page">
+            <div class="report-shell">
+                <div class="report-header">
+                    <div>
+                        <div class="report-badge">Inventory Intelligence</div>
+                        <h1>Dead Stock</h1>
+                        <p>
+                            See which medicines still hold stock but have stopped moving, so the owner can act on blocked inventory value before it becomes a silent loss.
+                        </p>
+                    </div>
+
+                    <div class="report-header-actions">
+                        <a class="table-action-btn"
+                           th:href="@{/insights/inventory/dead-stock/export(inactivityDays=${inactivityDays}, keyword=${keyword}, manufacturer=${manufacturer})}">Export CSV</a>
+                        <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                    </div>
+                </div>
+
+                <form class="insights-filter-form insights-filter-command" th:action="@{/insights/inventory/dead-stock}" method="get">
+                    <div class="filter-command-top">
+                        <div class="filter-command-title">
+                            <span class="filter-command-kicker">Dead Stock Console</span>
+                        </div>
+                        <strong class="filter-command-inline-note">Refine dead stock by inactivity window, product keyword, and manufacturer focus.</strong>
+                    </div>
+                    <div class="filter-row filter-row-command filter-row-command-stock">
+                        <div class="filter-group filter-group-compact">
+                            <label for="inactivityDays">No Sale For</label>
+                            <select id="inactivityDays" name="inactivityDays">
+                                <option value="30" th:selected="${inactivityDays == 30}">30 Days</option>
+                                <option value="60" th:selected="${inactivityDays == 60}">60 Days</option>
+                                <option value="90" th:selected="${inactivityDays == 90}">90 Days</option>
+                                <option value="180" th:selected="${inactivityDays == 180}">180 Days</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group filter-group-search">
+                            <label for="keyword">Search</label>
+                            <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                                   placeholder="Search product, barcode, generic, manufacturer...">
+                        </div>
+
+                        <div class="filter-group filter-group-compact">
+                            <label for="manufacturer">Manufacturer</label>
+                            <input type="text" id="manufacturer" name="manufacturer" th:value="${manufacturer}" placeholder="Search manufacturer">
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="filter-btn primary-btn">Apply</button>
+                            <button type="button" class="filter-btn secondary-btn" onclick="resetInsightsFilters()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="report-action-strip">
+                    <a class="report-action-card" th:href="@{/insights/business/profit-margin}">
+                        <span class="report-action-icon"><i class="fas fa-sack-dollar"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Open Profit & Margin</strong>
+                            <span>Compare non-moving inventory against the products that are actually generating profit.</span>
+                        </span>
+                    </a>
+                    <a class="report-action-card" th:href="@{/insights/inventory/current-stock}">
+                        <span class="report-action-icon"><i class="fas fa-boxes-stacked"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Review Current Stock</strong>
+                            <span>Jump into live stock details before deciding whether to clear, retain, or stop purchase.</span>
+                        </span>
+                    </a>
+                    <a class="report-action-card" th:href="@{/purchases/new}">
+                        <span class="report-action-icon"><i class="fas fa-truck-ramp-box"></i></span>
+                        <span class="report-action-copy">
+                            <strong>Open Purchases</strong>
+                            <span>Use dead stock insight to slow or stop reordering low-moving medicines.</span>
+                        </span>
+                    </a>
+                </div>
+
+                <div class="report-alert-strip">
+                    <div class="report-alert-card report-alert-card-warning">
+                        <span class="report-alert-icon"><i class="fas fa-box-archive"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[1].value + ' blocked in inventory value'}">Blocked inventory value</strong>
+                            <span>Use this view to identify shelf space and cash tied up in products that are not moving.</span>
+                        </div>
+                    </div>
+                    <div class="report-alert-card">
+                        <span class="report-alert-icon"><i class="fas fa-ban"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[2].value + ' products never sold yet'}">Never sold products</strong>
+                            <span>These products need a pricing review, display push, or purchase stop decision.</span>
+                        </div>
+                    </div>
+                    <div class="report-alert-card">
+                        <span class="report-alert-icon"><i class="fas fa-calendar-xmark"></i></span>
+                        <div class="report-alert-copy">
+                            <strong th:text="${kpis[5].value + ' products crossed 180+ ageing'}">180+ day ageing</strong>
+                            <span>Long-idle stock deserves the highest owner attention and likely clearance planning.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-strip">
+                    <div th:each="card : ${kpis}" class="kpi-card">
+                        <span th:text="${card.label}">Dead Stock SKUs</span>
+                        <h3 th:text="${card.value}">0</h3>
+                        <small th:text="${card.description}">Description</small>
+                    </div>
+                </div>
+
+                <div class="analytics-grid analytics-grid-stock">
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3>Dead Stock by Manufacturer</h3>
+                                <p>Manufacturers contributing the highest blocked inventory value</p>
+                            </div>
+                            <span class="analytics-chip">Blocked Value</span>
+                        </div>
+                        <div class="chart-box chart-box-md">
+                            <canvas id="deadStockManufacturerChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div>
+                                <h3>Stock Age Profile</h3>
+                                <p>How long dead stock has been sitting without a completed sale</p>
+                            </div>
+                            <span class="analytics-chip analytics-chip-accent">Ageing Mix</span>
+                        </div>
+                        <div class="chart-box chart-box-md">
+                            <canvas id="deadStockAgeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-table-shell">
+                    <div class="report-table-header">
+                        <h3>Dead Stock Detail</h3>
+                        <div class="report-table-actions">
+                            <a class="table-action-btn"
+                               th:href="@{/insights/inventory/dead-stock/export(inactivityDays=${inactivityDays}, keyword=${keyword}, manufacturer=${manufacturer})}">Export CSV</a>
+                            <button type="button" class="table-action-btn" onclick="printInsightsReport()">Print</button>
+                        </div>
+                    </div>
+
+                    <div class="report-table-wrapper">
+                        <table class="report-table">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Manufacturer</th>
+                                <th>Barcode</th>
+                                <th>Current Stock</th>
+                                <th>Purchase Price</th>
+                                <th>Sale Price</th>
+                                <th>Blocked Value</th>
+                                <th>Last Sold</th>
+                                <th>Days Idle</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+                                <td colspan="11" style="text-align:center;">No dead stock found for this filter range.</td>
+                            </tr>
+                            <tr th:each="row, stat : ${rows}">
+                                <td th:text="${((currentPage - 1) * pageSize) + stat.count}">1</td>
+                                <td><a class="report-drill-link" th:href="@{/products(keyword=${row.productName})}" th:text="${row.productName}">Dolo 650</a></td>
+                                <td th:text="${row.manufacturer}">ABC Pharma</td>
+                                <td th:text="${row.barcode != null && !row.barcode.isBlank() ? row.barcode : '—'}">8901234567890</td>
+                                <td th:text="${row.currentStock}">10</td>
+                                <td th:text="${row.purchasePrice != null && row.purchasePrice > 0 ? '₹' + row.purchasePrice : '—'}">₹10.00</td>
+                                <td th:text="${row.salePrice != null && row.salePrice > 0 ? '₹' + row.salePrice : '—'}">₹12.00</td>
+                                <td th:text="'₹' + ${row.stockValue}">₹120.00</td>
+                                <td th:text="${row.lastSoldAt != null ? #temporals.format(row.lastSoldAt, 'dd MMM yyyy hh:mm a') : 'Never sold'}">Never sold</td>
+                                <td th:text="${row.daysSinceLastSale != null ? row.daysSinceLastSale : '—'}">90</td>
+                                <td>
+                                    <span class="status-pill"
+                                          th:classappend="${row.status == 'Never Sold'} ? ' status-danger' : ' status-warning'"
+                                          th:text="${row.status}">Idle</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="report-pagination" th:if="${totalRows > pageSize}">
+                        <a class="pagination-btn"
+                           th:classappend="${!hasPreviousPage} ? ' disabled'"
+                           th:href="${hasPreviousPage} ? @{/insights/inventory/dead-stock(page=${previousPage}, inactivityDays=${inactivityDays}, keyword=${keyword}, manufacturer=${manufacturer})} : '#'">Previous</a>
+                        <span class="pagination-status" th:text="'Page ' + ${currentPage} + ' of ' + ${totalPages} + ' • ' + ${totalRows} + ' rows'">Page 1 of 1</span>
+                        <a class="pagination-btn"
+                           th:classappend="${!hasNextPage} ? ' disabled'"
+                           th:href="${hasNextPage} ? @{/insights/inventory/dead-stock(page=${nextPage}, inactivityDays=${inactivityDays}, keyword=${keyword}, manufacturer=${manufacturer})} : '#'">Next</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:replace="~{insights/fragments/shell :: footer}"></footer>
+    </div>
+</div>
+
+<script th:src="@{/js/insights/filters.js}"></script>
+<script th:src="@{/js/insights/chart-theme.js}"></script>
+<script th:src="@{/js/theme-toggle.js}"></script>
+
+<script th:inline="javascript">
+    const chartPalette = window.getInsightsChartPalette ? window.getInsightsChartPalette() : {
+        primary: ['#0f766e', '#0ea5e9', '#14b8a6', '#f59e0b', '#ef4444', '#6366f1'],
+        accent: '#0f766e',
+        axis: '#6b7280',
+        grid: 'rgba(148, 163, 184, 0.16)'
+    };
+
+    function buildBarChart(canvasId, labels, values) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: chartPalette.primary,
+                    borderRadius: 12,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        ticks: { color: chartPalette.axis },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: chartPalette.axis },
+                        grid: { color: chartPalette.grid }
+                    }
+                }
+            }
+        });
+    }
+
+    buildBarChart(
+        'deadStockManufacturerChart',
+        /*[[${manufacturerSplit.![label]}]]*/ [],
+        /*[[${manufacturerSplit.![amount]}]]*/ []
+    );
+
+    buildBarChart(
+        'deadStockAgeChart',
+        /*[[${stockAgeSplit.![label]}]]*/ [],
+        /*[[${stockAgeSplit.![amount]}]]*/ []
+    );
+</script>
+</body>
+</html>

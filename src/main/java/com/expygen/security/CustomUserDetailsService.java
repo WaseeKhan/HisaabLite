@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.expygen.entity.User;
 import com.expygen.repository.UserRepository;
+import com.expygen.service.WorkspaceAccessService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final WorkspaceAccessService workspaceAccessService;
 
     @Override
     public UserDetails loadUserByUsername(String username)
@@ -24,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
                 .roles(user.getRole().name())
-                .disabled(!user.isActive())
+                .disabled(!workspaceAccessService.shouldAllowAuthenticatedSession(user))
                 .build();
 
     }

@@ -43,6 +43,13 @@ public interface SaleItemRepository extends JpaRepository<SaleItem, Long> {
     @Query("SELECT COALESCE(SUM(si.quantity), 0) FROM SaleItem si WHERE si.sale.shop = :shop AND si.sale.status = 'COMPLETED'")
     Long getTotalItemsSoldByShop(@Param("shop") Shop shop);
 
-  
+    @Query("""
+            SELECT si.product.id, MAX(si.sale.saleDate)
+            FROM SaleItem si
+            WHERE si.sale.shop = :shop
+              AND si.sale.status = 'COMPLETED'
+            GROUP BY si.product.id
+            """)
+    List<Object[]> findLastSoldAtByProduct(@Param("shop") Shop shop);
 
 }

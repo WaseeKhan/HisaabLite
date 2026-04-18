@@ -1,0 +1,2 @@
+ALTER TABLE shops
+    MODIFY COLUMN pan_number VARCHAR(255) NULL;

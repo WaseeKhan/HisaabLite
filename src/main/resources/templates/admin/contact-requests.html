@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Contact Requests • Expygen Admin</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background:#f8fafc; margin:0; color:#0f172a; }
+        .container { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+        .card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 10px 30px rgba(15,23,42,0.06); }
+        table { width:100%; border-collapse: collapse; }
+        th, td { padding:14px 12px; border-bottom:1px solid #e2e8f0; text-align:left; font-size:14px; }
+        th { background:#f8fafc; font-weight:600; }
+        .badge { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+        .status-NEW { background:#fff7ed; color:#c2410c; }
+        .status-CONTACTED { background:#eff6ff; color:#2563eb; }
+        .status-CLOSED { background:#f1f5f9; color:#475569; }
+        .btn { display:inline-block; padding:8px 14px; border-radius:10px; background:#0f172a; color:#fff; text-decoration:none; font-size:13px; }
+        .sub { color:#64748b; font-size:14px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="topbar">
+        <div>
+            <h1>Contact Requests</h1>
+            <p class="sub">All enquiries submitted from the public contact page.</p>
+        </div>
+        <div>
+            <span class="badge status-NEW" th:text="'New: ' + ${newRequestCount}">New: 0</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Store</th>
+                <th>Contact Person</th>
+                <th>Topic</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="req : ${requests}">
+                <td th:text="${req.id}">1</td>
+                <td th:text="${req.storeName}">ABC Medical</td>
+                <td th:text="${req.contactPerson}">Waseem</td>
+                <td th:text="${req.topic}">Product demo</td>
+                <td th:text="${req.email}">test@mail.com</td>
+                <td th:text="${req.phone}">9999999999</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="' status-' + ${req.status.name()}"
+                          th:text="${req.status}">NEW</span>
+                </td>
+                <td th:text="${#temporals.format(req.createdAt, 'dd MMM yyyy, hh:mm a')}">14 Apr 2026</td>
+                <td>
+                    <a class="btn" th:href="@{'/admin/contact-requests/' + ${req.id}}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(requests)}">
+                <td colspan="9">No contact requests found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -50,6 +50,7 @@ import com.expygen.repository.SaleRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.PdfService;
 import com.expygen.service.ProductService;
+import com.expygen.service.PrescriptionDocumentService;
 import com.expygen.service.SaleBatchTraceService;
 import com.expygen.service.SaleService;
 import com.expygen.service.WhatsAppService;
@@ -82,6 +83,9 @@ class SaleControllerTest {
 
     @Mock
     private SaleBatchTraceService saleBatchTraceService;
+
+    @Mock
+    private PrescriptionDocumentService prescriptionDocumentService;
 
     @Mock
     private Authentication authentication;
@@ -129,6 +133,7 @@ class SaleControllerTest {
                 null,
                 null,
                 false,
+                null,
                 "CASH",
                 235.0,
                 25.0,
@@ -467,7 +472,6 @@ class SaleControllerTest {
         return Shop.builder()
                 .id(1L)
                 .name("Core Shop")
-                .panNumber("ABCDE1234F")
                 .planType(PlanType.PREMIUM)
                 .active(true)
                 .build();

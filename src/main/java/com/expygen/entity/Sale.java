@@ -50,6 +50,9 @@ public class Sale {
     private String doctorName;
     private LocalDate prescriptionDate;
     private String prescriptionReference;
+    private String prescriptionDocumentPath;
+    private String prescriptionDocumentName;
+    private String prescriptionDocumentContentType;
     @Builder.Default
     private boolean prescriptionRequired = false;
     @Builder.Default

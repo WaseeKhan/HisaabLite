@@ -123,7 +123,6 @@ class AdminPageIntegrationTest {
 
         Shop shop = shopRepository.save(Shop.builder()
                 .name("Admin Integration Shop")
-                .panNumber("ADMIN1234P")
                 .gstNumber("29ADMIN1234P1Z5")
                 .address("MG Road")
                 .city("Bengaluru")

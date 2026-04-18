@@ -3,7 +3,7 @@
 
 <head>
     <title th:text="${'Invoice_' + sale.id + ' • Expygen'}">Invoice_123 • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -179,6 +179,10 @@
                     <div class="summary-row" th:if="${sale.doctorName != null}"><span>Doctor</span><strong th:text="${sale.doctorName}">Dr. Mehta</strong></div>
                     <div class="summary-row" th:if="${sale.prescriptionDate != null}"><span>Date</span><strong th:text="${#temporals.format(sale.prescriptionDate, 'dd MMM yyyy')}">12 Apr 2026</strong></div>
                     <div class="summary-row" th:if="${sale.prescriptionReference != null}"><span>Reference</span><strong th:text="${sale.prescriptionReference}">RX-001</strong></div>
+                    <div class="summary-row" th:if="${sale.prescriptionDocumentPath != null}">
+                        <span>Document</span>
+                        <strong><a th:href="@{/sales/invoice/{saleId}/prescription(saleId=${sale.id})}" target="_blank">View Prescription</a></strong>
+                    </div>
                 </section>
 
                 <section class="invoice-panel">

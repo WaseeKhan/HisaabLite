@@ -12,6 +12,7 @@ import com.expygen.repository.UserRepository;
 import com.expygen.service.BatchInventoryVisibilityService;
 import com.expygen.service.PlanLimitService;
 import com.expygen.service.SaleService;
+import com.expygen.service.WorkspaceAccessService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class DashboardController {
     private final PlanLimitService planLimitService;
     private final DashboardService dashboardService;
     private final BatchInventoryVisibilityService batchInventoryVisibilityService;
+    private final WorkspaceAccessService workspaceAccessService;
 
     // CANONICAL DASHBOARD
     @GetMapping("/dashboard")
@@ -82,8 +84,8 @@ public class DashboardController {
         Shop shop = user.getShop();
 
         // SUBSCRIPTION CHECK
-        if (!user.isApproved()) {
-            return "redirect:/subscription-required";
+        if (!workspaceAccessService.canAccessWorkspace(user)) {
+            return "redirect:/workspace-status";
         }
 
         log.info("Loading dashboard for user: {}, shop: {}", user.getUsername(), shop.getName());
@@ -212,9 +214,9 @@ public class DashboardController {
 
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
         Shop shop = user.getShop();
-        if (!user.isApproved()) {
+        if (!workspaceAccessService.canAccessWorkspace(user)) {
             Map<String, Object> response = new HashMap<>();
-            response.put("error", "subscription_required");
+            response.put("error", "workspace_access_required");
             return response;
         }
 
@@ -290,14 +292,7 @@ public class DashboardController {
 
     @GetMapping("/subscription-required")
     public String subscriptionRequired(Model model, Authentication authentication) {
-
-        User user = userRepository
-                .findByUsername(authentication.getName())
-                .orElseThrow();
-
-        model.addAttribute("plan", user.getShop().getPlanType());
-
-        return "subscription-required";
+        return "redirect:/workspace-status";
     }
 
 

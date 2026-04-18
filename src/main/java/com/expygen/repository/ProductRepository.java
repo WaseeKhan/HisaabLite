@@ -34,6 +34,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByShopAndNameIgnoreCaseContaining(Shop shop, String name);
 
+    Optional<Product> findByShopAndNameIgnoreCaseAndActiveTrue(Shop shop, String name);
+
     Optional<Product> findByIdAndShop(Long id, Shop shop);
 
     boolean existsByShopAndBarcodeIgnoreCaseAndActiveTrue(Shop shop, String barcode);

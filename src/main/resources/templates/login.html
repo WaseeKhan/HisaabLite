@@ -198,9 +198,14 @@
                         <span>Session expired. You logged in from another device. Please sign in again.</span>
                     </div>
 
-                    <div th:if="${param.verified}" class="message success">
+                    <div th:if="${param.verified != null and param.verified[0] == 'active'}" class="message success">
                         <i class="fas fa-check-circle"></i>
-                        <span>Account verified. Please login.</span>
+                        <span>Account verified. You can now sign in.</span>
+                    </div>
+
+                    <div th:if="${param.verified != null and param.verified[0] == 'pending'}" class="message info">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>Email verified. Your account is now waiting for approval before workspace access is unlocked.</span>
                     </div>
 
                     <div th:if="${param.logout}" class="message info">

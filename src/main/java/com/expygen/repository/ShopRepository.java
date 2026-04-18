@@ -15,10 +15,6 @@ import java.util.Optional;
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, Long> {
 
-    // ===== EXISTING METHODS =====
-    boolean existsByPanNumber(String panNumber);
-    Optional<Shop> findByPanNumber(String panNumber);
-    
     // ===== ADD THESE NEW METHODS =====
     
     /**

@@ -31,6 +31,16 @@
             <i class="fas fa-receipt"></i>
             <span>Invoice Sales</span>
         </a>
+        <a th:href="@{/insights/business/profit-margin}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Profit & Margin'} ? ' active' : ''">
+            <i class="fas fa-rupee-sign"></i>
+            <span>Profit & Margin</span>
+        </a>
+        <a th:href="@{/insights/business/fast-slow-moving}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Fast / Slow Moving'} ? ' active' : ''">
+            <i class="fas fa-chart-bar"></i>
+            <span>Fast / Slow Moving</span>
+        </a>
     </div>
 
     <div class="insights-sidebar-group">
@@ -54,11 +64,22 @@
             <i class="fas fa-hourglass-half"></i>
             <span>Near Expiry</span>
         </a>
+        <a th:href="@{/insights/inventory/dead-stock}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Dead Stock'} ? ' active' : ''">
+            <i class="fas fa-box-archive"></i>
+            <span>Dead Stock</span>
+        </a>
+        <a th:href="@{/insights/inventory/expiry-loss}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Expiry Loss'} ? ' active' : ''">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Expiry Loss</span>
+        </a>
         <a th:href="@{/insights/inventory/stock-adjustments}" class="insights-sidebar-link"
            th:classappend="${pageTitle == 'Stock Adjustments'} ? ' active' : ''">
             <i class="fas fa-sliders-h"></i>
             <span>Stock Adjustments</span>
         </a>
+        
         <a th:href="@{/insights/inventory/barcodes}" class="insights-sidebar-link"
            th:classappend="${pageTitle == 'Barcode Desk'} ? ' active' : ''">
             <i class="fas fa-barcode"></i>
@@ -72,6 +93,15 @@
            th:classappend="${pageTitle == 'Activity Audit'} ? ' active' : ''">
             <i class="fas fa-shield-alt"></i>
             <span>Activity Audit</span>
+        </a>
+    </div>
+
+    <div class="insights-sidebar-group">
+        <div class="insights-sidebar-label">Setup</div>
+        <a th:href="@{/insights/setup/data-import}" class="insights-sidebar-link"
+           th:classappend="${pageTitle == 'Data Import Desk'} ? ' active' : ''">
+            <i class="fas fa-file-upload"></i>
+            <span>Data Import Desk</span>
         </a>
     </div>
 

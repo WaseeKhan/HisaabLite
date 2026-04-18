@@ -2,9 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Support • Expygen</title>
+    <title>Contact • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
@@ -14,6 +16,46 @@
     <link rel="stylesheet" th:href="@{/css/pages/contact.css}">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <style>
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 260px;
+    max-width: 360px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast[data-type='success'] {
+    background: #16a34a;
+}
+
+.toast[data-type='error'] {
+    background: #dc2626;
+}
+
+.toast[data-type='info'] {
+    background: #2563eb;
+}
+
+.toast[data-type='warning'] {
+    background: #d97706;
+}
+</style>
 </head>
 
 <body>
@@ -21,9 +63,10 @@
 
     <section class="contact-hero">
         <div class="contact-hero-content">
-            <span class="contact-kicker">Support</span>
+            <span class="contact-kicker">Contact</span>
             <h1>Talk to us about onboarding, activation, support, or store rollout</h1>
-            <p>Whether you are setting up the first store, comparing plans, activating a paid workspace, or needing operational guidance, Expygen keeps support accessible and practical.</p>
+            <p>Whether you are setting up the first store, comparing plans, activating a paid workspace, or needing
+                operational guidance, Expygen keeps support accessible and practical.</p>
             <div class="contact-hero-pills">
                 <span><i class="fas fa-headset"></i> Activation help</span>
                 <span><i class="fas fa-ticket-alt"></i> Support guidance</span>
@@ -38,7 +81,8 @@
                 <div class="contact-panel-head">
                     <span class="contact-panel-kicker">Reach us</span>
                     <h2>Support and business contact desk</h2>
-                    <p>Use the right channel depending on whether you need product guidance, paid-plan activation, or store-side support.</p>
+                    <p>Use the right channel depending on whether you need product guidance, paid-plan activation, or
+                        store-side support.</p>
                 </div>
 
                 <div class="contact-details">
@@ -95,52 +139,78 @@
                 <div class="contact-panel-head">
                     <span class="contact-panel-kicker">Write to us</span>
                     <h2>Send a store query</h2>
-                    <p>Share your requirement and the team will route the request for onboarding, support, or business follow-up.</p>
+                    <p>Share your requirement and the team will route the request for onboarding, support, or business
+                        follow-up.</p>
                 </div>
 
-                <form class="contact-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Store / Business Name</label>
-                            <input type="text" placeholder="ABC Medical Store" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Contact Person</label>
-                            <input type="text" placeholder="Your name" required>
-                        </div>
-                    </div>
+                <div id="toast"
+     th:if="${toastMessage}"
+     th:attr="data-type=${toastType}"
+     class="toast"
+     th:text="${toastMessage}">
+</div>
+               <form class="contact-form"
+      th:action="@{/contact}"
+      th:object="${contactRequestForm}"
+      method="post">
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" placeholder="you@store.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="tel" placeholder="+91 98765 43210">
-                        </div>
-                    </div>
+    <div id="toast"
+         th:if="${toastMessage}"
+         th:text="${toastMessage}"
+         th:attr="data-type=${toastType}"
+         class="toast"></div>
 
-                    <div class="form-group">
-                        <label>Support Topic</label>
-                        <select>
-                            <option>Product demo / onboarding</option>
-                            <option>Plan activation</option>
-                            <option>Operational support</option>
-                            <option>Billing or invoice question</option>
-                            <option>Partnership or business query</option>
-                        </select>
-                    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label>Store / Business Name</label>
+            <input type="text" th:field="*{storeName}" placeholder="ABC Medical Store" required>
+            <small class="field-error" th:if="${#fields.hasErrors('storeName')}" th:errors="*{storeName}"></small>
+        </div>
+        <div class="form-group">
+            <label>Contact Person</label>
+            <input type="text" th:field="*{contactPerson}" placeholder="Your name" required>
+            <small class="field-error" th:if="${#fields.hasErrors('contactPerson')}" th:errors="*{contactPerson}"></small>
+        </div>
+    </div>
 
-                    <div class="form-group">
-                        <label>Message</label>
-                        <textarea placeholder="Tell us what your store needs, what stage you are at, and how we can help." required></textarea>
-                    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" th:field="*{email}" placeholder="you@store.com" required>
+            <small class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+        </div>
+        <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" th:field="*{phone}" placeholder="+91 98765 43210">
+        </div>
+    </div>
 
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-paper-plane"></i> Send Support Request
-                    </button>
-                </form>
+    <div class="form-group">
+        <label>Support Topic</label>
+        <select th:field="*{topic}">
+            <option value="">Select a topic</option>
+            <option value="Product demo / onboarding">Product demo / onboarding</option>
+            <option value="Plan activation">Plan activation</option>
+            <option value="Operational support">Operational support</option>
+            <option value="Billing or invoice question">Billing or invoice question</option>
+            <option value="Partnership or business query">Partnership or business query</option>
+        </select>
+        <small class="field-error" th:if="${#fields.hasErrors('topic')}" th:errors="*{topic}"></small>
+    </div>
+
+    <div class="form-group">
+        <label>Message</label>
+        <textarea th:field="*{message}"
+                  placeholder="Tell us what your store needs, what stage you are at, and how we can help."
+                  required></textarea>
+        <small class="field-error" th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></small>
+    </div>
+
+    <button type="submit" class="btn-submit">
+        <i class="fas fa-paper-plane"></i> Send Support Request
+    </button>
+</form>
+
             </div>
         </div>
     </section>
@@ -148,7 +218,8 @@
     <section class="support-lanes-section">
         <div class="section-head">
             <h2>Choose the right support lane</h2>
-            <p>Different stages need different help. Use the route that fits your store best so the conversation starts faster.</p>
+            <p>Different stages need different help. Use the route that fits your store best so the conversation starts
+                faster.</p>
         </div>
 
         <div class="support-lanes-grid">
@@ -169,7 +240,7 @@
             </div>
         </div>
     </section>
-
+    <!-- 
     <section class="map-section">
         <div class="map-container">
             <div class="map-placeholder">
@@ -178,7 +249,7 @@
                 <span>Support and business communication handled remotely and through digital channels</span>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <section class="faq-section">
         <div class="section-head">
@@ -189,31 +260,51 @@
         <div class="faq-grid">
             <div class="faq-item">
                 <h3><i class="fas fa-clock"></i> How fast is support?</h3>
-                <p>We try to respond as quickly as possible during business hours, and urgent onboarding or activation requests are prioritised.</p>
+                <p>We try to respond as quickly as possible during business hours, and urgent onboarding or activation
+                    requests are prioritised.</p>
             </div>
             <div class="faq-item">
                 <h3><i class="fas fa-language"></i> Do you support Hindi?</h3>
-                <p>Yes. Conversations can be handled in Hindi or English depending on what is easier for the store.</p>
+                <p>No. Conversations can be handled in English only as of now.</p>
             </div>
             <div class="faq-item">
                 <h3><i class="fas fa-phone-alt"></i> Is phone support available?</h3>
-                <p>Yes. Phone is available for business discussions, onboarding follow-up, and guided support where required.</p>
+                <p>Yes. Phone is available for business discussions, onboarding follow-up, and guided support where
+                    required.</p>
             </div>
             <div class="faq-item">
                 <h3><i class="fab fa-whatsapp"></i> Can I contact on WhatsApp?</h3>
-                <p>Yes. WhatsApp is one of the fastest ways to ask setup questions or continue activation-related conversations.</p>
+                <p>Yes. WhatsApp is one of the fastest ways to ask setup questions or continue activation-related
+                    conversations.</p>
             </div>
             <div class="faq-item">
                 <h3><i class="fas fa-ticket-alt"></i> Is there in-app support too?</h3>
-                <p>Yes. Logged-in stores can use the support workspace inside the application to create and track support tickets.</p>
+                <p>Yes. Logged-in stores can use the support workspace inside the application to create and track
+                    support tickets.</p>
             </div>
             <div class="faq-item">
                 <h3><i class="fas fa-screwdriver-wrench"></i> Do you help during rollout?</h3>
-                <p>Yes. We can guide stores during activation, early setup, and workflow understanding while the team is going live.</p>
+                <p>Yes. We can guide stores during activation, early setup, and workflow understanding while the team is
+                    going live.</p>
             </div>
         </div>
     </section>
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+
+    setTimeout(() => {
+        toast.classList.add("show");
+    }, 100);
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 4500);
+});
+</script>
 </body>
+
 </html>

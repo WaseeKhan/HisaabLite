@@ -46,8 +46,7 @@ public class VerificationController {
 
         tokenRepository.delete(verificationToken);
 
-        model.addAttribute("message", "Account verified successfully. Please login.");
-       
-        return "redirect:/login?verified";
+        model.addAttribute("message", "Account verified successfully. Please login to start your free trial.");
+        return "redirect:/login?verified=active";
     }
 }
