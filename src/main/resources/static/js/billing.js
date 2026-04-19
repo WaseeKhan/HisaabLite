@@ -25,15 +25,22 @@ const customerNameInput = document.querySelector('input[name="customerName"]');
 const customerPhoneInput = document.querySelector('input[name="customerPhone"]');
 const doctorNameInput = document.querySelector('input[name="doctorName"]');
 const customerHistoryCard = document.getElementById("customerHistoryCard");
-const customerHistoryBadge = document.getElementById("customerHistoryBadge");
 const customerHistoryName = document.getElementById("customerHistoryName");
 const customerHistoryMeta = document.getElementById("customerHistoryMeta");
 const customerHistorySpend = document.getElementById("customerHistorySpend");
 const customerHistoryDoctor = document.getElementById("customerHistoryDoctor");
+const customerHistoryOpenBtn = document.getElementById("customerHistoryOpenBtn");
 const customerHistoryMedicinesWrap = document.getElementById("customerHistoryMedicinesWrap");
 const customerHistoryMedicines = document.getElementById("customerHistoryMedicines");
 const customerHistorySalesWrap = document.getElementById("customerHistorySalesWrap");
 const customerHistorySales = document.getElementById("customerHistorySales");
+const customerHistoryModal = document.getElementById("customerHistoryModal");
+const customerHistoryModalClose = document.getElementById("customerHistoryModalClose");
+const customerHistoryModalSubtitle = document.getElementById("customerHistoryModalSubtitle");
+const customerHistoryModalVisits = document.getElementById("customerHistoryModalVisits");
+const customerHistoryModalSpend = document.getElementById("customerHistoryModalSpend");
+const customerHistoryModalDoctor = document.getElementById("customerHistoryModalDoctor");
+const customerHistoryModalLastVisit = document.getElementById("customerHistoryModalLastVisit");
 const prescriptionVerifiedInput = document.getElementById("prescriptionVerified");
 const prescriptionDateInput = document.getElementById("prescriptionDate");
 const prescriptionReferenceInput = document.getElementById("prescriptionReference");
@@ -55,10 +62,20 @@ const lastInvoiceList = document.getElementById("lastInvoiceList");
 const invoicePhoneModal = document.getElementById("invoicePhoneModal");
 const invoicePhoneInput = document.getElementById("invoicePhoneInput");
 const invoicePhoneSendBtn = document.getElementById("invoicePhoneSendBtn");
+const cartLatestInvoiceActions = document.getElementById("cartLatestInvoiceActions");
+const holdSaleBtn = document.getElementById("holdSaleBtn");
+const quickLatestReceiptBtn = document.getElementById("quickLatestReceiptBtn");
+const quickFocusSearchBtn = document.getElementById("quickFocusSearchBtn");
+const quickFocusCustomerBtn = document.getElementById("quickFocusCustomerBtn");
+const quickCloneLastItemBtn = document.getElementById("quickCloneLastItemBtn");
+const prescriptionDocumentInput = document.getElementById("prescriptionDocument");
+const markPrescriptionReadyBtn = document.getElementById("markPrescriptionReadyBtn");
+const previewPrescriptionBtn = document.getElementById("previewPrescriptionBtn");
 
 const BILLING_ENTRY_MODE_KEY = "expygen-billing-entry-mode";
 const LAST_INVOICE_KEY = "expygen:lastInvoice";
 const LAST_INVOICES_KEY = "expygen:lastInvoices";
+const HELD_SALE_KEY = "expygen:heldSale";
 
 let suggestions = [];
 let selectedIndex = -1;
@@ -72,9 +89,40 @@ let lookupTimer = null;
 let lookupRequestSequence = 0;
 let customerHistoryTimer = null;
 let customerHistoryRequestSequence = 0;
+let currentCustomerHistory = null;
 window.currentCart = [];
 window.lastSavedInvoiceId = null;
 window.lastSavedPhone = null;
+
+function isPrescriptionMarkedReady() {
+    return prescriptionVerifiedInput?.value === "true";
+}
+
+function syncPrescriptionReadyButton() {
+    if (!markPrescriptionReadyBtn) return;
+
+    const isReady = isPrescriptionMarkedReady();
+    const icon = markPrescriptionReadyBtn.querySelector("i");
+    const label = markPrescriptionReadyBtn.querySelector("span");
+
+    markPrescriptionReadyBtn.classList.toggle("is-ready", isReady);
+    markPrescriptionReadyBtn.setAttribute("aria-pressed", isReady ? "true" : "false");
+
+    if (icon) {
+        icon.className = isReady ? "fas fa-circle-check" : "fas fa-check-circle";
+    }
+
+    if (label) {
+        label.textContent = isReady ? "Prescription Ready" : "Mark As Ready";
+    }
+}
+
+function setPrescriptionReadyState(isReady) {
+    if (prescriptionVerifiedInput) {
+        prescriptionVerifiedInput.value = isReady ? "true" : "false";
+    }
+    syncPrescriptionReadyButton();
+}
 
 function persistLastInvoiceContext() {
     if (!window.sessionStorage) return;
@@ -93,6 +141,67 @@ function persistLastInvoiceContext() {
         LAST_INVOICES_KEY,
         JSON.stringify(recentInvoices.slice(0, 3))
     );
+}
+
+function persistHeldSale() {
+    if (!window.sessionStorage) return;
+
+    const heldSale = {
+        cart: window.currentCart || [],
+        customerName: customerNameInput?.value?.trim() || "",
+        customerPhone: customerPhoneInput?.value?.trim() || "",
+        doctorName: doctorNameInput?.value?.trim() || "",
+        prescriptionVerified: isPrescriptionMarkedReady(),
+        prescriptionDate: prescriptionDateInput?.value || "",
+        prescriptionReference: prescriptionReferenceInput?.value?.trim() || "",
+        paymentMode: paymentMode?.value || "CASH",
+        amountReceived: amountReceived?.value || "",
+        discountAmount: discountAmount?.value || "0",
+        discountPercent: discountPercent?.value || "0"
+    };
+
+    window.sessionStorage.setItem(HELD_SALE_KEY, JSON.stringify(heldSale));
+}
+
+function restoreHeldSale() {
+    if (!window.sessionStorage) return false;
+    const raw = window.sessionStorage.getItem(HELD_SALE_KEY);
+    if (!raw) return false;
+
+    try {
+        const heldSale = JSON.parse(raw);
+        if (!heldSale || !Array.isArray(heldSale.cart) || !heldSale.cart.length) {
+            return false;
+        }
+
+        window.currentCart = heldSale.cart;
+        updateCartUI(heldSale.cart);
+
+        if (customerNameInput) customerNameInput.value = heldSale.customerName || "";
+        if (customerPhoneInput) customerPhoneInput.value = heldSale.customerPhone || "";
+        if (doctorNameInput) doctorNameInput.value = heldSale.doctorName || "";
+        setPrescriptionReadyState(Boolean(heldSale.prescriptionVerified));
+        if (prescriptionDateInput) prescriptionDateInput.value = heldSale.prescriptionDate || "";
+        if (prescriptionReferenceInput) prescriptionReferenceInput.value = heldSale.prescriptionReference || "";
+        if (paymentMode) paymentMode.value = heldSale.paymentMode || "CASH";
+        if (amountReceived) amountReceived.value = heldSale.amountReceived || "";
+        if (discountAmount) discountAmount.value = heldSale.discountAmount || "0";
+        if (discountPercent) discountPercent.value = heldSale.discountPercent || "0";
+
+        document.querySelectorAll(".payment-mode-chip").forEach(button => {
+            const active = button.textContent.toUpperCase().includes((paymentMode?.value || "CASH").toUpperCase());
+            button.classList.toggle("is-active", active);
+        });
+
+        calculateTotals();
+        updatePrescriptionDesk();
+        showTempToast("Held sale restored", "success");
+        window.sessionStorage.removeItem(HELD_SALE_KEY);
+        return true;
+    } catch (_) {
+        window.sessionStorage.removeItem(HELD_SALE_KEY);
+        return false;
+    }
 }
 
 function restoreLastInvoiceContext() {
@@ -138,61 +247,189 @@ function refreshLastInvoiceBar() {
     window.lastSavedInvoiceId = lastSavedInvoiceId;
     window.lastSavedPhone = lastSavedPhone;
 
-    if (!lastInvoiceBar || !lastInvoiceList || !recentInvoices.length) {
+    if (!recentInvoices.length) {
         if (lastInvoiceBar) {
             lastInvoiceBar.hidden = true;
+        }
+        if (cartLatestInvoiceActions) {
+            cartLatestInvoiceActions.hidden = true;
+            cartLatestInvoiceActions.innerHTML = "";
         }
         return;
     }
 
-    lastInvoiceBar.hidden = false;
+    if (lastInvoiceBar) {
+        lastInvoiceBar.hidden = false;
+    }
+    const latestEntry = recentInvoices[0];
+    const latestInvoiceId = latestEntry?.invoiceId;
+    const latestInvoiceUrl = getInvoiceViewUrl(latestInvoiceId);
+    const latestThermalUrl = `/sales/invoice/${latestInvoiceId}/thermal`;
+    const latestPdfUrl = `/sales/invoice/${latestInvoiceId}/pdf`;
 
-    lastInvoiceList.innerHTML = recentInvoices.slice(0, 3).map((entry) => {
+    if (lastInvoiceList) {
+        lastInvoiceList.innerHTML = recentInvoices.slice(0, 1).map((entry) => {
         const invoiceId = entry.invoiceId;
-        const phone = entry.phone || "—";
-        const customerName = entry.customerName || "Walk-in";
         const invoiceUrl = getInvoiceViewUrl(invoiceId);
+        const thermalUrl = `/sales/invoice/${invoiceId}/thermal`;
+        const pdfUrl = `/sales/invoice/${invoiceId}/pdf`;
+        const customerName = entry.customerName ? escapeHtml(entry.customerName) : "Walk-in";
+        const phone = entry.phone ? escapeHtml(entry.phone) : "No phone";
 
         return `
-            <div class="latest-bill-row">
+            <div class="latest-bill-row latest-bill-row-premium">
                 <div class="latest-bill-left">
-                    <span class="latest-bill-invoice">Invoice_${invoiceId}</span>
-                    <span class="latest-bill-separator">|</span>
-                    <span class="latest-bill-phone">${escapeHtml(phone)}</span>
-                    <span class="latest-bill-separator">|</span>
-                    <span class="latest-bill-customer">${escapeHtml(customerName)}</span>
+                    <span class="latest-bill-invoice">Invoice #${invoiceId}</span>
+                    <span class="latest-bill-meta">${customerName}${entry.phone ? ` • ${phone}` : ""}</span>
                 </div>
 
-                <div class="latest-bill-actions">
-                    <a href="${invoiceUrl}" target="_blank" class="latest-bill-action" title="View">
+                <div class="sales-action-buttons latest-bill-action-row">
+                    <a href="${invoiceUrl}" target="_blank" class="sales-btn-view" title="View Invoice">
                         <i class="fas fa-eye"></i>
+                        <span>View</span>
                     </a>
 
-                    <a href="/sales/invoice/${invoiceId}/thermal" target="_blank" class="latest-bill-action" title="Thermal">
+                    <a href="${thermalUrl}" target="_blank" class="sales-btn-view sales-btn-thermal" title="View Thermal Invoice">
                         <i class="fas fa-receipt"></i>
+                        <span>Thermal</span>
                     </a>
 
-                    <button type="button" class="latest-bill-action" data-print-invoice="${invoiceId}" title="Print">
+                    <button type="button" class="sales-btn-view sales-btn-print" data-print-invoice="${invoiceId}" title="Print Thermal Invoice">
                         <i class="fas fa-print"></i>
+                        <span>Print</span>
                     </button>
 
-                    <button type="button" class="latest-bill-action latest-bill-action-whatsapp" data-whatsapp-invoice="${invoiceId}" title="WhatsApp" ${entry.phone ? "" : "disabled"}>
+                    <a href="${pdfUrl}" target="_blank" class="sales-btn-pdf" title="Download PDF">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </a>
+
+                    <button type="button"
+                            class="sales-btn-whatsapp"
+                            data-whatsapp-invoice="${invoiceId}"
+                            title="Send via WhatsApp"
+                            ${entry.phone ? "" : "disabled"}>
                         <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </button>
+
+                    <button type="button"
+                            class="sales-btn-cancel"
+                            data-cancel-invoice="${invoiceId}"
+                            title="Cancel Sale">
+                        <i class="fas fa-ban"></i>
+                        <span>Cancel</span>
                     </button>
                 </div>
             </div>
         `;
-    }).join("");
+        }).join("");
+    }
 
-    lastInvoiceList.querySelectorAll("[data-print-invoice]").forEach(button => {
-        button.addEventListener("click", () => printInvoice(button.dataset.printInvoice));
+    if (cartLatestInvoiceActions && latestInvoiceId) {
+        cartLatestInvoiceActions.hidden = false;
+        cartLatestInvoiceActions.innerHTML = `
+            <a href="${latestInvoiceUrl}" target="_blank" class="footer-inline-action" title="View Invoice">
+                <i class="fas fa-eye"></i>
+                <span>View</span>
+            </a>
+            <a href="${latestThermalUrl}" target="_blank" class="footer-inline-action" title="View Thermal Invoice">
+                <i class="fas fa-receipt"></i>
+                <span>Thermal</span>
+            </a>
+            <button type="button" class="footer-inline-action" data-footer-print="${latestInvoiceId}" title="Print Thermal Invoice">
+                <i class="fas fa-print"></i>
+                <span>Print</span>
+            </button>
+            <a href="${latestPdfUrl}" target="_blank" class="footer-inline-action" title="Download PDF">
+                <i class="fas fa-file-pdf"></i>
+                <span>PDF</span>
+            </a>
+            <button type="button" class="footer-inline-action footer-inline-action-whatsapp" data-footer-whatsapp="${latestInvoiceId}" title="Send via WhatsApp" ${latestEntry?.phone ? "" : "disabled"}>
+                <i class="fab fa-whatsapp"></i>
+                <span>WhatsApp</span>
+            </button>
+            <button type="button" class="footer-inline-action footer-inline-action-cancel" data-footer-cancel="${latestInvoiceId}" title="Cancel Sale">
+                <i class="fas fa-ban"></i>
+                <span>Cancel</span>
+            </button>
+        `;
+    }
+
+    if (lastInvoiceList) {
+        lastInvoiceList.querySelectorAll("[data-print-invoice]").forEach(button => {
+            button.addEventListener("click", () => printInvoice(button.dataset.printInvoice));
+        });
+
+        lastInvoiceList.querySelectorAll("[data-whatsapp-invoice]").forEach(button => {
+            button.addEventListener("click", () => {
+                const invoiceId = button.dataset.whatsappInvoice;
+                const match = recentInvoices.find(item => String(item.invoiceId) === String(invoiceId));
+                sendInvoiceOnWhatsApp(invoiceId, match?.phone || null);
+            });
+        });
+
+        lastInvoiceList.querySelectorAll("[data-cancel-invoice]").forEach(button => {
+            button.addEventListener("click", () => {
+                const invoiceId = button.dataset.cancelInvoice;
+                if (!window.confirm("Cancel this sale?")) {
+                    return;
+                }
+
+                fetch(`/sales/cancel/${invoiceId}`, {
+                    method: "POST",
+                    headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Could not cancel sale");
+                        }
+                        showTempToast("Sale cancelled successfully", "success");
+                        recentInvoices = recentInvoices.filter(item => String(item.invoiceId) !== String(invoiceId));
+                        if (String(lastSavedInvoiceId) === String(invoiceId)) {
+                            lastSavedInvoiceId = recentInvoices[0]?.invoiceId || null;
+                            lastSavedPhone = recentInvoices[0]?.phone || null;
+                        }
+                        persistLastInvoiceContext();
+                        refreshLastInvoiceBar();
+                    })
+                    .catch(() => showTempToast("Could not cancel sale", "error"));
+            });
+        });
+    }
+
+    cartLatestInvoiceActions?.querySelectorAll("[data-footer-print]").forEach(button => {
+        button.addEventListener("click", () => printInvoice(button.dataset.footerPrint));
     });
 
-    lastInvoiceList.querySelectorAll("[data-whatsapp-invoice]").forEach(button => {
+    cartLatestInvoiceActions?.querySelectorAll("[data-footer-whatsapp]").forEach(button => {
+        button.addEventListener("click", () => sendInvoiceOnWhatsApp(button.dataset.footerWhatsapp, latestEntry?.phone || null));
+    });
+
+    cartLatestInvoiceActions?.querySelectorAll("[data-footer-cancel]").forEach(button => {
         button.addEventListener("click", () => {
-            const invoiceId = button.dataset.whatsappInvoice;
-            const match = recentInvoices.find(item => String(item.invoiceId) === String(invoiceId));
-            sendInvoiceOnWhatsApp(invoiceId, match?.phone || null);
+            if (!window.confirm("Cancel this sale?")) {
+                return;
+            }
+
+            fetch(`/sales/cancel/${button.dataset.footerCancel}`, {
+                method: "POST",
+                headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Could not cancel sale");
+                    }
+                    showTempToast("Sale cancelled successfully", "success");
+                    recentInvoices = recentInvoices.filter(item => String(item.invoiceId) !== String(button.dataset.footerCancel));
+                    if (String(lastSavedInvoiceId) === String(button.dataset.footerCancel)) {
+                        lastSavedInvoiceId = recentInvoices[0]?.invoiceId || null;
+                        lastSavedPhone = recentInvoices[0]?.phone || null;
+                    }
+                    persistLastInvoiceContext();
+                    refreshLastInvoiceBar();
+                })
+                .catch(() => showTempToast("Could not cancel sale", "error"));
         });
     });
 
@@ -204,6 +441,7 @@ function refreshLastInvoiceBar() {
         whatsappInvoiceBtn.disabled = false;
     }
 }
+
 
 function escapeHtml(text) {
     if (!text) return "";
@@ -349,6 +587,7 @@ function setScanStatus(type, title, message) {
 }
 
 function hideCustomerHistory() {
+    currentCustomerHistory = null;
     if (customerHistoryCard) {
         customerHistoryCard.hidden = true;
     }
@@ -364,6 +603,43 @@ function hideCustomerHistory() {
     if (customerHistorySalesWrap) {
         customerHistorySalesWrap.hidden = true;
     }
+    hideCustomerHistoryModal();
+}
+
+function focusPrescriptionDesk() {
+    prescriptionDateInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (prescriptionDocumentInput) {
+        setTimeout(() => prescriptionDocumentInput.focus(), 180);
+        return;
+    }
+    focusAndSelect(prescriptionReferenceInput);
+}
+
+function cloneLastCartItem() {
+    const lastItem = window.currentCart?.[window.currentCart.length - 1];
+    if (!lastItem) {
+        showTempToast("No cart item available to duplicate", "warning");
+        return;
+    }
+    selectedProduct = {
+        id: lastItem.productId || lastItem.id,
+        name: lastItem.name,
+        price: lastItem.price,
+        gstPercent: lastItem.gstPercent,
+        barcode: lastItem.barcode
+    };
+    if (qtyInput) qtyInput.value = "1";
+    addProduct();
+}
+
+function previewPrescriptionRequirements() {
+    const rxItems = window.currentCart.filter(item => item.prescriptionRequired);
+    if (!rxItems.length) {
+        showTempToast("No prescription medicine in current sale", "info");
+        return;
+    }
+    const names = rxItems.map(item => item.productName || item.name).join(", ");
+    showTempToast(`Rx items: ${names}`, "info");
 }
 
 function formatHistoryDate(dateValue) {
@@ -377,16 +653,25 @@ function formatHistoryDate(dateValue) {
     }).format(date);
 }
 
+function openCustomerHistoryModal() {
+    if (!customerHistoryModal || !currentCustomerHistory?.found) {
+        return;
+    }
+    customerHistoryModal.classList.add("show");
+}
+
+function hideCustomerHistoryModal() {
+    customerHistoryModal?.classList.remove("show");
+}
+
 function renderCustomerHistory(history) {
     if (!history?.found || !customerHistoryCard) {
         hideCustomerHistory();
         return;
     }
 
+    currentCustomerHistory = history;
     customerHistoryCard.hidden = false;
-    if (customerHistoryBadge) {
-        customerHistoryBadge.textContent = `${history.visitCount || 0} visits`;
-    }
     if (customerHistoryName) {
         customerHistoryName.textContent = history.customerName || "Known customer";
     }
@@ -407,14 +692,38 @@ function renderCustomerHistory(history) {
         customerHistoryDoctor.textContent = history.lastDoctorName || "—";
     }
 
+    const medicines = Array.isArray(history.recentMedicines) ? history.recentMedicines : [];
+    const sales = Array.isArray(history.recentSales) ? history.recentSales : [];
+
+    if (customerHistoryModalSubtitle) {
+        const subtitleParts = [];
+        if (history.customerName) {
+            subtitleParts.push(history.customerName);
+        }
+        if (history.customerPhone) {
+            subtitleParts.push(history.customerPhone);
+        }
+        customerHistoryModalSubtitle.textContent = subtitleParts.join(" • ") || "Returning customer summary";
+    }
+    if (customerHistoryModalVisits) {
+        customerHistoryModalVisits.textContent = `${history.visitCount || 0}`;
+    }
+    if (customerHistoryModalSpend) {
+        customerHistoryModalSpend.textContent = `₹${Number(history.lifetimeSpend || 0).toFixed(2)}`;
+    }
+    if (customerHistoryModalDoctor) {
+        customerHistoryModalDoctor.textContent = history.lastDoctorName || "—";
+    }
+    if (customerHistoryModalLastVisit) {
+        customerHistoryModalLastVisit.textContent = formatHistoryDate(history.lastVisitDate);
+    }
+
     if (customerHistoryMedicines && customerHistoryMedicinesWrap) {
-        const medicines = Array.isArray(history.recentMedicines) ? history.recentMedicines : [];
         customerHistoryMedicines.innerHTML = medicines.map(name => `<span>${escapeHtml(name)}</span>`).join("");
         customerHistoryMedicinesWrap.hidden = medicines.length === 0;
     }
 
     if (customerHistorySales && customerHistorySalesWrap) {
-        const sales = Array.isArray(history.recentSales) ? history.recentSales : [];
         customerHistorySales.innerHTML = sales.map(sale => `
             <div class="customer-history-sale">
                 <div>
@@ -732,7 +1041,7 @@ function resetBillingFields() {
         doctorNameInput.value = "";
         delete doctorNameInput.dataset.touched;
     }
-    if (prescriptionVerifiedInput) prescriptionVerifiedInput.checked = false;
+    setPrescriptionReadyState(false);
     if (prescriptionDateInput) prescriptionDateInput.value = "";
     if (prescriptionReferenceInput) prescriptionReferenceInput.value = "";
     if (paymentMode) paymentMode.value = "CASH";
@@ -859,9 +1168,9 @@ function refreshPrescriptionState() {
 
     if (requiresPrescription) {
         prescriptionBannerTitle.textContent = "Rx medicine present in this bill";
-        prescriptionBannerText.textContent = "Verify the prescription before completing the sale. Record prescription date and doctor name or prescription reference for proper traceability.";
+        prescriptionBannerText.textContent = "Verify Rx before sale. Add date and doctor or reference.";
     } else {
-        if (prescriptionVerifiedInput) prescriptionVerifiedInput.checked = false;
+        setPrescriptionReadyState(false);
         if (prescriptionDateInput) prescriptionDateInput.value = "";
         if (prescriptionReferenceInput) prescriptionReferenceInput.value = "";
         if (doctorNameInput && !doctorNameInput.dataset.touched) {
@@ -869,7 +1178,62 @@ function refreshPrescriptionState() {
         }
     }
 
+    syncPrescriptionReadyButton();
     return requiresPrescription;
+}
+
+
+
+function refreshLastInvoiceCompactBar() {
+    if (!lastInvoiceBar || !lastInvoiceList || !lastSavedInvoiceId) {
+        if (lastInvoiceBar) {
+            lastInvoiceBar.hidden = true;
+        }
+        return;
+    }
+
+    const invoiceId = lastSavedInvoiceId;
+    const invoiceUrl = getInvoiceViewUrl(invoiceId);
+    const thermalUrl = getThermalPrintUrl(invoiceId);
+    const whatsappDisabled = lastSavedPhone ? "" : "disabled";
+
+    lastInvoiceBar.hidden = false;
+
+    lastInvoiceList.innerHTML = `
+        <div class="latest-invoice-compact-row">
+            <span class="latest-invoice-compact-label">Invoice #${invoiceId}</span>
+
+            <div class="latest-invoice-compact-actions">
+                <button type="button"
+                        class="latest-invoice-compact-action"
+                        id="latestCompactPrintBtn"
+                        title="Print">
+                    <i class="fas fa-print"></i>
+                </button>
+
+                <button type="button"
+                        class="latest-invoice-compact-action latest-invoice-compact-action-whatsapp"
+                        id="latestCompactWhatsappBtn"
+                        title="WhatsApp"
+                        ${whatsappDisabled}>
+                    <i class="fab fa-whatsapp"></i>
+                </button>
+
+                <a href="${invoiceUrl}"
+                   target="_blank"
+                   class="latest-invoice-compact-action"
+                   title="View">
+                    <i class="fas fa-eye"></i>
+                </a>
+            </div>
+        </div>
+    `;
+
+    const printBtn = document.getElementById("latestCompactPrintBtn");
+    const whatsappBtn = document.getElementById("latestCompactWhatsappBtn");
+
+    printBtn?.addEventListener("click", () => printInvoice(invoiceId));
+    whatsappBtn?.addEventListener("click", () => sendInvoiceOnWhatsApp(invoiceId, lastSavedPhone || null));
 }
 
 window.updateCartUI = function updateCartUI(cart) {
@@ -880,8 +1244,12 @@ window.updateCartUI = function updateCartUI(cart) {
         cartContainer.innerHTML = '<div class="empty-cart"><div class="empty-cart-graphic"><i class="fas fa-prescription-bottle-medical"></i></div><p>Counter cart is empty</p><span>Search a medicine or scan a barcode to begin billing.</span></div>';
         document.getElementById("cartCount").innerText = "0 items";
         const cartItemCountValue = document.getElementById("cartItemCountValue");
+        const cartCountBadge = document.getElementById("cartCountBadge");
         if (cartItemCountValue) {
             cartItemCountValue.innerText = "0";
+        }
+        if (cartCountBadge) {
+            cartCountBadge.innerText = "0";
         }
         calculateChange();
         refreshPrescriptionState();
@@ -950,8 +1318,12 @@ window.updateCartUI = function updateCartUI(cart) {
     cartContainer.innerHTML = html;
     document.getElementById("cartCount").innerText = `${window.currentCart.length} items`;
     const cartItemCountValue = document.getElementById("cartItemCountValue");
+    const cartCountBadge = document.getElementById("cartCountBadge");
     if (cartItemCountValue) {
         cartItemCountValue.innerText = String(window.currentCart.length);
+    }
+    if (cartCountBadge) {
+        cartCountBadge.innerText = String(window.currentCart.length);
     }
     calculateChange();
     refreshPrescriptionState();
@@ -1101,24 +1473,29 @@ function renderSuggestions(products, keyword = searchInput?.value || "") {
         const gstPercent = Number(product.gstPercent || 0);
         const gstClass = gstPercent === 0 ? "gst-zero" : gstPercent <= 5 ? "gst-low" : gstPercent <= 12 ? "gst-medium" : "gst-high";
         const metadata = [product.genericName, product.manufacturer].filter(Boolean).map(escapeHtml).join(" • ");
-        const chips = [];
+        const footerBits = [];
         const sellableStock = getProductSellableStock(product);
         const exactMatch = isExactBarcodeMatch(product, keyword);
         const stockClass = sellableStock > 0 ? "suggestion-stock-available" : "suggestion-stock-empty";
-        if (product.barcode) chips.push(`<span class="suggestion-tag"><i class="fas fa-barcode"></i> ${escapeHtml(product.barcode)}</span>`);
-        if (product.packSize) chips.push(`<span class="suggestion-tag"><i class="fas fa-box-open"></i> ${escapeHtml(product.packSize)}</span>`);
-        if (product.prescriptionRequired) chips.push('<span class="suggestion-tag suggestion-tag-rx"><i class="fas fa-file-medical"></i> Rx</span>');
-        if (exactMatch) chips.unshift('<span class="suggestion-tag suggestion-tag-scan"><i class="fas fa-bolt"></i> Exact barcode</span>');
+        if (product.barcode) footerBits.push(`<span class="suggestion-foot-bit"><i class="fas fa-barcode"></i> ${escapeHtml(product.barcode)}</span>`);
+        if (product.packSize) footerBits.push(`<span class="suggestion-foot-bit"><i class="fas fa-box-open"></i> ${escapeHtml(product.packSize)}</span>`);
         div.className = `suggestion-item${exactMatch ? " suggestion-item-exact" : ""}${sellableStock <= 0 ? " suggestion-item-disabled" : ""}`;
         div.innerHTML = `
-            <div class="suggestion-name">${escapeHtml(product.name)}</div>
-            ${metadata ? `<div class="suggestion-meta">${metadata}</div>` : ""}
-            <div class="suggestion-details">
-                <span class="suggestion-price">₹${product.price}</span>
-                <span class="suggestion-stock ${stockClass}"><i class="fas fa-box"></i> ${sellableStock} sellable</span>
-                <span class="suggestion-gst ${gstClass}">${gstPercent}% GST</span>
+            <div class="suggestion-compact-grid">
+                <div class="suggestion-primary-line">
+                    <div class="suggestion-name">${escapeHtml(product.name)}</div>
+                    ${exactMatch ? '<span class="suggestion-tag suggestion-tag-scan"><i class="fas fa-bolt"></i> Exact</span>' : ""}
+                    ${product.prescriptionRequired ? '<span class="suggestion-tag suggestion-tag-rx"><i class="fas fa-file-medical"></i> Rx</span>' : ""}
+                </div>
+                <div class="suggestion-meta suggestion-meta-right">${metadata || "—"}</div>
+                <div class="suggestion-footline">${footerBits.length ? footerBits.join('<span class="suggestion-foot-sep">•</span>') : '<span class="suggestion-foot-bit suggestion-foot-bit-empty">No barcode • No pack</span>'}</div>
+                <div class="suggestion-details suggestion-details-right">
+                    <span class="suggestion-price">₹${product.price}</span>
+                    <span class="suggestion-stock ${stockClass}"><i class="fas fa-box"></i> ${sellableStock} sellable</span>
+                    <span class="suggestion-gst ${gstClass}">${gstPercent}% GST</span>
+                </div>
             </div>
-            ${chips.length ? `<div class="suggestion-tags">${chips.join("")}</div>` : ""}`;
+            `;
         div.addEventListener("click", () => {
             if (sellableStock <= 0) {
                 setScanStatus("warning", "Medicine Not Sellable", `${product.name} matched, but there is no sellable batch stock available right now.`);
@@ -1348,10 +1725,10 @@ if (billingForm) {
 
         const requiresPrescription = refreshPrescriptionState();
         if (requiresPrescription) {
-            if (!prescriptionVerifiedInput?.checked) {
+            if (!isPrescriptionMarkedReady()) {
                 event.preventDefault();
                 showTempToast("Verify the prescription before completing an Rx bill", "warning");
-                prescriptionVerifiedInput?.focus();
+                markPrescriptionReadyBtn?.focus();
                 return;
             }
 
@@ -1415,6 +1792,45 @@ if (invoicePhoneSendBtn) {
         sendInvoiceOnWhatsApp(lastSavedInvoiceId, phone);
     });
 }
+
+holdSaleBtn?.addEventListener("click", () => {
+    if (!window.currentCart.length) {
+        showTempToast("Nothing to hold yet", "warning");
+        return;
+    }
+    persistHeldSale();
+    showTempToast("Sale held for later", "success");
+    focusSearch();
+});
+quickLatestReceiptBtn?.addEventListener("click", () => {
+    const latestInvoiceId = recentInvoices[0]?.invoiceId || lastSavedInvoiceId;
+    const invoiceUrl = getInvoiceViewUrl(latestInvoiceId);
+    if (!invoiceUrl) {
+        showTempToast("No recent invoice available", "warning");
+        return;
+    }
+    window.open(invoiceUrl, "_blank", "noopener,noreferrer");
+});
+quickFocusSearchBtn?.addEventListener("click", focusSearch);
+quickFocusCustomerBtn?.addEventListener("click", () => focusAndSelect(customerPhoneInput));
+quickCloneLastItemBtn?.addEventListener("click", cloneLastCartItem);
+customerHistoryOpenBtn?.addEventListener("click", openCustomerHistoryModal);
+customerHistoryModalClose?.addEventListener("click", hideCustomerHistoryModal);
+customerHistoryModal?.addEventListener("click", event => {
+    if (event.target === customerHistoryModal) {
+        hideCustomerHistoryModal();
+    }
+});
+markPrescriptionReadyBtn?.addEventListener("click", () => {
+    setPrescriptionReadyState(!isPrescriptionMarkedReady());
+    if (prescriptionDateInput && !prescriptionDateInput.value) {
+        prescriptionDateInput.value = new Date().toISOString().slice(0, 10);
+    }
+    refreshPrescriptionState();
+    const isReady = isPrescriptionMarkedReady();
+    showTempToast(isReady ? "Prescription marked ready" : "Prescription marked pending", isReady ? "success" : "warning");
+});
+previewPrescriptionBtn?.addEventListener("click", previewPrescriptionRequirements);
 
 if (invoicePhoneInput) {
     invoicePhoneInput.addEventListener("keydown", event => {
@@ -1496,6 +1912,12 @@ document.addEventListener("keydown", event => {
     const popupOpen = cancelPopup?.classList.contains("show");
 
     if (event.key === "Escape") {
+        if (customerHistoryModal?.classList.contains("show")) {
+            event.preventDefault();
+            hideCustomerHistoryModal();
+            focusAndSelect(customerPhoneInput);
+            return;
+        }
         if (invoicePhoneModal?.classList.contains("show")) {
             event.preventDefault();
             hideInvoicePhoneModal();
@@ -1600,9 +2022,11 @@ fetch("/sales/cart")
     .then(cart => updateCartUI(Array.isArray(cart) ? cart : []))
     .catch(() => updateCartUI([]));
 
-window.onload = () => {
+function initializeBillingPage() {
     const params = new URLSearchParams(window.location.search);
     restoreLastInvoiceContext();
+    restoreHeldSale();
+    syncPrescriptionReadyButton();
     
  
 
@@ -1641,4 +2065,10 @@ window.onload = () => {
     refreshPrescriptionState();
     setEntryMode(restoreEntryMode(), { persist: false });
     focusSearch();
-};
+}
+
+document.addEventListener("DOMContentLoaded", initializeBillingPage);
+window.addEventListener("pageshow", () => {
+    refreshLastInvoiceBar();
+    syncPrescriptionReadyButton();
+});

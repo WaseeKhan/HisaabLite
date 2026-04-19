@@ -134,25 +134,18 @@
                                 </div>
 
                                 <div class="current-sale-footer">
-                                    <button type="button" class="footer-cta-btn">
-                                        <i class="fas fa-plus"></i>
-                                        <span>Add Prescription</span>
-                                    </button>
+                                    <div id="cartLatestInvoiceActions" class="cart-latest-invoice-actions" hidden></div>
 
                                     <div class="footer-actions-right">
-                                        <button type="button" class="footer-light-btn" onclick="showPopup()">Clear
-                                            Sale</button>
-                                        <span class="footer-shortcut">F7</span>
+                                        <button type="button" class="footer-light-btn" id="holdSaleBtn">Hold Sale</button>
 
-                                        <button type="button" class="footer-light-btn">Hold Sale</button>
-
-                                        <button type="button" class="footer-icon-btn"><i
+                                        <button type="button" class="footer-icon-btn" id="quickLatestReceiptBtn"><i
                                                 class="fas fa-receipt"></i></button>
-                                        <button type="button" class="footer-icon-btn"><i
+                                        <button type="button" class="footer-icon-btn" id="quickFocusSearchBtn"><i
                                                 class="fas fa-search"></i></button>
-                                        <button type="button" class="footer-icon-btn"><i
+                                        <button type="button" class="footer-icon-btn" id="quickFocusCustomerBtn"><i
                                                 class="far fa-map"></i></button>
-                                        <button type="button" class="footer-icon-btn"><i
+                                        <button type="button" class="footer-icon-btn" id="quickCloneLastItemBtn"><i
                                                 class="far fa-clone"></i></button>
                                     </div>
                                 </div>
@@ -174,22 +167,24 @@
                                     </div>
 
                                     <div class="customer-fields">
-                                        <div class="field-group">
-                                            <label>Name</label>
-                                            <input type="text" name="customerName" class="customer-input"
-                                                placeholder="Walk-in customer">
-                                        </div>
+                                        <div class="field-group-row customer-primary-row">
+                                            <div class="field-group">
+                                                <label>Name</label>
+                                                <input type="text" name="customerName" class="customer-input"
+                                                    placeholder="Walk-in customer">
+                                            </div>
 
-                                        <div class="field-group">
-                                            <label>Phone</label>
-                                            <input type="text" name="customerPhone" class="customer-input"
-                                                placeholder="9876543210" inputmode="numeric" maxlength="10">
+                                            <div class="field-group">
+                                                <label>Phone</label>
+                                                <input type="text" name="customerPhone" class="customer-input"
+                                                    placeholder="9876543210" inputmode="numeric" maxlength="10">
+                                            </div>
                                         </div>
 
                                         <div class="field-group">
                                             <label>Doctor / Referred By</label>
                                             <input type="text" name="doctorName" class="customer-input"
-                                                placeholder="Optional doctor name">
+                                                placeholder=" Doctor Name">
                                         </div>
                                         
                                     </div>
@@ -197,40 +192,25 @@
                                     
 
                                     <div class="customer-history-card" id="customerHistoryCard" hidden>
-                                        <div class="customer-history-head">
-                                            <div class="customer-history-title">
-                                                <i class="fas fa-clock-rotate-left"></i>
-                                                <span>Recent Customer</span>
-                                            </div>
-                                            <span class="customer-history-badge" id="customerHistoryBadge">0
-                                                visits</span>
-                                        </div>
-
                                         <div class="customer-history-copy">
                                             <strong id="customerHistoryName">Returning customer</strong>
                                             <p id="customerHistoryMeta">Last visit and spend summary will appear here.
                                             </p>
                                         </div>
 
-                                        <div class="customer-history-grid">
-                                            <div class="customer-history-chip">
+                                        <div class="customer-history-inline-meta">
+                                            <div class="customer-history-inline-block">
                                                 <span>Lifetime Spend</span>
                                                 <strong id="customerHistorySpend">₹0.00</strong>
                                             </div>
-                                            <div class="customer-history-chip">
+                                            <div class="customer-history-inline-block">
                                                 <span>Last Doctor</span>
                                                 <strong id="customerHistoryDoctor">—</strong>
                                             </div>
-                                        </div>
-
-                                        <div class="customer-history-section" id="customerHistoryMedicinesWrap" hidden>
-                                            <span class="customer-history-label">Recent Medicines</span>
-                                            <div class="customer-history-tags" id="customerHistoryMedicines"></div>
-                                        </div>
-
-                                        <div class="customer-history-section" id="customerHistorySalesWrap" hidden>
-                                            <span class="customer-history-label">Recent Bills</span>
-                                            <div class="customer-history-sales" id="customerHistorySales"></div>
+                                            <button type="button" class="customer-history-open-btn" id="customerHistoryOpenBtn">
+                                                <i class="fas fa-eye"></i>
+                                                <span>View History</span>
+                                            </button>
                                         </div>
                                     </div>
 
@@ -263,25 +243,29 @@
                                     </div>
 
                                     <div class="customer-fields prescription-fields">
-                                        <div class="field-group checkbox-group">
-                                            <label class="field-label-checkbox">
-                                                <input type="checkbox" name="prescriptionVerified"
-                                                    id="prescriptionVerified">
-                                                <span>I checked the prescription at the counter</span>
-                                            </label>
-                                        </div>
+                                        <input type="hidden" name="prescriptionVerified" id="prescriptionVerified"
+                                            value="false">
 
-                                        <div class="field-group">
-                                            <label>Prescription Date</label>
-                                            <input type="date" name="prescriptionDate" id="prescriptionDate"
-                                                class="customer-input">
-                                        </div>
+                                       <div class="field-group-row">
 
-                                        <div class="field-group">
-                                            <label>Prescription Reference</label>
-                                            <input type="text" name="prescriptionReference" id="prescriptionReference"
-                                                class="customer-input" placeholder="Rx no., file no., or note">
-                                        </div>
+    <div class="field-group">
+        <label>Prescription Date</label>
+        <input type="date"
+               name="prescriptionDate"
+               id="prescriptionDate"
+               class="customer-input">
+    </div>
+
+    <div class="field-group">
+        <label>Prescription Reference</label>
+        <input type="text"
+               name="prescriptionReference"
+               id="prescriptionReference"
+               class="customer-input"
+               placeholder="Rx no., file no., or note">
+    </div>
+
+</div>
 
                                         <div class="field-group">
                                             <label>Prescription File</label>
@@ -296,11 +280,11 @@
                                     </div>
 
                                     <div class="prescription-action-row">
-                                        <button type="button" class="mark-ready-btn">
+                                        <button type="button" class="mark-ready-btn" id="markPrescriptionReadyBtn">
                                             <i class="fas fa-check-circle"></i>
                                             <span>Mark As Ready</span>
                                         </button>
-                                        <button type="button" class="preview-btn">Preview Regs...</button>
+                                        <button type="button" class="preview-btn" id="previewPrescriptionBtn">Preview Regs...</button>
                                     </div>
 
                                    
@@ -309,18 +293,7 @@
                             </div>
 
 
-                            <section class="billing-card info-card recent-invoice-card">
-                                <div class="section-top">
-                                    <div class="section-title">
-                                        <i class="fas fa-receipt"></i>
-                                        <span>Latest Bills</span>
-                                    </div>
-                                </div>
-
-                                <div id="lastInvoiceBar" class="last-invoice-bar" hidden>
-                                    <div id="lastInvoiceList" class="latest-bills-list"></div>
-                                </div>
-                            </section>
+                           
 
                         </div>
 
@@ -412,24 +385,31 @@
                                     <button type="submit" class="btn-complete">
                                         Complete Sale
                                     </button>
-
-                                    <button type="button" class="print-btn"
-                                        onclick="if (window.lastSavedInvoiceId) { printInvoice(window.lastSavedInvoiceId); }">
-                                        Print Bill
+                                    <button type="button" class="btn-clear-sale" onclick="showPopup()">
+                                        Clear Sale
                                     </button>
 
-                                    <button type="button" class="whatsapp-btn"
-                                        onclick="if (window.lastSavedInvoiceId) { sendInvoiceOnWhatsApp(window.lastSavedInvoiceId, window.lastSavedPhone || null); }">
-                                        WhatsApp Receipt
-                                    </button>
                                 </div>
 
 
-                                <div class="payment-shortcuts">
-                                    <span>F7 Clear Sale</span>
-                                    <span class="danger-text">F3 Decline</span>
-                                    <span class="primary-text">F8 Complete Sale</span>
-                                </div>
+                               <div class="payment-shortcuts">
+
+    <div class="shortcut-item">
+        <span class="shortcut-key">Ctrl + Enter</span>
+        <i class="fas fa-check-circle shortcut-icon"></i>
+    </div>
+
+    <div class="shortcut-item">
+        <span class="shortcut-key">F9</span>
+        <i class="fab fa-whatsapp shortcut-icon"></i>
+    </div>
+
+    <div class="shortcut-item">
+        <span class="shortcut-key">F10</span>
+        <i class="fas fa-print shortcut-icon"></i>
+    </div>
+
+</div>
 
                                 <div class="payment-hidden-helpers">
                                     <span id="totalGstAmount" hidden>0.00</span>
@@ -487,6 +467,55 @@
             <div class="popup-actions">
                 <button class="popup-btn cancel" type="button" onclick="hideInvoicePhoneModal()">Cancel</button>
                 <button class="popup-btn confirm" type="button" id="invoicePhoneSendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customerHistoryModal" class="popup-overlay">
+        <div class="popup-card customer-history-modal-card">
+            <div class="customer-history-modal-head">
+                <div class="customer-history-modal-head-copy">
+                    <div class="customer-history-modal-kicker">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Customer Snapshot</span>
+                    </div>
+                    <div class="popup-title customer-history-modal-title">Customer History</div>
+                    <div class="popup-text customer-history-modal-subtitle" id="customerHistoryModalSubtitle">
+                        Returning customer summary
+                    </div>
+                </div>
+                <button type="button" class="customer-history-modal-close" id="customerHistoryModalClose" aria-label="Close customer history">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="customer-history-modal-grid">
+                <div class="customer-history-chip">
+                    <span>Visits</span>
+                    <strong id="customerHistoryModalVisits">0</strong>
+                </div>
+                <div class="customer-history-chip">
+                    <span>Lifetime Spend</span>
+                    <strong id="customerHistoryModalSpend">₹0.00</strong>
+                </div>
+                <div class="customer-history-chip">
+                    <span>Last Doctor</span>
+                    <strong id="customerHistoryModalDoctor">—</strong>
+                </div>
+                <div class="customer-history-chip">
+                    <span>Last Visit</span>
+                    <strong id="customerHistoryModalLastVisit">—</strong>
+                </div>
+            </div>
+
+            <div class="customer-history-section" id="customerHistoryMedicinesWrap" hidden>
+                <span class="customer-history-label">Recent Medicines</span>
+                <div class="customer-history-tags customer-history-tags-modal" id="customerHistoryMedicines"></div>
+            </div>
+
+            <div class="customer-history-section" id="customerHistorySalesWrap" hidden>
+                <span class="customer-history-label">Recent Bills</span>
+                <div class="customer-history-sales customer-history-sales-modal" id="customerHistorySales"></div>
             </div>
         </div>
     </div>

@@ -22,12 +22,15 @@ body {
     color: #000;
     font-family: monospace;
     font-size: 10px;
+    line-height: 1.35;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
 body {
     display: flex;
     justify-content: center;
-    padding: 12px 0;
+    padding: 8px 0;
 }
 
 .thermal {
@@ -39,17 +42,47 @@ body {
 .right { text-align: right; }
 .bold { font-weight: 700; }
 .small { font-size: 9px; }
+.x-small { font-size: 8px; }
 .muted { color: #444; }
 
-.dash {
+.rule {
     border-top: 1px dashed #000;
+    margin: 5px 0;
+}
+
+.rule-tight {
+    border-top: 1px dotted #777;
     margin: 4px 0;
 }
 
+.header {
+    text-align: center;
+}
+
 .shop-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.shop-address {
+    font-size: 9px;
+    line-height: 1.35;
+    margin-bottom: 1px;
+}
+
+.shop-meta {
+    font-size: 9px;
+}
+
+.meta-block,
+.payment-block,
+.totals {
+    display: grid;
+    gap: 2px;
 }
 
 .meta-line,
@@ -57,24 +90,48 @@ body {
 .payment-line {
     display: flex;
     justify-content: space-between;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 8px;
 }
 
-.meta-block,
-.payment-block {
-    display: grid;
-    gap: 2px;
+.meta-label,
+.totals-label,
+.payment-label {
+    color: #333;
+}
+
+.meta-value,
+.totals-value,
+.payment-value {
+    text-align: right;
+    font-weight: 700;
+}
+
+.bill-strip {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 0;
+    letter-spacing: 0.3px;
 }
 
 .items-head,
 .item-top {
     display: grid;
-    grid-template-columns: 1fr 26px 48px;
+    grid-template-columns: 1fr 28px 52px;
     gap: 6px;
 }
 
 .items-head {
     font-weight: 700;
+    font-size: 10px;
+}
+
+.items-head .qty,
+.items-head .amt,
+.item-qty,
+.item-amt {
+    text-align: right;
 }
 
 .item-row + .item-row {
@@ -86,45 +143,66 @@ body {
 .item-name {
     font-weight: 700;
     word-break: break-word;
+    line-height: 1.25;
 }
 
-.item-qty,
-.item-amt,
-.items-head .qty,
-.items-head .amt {
-    text-align: right;
+.item-qty {
+    font-weight: 700;
+}
+
+.item-amt {
+    font-weight: 700;
 }
 
 .item-sub {
     margin-top: 1px;
-    padding-left: 0;
-    line-height: 1.35;
-}
-
-.item-sub.tax {
-    color: #111;
+    line-height: 1.3;
+    color: #222;
 }
 
 .item-sub.batch {
     color: #333;
 }
 
-.totals {
-    display: grid;
-    gap: 2px;
+.item-sub.rx {
+    font-weight: 700;
+}
+
+.summary-box {
+    padding-top: 1px;
 }
 
 .grand-total {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
+    padding: 2px 0;
+}
+
+.net-box {
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+    padding: 3px 0;
+    margin: 4px 0;
 }
 
 .footer {
     margin-top: 4px;
+    text-align: center;
     line-height: 1.35;
+}
+
+.footer strong {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.footer-note {
+    font-size: 8px;
+    color: #444;
 }
 
 @media print {
@@ -150,31 +228,61 @@ body {
 
 <body>
 <div class="thermal">
-    <div class="center">
+
+    <div class="header">
         <div class="shop-name" th:text="${sale.shop.name}">SHOP NAME</div>
-        <div th:text="${sale.shop.address}">Shop Address</div>
-        <div class="small">GSTIN: <span th:text="${sale.shop.gstNumber ?: 'N/A'}">N/A</span></div>
+        <div class="shop-address" th:text="${sale.shop.address}">Shop Address</div>
+        <div class="shop-meta">GSTIN: <span th:text="${sale.shop.gstNumber ?: 'N/A'}">N/A</span></div>
     </div>
 
-    <div class="dash"></div>
+    <div class="rule"></div>
+
+    <div class="bill-strip">TAX INVOICE</div>
+
+    <div class="rule"></div>
 
     <div class="meta-block">
-        <div class="meta-line"><span>Bill No</span><span th:text="${sale.id}">12345</span></div>
         <div class="meta-line">
-            <span>Date</span>
-            <span>
-                <span th:text="${#temporals.format(sale.saleDate,'dd MMMM yyyy')}">09 April 2026</span>
+            <span class="meta-label">Invoice #</span>
+            <span class="meta-value" th:text="${sale.id}">12345</span>
+        </div>
+
+        <div class="meta-line">
+            <span class="meta-label">Date</span>
+            <span class="meta-value">
+                <span th:text="${#temporals.format(sale.saleDate,'dd MMM yyyy')}">09 Apr 2026</span>
+                &nbsp;
                 <span th:text="${#temporals.format(sale.saleDate,'hh:mm a')}">08:30 PM</span>
             </span>
         </div>
-        <div class="meta-line"><span>Customer</span><span th:text="${sale.customerName ?: 'Walk-in'}">Walk-in</span></div>
-        <div class="meta-line"><span>Phone</span><span th:text="${sale.customerPhone ?: '-'}">-</span></div>
-        <div class="meta-line" th:if="${sale.doctorName != null}"><span>Doctor</span><span th:text="${sale.doctorName}">Dr. Mehta</span></div>
-        <div class="meta-line" th:if="${sale.prescriptionDate != null}"><span>Rx Date</span><span th:text="${#temporals.format(sale.prescriptionDate,'dd MMM yyyy')}">12 Apr 2026</span></div>
-        <div class="meta-line" th:if="${sale.prescriptionRequired}"><span>Rx Check</span><span th:text="${sale.prescriptionVerified ? 'Verified' : 'Pending'}">Verified</span></div>
+
+        <div class="meta-line">
+            <span class="meta-label">Customer</span>
+            <span class="meta-value" th:text="${sale.customerName ?: 'Walk-in'}">Walk-in</span>
+        </div>
+
+        <div class="meta-line">
+            <span class="meta-label">Phone</span>
+            <span class="meta-value" th:text="${sale.customerPhone ?: '-'}">-</span>
+        </div>
+
+        <div class="meta-line" th:if="${sale.doctorName != null}">
+            <span class="meta-label">Doctor</span>
+            <span class="meta-value" th:text="${sale.doctorName}">Dr. Mehta</span>
+        </div>
+
+        <div class="meta-line" th:if="${sale.prescriptionDate != null}">
+            <span class="meta-label">Rx Date</span>
+            <span class="meta-value" th:text="${#temporals.format(sale.prescriptionDate,'dd MMM yyyy')}">12 Apr 2026</span>
+        </div>
+
+        <div class="meta-line" th:if="${sale.prescriptionRequired}">
+            <span class="meta-label">Rx Status</span>
+            <span class="meta-value" th:text="${sale.prescriptionVerified ? 'Verified' : 'Pending'}">Verified</span>
+        </div>
     </div>
 
-    <div class="dash"></div>
+    <div class="rule"></div>
 
     <div class="items-head">
         <span>Item</span>
@@ -182,13 +290,13 @@ body {
         <span class="amt">Amt</span>
     </div>
 
-    <div class="dash"></div>
+    <div class="rule-tight"></div>
 
     <div th:if="${#lists.isEmpty(items)}" class="center muted">No items in this invoice</div>
 
     <div th:each="item : ${items}" class="item-row">
         <div class="item-top">
-            <div class="item-name" th:text="${item.product.name}">Product</div>
+            <div class="item-name" th:text="${item.product.name}">Product Name</div>
             <div class="item-qty" th:text="${item.quantity}">1</div>
             <div class="item-amt">₹<span th:text="${#numbers.formatDecimal(item.totalWithGst,0,2)}">0.00</span></div>
         </div>
@@ -196,12 +304,13 @@ body {
         <div class="item-sub">
             Rate ₹<span th:text="${#numbers.formatDecimal(item.priceAtSale,0,2)}">0.00</span>
             • GST <span th:text="${item.gstPercent}">18</span>%
+            • Tax ₹<span th:text="${#numbers.formatDecimal(item.gstAmount,0,2)}">0.00</span>
         </div>
 
-        <div class="item-sub tax">
-            Tax ₹<span th:text="${#numbers.formatDecimal(item.gstAmount,0,2)}">0.00</span>
-            (CGST ₹<span th:text="${#numbers.formatDecimal(item.gstAmount/2,0,2)}">0.00</span>
-            + SGST ₹<span th:text="${#numbers.formatDecimal(item.gstAmount/2,0,2)}">0.00</span>)
+        <div class="item-sub"
+             th:if="${item.gstAmount != null}">
+            CGST ₹<span th:text="${#numbers.formatDecimal(item.gstAmount/2,0,2)}">0.00</span>
+            + SGST ₹<span th:text="${#numbers.formatDecimal(item.gstAmount/2,0,2)}">0.00</span>
         </div>
 
         <div class="item-sub batch"
@@ -217,74 +326,94 @@ body {
             </span>
         </div>
 
+        <div class="item-sub rx"
+     th:if="${item.product != null and item.product.prescriptionRequired}">
+    Rx item
+</div>
     </div>
 
-    <div class="dash"></div>
+    <div class="rule"></div>
 
-    <div class="totals">
-        <div class="totals-line">
-            <span>Subtotal</span>
-            <span>₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![subtotal]),0,2)}">0.00</span></span>
-        </div>
-        <div class="totals-line">
-            <span>CGST</span>
-            <span>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount/2,0,2)}">0.00</span></span>
-        </div>
-        <div class="totals-line">
-            <span>SGST</span>
-            <span>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount/2,0,2)}">0.00</span></span>
-        </div>
-        <div class="totals-line">
-            <span>Total Tax</span>
-            <span>₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount,0,2)}">0.00</span></span>
-        </div>
-        <div class="totals-line" th:if="${sale.discountAmount != null and sale.discountAmount > 0}">
-            <span>Discount</span>
-            <span>- ₹<span th:text="${#numbers.formatDecimal(sale.discountAmount,0,2)}">0.00</span></span>
+    <div class="summary-box">
+        <div class="totals">
+            <div class="totals-line">
+                <span class="totals-label">Subtotal</span>
+                <span class="totals-value">₹<span th:text="${#numbers.formatDecimal(#aggregates.sum(items.![subtotal]),0,2)}">0.00</span></span>
+            </div>
+
+            <div class="totals-line">
+                <span class="totals-label">CGST</span>
+                <span class="totals-value">₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount/2,0,2)}">0.00</span></span>
+            </div>
+
+            <div class="totals-line">
+                <span class="totals-label">SGST</span>
+                <span class="totals-value">₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount/2,0,2)}">0.00</span></span>
+            </div>
+
+            <div class="totals-line">
+                <span class="totals-label">Total Tax</span>
+                <span class="totals-value">₹<span th:text="${#numbers.formatDecimal(sale.totalGstAmount,0,2)}">0.00</span></span>
+            </div>
+
+            <div class="totals-line" th:if="${sale.discountAmount != null and sale.discountAmount > 0}">
+                <span class="totals-label">Discount</span>
+                <span class="totals-value">- ₹<span th:text="${#numbers.formatDecimal(sale.discountAmount,0,2)}">0.00</span></span>
+            </div>
         </div>
     </div>
 
-    <div class="dash"></div>
-
-    <div class="grand-total">
-        <span>NET AMOUNT</span>
-        <span>₹<span th:text="${#numbers.formatDecimal(sale.totalAmount,0,2)}">0.00</span></span>
+    <div class="net-box">
+        <div class="grand-total">
+            <span>NET AMOUNT</span>
+            <span>₹<span th:text="${#numbers.formatDecimal(sale.totalAmount,0,2)}">0.00</span></span>
+        </div>
     </div>
-
-    <div class="dash"></div>
 
     <div class="payment-block">
-        <div class="payment-line"><span>Payment</span><span th:text="${sale.paymentMode}">Cash</span></div>
-        <div class="payment-line"><span>Received</span><span>₹<span th:text="${#numbers.formatDecimal(sale.amountReceived,0,2)}">0.00</span></span></div>
-        <div class="payment-line"><span>Change</span><span>₹<span th:text="${#numbers.formatDecimal(sale.changeReturned,0,2)}">0.00</span></span></div>
+        <div class="payment-line">
+            <span class="payment-label">Payment</span>
+            <span class="payment-value" th:text="${sale.paymentMode}">Cash</span>
+        </div>
+
+        <div class="payment-line">
+            <span class="payment-label">Received</span>
+            <span class="payment-value">₹<span th:text="${#numbers.formatDecimal(sale.amountReceived,0,2)}">0.00</span></span>
+        </div>
+
+        <div class="payment-line">
+            <span class="payment-label">Change</span>
+            <span class="payment-value">₹<span th:text="${#numbers.formatDecimal(sale.changeReturned,0,2)}">0.00</span></span>
+        </div>
     </div>
 
-    <div class="dash"></div>
+    <div class="rule"></div>
 
-    <div class="center footer small">
-        <div>Thank you. Visit again.</div>
-        <div class="muted">Powered by Expygen</div>
+    <div class="footer small">
+        <strong>Thank you. Visit again.</strong>
+        <div>Goods once sold will be subject to store policy.</div>
+        <div class="footer-note">Powered by Expygen</div>
     </div>
 </div>
 </body>
 
 <script>
-    (function () {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('autoprint') !== 'true') {
-            return;
-        }
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autoprint') !== 'true') {
+        return;
+    }
 
-        window.addEventListener('load', function () {
-            window.setTimeout(function () {
-                window.print();
-            }, 250);
-        });
+    window.addEventListener('load', function () {
+        window.setTimeout(function () {
+            window.print();
+        }, 250);
+    });
 
-        window.addEventListener('afterprint', function () {
-            window.close();
-        });
-    })();
+    window.addEventListener('afterprint', function () {
+        window.close();
+    });
+})();
 </script>
 
 </html>

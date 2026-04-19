@@ -654,3 +654,131 @@ body.register-page-body {
         align-items: flex-start;
     }
 }
+
+:root[data-theme="dark"] body.register-page-body {
+    background: #0b1220;
+    color: #dbe5f3;
+}
+
+:root[data-theme="dark"] .register-layout {
+    background: linear-gradient(90deg, #0f172a 0 64%, #111827 64% 100%);
+}
+
+:root[data-theme="dark"] .register-showcase {
+    background:
+        radial-gradient(circle at 12% 14%, rgba(242, 140, 40, 0.16), transparent 18%),
+        radial-gradient(circle at 88% 12%, rgba(47, 116, 218, 0.18), transparent 16%),
+        linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
+:root[data-theme="dark"] .register-copy h1,
+:root[data-theme="dark"] .register-onboarding-head h2,
+:root[data-theme="dark"] .register-step strong,
+:root[data-theme="dark"] .register-card-badge,
+:root[data-theme="dark"] .success-modal-content h3,
+:root[data-theme="dark"] .success-summary-item strong {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .register-copy p,
+:root[data-theme="dark"] .register-step-count,
+:root[data-theme="dark"] .register-step p,
+:root[data-theme="dark"] .back-link,
+:root[data-theme="dark"] .success-modal-content p,
+:root[data-theme="dark"] .success-summary-label,
+:root[data-theme="dark"] .info-text {
+    color: #94a3b8;
+}
+
+:root[data-theme="dark"] .register-pill,
+:root[data-theme="dark"] .register-footer-pill,
+:root[data-theme="dark"] .countdown-chip {
+    background: rgba(17, 24, 39, 0.78);
+    border-color: rgba(148, 163, 184, 0.14);
+    color: #dbe5f3;
+}
+
+:root[data-theme="dark"] .register-onboarding-card,
+:root[data-theme="dark"] .register-card,
+:root[data-theme="dark"] .success-modal-content {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.16);
+    box-shadow: 0 28px 44px rgba(2, 6, 23, 0.34);
+}
+
+:root[data-theme="dark"] .register-card-shell {
+    background: #0f172a;
+    border-left-color: rgba(148, 163, 184, 0.16);
+}
+
+:root[data-theme="dark"] .register-card-badge,
+:root[data-theme="dark"] .success-kicker {
+    background: linear-gradient(180deg, #172033 0%, #111827 100%);
+    border-color: rgba(148, 163, 184, 0.16);
+    color: #dbe5f3;
+}
+
+:root[data-theme="dark"] .register-onboarding-head,
+:root[data-theme="dark"] .register-step + .register-step,
+:root[data-theme="dark"] .back-link {
+    border-color: rgba(148, 163, 184, 0.12);
+}
+
+:root[data-theme="dark"] .alert-error {
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(248, 113, 113, 0.22);
+    color: #fca5a5;
+}
+
+:root[data-theme="dark"] .register-form .input-icon,
+:root[data-theme="dark"] .register-form .input-wrapper:has(select)::after {
+    color: #7c8ba0;
+}
+
+:root[data-theme="dark"] .register-form input,
+:root[data-theme="dark"] .register-form select {
+    background: #172033;
+    border-color: rgba(148, 163, 184, 0.18);
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .register-form input::placeholder,
+:root[data-theme="dark"] .register-form select:invalid,
+:root[data-theme="dark"] .register-form select option[value=""] {
+    color: #718198;
+}
+
+:root[data-theme="dark"] .register-form input:focus,
+:root[data-theme="dark"] .register-form select:focus {
+    background: #1a253a;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
+}
+
+:root[data-theme="dark"] .field-error {
+    color: #fca5a5;
+}
+
+:root[data-theme="dark"] .btn-register,
+:root[data-theme="dark"] .action-btn.primary {
+    box-shadow: 0 18px 26px rgba(37, 99, 235, 0.25);
+}
+
+:root[data-theme="dark"] .back-link a {
+    color: #9fc4ff;
+}
+
+:root[data-theme="dark"] .success-summary-item {
+    background: #172033;
+    border-color: rgba(148, 163, 184, 0.14);
+}
+
+:root[data-theme="dark"] .countdown-chip-success {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(52, 211, 153, 0.24);
+    color: #86efac;
+}
+
+:root[data-theme="dark"] .countdown-chip-success i {
+    color: #86efac;
+}
