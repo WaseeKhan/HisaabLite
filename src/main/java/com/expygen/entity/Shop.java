@@ -40,6 +40,30 @@ public class Shop {
 
     private String upiId;
 
+    @Column(name = "logo_original_filename")
+    private String logoOriginalFilename;
+
+    @Column(name = "logo_stored_filename")
+    private String logoStoredFilename;
+
+    @Column(name = "logo_content_type")
+    private String logoContentType;
+
+    @Column(name = "logo_uploaded_at")
+    private LocalDateTime logoUploadedAt;
+
+    @Column(name = "seal_original_filename")
+    private String sealOriginalFilename;
+
+    @Column(name = "seal_stored_filename")
+    private String sealStoredFilename;
+
+    @Column(name = "seal_content_type")
+    private String sealContentType;
+
+    @Column(name = "seal_uploaded_at")
+    private LocalDateTime sealUploadedAt;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean active = true;

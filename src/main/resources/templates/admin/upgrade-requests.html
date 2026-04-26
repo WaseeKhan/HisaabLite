@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upgrade Requests • Expygen Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-primary); background: #f8fafc; color: #0f172a; padding: 28px; }
+        .shell { max-width: 1380px; margin: 0 auto; }
+        .header { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:24px; }
+        .header h1 { font-size: 2rem; }
+        .header p { color:#64748b; margin-top:8px; }
+        .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+        .filters a { text-decoration:none; padding:10px 14px; border-radius:999px; background:#fff; border:1px solid #dbe4ef; color:#334155; font-weight:700; }
+        .filters a.active { background:#1f6feb; color:#fff; border-color:#1f6feb; }
+        .grid { display:grid; gap:16px; }
+        .card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:20px; box-shadow: 0 16px 36px rgba(15,23,42,.05); }
+        .top { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+        .title strong { font-size:1.1rem; display:block; }
+        .title span, .meta span { color:#64748b; display:block; margin-top:6px; }
+        .status { padding:8px 12px; border-radius:999px; background:#eef2ff; color:#1d4ed8; font-weight:800; font-size:.85rem; }
+        .meta { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0; }
+        .meta div { padding:14px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0; }
+        .meta strong { display:block; margin-bottom:6px; }
+        .timeline { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:12px; margin:0 0 18px; }
+        .timeline div { padding:12px 14px; border-radius:14px; background:#fff; border:1px dashed #dbe4ef; }
+        .timeline strong { display:block; margin-bottom:6px; font-size:.8rem; }
+        .timeline span { color:#64748b; font-size:.86rem; display:block; }
+        form { display:grid; grid-template-columns: 1.3fr 1fr auto; gap:12px; align-items:start; }
+        textarea, input, select { width:100%; border:1px solid #dbe4ef; border-radius:14px; padding:12px 14px; font:inherit; background:#fff; }
+        button { min-height:48px; border:0; border-radius:14px; padding:0 18px; background:#111827; color:#fff; font-weight:800; cursor:pointer; }
+        .empty { padding:40px; text-align:center; color:#64748b; background:#fff; border-radius:20px; border:1px solid #e2e8f0; }
+        @media (max-width: 920px) {
+            .meta { grid-template-columns:1fr; }
+            .timeline { grid-template-columns:1fr; }
+            form { grid-template-columns:1fr; }
+            .top { flex-direction:column; }
+        }
+    </style>
+
+</head>
+<body>
+<div class="shell">
+    <div class="header">
+        <div>
+            <h1>Upgrade Requests</h1>
+            <p>Review free-to-paid conversions, contact requests, payment notes, and activate plans from one admin queue.</p>
+        </div>
+        <div style="display:flex; gap:14px;">
+            <a href="/admin/subscriptions" style="text-decoration:none; font-weight:700; color:#1f6feb;">Subscriptions</a>
+            <a href="/admin/subscription-ledger" style="text-decoration:none; font-weight:700; color:#1f6feb;">Subscription ledger</a>
+            <a href="/admin/dashboard" style="text-decoration:none; font-weight:700; color:#1f6feb;">Back to dashboard</a>
+        </div>
+    </div>
+
+    <div class="filters">
+        <a th:href="@{/admin/upgrade-requests}" th:classappend="${selectedStatus == 'ALL'} ? ' active' : ''">All</a>
+        <a th:each="status : ${statuses}"
+           th:href="@{/admin/upgrade-requests(status=${status})}"
+           th:text="${status}"
+           th:classappend="${selectedStatus == status.name()} ? ' active' : ''">REQUESTED</a>
+    </div>
+
+    <div class="grid" th:if="${not #lists.isEmpty(requests)}">
+        <div class="card" th:each="request : ${requests}">
+            <div class="top">
+                <div class="title">
+                    <strong th:text="${request.shop.name}">Waseem Medico</strong>
+                    <span th:text="${request.requestedBy.name} + ' • ' + ${request.requestedBy.username}">Owner • owner@example.com</span>
+                    <span th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy hh:mm a')}">21 Apr 2026 01:00 PM</span>
+                </div>
+                <div class="status" th:text="${request.status}">REQUESTED</div>
+            </div>
+
+            <div class="meta">
+                <div>
+                    <strong>Plan move</strong>
+                    <span th:text="${request.currentPlan == request.requestedPlan ? request.requestedPlan + ' renewal' : request.currentPlan + ' → ' + request.requestedPlan}">FREE → PRO</span>
+                </div>
+                <div>
+                    <strong>Payment preference</strong>
+                    <span th:text="${request.paymentPreference != null && !request.paymentPreference.isBlank() ? request.paymentPreference : 'Not shared'}">UPI</span>
+                </div>
+                <div>
+                    <strong>Yearly payable</strong>
+                    <span th:text="${request.requestedAnnualPrice != null ? '₹' + #numbers.formatDecimal(request.requestedAnnualPrice, 1, 'COMMA', 0, 'POINT') + ' • ' + request.requestedDurationInDays + ' days' : 'Use current plan price'}">₹9,990 • 365 days</span>
+                </div>
+                <div>
+                    <strong>Owner note</strong>
+                    <span th:text="${request.note != null && !request.note.isBlank() ? request.note : 'No extra note'}">Please call after 5 PM</span>
+                </div>
+                <div>
+                    <strong>Receipt proof</strong>
+                    <span>
+                        <a th:if="${request.receiptStoredFilename != null}" th:href="@{/admin/upgrade-requests/{id}/receipt(id=${request.id})}" target="_blank">Open uploaded receipt</a>
+                        <span th:if="${request.receiptStoredFilename == null}">Not uploaded</span>
+                    </span>
+                </div>
+                <div>
+                    <strong>Gateway reference</strong>
+                    <span th:text="${request.gatewayTransactionId != null && !request.gatewayTransactionId.isBlank() ? request.gatewayTransactionId : 'Manual / none'}">Manual / none</span>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div>
+                    <strong>Requested</strong>
+                    <span th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy hh:mm a')}">21 Apr 2026 01:00 PM</span>
+                </div>
+                <div>
+                    <strong>Contacted</strong>
+                    <span th:text="${request.contactedAt != null ? #temporals.format(request.contactedAt, 'dd MMM yyyy hh:mm a') : 'Not marked'}">Not marked</span>
+                </div>
+                <div>
+                    <strong>Payment Received</strong>
+                    <span th:text="${request.paymentReceivedAt != null ? #temporals.format(request.paymentReceivedAt, 'dd MMM yyyy hh:mm a') : 'Not marked'}">Not marked</span>
+                </div>
+                <div>
+                    <strong>Completed</strong>
+                    <span th:text="${request.activatedAt != null ? #temporals.format(request.activatedAt, 'dd MMM yyyy hh:mm a') : (request.rejectedAt != null ? 'Rejected • ' + #temporals.format(request.rejectedAt, 'dd MMM yyyy hh:mm a') : (request.cancelledAt != null ? 'Cancelled • ' + #temporals.format(request.cancelledAt, 'dd MMM yyyy hh:mm a') : 'Open'))}">Open</span>
+                </div>
+            </div>
+
+            <form th:action="@{/admin/upgrade-requests/{id}/status(id=${request.id})}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <textarea name="adminNote" rows="2" placeholder="Admin note / commercial follow-up..." th:text="${request.adminNote}"></textarea>
+                <div style="display:grid; gap:12px;">
+                    <input type="text" name="paymentReference" placeholder="Payment reference" th:value="${request.paymentReference}">
+                    <select name="status">
+                        <option th:each="status : ${statuses}"
+                                th:value="${status}"
+                                th:text="${status}"
+                                th:selected="${request.status == status}">REQUESTED</option>
+                    </select>
+                </div>
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="empty" th:if="${#lists.isEmpty(requests)}">
+        No upgrade requests found for this filter.
+    </div>
+</div>
+</body>
+</html>

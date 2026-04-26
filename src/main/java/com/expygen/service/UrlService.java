@@ -12,7 +12,7 @@ public class UrlService {
     @Value("${app.base-url:}")
     private String configuredBaseUrl;
 
-    @Value("${app.contact.supportEmail:${admin.email:admin@expygen.com}}")
+    @Value("${app.contact.supportEmail:waseemk.aws@gmail.com}")
     private String supportEmail;
     
     /**

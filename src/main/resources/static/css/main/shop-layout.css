@@ -26,10 +26,10 @@
     padding: 18px 18px 20px;
     display: flex;
     flex-direction: column;
-    height: calc(100dvh - var(--shop-header-height));
+    height: 100dvh;
     position: fixed;
     left: 0;
-    top: var(--shop-header-height);
+    top: 0;
     bottom: 0;
     overflow-y: auto;
     z-index: 100;

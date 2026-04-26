@@ -5,8 +5,7 @@
     <title th:text="'Login • ' + ${@appConfig.appName}">Login • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
 
-      <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+      <!-- Fonts & Icons -->    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Main CSS -->
@@ -21,6 +20,7 @@
 
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
 <body class="login-page">
@@ -219,6 +219,11 @@
                         <span th:if="${param.error[0] != 'bad'}" th:text="${param.error[0]}"></span>
                     </div>
 
+                    <div th:if="${resendError}" class="message error">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span th:text="${resendError}"></span>
+                    </div>
+
                     <form method="post" th:action="@{/login}" class="login-form">
                         <div class="form-group">
                             <label for="username">Username <span class="required-mark">*</span></label>
@@ -252,6 +257,18 @@
                         <a th:href="@{/register}">Create store account</a>
                     </div>
 
+                    <div th:if="${param.verificationResent}" class="compact-status compact-status-success">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Verification link sent. Check your inbox.</span>
+                    </div>
+
+                    <form method="post" th:action="@{/verify/resend}" class="compact-action-form">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" name="username" id="resendUsername">
+                        <span>Didn’t get it?</span>
+                        <button type="submit" class="compact-action-link">Resend verification email</button>
+                    </form>
+
                     <div class="login-note">
                         <strong th:text="${@appConfig.appTagline}">Simplify Pharmacy</strong><br>
                         Secure access for owners, managers, and cashier workflows.
@@ -275,11 +292,21 @@
 
         const passwordInput = document.getElementById('password');
         const showPasswordToggle = document.getElementById('showPasswordToggle');
+        const usernameInput = document.getElementById('username');
+        const resendUsername = document.getElementById('resendUsername');
 
         if (passwordInput && showPasswordToggle) {
             showPasswordToggle.addEventListener('change', () => {
                 passwordInput.type = showPasswordToggle.checked ? 'text' : 'password';
             });
+        }
+
+        if (usernameInput && resendUsername) {
+            const syncUsername = () => {
+                resendUsername.value = usernameInput.value;
+            };
+            usernameInput.addEventListener('input', syncUsername);
+            syncUsername();
         }
     </script>
 </body>

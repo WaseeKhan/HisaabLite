@@ -174,7 +174,7 @@
     border: 1.5px solid #dbe2ea;
     border-radius: 14px;
     font-size: 13px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     transition: all 0.2s;
     background: var(--shop-surface-soft);
 }
@@ -454,7 +454,7 @@
     border: none;
     width: 100%;
     text-align: left;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
 }
 
 .staff-action-item i {
@@ -573,7 +573,7 @@
     font-size: 0.7rem;
     background: white;
     margin-right: 8px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
 }
 
 .staff-inline-form {
@@ -821,7 +821,7 @@
     padding: 12px;
     border: 1.5px solid #e2e8f0;
     border-radius: 14px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     font-size: 0.85rem;
 }
 

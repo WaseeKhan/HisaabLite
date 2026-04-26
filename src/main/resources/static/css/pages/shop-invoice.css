@@ -2,7 +2,7 @@
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     background:
         radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 28%),
         radial-gradient(circle at bottom right, rgba(242, 122, 33, 0.08), transparent 24%),
@@ -458,7 +458,7 @@ body {
     border-radius: 14px;
     border: 1px solid #dce5ef;
     font-size: 13px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     color: #152030;
 }
 

@@ -3,7 +3,9 @@ package com.expygen.service;
 import com.expygen.entity.User;
 import com.expygen.config.AppConfig;
 import com.expygen.entity.SubscriptionPlan;
+import com.expygen.entity.UpgradeRequest;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -57,31 +59,104 @@ public class EmailService {
      * Send verification email with fallback
      */
     public void sendVerificationEmail(User user, String verificationLink, SubscriptionPlan plan) {
+        ensureMailIsConfigured();
+
+        String to = user.getUsername();
+        String subject = "Verify Your Email - " + appConfig.getAppName();
+
+        String htmlContent;
         try {
-            String to = user.getUsername();
-            String subject = "Verify Your Email - " + appConfig.getAppName();
-
-            String htmlContent;
-            try {
-                Context context = new Context();
-                context.setVariable("name", user.getName());
-                context.setVariable("planName", plan.getPlanName());
-                context.setVariable("shopName", user.getShop().getName());
-                context.setVariable("verificationLink", verificationLink);
-                context.setVariable("supportEmail", urlService.getSupportEmail());
-                htmlContent = templateEngine.process("email/verification-email", context);
-                log.debug("Using email template for verification email");
-            } catch (Exception e) {
-                log.warn("Verification email template not found, using fallback HTML");
-                htmlContent = generateFallbackVerificationEmail(user, verificationLink, plan);
-            }
-
-            sendHtmlEmail(to, subject, htmlContent);
-            log.info("Verification email sent to: {}", to);
-
+            Context context = new Context();
+            context.setVariable("name", user.getName());
+            context.setVariable("planName", plan.getPlanName());
+            context.setVariable("shopName", user.getShop().getName());
+            context.setVariable("verificationLink", verificationLink);
+            context.setVariable("supportEmail", urlService.getSupportEmail());
+            htmlContent = templateEngine.process("email/verification-email", context);
+            log.debug("Using email template for verification email");
         } catch (Exception e) {
-            log.error("Failed to send verification email to {}: {}", user.getUsername(), e.getMessage());
+            log.warn("Verification email template not found, using fallback HTML");
+            htmlContent = generateFallbackVerificationEmail(user, verificationLink, plan);
         }
+
+        sendHtmlEmail(to, subject, htmlContent);
+        log.info("Verification email sent to: {}", to);
+    }
+
+    public void sendUpgradeRequestCreatedEmail(UpgradeRequest request) {
+        String subject = "Upgrade request received - " + appConfig.getAppName();
+        String ownerContent = String.format(
+                """
+                        Hello %s,
+
+                        We received your upgrade request for %s.
+
+                        Shop: %s
+                        Current plan: %s
+                        Requested plan: %s
+                        Preferred payment: %s
+                        Transaction reference: %s
+
+                        Our team will review this and reach out shortly.
+                        """,
+                request.getRequestedBy().getName(),
+                appConfig.getAppName(),
+                request.getShop().getName(),
+                request.getCurrentPlan().name(),
+                request.getRequestedPlan().name(),
+                request.getPaymentPreference() != null ? request.getPaymentPreference() : "Not specified",
+                request.getPaymentReference() != null ? request.getPaymentReference() : "Not shared yet");
+
+        sendSupportEmail(request.getRequestedBy().getUsername(), subject, ownerContent);
+
+        String adminContent = String.format(
+                """
+                        New upgrade request received.
+
+                        Shop: %s
+                        Owner: %s
+                        Email: %s
+                        Current plan: %s
+                        Requested plan: %s
+                        Payment preference: %s
+                        Transaction reference: %s
+                        Note: %s
+                        """,
+                request.getShop().getName(),
+                request.getRequestedBy().getName(),
+                request.getRequestedBy().getUsername(),
+                request.getCurrentPlan().name(),
+                request.getRequestedPlan().name(),
+                request.getPaymentPreference() != null ? request.getPaymentPreference() : "Not specified",
+                request.getPaymentReference() != null ? request.getPaymentReference() : "Not shared yet",
+                request.getNote() != null ? request.getNote() : "—");
+
+        sendSupportEmail(urlService.getSupportEmail(), "New upgrade request • " + request.getRequestedPlan().name(), adminContent);
+    }
+
+    public void sendPlanActivatedEmail(User user, SubscriptionPlan plan, UpgradeRequest request) {
+        String subject = "Your " + plan.getPlanName() + " plan is now active";
+        String content = String.format(
+                """
+                        Hello %s,
+
+                        Your workspace has been upgraded successfully.
+
+                        Shop: %s
+                        Active plan: %s
+                        Valid until: %s
+
+                        You can now sign in and use the upgraded limits and features.
+                        """,
+                user.getName(),
+                user.getShop().getName(),
+                plan.getPlanName(),
+                user.getShop().getSubscriptionEndDate() != null
+                        ? user.getShop().getSubscriptionEndDate().toLocalDate()
+                        : "No expiry");
+
+        sendSupportEmail(user.getUsername(), subject, content);
+        log.info("Plan activation email sent for upgrade request {}", request.getId());
     }
 
     /**
@@ -235,41 +310,53 @@ public class EmailService {
      */
     public void notifyAdminAboutPendingApproval(User user, SubscriptionPlan plan) {
         try {
-
             String adminEmail = appConfig.getAdminEmail();
             String subject = "🔔 New Registration Pending Approval";
-
             String pendingUrl = urlService.getPendingApprovalsUrl();
 
-            String htmlContent = String.format(
-                    """
-                            <div style="font-family: Arial, sans-serif; padding:20px;">
-                                <h2 style="color:#2c3e50;">New User Pending Approval</h2>
-                                <p>A new user has registered and completed email verification.</p>
+            String htmlContent;
+            try {
+                Context context = new Context();
+                context.setVariable("name", user.getName());
+                context.setVariable("email", user.getUsername());
+                context.setVariable("phone", user.getPhone());
+                context.setVariable("planName", plan.getPlanName());
+                context.setVariable("shopName", user.getShop().getName());
+                context.setVariable("pendingUrl", pendingUrl);
+                htmlContent = templateEngine.process("email/admin-pending-approval", context);
+                log.debug("Using email template for pending approval email");
+            } catch (Exception e) {
+                log.warn("Pending approval template not found, using fallback HTML");
+                htmlContent = String.format(
+                        """
+                                <div style="font-family: Arial, sans-serif; padding:20px;">
+                                    <h2 style="color:#2c3e50;">New User Pending Approval</h2>
+                                    <p>A new user has registered and completed email verification.</p>
 
-                                <div style="background:#f8fafc; padding:15px; border-radius:8px; margin:15px 0;">
-                                    <h3>User Details:</h3>
-                                    <table style="width:100%%;">
-                                        <tr><td><strong>Name:</strong></td><td>%s</td></tr>
-                                        <tr><td><strong>Email:</strong></td><td>%s</td></tr>
-                                        <tr><td><strong>Phone:</strong></td><td>%s</td></tr>
-                                        <tr><td><strong>Selected Plan:</strong></td><td>%s</td></tr>
-                                        <tr><td><strong>Shop Name:</strong></td><td>%s</td></tr>
-                                    </table>
+                                    <div style="background:#f8fafc; padding:15px; border-radius:8px; margin:15px 0;">
+                                        <h3>User Details:</h3>
+                                        <table style="width:100%%;">
+                                            <tr><td><strong>Name:</strong></td><td>%s</td></tr>
+                                            <tr><td><strong>Email:</strong></td><td>%s</td></tr>
+                                            <tr><td><strong>Phone:</strong></td><td>%s</td></tr>
+                                            <tr><td><strong>Selected Plan:</strong></td><td>%s</td></tr>
+                                            <tr><td><strong>Shop Name:</strong></td><td>%s</td></tr>
+                                        </table>
+                                    </div>
+
+                                    <a href="%s"
+                                       style="display:inline-block; padding:12px 20px; background:#4361ee; color:white; text-decoration:none; border-radius:5px;">
+                                        Review in Admin Panel
+                                    </a>
                                 </div>
-
-                                <a href="%s"
-                                   style="display:inline-block; padding:12px 20px; background:#4361ee; color:white; text-decoration:none; border-radius:5px;">
-                                    Review in Admin Panel
-                                </a>
-                            </div>
-                            """,
-                    user.getName(),
-                    user.getUsername(),
-                    user.getPhone(),
-                    plan.getPlanName(),
-                    user.getShop().getName(),
-                    pendingUrl);
+                                """,
+                        user.getName(),
+                        user.getUsername(),
+                        user.getPhone(),
+                        plan.getPlanName(),
+                        user.getShop().getName(),
+                        pendingUrl);
+            }
 
             sendHtmlEmail(adminEmail, subject, htmlContent);
             log.info("Admin notification sent for user: {}", user.getUsername());
@@ -289,15 +376,61 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
 
-            helper.setFrom(appConfig.getFromEmail());
+            helper.setFrom(resolveFromEmail());
+            helper.setReplyTo(appConfig.getReplyToEmail());
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
             log.debug("HTML email sent to: {}", to);
         } catch (Exception e) {
-            log.error("Failed to send HTML email to {}: {}", to, e.getMessage());
+            log.error("Failed to send HTML email to {} using SMTP user '{}' and from '{}': {}",
+                    to,
+                    resolveMailUsername(),
+                    resolveFromEmail(),
+                    e.getMessage());
             throw new RuntimeException("Failed to send email", e);
         }
+    }
+
+    private void ensureMailIsConfigured() {
+        String mailUsername = resolveMailUsername();
+        if (mailUsername == null || mailUsername.isBlank()) {
+            log.error("Verification email cannot be sent because the SMTP username is not configured.");
+            throw new IllegalStateException("Email service is not configured yet. Please check the configured SMTP username and password.");
+        }
+
+        String mailPassword = resolveMailPassword();
+        if (mailPassword == null || mailPassword.isBlank()) {
+            log.error("Verification email cannot be sent because the SMTP password is not configured for '{}'.", mailUsername);
+            throw new IllegalStateException("Email service is not configured yet. Please check the configured SMTP password.");
+        }
+    }
+
+    private String resolveFromEmail() {
+        String configuredFrom = appConfig.getFromEmail();
+        return configuredFrom == null ? "" : configuredFrom.trim();
+    }
+
+    private String resolveMailUsername() {
+        if (mailSender instanceof JavaMailSenderImpl javaMailSender) {
+            return trimToNull(javaMailSender.getUsername());
+        }
+        return null;
+    }
+
+    private String resolveMailPassword() {
+        if (mailSender instanceof JavaMailSenderImpl javaMailSender) {
+            return trimToNull(javaMailSender.getPassword());
+        }
+        return null;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     /**
@@ -348,7 +481,8 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
 
-            helper.setFrom(appConfig.getFromEmail());
+            helper.setFrom(resolveFromEmail());
+            helper.setReplyTo(appConfig.getReplyToEmail());
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
@@ -525,7 +659,7 @@ public class EmailService {
     }
 
     private String generateFallbackExpiredEmail(User user) {
-        String plansUrl = urlService.getPlansUrl();
+        String renewUrl = urlService.getUpgradeUrl();
         return String.format(
                 """
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -534,11 +668,11 @@ public class EmailService {
                             </div>
                             <div style="background: #ffffff; padding: 30px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 10px 10px;">
                                 <h2 style="color: #1e293b;">Dear %s,</h2>
-                                <p style="color: #475569;">Your %s subscription has expired. You've been downgraded to the FREE plan.</p>
+                                <p style="color: #475569;">Your %s subscription has expired and workspace access now needs manual renewal activation.</p>
 
                                 <div style="text-align: center; margin: 30px 0;">
                                     <a href="%s" style="background: #ef4444; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                                        View Plans
+                                        Open Renewal Desk
                                     </a>
                                 </div>
 
@@ -549,7 +683,7 @@ public class EmailService {
                         """,
                 user.getName(),
                 appConfig.getAppName(),
-                plansUrl,
+                renewUrl,
                 appConfig.getAppName());
     }
 }

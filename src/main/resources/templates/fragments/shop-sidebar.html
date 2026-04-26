@@ -4,34 +4,40 @@
     <button type="button" class="shop-sidebar-overlay" id="shopSidebarOverlay" aria-label="Close navigation"></button>
 
     <div class="shop-sidebar" id="shopSidebarNav">
-        <div class="shop-page-title" th:switch="${currentPageName != null ? currentPageName : currentPage}">
-            <span th:case="'dashboard'">Dashboard</span>
-            <span th:case="'billing'">Billing</span>
-            <span th:case="'products'">Products</span>
-            <span th:case="'purchases'">Purchases</span>
-            <span th:case="'sales-history'">Sales History</span>
-            <span th:case="'staff'">Staff</span>
-            <span th:case="'profile'">Shop Profile</span>
-            <span th:case="'user-profile'">User Profile</span>
-            <span th:case="'insights'">Insights</span>
-            <span th:case="'support'">Support</span>
-            <span th:case="'subscription'">Subscription</span>
-            <span th:case="'upgrade'">Upgrade Plan</span>
-            <span th:case="*">Workspace</span>
+        <div class="shop-page-title">
+            <img th:src="@{/images/expygen-mark-fevicon.png}" alt="Expygen" class="shop-sidebar-mark">
+            <div class="shop-sidebar-brand-copy">
+                <strong>EXPYGEN</strong>
+                <span>Shop Workspace</span>
+            </div>
         </div>
 
         <div class="shop-nav-links">
             <div class="shop-nav-group">
+                <div class="shop-nav-group-label">Overview</div>
                 <a th:href="@{/dashboard}" class="shop-nav-link" data-shortcut="Alt + D"
                     th:classappend="${currentPage == 'dashboard'} ? 'active' : ''">
                     <i class="fas fa-chart-pie"></i>
                     <span>Dashboard</span>
                 </a>
+            </div>
+
+            <div class="shop-nav-group">
+                <div class="shop-nav-group-label">Sales</div>
                 <a th:if="${role == 'OWNER' or role == 'MANAGER' or role == 'CASHIER'}" th:href="@{/sales/new}" class="shop-nav-link"
                     data-shortcut="Alt + B" th:classappend="${currentPage == 'billing'} ? 'active' : ''">
                     <i class="fas fa-cash-register"></i>
                     <span>Billing</span>
                 </a>
+                <a th:href="@{/sales/history}" class="shop-nav-link" data-shortcut="Alt + H"
+                    th:classappend="${currentPage == 'sales-history'} ? 'active' : ''">
+                    <i class="fas fa-clock"></i>
+                    <span>Sales History</span>
+                </a>
+            </div>
+
+            <div class="shop-nav-group">
+                <div class="shop-nav-group-label">Catalog & Stock</div>
                 <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/products}" class="shop-nav-link"
                     data-shortcut="Alt + P" th:classappend="${currentPage == 'products'} ? 'active' : ''">
                     <i class="fas fa-box"></i>
@@ -42,11 +48,10 @@
                     <i class="fas fa-truck-loading"></i>
                     <span>Purchases</span>
                 </a>
-                <a th:href="@{/sales/history}" class="shop-nav-link" data-shortcut="Alt + H"
-                    th:classappend="${currentPage == 'sales-history'} ? 'active' : ''">
-                    <i class="fas fa-clock"></i>
-                    <span>Sales History</span>
-                </a>
+            </div>
+
+            <div class="shop-nav-group" th:if="${role == 'OWNER'}">
+                <div class="shop-nav-group-label">Team & Store</div>
                 <a th:if="${role == 'OWNER'}" th:href="@{/staff}" class="shop-nav-link" data-shortcut="Alt + S"
                     th:classappend="${currentPage == 'staff'} ? 'active' : ''">
                     <i class="fas fa-users"></i>
@@ -57,6 +62,10 @@
                     <i class="fas fa-store"></i>
                     <span>Shop Profile</span>
                 </a>
+            </div>
+
+            <div class="shop-nav-group" th:if="${role == 'OWNER' or role == 'MANAGER'}">
+                <div class="shop-nav-group-label">Support</div>
                 <a th:if="${role == 'OWNER' or role == 'MANAGER'}" th:href="@{/support}" class="shop-nav-link" data-shortcut="Alt + U"
                     th:classappend="${currentPage == 'support'} ? 'active' : ''">
                     <i class="fas fa-headset"></i>
@@ -64,7 +73,7 @@
                 </a>
             </div>
 
-            <div class="shop-nav-group shop-nav-group-insights" th:if="${role == 'OWNER' or role == 'MANAGER'}">
+            <div class="shop-nav-group shop-nav-group-insights" th:if="${(role == 'OWNER' or role == 'MANAGER') and insightsAvailable}">
                 <div class="shop-nav-group-label">Intelligence</div>
                 <a th:href="@{/insights}" class="shop-nav-link shop-nav-link-insights" data-shortcut="Alt + I"
                     th:classappend="${currentPage == 'insights'} ? 'active' : ''">
@@ -137,7 +146,7 @@
                         <div class="shop-shortcut-item"><span>Amount received</span><kbd>F6</kbd></div>
                         <div class="shop-shortcut-item"><span>Discount amount</span><kbd>F7</kbd></div>
                         <div class="shop-shortcut-item"><span>Discount percent</span><kbd>F8</kbd></div>
-                        <div class="shop-shortcut-item"><span>Send WhatsApp invoice</span><kbd>F9</kbd></div>
+                        <div class="shop-shortcut-item" th:if="${whatsappAvailable}"><span>Send WhatsApp invoice</span><kbd>F9</kbd></div>
                         <div class="shop-shortcut-item"><span>Thermal print invoice</span><kbd>F10</kbd></div>
                         <div class="shop-shortcut-item"><span>Complete bill</span><kbd>Ctrl + Enter</kbd></div>
                     </div>
@@ -147,7 +156,7 @@
                         <div class="shop-shortcut-item"><span>Focus search</span><kbd>F6</kbd></div>
                         <div class="shop-shortcut-item"><span>View latest visible invoice</span><kbd>F7</kbd></div>
                         <div class="shop-shortcut-item"><span>Open thermal invoice</span><kbd>F8</kbd></div>
-                        <div class="shop-shortcut-item"><span>Open WhatsApp send</span><kbd>F9</kbd></div>
+                        <div class="shop-shortcut-item" th:if="${whatsappAvailable}"><span>Open WhatsApp send</span><kbd>F9</kbd></div>
                         <div class="shop-shortcut-item"><span>Cancel latest visible sale</span><kbd>F10</kbd></div>
                     </div>
 

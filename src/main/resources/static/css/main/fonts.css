@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --font-primary: 'Manrope', sans-serif;
+    --font-brand: 'Sora', 'Manrope', sans-serif;
+    --font-family: var(--font-primary);
+    --font-display: var(--font-brand);
+}
+
+html,
+body,
+input,
+textarea,
+select,
+button,
+label,
+table {
+    font-family: var(--font-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-heading,
+.brand-display,
+.hero-title,
+.page-title,
+.section-title,
+.logo-wordmark,
+.pricing-title,
+.auth-title {
+    font-family: var(--font-brand);
+}
+
+.brand-mark,
+.brand-logo-text,
+.logo-text,
+.sidebar-brand-copy strong,
+.insights-sidebar-brand-copy strong,
+.insights-topbar-copy strong,
+.public-brand,
+.shop-brand {
+    font-family: var(--font-brand);
+}

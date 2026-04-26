@@ -1,57 +1,161 @@
-spring:
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+# ================================================================
+#  application-prod.yml
+#  Expygen — Production profile
+# ================================================================
+#  Activated by: --spring.profiles.active=prod
+#  Loads secrets from:
+#    ./config/application-secrets-prod.yml
+#    ../config/application-secrets-prod.yml
+#  (supports running from app root or from a target/ folder during local checks)
+#  SAFE TO COMMIT — no passwords here.
+#
+#  On your server, place application-secrets-prod.yml
+#  in the app's config/ folder and run:
+#    java -jar expygen-2.2.0.jar --spring.profiles.active=prod
+# ================================================================
 
+spring:
+  # Loads prod-specific secrets (gitignored, lives on server only)
+  config:
+    import: optional:file:./config/application-secrets-prod.yml,optional:file:../config/application-secrets-prod.yml
+
+  # ---- Database (values from application-secrets-prod.yml) ----
+  datasource:
+    url: ${prod.db.url}
+    username: ${prod.db.username}
+    password: ${prod.db.password}
+
+  # ---- JPA ----
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate             # Flyway only — Hibernate never touches schema in prod
     database-platform: org.hibernate.dialect.MySQL8Dialect
-    show-sql: false
+    show-sql: false                  # Never log SQL in production
 
+  # ---- Flyway ----
   flyway:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
 
-
+  # ---- Email (values from application-secrets-prod.yml) ----
   mail:
     host: smtp-relay.brevo.com
     port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${prod.mail.username}
+    password: ${prod.mail.password}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+
+  # ---- Thymeleaf ----
   thymeleaf:
     cache: true
-  mvc: 
+
+  # ---- MVC strict error handling ----
+  mvc:
     throw-exception-if-no-handler-found: true
-  web: 
+  web:
     resources:
       add-mappings: false
 
-evolution:
-  api:
-    url: ${EVOLUTION_API_URL:http://localhost:8081}
-    key: ${EVOLUTION_API_KEY}
 
-logging:
-  level:
-    root: INFO
-    org.hibernate.SQL: INFO
-
-management:
-  endpoint:
-    health:
-      show-details: when_authorized
-      
+# ----------------------------------------------------------------
+# SERVER
+# ----------------------------------------------------------------
 server:
   error:
     whitelabel:
       enabled: false
-  port: ${PORT:8080}
+
+
+# ----------------------------------------------------------------
+# EVOLUTION API (from secrets file)
+# ----------------------------------------------------------------
+evolution:
+  api:
+    url: ${prod.evolution.url:http://localhost:8081}
+    key: ${prod.evolution.key}
+
+
+# ----------------------------------------------------------------
+# ADMIN SUPER USER (from secrets file)
+# ----------------------------------------------------------------
+admin:
+  email: ${prod.admin.email}
+  password: ${prod.admin.password}
+  name: ${prod.admin.name}
+  phone: ${prod.admin.phone}
+
+
+# ----------------------------------------------------------------
+# APPLICATION — prod values (from secrets file)
+# ----------------------------------------------------------------
+app:
+  env: production
+  name: ${prod.app.name:Expygen}
+  tagline: ${prod.app.tagline:Simplify Pharmacy}
+  short-code: ${prod.app.shortCode:RX}
+  version: ${prod.app.version:2.2.0}
+  base-url: ${prod.app.baseUrl}
+
+  email:
+    from: ${prod.app.email.from}
+    admin: ${prod.app.email.admin}
+    reply-to: ${prod.app.email.replyTo}
+
+  company:
+    name: ${prod.app.company.name}
+    address: ${prod.app.company.address}
+    phone: ${prod.app.company.phone}
+
+  contact:
+    supportEmail: ${prod.app.contact.supportEmail}
+    supportPhone: ${prod.app.contact.supportPhone}
+    whatsapp: ${prod.app.contact.whatsapp}
+
+  payment:
+    receiver-name: ${prod.app.payment.receiverName}
+    provider: ${prod.app.payment.provider:PhonePe}
+    qr-image-path: ${prod.app.payment.qrImagePath:/images/phonepe-qr.jpeg}
+
+  security:
+    enforce-single-session: true     # One active session per user in prod
+    verification-token-expiry-hours: 24
+    reset-token-expiry-minutes: 15
+
+  features:
+    whatsapp: ${prod.app.features.whatsapp:true}
+    email-verification: ${prod.app.features.emailVerification:true}
+    admin-approval: ${prod.app.features.adminApproval:true}
+
+  pagination:
+    default-page-size: 20
+    max-page-size: 100
+
+
+# ----------------------------------------------------------------
+# ACTUATOR — locked down in production
+# ----------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+
+# ----------------------------------------------------------------
+# LOGGING — minimal in production
+# ----------------------------------------------------------------
+logging:
+  level:
+    root: INFO
+    com.expygen: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.security: WARN
+    org.flywaydb: INFO
+  file:
+    name: logs/expygen.log

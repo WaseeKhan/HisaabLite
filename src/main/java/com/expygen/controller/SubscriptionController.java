@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.expygen.dto.SubscriptionUsageView;
-import com.expygen.entity.PlanType;
 import com.expygen.entity.Shop;
 import com.expygen.entity.User;
 import com.expygen.repository.UserRepository;
+import com.expygen.service.SubscriptionAccessService;
 import com.expygen.service.SubscriptionUsageService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +22,7 @@ public class SubscriptionController {
 
     private final UserRepository userRepository;
     private final SubscriptionUsageService subscriptionUsageService;
+    private final SubscriptionAccessService subscriptionAccessService;
 
     @GetMapping
     public String subscriptionPage(Authentication authentication, Model model) {
@@ -30,14 +31,11 @@ public class SubscriptionController {
         Shop shop = user.getShop();
 
         SubscriptionUsageView usageView = subscriptionUsageService.buildUsageView(shop);
-        PlanType planType = shop.getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-
         model.addAttribute("subscriptionView", usageView);
         model.addAttribute("shop", shop);
         model.addAttribute("user", user);
         model.addAttribute("role", user.getRole().name());
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
         model.addAttribute("currentPage", "subscription");
         model.addAttribute("currentPageName", "subscription");
 

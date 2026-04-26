@@ -29,14 +29,32 @@ public class AppConfig {
     @Value("${app.email.from:waseemk.aws@gmail.com}")
     private String fromEmail;
     
-    @Value("${app.contact.supportEmail:${admin.email:admin@expygen.com}}")
+    @Value("${app.contact.supportEmail:waseemk.aws@gmail.com}")
     private String supportEmail;
 
-    @Value("${app.email.admin:admin@expygen.com}")
+    @Value("${app.email.admin:waseemk.aws@gmail.com}")
     private String adminEmail;
 
-    @Value("${app.email.reply-to:no-reply@expygen.com}")
+    @Value("${app.email.reply-to:waseemk.aws@gmail.com}")
     private String replyToEmail;
+
+    @Value("${app.payment.receiver-name:Mohd. Waseem Akram}")
+    private String paymentReceiverName;
+
+    @Value("${app.payment.provider:PhonePe}")
+    private String paymentProvider;
+
+    @Value("${app.payment.qr-image-path:/images/phonepe-qr.jpeg}")
+    private String paymentQrImagePath;
+
+    @Value("${app.payment.automation-enabled:false}")
+    private boolean paymentAutomationEnabled;
+
+    @Value("${app.payment.automation-token:}")
+    private String paymentAutomationToken;
+
+    @Value("${app.payment.gateway-name:Manual QR}")
+    private String paymentGatewayName;
     
     // ==================== COMPANY DETAILS ====================
     @Value("${app.company.name:Expygen}")
@@ -64,6 +82,15 @@ public class AppConfig {
     
     @Value("${app.security.reset-token-expiry-minutes:15}")
     private int resetTokenExpiryMinutes;
+
+    @Value("${app.subscription.renewal-reminder-days:30}")
+    private int subscriptionRenewalReminderDays;
+
+    @Value("${app.subscription.grace-period-days:7}")
+    private int subscriptionGracePeriodDays;
+
+    @Value("${app.subscription.automated-reminders-enabled:false}")
+    private boolean automatedSubscriptionRemindersEnabled;
     
     // ==================== PAGINATION ====================
     @Value("${app.pagination.default-page-size:20}")
@@ -87,6 +114,12 @@ public class AppConfig {
     public String getSupportEmail() { return supportEmail; }
     public String getAdminEmail() { return adminEmail; }
     public String getReplyToEmail() { return replyToEmail; }
+    public String getPaymentReceiverName() { return paymentReceiverName; }
+    public String getPaymentProvider() { return paymentProvider; }
+    public String getPaymentQrImagePath() { return paymentQrImagePath; }
+    public boolean isPaymentAutomationEnabled() { return paymentAutomationEnabled; }
+    public String getPaymentAutomationToken() { return paymentAutomationToken; }
+    public String getPaymentGatewayName() { return paymentGatewayName; }
     
     // Company
     public String getCompanyName() { return companyName; }
@@ -101,6 +134,9 @@ public class AppConfig {
     // Security
     public int getVerificationTokenExpiryHours() { return verificationTokenExpiryHours; }
     public int getResetTokenExpiryMinutes() { return resetTokenExpiryMinutes; }
+    public int getSubscriptionRenewalReminderDays() { return subscriptionRenewalReminderDays; }
+    public int getSubscriptionGracePeriodDays() { return subscriptionGracePeriodDays; }
+    public boolean isAutomatedSubscriptionRemindersEnabled() { return automatedSubscriptionRemindersEnabled; }
     
     // Pagination
     public int getDefaultPageSize() { return defaultPageSize; }

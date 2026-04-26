@@ -109,8 +109,7 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
            "SUM(CASE WHEN s.active = true THEN 1 ELSE 0 END) as activeShops, " +
            "SUM(CASE WHEN s.planType = 'FREE' THEN 1 ELSE 0 END) as freePlanShops, " +
            "SUM(CASE WHEN s.planType = 'BASIC' THEN 1 ELSE 0 END) as basicPlanShops, " +
-           "SUM(CASE WHEN s.planType = 'PREMIUM' THEN 1 ELSE 0 END) as premiumPlanShops, " +
-           "SUM(CASE WHEN s.planType = 'ENTERPRISE' THEN 1 ELSE 0 END) as enterprisePlanShops " +
+           "SUM(CASE WHEN s.planType = 'PRO' THEN 1 ELSE 0 END) as proPlanShops " +
            "FROM Shop s")
     List<Object[]> getShopStatistics();
     

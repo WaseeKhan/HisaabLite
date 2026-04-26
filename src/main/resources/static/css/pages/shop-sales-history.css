@@ -760,7 +760,7 @@
     border-radius: 12px;
     font-size: 14px;
     margin-bottom: 12px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
 }
 
 .whatsapp-modal-input:focus {

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.expygen.dto.BatchDashboardSummary;
 import com.expygen.dto.ExpiryAlertSummary;
@@ -26,6 +27,7 @@ public class ExpiryAlertService {
 
     private final PurchaseBatchRepository purchaseBatchRepository;
 
+    @Transactional(readOnly = true)
     public ExpiryAlertSummary buildAlertSummary(Shop shop) {
         LocalDate today = LocalDate.now();
 
@@ -57,6 +59,7 @@ public class ExpiryAlertService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public BatchDashboardSummary buildDashboardSummary(Shop shop, int expiringLimit) {
         LocalDate today = LocalDate.now();
         ExpiryAlertSummary summary = buildAlertSummary(shop);
@@ -85,6 +88,7 @@ public class ExpiryAlertService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<ExpiryReportItem> buildReportItems(Shop shop, ExpiryReportBucket bucket, int limit) {
         LocalDate today = LocalDate.now();
         List<PurchaseBatch> rows;

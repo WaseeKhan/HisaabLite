@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.expygen.dto.SubscriptionLifecycleSnapshot;
 import com.expygen.dto.SubscriptionUsageView;
 import com.expygen.dto.UsageMetric;
 import com.expygen.entity.Shop;
@@ -22,9 +23,13 @@ public class SubscriptionUsageService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
+    private final SubscriptionEntitlementAuditService subscriptionEntitlementAuditService;
+    private final SubscriptionLedgerService subscriptionLedgerService;
 
     public SubscriptionUsageView buildUsageView(Shop shop) {
         SubscriptionPlan currentPlan = planLimitService.getCurrentPlan(shop);
+        SubscriptionLifecycleSnapshot lifecycle = subscriptionLifecycleService.buildSnapshot(shop);
 
         long activeProducts = productRepository.countByShopAndActiveTrue(shop);
         long currentUsers = userRepository.countByShop(shop);
@@ -51,12 +56,24 @@ public class SubscriptionUsageService {
                 .daysRemaining(planLimitService.getDaysRemaining(shop))
                 .subscriptionStartDate(shop.getSubscriptionStartDate())
                 .subscriptionEndDate(shop.getSubscriptionEndDate())
-                .currentPlanPrice(currentPlan.getPrice())
+                .currentPlanPrice(currentPlan.getEffectiveAnnualPrice())
                 .currentPlanFeatures(currentPlan.getFeatures())
+                .lifecycleStatus(lifecycle.getStatus().name())
+                .lifecycleLabel(lifecycle.getStatusLabel())
+                .lifecycleTone(lifecycle.getTone())
+                .lifecycleHelperText(lifecycle.getHelperText())
+                .graceDaysRemaining(lifecycle.getGraceDaysRemaining())
+                .renewalWindowOpen(lifecycle.isRenewalWindowOpen())
+                .commercialRequestInProgress(lifecycle.isCommercialRequestInProgress())
+                .renewalRequestInProgress(lifecycle.isRenewalRequestInProgress())
+                .pendingRequestStatus(lifecycle.getPendingRequestStatus())
+                .workspaceAccessible(lifecycle.isWorkspaceAccessible())
                 .productUsage(productUsage)
                 .userUsage(userUsage)
                 .metrics(List.of(productUsage, userUsage))
                 .availablePlans(subscriptionPlanRepository.findActivePlansOrderedByPrice())
+                .entitlementItems(subscriptionEntitlementAuditService.buildAudit(shop))
+                .recentLedgerEntries(subscriptionLedgerService.getRecentEntriesForShop(shop))
                 .build();
     }
 

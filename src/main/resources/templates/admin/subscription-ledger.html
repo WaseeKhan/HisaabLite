@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Subscription Ledger • Expygen Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font-primary);
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 16px 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .logo-text {
+            font-weight: 600;
+            font-size: 13px;
+            color: #0f172a;
+        }
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+        .nav-links a {
+            padding: 8px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+        .nav-links a i {
+            width: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+        .nav-links a:hover i,
+        .nav-links a.active i {
+            color: #2563eb;
+        }
+        .nav-links a.active {
+            background: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .quick-actions {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .quick-actions-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            padding: 0 10px 4px 10px;
+        }
+        .quick-action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        .quick-action-item:hover {
+            background: #2563eb;
+            color: white;
+        }
+        .quick-action-item:hover i {
+            color: white;
+        }
+        .logout-btn {
+            width: 100%;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .logout-btn:hover { background: #fee2e2; }
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 12px 16px 0 16px;
+        }
+        .admin-header {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+        .admin-header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #475569;
+        }
+        .role-badge {
+            background: #2563eb;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .hero-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+        }
+        .hero-card h2 {
+            font-family: var(--font-brand);
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+        .hero-card p {
+            color: #64748b;
+            max-width: 720px;
+        }
+        .hero-links {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .hero-links a {
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eef2f7;
+            font-size: 13px;
+            vertical-align: top;
+        }
+        th {
+            background: #f8fafc;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #64748b;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 11px;
+            background: #eef2ff;
+            color: #1d4ed8;
+        }
+        .meta {
+            color: #64748b;
+            font-size: 12px;
+        }
+        .pager {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 14px 0 18px;
+            color: #64748b;
+            font-size: 12px;
+        }
+        .pager a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        @media (max-width: 980px) {
+            body { display: block; height: auto; overflow: auto; }
+            .sidebar { width: 100%; height: auto; }
+            .admin-main { height: auto; }
+            .hero-card { flex-direction: column; align-items: flex-start; }
+            .card { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">HL</div>
+            <div class="logo-text">Expygen</div>
+        </div>
+
+        <div class="nav-links">
+            <a th:href="@{/admin/dashboard}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/users}">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a th:href="@{/admin/shops}">
+                <i class="fas fa-store"></i>
+                <span>Shops</span>
+            </a>
+            <a th:href="@{/admin/subscriptions}">
+                <i class="fas fa-credit-card"></i>
+                <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}" class="active">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
+            </a>
+            <a th:href="@{/admin/support}">
+                <i class="fas fa-headset"></i>
+                <span>Support</span>
+            </a>
+            <a th:href="@{/admin/audit}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Audit Logs</span>
+            </a>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-actions-title">Quick Actions</div>
+            <a th:href="@{/admin/subscriptions}" class="quick-action-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Manage Plans</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}" class="quick-action-item">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Review Requests</span>
+            </a>
+            <a th:href="@{/admin/shops}" class="quick-action-item">
+                <i class="fas fa-store-alt"></i>
+                <span>Open Shops</span>
+            </a>
+        </div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <div class="admin-main">
+        <div class="admin-header">
+            <h1><i class="fas fa-book-open"></i> Subscription Ledger</h1>
+            <div class="admin-user">
+                <span class="role-badge">ADMIN</span>
+                <span th:text="${#authentication.name}">admin@expygen.com</span>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <div>
+                <h2>Commercial Audit Trail</h2>
+                <p>Track plan requests, payment confirmations, renewals, and activations from one financial timeline so manual billing stays easy to operate.</p>
+            </div>
+            <div class="hero-links">
+                <a th:href="@{/admin/upgrade-requests}">Upgrade requests</a>
+                <a th:href="@{/admin/subscriptions}">Subscriptions</a>
+                <a th:href="@{/admin/dashboard}">Dashboard</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                <tr>
+                    <th>Created</th>
+                    <th>Shop</th>
+                    <th>Entry</th>
+                    <th>Plan</th>
+                    <th>Amount</th>
+                    <th>Effective Window</th>
+                    <th>Reference</th>
+                    <th>Note</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${ledgerPage.content}">
+                    <td>
+                        <strong th:text="${#temporals.format(entry.createdAt, 'dd MMM yyyy hh:mm a')}">25 Apr 2026 08:30 PM</strong>
+                        <div class="meta" th:text="${entry.createdBy != null ? entry.createdBy : 'SYSTEM'}">admin</div>
+                    </td>
+                    <td>
+                        <strong th:text="${entry.shop.name}">Shop</strong>
+                        <div class="meta" th:text="'#' + ${entry.shop.id}">#1</div>
+                    </td>
+                    <td><span class="badge" th:text="${entry.entryType}">PAYMENT_RECEIVED</span></td>
+                    <td th:text="${entry.planType}">PRO</td>
+                    <td th:text="${entry.amount != null ? '₹' + #numbers.formatDecimal(entry.amount, 1, 'COMMA', 0, 'POINT') : '—'}">₹4,990</td>
+                    <td class="meta" th:text="${entry.effectiveFrom != null ? #temporals.format(entry.effectiveFrom, 'dd MMM yyyy') : '—'} + ' → ' + ${entry.effectiveUntil != null ? #temporals.format(entry.effectiveUntil, 'dd MMM yyyy') : '—'}">25 Apr 2026 → 24 Apr 2027</td>
+                    <td class="meta" th:text="${entry.paymentReference != null ? entry.paymentReference : (entry.sourceReference != null ? entry.sourceReference : '—')}">UTR123</td>
+                    <td class="meta" th:text="${entry.note != null ? entry.note : '—'}">Payment received by admin.</td>
+                </tr>
+                <tr th:if="${ledgerPage.empty}">
+                    <td colspan="8" class="meta">No subscription ledger entries yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pager">
+            <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + (${totalPages} > 0 ? totalPages : 1)">Page 1 of 1</span>
+            <div style="display:flex; gap:16px;">
+                <a th:if="${currentPage > 0}" th:href="@{/admin/subscription-ledger(page=${currentPage - 1}, size=${pageSize})}">Previous</a>
+                <a th:if="${currentPage + 1 < totalPages}" th:href="@{/admin/subscription-ledger(page=${currentPage + 1}, size=${pageSize})}">Next</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

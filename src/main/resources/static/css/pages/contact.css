@@ -270,7 +270,7 @@ body {
     border: 1.5px solid #dbe4ef;
     border-radius: 14px;
     font-size: 13px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     transition: all 0.2s;
     background: #f8fbff;
 }

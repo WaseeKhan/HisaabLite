@@ -4,453 +4,509 @@
 <head>
     <title th:text="${@appConfig.appName} + ' • ' + ${@appConfig.appTagline}">Expygen • Simplify Pharmacy</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
-
-    <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/landing.css}">
 
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
-<body>
+<body class="landing-page">
     <div th:replace="~{fragments/public-header :: header}"></div>
 
-    <div class="landing-hero">
-        <div class="landing-hero-copy">
-            <span class="hero-kicker">Pharmacy Operations Platform</span>
-            <h1>Run billing, purchases, stock control, and owner visibility from one <span>connected system</span></h1>
-            <p class="hero-tagline" th:text="${@appConfig.appTagline}">Simplify Pharmacy</p>
-            <p class="hero-description">Expygen helps medical stores handle billing, inward entry, batch and expiry control, supplier invoices, staff roles, support tickets, subscription usage, and Insights from one connected pharmacy workflow.</p>
-            <div class="hero-buttons">
-                <a href="/register" class="btn-primary">Start Free</a>
-                <a href="/login" class="btn-outline">Open Workspace</a>
-            </div>
-            <div class="hero-proof">
-                <span><i class="fas fa-receipt"></i> Counter billing</span>
-                <span><i class="fas fa-boxes-stacked"></i> Batch & expiry control</span>
-                <span><i class="fas fa-chart-line"></i> Dedicated Insights center</span>
-            </div>
+    <main class="landing-root">
 
-            <div class="landing-stats">
-                <div>
-                    <span class="landing-stat-number">Billing</span>
-                    <span class="landing-stat-label">Thermal, PDF, and WhatsApp invoices</span>
+        <!-- HERO -->
+        <section class="lp-hero">
+            <div class="lp-shell lp-hero-grid">
+                <div class="lp-hero-copy">
+                    <h1>
+                        Comprehensive <span class="is-blue">Billing,</span>
+                        <span class="is-orange">Inventory</span> &amp; <span class="is-blue">Management</span>
+                        Solution for <span class="is-orange">Medical Shops</span>
+                    </h1>
+
+                    <p class="lp-hero-text">
+                        All-in-one POS software tailored for medical stores, from purchase to sale, stock control,
+                        barcode billing, prescription handling, WhatsApp invoice sharing, and owner insights.
+                    </p>
+
+                    <div class="lp-hero-actions">
+                        <a href="/register" class="lp-btn lp-btn-primary">Get Started</a>
+                        <a href="/contact" class="lp-btn lp-btn-secondary">Request Demo</a>
+                    </div>
+
+                    <div class="features-hero-pills">
+                        <span><i class="fas fa-receipt"></i> Billing</span>
+                        <span><i class="fas fa-boxes-stacked"></i> Inventory</span>
+                        <span><i class="fas fa-chart-line"></i> Insights</span>
+                        <span><i class="fas fa-cash-register"></i> Counter ready</span>
+                        <span><i class="fas fa-boxes-stacked"></i> Batch aware</span>
+                        <span><i class="fas fa-chart-line"></i> Insights enabled</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="landing-stat-number">Inventory</span>
-                    <span class="landing-stat-label">Batch, expiry, stock, and supplier control</span>
-                </div>
-                <div>
-                    <span class="landing-stat-number">Insights</span>
-                    <span class="landing-stat-label">Sales, stock risk, purchases, and audit visibility</span>
+
+                <div class="lp-hero-stage">
+                    <div class="lp-device-cloud cloud-a"></div>
+                    <div class="lp-device-cloud cloud-b"></div>
+                    <div class="lp-device-cloud cloud-c"></div>
+
+                    <div class="lp-laptop">
+                        <div class="lp-laptop-window">
+                            <div class="lp-laptop-topbar">
+                                <div class="topbar-brand">
+                                    <span class="brand-mark"></span>
+                                    <span>EXPYGEN Billing</span>
+                                </div>
+                                <div class="topbar-actions">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+
+                            <div class="lp-shot-body">
+                                <div class="lp-shot-main">
+                                    <div class="lp-shot-toolbar">
+                                        <div class="toolbar-left">
+                                            <span class="tool-icon icon-secondary"><i class="fas fa-barcode"></i></span>
+                                            <span class="tool-icon icon-primary"><i class="fas fa-search"></i></span>
+
+                                            <div class="tool-search">
+                                                <i class="fas fa-magnifying-glass"></i>
+                                                <span>Search medicine, salt or scan barcode...</span>
+                                            </div>
+                                        </div>
+                                        <div class="toolbar-right">
+                                            <span class="tool-chip qty-chip"> 1</span>
+                                            <span class="tool-chip dark add-chip"><i class="fas fa-plus"></i> Add</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="lp-shot-table">
+                                        <div class="table-head">
+                                            <span>Current Sale <em>5</em></span>
+                                            <span>Qty</span>
+                                            <span>Price</span>
+                                            <span>GST</span>
+                                            <span>Total</span>
+                                        </div>
+
+                                        <div class="table-row">
+                                            <span>
+                                                <strong>Ecosprin Gold 20</strong>
+                                                <small>Strip • Rx medicine</small>
+                                            </span>
+                                            <span>2</span>
+                                            <span>₹45.50</span>
+                                            <span>5%</span>
+                                            <span>₹95.55</span>
+                                        </div>
+
+                                        <div class="table-row">
+                                            <span>
+                                                <strong>Azithral 500</strong>
+                                                <small>Tablet • 12% GST</small>
+                                            </span>
+                                            <span>1</span>
+                                            <span>₹118</span>
+                                            <span>12%</span>
+                                            <span>₹132.16</span>
+                                        </div>
+
+                                        <div class="table-row">
+                                            <span>
+                                                <strong>Pantocid DSR</strong>
+                                                <small>Capsule • 12% GST</small>
+                                            </span>
+                                            <span>1</span>
+                                            <span>₹96</span>
+                                            <span>12%</span>
+                                            <span>₹107.52</span>
+                                        </div>
+
+                                        <div class="table-row">
+                                            <span>
+                                                <strong>Levocetirizine</strong>
+                                                <small>Tablet • Allergy relief</small>
+                                            </span>
+                                            <span>1</span>
+                                            <span>₹84</span>
+                                            <span>5%</span>
+                                            <span>₹88.20</span>
+                                        </div>
+
+                                        <div class="table-row">
+                                            <span>
+                                                <strong>Dolo 650</strong>
+                                                <small>Tablet • Fever relief</small>
+                                            </span>
+                                            <span>1</span>
+                                            <span>₹75</span>
+                                            <span>18%</span>
+                                            <span>₹88.50</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="current-sale-footer">
+                                        <div class="footer-actions-left">
+                                            <div class="sales-action-buttons latest-bill-action-row">
+                                                <a href="" class="sales-btn-view compact-sale-btn" title="View Invoice">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+
+                                                <a href="" class="sales-btn-view sales-btn-thermal compact-sale-btn"
+                                                    title="View Thermal Invoice">
+                                                    <i class="fas fa-receipt"></i>
+                                                </a>
+
+                                                <button type="button"
+                                                    class="sales-btn-view sales-btn-print compact-sale-btn"
+                                                    title="Print Thermal Invoice">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+
+                                                <a href="" class="sales-btn-pdf compact-sale-btn"
+                                                    title="Download PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
+
+                                                <button type="button" class="sales-btn-whatsapp compact-sale-btn"
+                                                    title="Send via WhatsApp">
+                                                    <i class="fab fa-whatsapp"></i>
+                                                </button>
+
+                                                <button type="button" class="sales-btn-cancel compact-sale-btn"
+                                                    title="Cancel Sale">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="footer-actions-right">
+                                            <button type="button" class="footer-light-btn" id="holdSaleBtn">Hold
+                                                Sale</button>
+                                            <button type="button" class="footer-icon-btn" id="quickLatestReceiptBtn"><i
+                                                    class="fas fa-receipt"></i></button>
+                                            <button type="button" class="footer-icon-btn" id="quickFocusSearchBtn"><i
+                                                    class="fas fa-search"></i></button>
+                                            <button type="button" class="footer-icon-btn" id="quickFocusCustomerBtn"><i
+                                                    class="far fa-map"></i></button>
+                                            <button type="button" class="footer-icon-btn" id="quickCloneLastItemBtn"><i
+                                                    class="far fa-clone"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <aside class="lp-shot-payment">
+                                    <h4>Payment</h4>
+                                    <div class="payment-line"><span>Subtotal</span><strong>₹464.00</strong></div>
+                                    <div class="payment-line"><span>CGST</span><strong>₹23.96</strong></div>
+                                    <div class="payment-line"><span>SGST</span><strong>₹23.97</strong></div>
+                                    <div class="payment-line"><span>Discount</span><strong>₹0.00</strong></div>
+                                    <div class="payment-total"><span>TOTAL</span><strong>₹511.93</strong></div>
+
+                                    <div class="payment-modes">
+                                        <span class="active">Cash</span>
+                                        <span>UPI</span>
+                                        <span>Card</span>
+                                    </div>
+
+                                    <div class="payment-field">Received ₹600.00</div>
+                                    <div class="payment-field">Change ₹88.07</div>
+
+                                    <div class="payment-btn">Complete Sale</div>
+                                    <div class="cancel-btn">Cancel</div>
+                                </aside>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="landing-hero-shell">
-            <div class="shell-topbar">
-                <div class="shell-brand">
-                    <img th:src="@{/images/expygen-mark-fevicon.png}" th:alt="${@appConfig.appName}" class="shell-mark shell-mark-dark">
-                    <img th:src="@{/images/expygen-mark-fevicon.png}" th:alt="${@appConfig.appName}" class="shell-mark shell-mark-light">
+        <!-- BENEFITS -->
+        <section class="lp-benefits">
+            <div class="lp-shell lp-benefit-grid">
+                <article class="lp-benefit-card">
+                    <div class="lp-benefit-icon icon-blue"><i class="fas fa-gauge-high"></i></div>
                     <div>
-                        <strong th:text="${@appConfig.appName}">Expygen</strong>
-                        <span th:text="${@appConfig.appTagline}">Simplify Pharmacy</span>
+                        <h3>Fast Billing</h3>
+                        <p>Speed up sales &amp; invoicing</p>
+                    </div>
+                </article>
+
+                <article class="lp-benefit-card">
+                    <div class="lp-benefit-icon icon-gold"><i class="fas fa-box-open"></i></div>
+                    <div>
+                        <h3>Inventory Tracking</h3>
+                        <p>Manage stock, expiry &amp; batches</p>
+                    </div>
+                </article>
+
+                <article class="lp-benefit-card">
+                    <div class="lp-benefit-icon icon-green"><i class="fab fa-whatsapp"></i></div>
+                    <div>
+                        <h3>WhatsApp Integration</h3>
+                        <p>Send invoices to customers on WhatsApp</p>
+                    </div>
+                </article>
+
+                <article class="lp-benefit-card">
+                    <div class="lp-benefit-icon icon-blue"><i class="fas fa-chart-column"></i></div>
+                    <div>
+                        <h3>Detailed Reports</h3>
+                        <p>Gain insights with advanced analytics</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="lp-features">
+            <div class="lp-shell">
+                <div class="lp-heading">
+                    <h2>Powerful Features Tailored for <span>Medical Stores</span></h2>
+                    <p>
+                        India's complete pharmacy billing software with barcode-ready billing, GST invoicing,
+                        purchase flow, inventory control, and WhatsApp invoice delivery.
+                    </p>
+                </div>
+
+                <div class="lp-feature-grid">
+                    <article class="lp-feature-card">
+                        <div class="lp-feature-icon"><i class="fas fa-barcode"></i></div>
+                        <h3>Barcode / Item Search</h3>
+                        <p>Speed up billing with barcode-ready medicine search and compact counter flow.</p>
+                    </article>
+
+                    <article class="lp-feature-card">
+                        <div class="lp-feature-icon"><i class="fas fa-file-invoice"></i></div>
+                        <h3>GST &amp; Compliance</h3>
+                        <p>Keep invoice structure, tax handling, and clean pharmacy billing flow together.</p>
+                    </article>
+
+                    <article class="lp-feature-card">
+                        <div class="lp-feature-icon"><i class="fas fa-cart-plus"></i></div>
+                        <h3>Purchase Management</h3>
+                        <p>Manage inward stock, supplier bills, purchase returns, and stock updates from one place.</p>
+                    </article>
+
+                    <article class="lp-feature-card">
+                        <div class="lp-feature-icon"><i class="fas fa-user-injured"></i></div>
+                        <h3>Patient / Customer Desk</h3>
+                        <p>Store customer details, invoice history, prescription notes, and repeated billing context.
+                        </p>
+                    </article>
+
+                    <article class="lp-feature-card">
+                        <div class="lp-feature-icon"><i class="fas fa-calendar-check"></i></div>
+                        <h3>Expiry &amp; Batch Tracking</h3>
+                        <p>Track batch-level stock, expiry windows, and reduce medicine loss with better visibility.</p>
+                    </article>
+
+                    <article class="lp-feature-card">
+                        <div class="lp-feature-icon"><i class="fas fa-bell"></i></div>
+                        <h3>Low Stock Alerts</h3>
+                        <p>Get timely reorder visibility before stock shortage starts affecting your billing counter.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHATSAPP BAND -->
+      <!-- WHATSAPP DELIVERY SECTION -->
+<section class="lp-whatsapp-showcase">
+    <div class="lp-shell">
+        <div class="lp-whatsapp-wrap">
+            <div class="lp-whatsapp-head">
+                <h2>Invoice delivery that works at the counter</h2>
+                <p>
+                    Keep thermal as the daily print format, PDF as the official copy,
+                    and WhatsApp as the instant customer handoff.
+                </p>
+            </div>
+
+            <div class="lp-whatsapp-grid">
+                <article class="lp-whatsapp-card is-whatsapp">
+                    <div class="lp-whatsapp-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3>Send on WhatsApp</h3>
+                    <p>
+                        Share invoice copies directly from billing, recent invoices,
+                        and sales history.
+                    </p>
+                </article>
+
+                <article class="lp-whatsapp-card is-active">
+                    <div class="lp-whatsapp-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>Official PDF Copy</h3>
+                    <p>
+                        Generate branded invoice PDFs with GST, customer details,
+                        payment summary, and product lines.
+                    </p>
+                </article>
+
+                <article class="lp-whatsapp-card">
+                    <div class="lp-whatsapp-icon">
+                        <i class="fas fa-print"></i>
+                    </div>
+                    <h3>Thermal Print</h3>
+                    <p>
+                        Use dense counter-ready thermal invoices for everyday pharmacy billing.
+                    </p>
+                </article>
+
+                <article class="lp-whatsapp-card">
+                    <div class="lp-whatsapp-icon">
+                        <i class="fas fa-clock-rotate-left"></i>
+                    </div>
+                    <h3>Sales History Actions</h3>
+                    <p>
+                        Reopen invoice preview, thermal view, direct print, PDF,
+                        and WhatsApp from one ledger screen.
+                    </p>
+                </article>
+            </div>
+
+            <div class="lp-whatsapp-cta">
+                <a href="/register" class="lp-whatsapp-btn">
+                    <i class="fas fa-file-invoice"></i>
+                    Start Your Billing Setup
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+      <!-- PRICING -->
+<section class="lp-pricing" id="pricing">
+    <div class="lp-shell">
+        <div class="lp-pricing-head">
+            <span class="lp-section-kicker">Pricing</span>
+            <h2>Simple plans for every stage of your medical store</h2>
+            <p>
+                Start with the essentials, upgrade as your store grows, and unlock
+                more users, products, WhatsApp invoice sharing, insights, and advanced workflows.
+            </p>
+        </div>
+
+        <div class="lp-pricing-switch-wrap">
+            <div class="lp-pricing-switch">
+                <span class="lp-switch-label active">Yearly billing only</span>
+                <span class="lp-save-badge">Best annual value</span>
+            </div>
+        </div>
+
+        <div class="lp-pricing-grid">
+            <article th:each="plan : ${publicPlans}"
+                     class="lp-plan-card"
+                     th:classappend="${(plan.popular ? ' lp-plan-popular' : '') + (plan.enterprise ? ' lp-plan-card-enterprise' : '')}">
+                <div class="lp-plan-badge" th:if="${plan.popular}">Most Popular</div>
+                <div class="lp-plan-topline"></div>
+
+                <div class="lp-plan-tier"
+                     th:text="${plan.planName == 'FREE' ? 'Launch' : (plan.planName == 'BASIC' ? 'Operate' : 'Scale')}">Launch</div>
+                <div class="lp-plan-name" th:text="${plan.planName}">FREE</div>
+                <div class="lp-plan-audience"
+                     th:text="${plan.planName == 'FREE' ? 'For first-time stores starting digital billing' : (plan.planName == 'BASIC' ? 'For active stores ready for everyday operations' : 'For growing stores that need speed, control, and premium workflows')}">
+                    For first-time stores starting digital billing
+                </div>
+
+                <div class="lp-plan-price-wrap">
+                    <div class="lp-plan-price yearly-price"
+                         th:classappend="${plan.free} ? ' price-free' : ''">
+                        <span th:text="${plan.totalPriceLabel}">₹0</span>
+                        <span th:if="${!plan.free}" th:text="${plan.totalPricePeriodLabel}">/year</span>
+                    </div>
+                    <div class="lp-plan-period">
+                        <span class="yearly-note"
+                              th:text="${plan.durationLabel + ' • ' + plan.usersLabel + ' users • ' + plan.productsLabel + ' products'}">1 year • 2 users • 50 products</span>
+                        <span class="lp-save-badge" th:if="${!plan.free and plan.annualDiscountLabel != ''}" th:text="${plan.annualDiscountLabel}">Save 17%</span>
                     </div>
                 </div>
-                <div class="shell-status">Medical workspace</div>
-            </div>
 
-            <div class="shell-grid">
-                <div class="shell-card">
-                    <div class="shell-card-title">Counter Console</div>
-                    <ul>
-                        <li><span>Recent invoices</span><strong>03</strong></li>
-                        <li><span>Thermal ready</span><strong>18</strong></li>
-                        <li><span>WhatsApp shares</span><strong>12</strong></li>
-                    </ul>
-                </div>
-                <div class="shell-card shell-card-accent">
-                    <div class="shell-card-title">Inventory Watch</div>
-                    <ul>
-                        <li><span>Near expiry</span><strong>09</strong></li>
-                        <li><span>Low stock</span><strong>14</strong></li>
-                        <li><span>Adjustments today</span><strong>06</strong></li>
-                    </ul>
-                </div>
-                <div class="shell-card shell-card-wide">
-                    <div class="shell-card-title">Today in Store</div>
-                    <div class="shell-metrics">
-                        <div><span>Bills</span><strong>126</strong></div>
-                        <div><span>Net Sales</span><strong>₹48,250</strong></div>
-                        <div><span>Purchase Entries</span><strong>11</strong></div>
+                <p class="lp-plan-desc"
+                   th:text="${plan.description != null ? plan.description : 'Plan details managed from subscription settings.'}">
+                    Perfect for trying Expygen and exploring the basic pharmacy billing flow.
+                </p>
+
+                <div class="lp-plan-stats">
+                    <div class="lp-plan-stat">
+                        <strong th:text="${plan.usersLabel}">2</strong>
+                        <span>Users</span>
+                    </div>
+                    <div class="lp-plan-stat">
+                        <strong th:text="${plan.productsLabel}">50</strong>
+                        <span>Products</span>
+                    </div>
+                    <div class="lp-plan-stat">
+                        <strong th:text="${plan.planName == 'PRO' ? 'Priority' : 'Standard'}">Standard</strong>
+                        <span>Support</span>
                     </div>
                 </div>
-                <div class="shell-card shell-card-wide shell-card-mini">
-                    <div class="shell-card-title">Store Signals</div>
-                    <div class="shell-mini-metrics">
-                        <div><span>Customers</span><strong>41</strong></div>
-                        <div><span>Staff Active</span><strong>03</strong></div>
-                        <div><span>Plan Usage</span><strong>44/50</strong></div>
-                        <div><span>Open Tickets</span><strong>02</strong></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- FEATURES SECTION - Glassy Cards -->
-    <div class="features" id="features">
-        <h2>Built for day-to-day pharmacy work</h2>
-        <div class="features-subtitle">Everything your store actually uses daily, from billing and inward entry to stock risk, staff control, and business visibility.</div>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-box"></i></div>
-                <h3>Medicine Master</h3>
-                <p>Manage medicines with barcode, GST, pack size, pricing, manufacturer, and prescription handling from one product desk.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-cash-register"></i></div>
-                <h3>Counter Billing</h3>
-                <p>Use search or scan billing with thermal print, PDF invoice, WhatsApp share, and recent-invoice recall at the counter.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                <h3>Insights Workspace</h3>
-                <p>Open a separate intelligence center for sales summary, purchases, current stock, near expiry, adjustments, and audit visibility.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-truck-loading"></i></div>
-                <h3>Purchase & Batch Control</h3>
-                <p>Record supplier invoices, inward batches, expiry dates, purchase returns, and stock adjustments with traceability.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-users"></i></div>
-                <h3>Role-Based Access</h3>
-                <p>Keep owner, manager, and cashier workflows separated so billing, stock, staff, and settings stay under control.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
-                <h3>Subscription & Support</h3>
-                <p>Track plan usage, product and staff limits, upgrade readiness, and support tickets from inside the application.</p>
-            </div>
-        </div>
-    </div>
+                <ul class="lp-plan-features">
+                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Fast billing and GST invoice setup</span></li>
+                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Essential dashboard and sales history</span></li>
+                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Perfect to launch one medical store</span></li>
 
-    <div class="workflow-section" id="workflow">
-        <div class="workflow-head">
-            <span class="workflow-kicker">Workflow</span>
-            <h2>One pharmacy flow from counter to control</h2>
-            <p>Use Expygen the way stores actually work: operate in the main app, understand in Insights, and keep purchases, stock, billing, and support connected.</p>
-        </div>
+                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Purchases, stock control, and store operations</span></li>
+                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Higher medicine capacity for daily business</span></li>
+                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Structured workflow for growing teams</span></li>
 
-        <div class="workflow-grid">
-            <div class="workflow-step">
-                <div class="workflow-step-index">01</div>
-                <div class="workflow-step-icon"><i class="fas fa-cash-register"></i></div>
-                <h3>Run the counter fast</h3>
-                <p>Search or scan medicines, bill quickly, print thermal slips, and share invoice copies on PDF or WhatsApp without slowing the desk.</p>
-            </div>
-            <div class="workflow-step">
-                <div class="workflow-step-index">02</div>
-                <div class="workflow-step-icon"><i class="fas fa-truck-loading"></i></div>
-                <h3>Control inward and stock</h3>
-                <p>Record supplier invoices, batches, expiry dates, stock adjustments, and purchase returns while keeping a clean ledger of what came in.</p>
-            </div>
-            <div class="workflow-step">
-                <div class="workflow-step-index">03</div>
-                <div class="workflow-step-icon"><i class="fas fa-satellite-dish"></i></div>
-                <h3>Open Insights when needed</h3>
-                <p>Review sales movement, stock pressure, purchase visibility, and audit activity in a separate intelligence workspace without cluttering daily screens.</p>
-            </div>
-        </div>
-    </div>
+                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>WhatsApp invoice delivery and premium workflows</span></li>
+                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Insights workspace for better decision-making</span></li>
+                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Best fit for serious retail growth</span></li>
 
-    <!-- WHATSAPP SECTION - Glassy -->
-    <div class="whatsapp-section">
-        <h2>Invoice delivery that works at the counter</h2>
-        <p>Keep thermal as the daily print format, PDF as the official copy, and WhatsApp as the instant customer handoff.</p>
-
-        <div class="whatsapp-features">
-            <div class="whatsapp-feature">
-                <i class="fab fa-whatsapp"></i>
-                <h4>Send on WhatsApp</h4>
-                <p>Share invoice copies directly from billing, recent invoices, and sales history.</p>
-            </div>
-            <div class="whatsapp-feature">
-                <i class="fas fa-file-pdf"></i>
-                <h4>Official PDF Copy</h4>
-                <p>Generate branded invoice PDFs with GST, customer details, payment summary, and product lines.</p>
-            </div>
-            <div class="whatsapp-feature">
-                <i class="fas fa-print"></i>
-                <h4>Thermal Print</h4>
-                <p>Use dense counter-ready thermal invoices for everyday pharmacy billing.</p>
-            </div>
-            <div class="whatsapp-feature">
-                <i class="fas fa-clock-rotate-left"></i>
-                <h4>Sales History Actions</h4>
-                <p>Reopen invoice preview, thermal view, direct print, PDF, and WhatsApp from one ledger screen.</p>
-            </div>
-        </div>
-
-        <a href="/register" class="btn-whatsapp">
-            <i class="fas fa-file-invoice"></i> Start Your Billing Setup
-        </a>
-    </div>
-
-    <!-- PRICING SECTION - With Yearly Toggle -->
-    <div class="pricing-section" id="pricing">
-        <h2>Simple plans for stores that are growing</h2>
-        <div class="pricing-subtitle">Start free, move to operations, then unlock Insights and higher limits as your store scales.</div>
-
-
-        <!-- Billing Toggle - FIXED -->
-        <!-- Billing Toggle - FIXED -->
-        <div class="billing-toggle">
-            <span class="toggle-label active" id="monthlyLabel">Monthly</span>
-            <label class="switch">
-                <input type="checkbox" id="billingToggle" th:attr="onclick='toggleBilling()'">
-                <span class="slider"></span>
-            </label>
-            <span class="toggle-label" id="yearlyLabel">
-                Yearly <span class="save-badge">Save 17%</span>
-            </span>
-        </div>
-
-
-        <div class="pricing-grid">
-            <!-- FREE Plan -->
-            <div class="pricing-card">
-                <div class="pricing-name">FREE</div>
-                <div class="pricing-price">
-                    <span class="monthly-price price-free">₹0</span>
-                    <span class="yearly-price price-free" style="display: none;">₹0</span>
-                </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 1 User</li>
-                    <li><i class="fas fa-check"></i> 10 Products</li>
-                     <li><i class="fas fa-check"></i> 7 Days</li>
-                    <li><i class="fas fa-check"></i> Billing + Sales History</li>
-                    <li><i class="fas fa-check"></i> Basic Support</li>
-                    <li><i class="fas fa-check"></i> All Features</li>
+                    <li><i class="fas fa-check"></i><span>Yearly activation with admin-managed setup</span></li>
+                    <li><i class="fas fa-check"></i><span>Upgrade anytime as your store grows</span></li>
                 </ul>
-                <a href="/register" class="btn-pricing">Get Started</a>
-            </div>
 
-            <!-- BASIC Plan -->
-            <div class="pricing-card">
-                <div class="pricing-name">BASIC</div>
-                <div class="pricing-price">
-                    <span class="monthly-price">₹299 <span class="price-period">/mo</span></span>
-                    <span class="yearly-price" style="display: none;">
-                        ₹4,990 <span class="price-period">/yr</span>
-                        <span class="original-price">₹5,988</span>
-                        <span class="savings-tag">Save ₹998</span>
+                <div class="lp-plan-cta">
+                    <a th:href="${plan.actionHref}"
+                       class="lp-plan-btn"
+                       th:classappend="${plan.popular} ? ' lp-plan-btn-primary' : (${plan.enterprise} ? ' lp-plan-btn-light' : '')"
+                       th:text="${plan.actionLabel}">Start Free</a>
+                    <span class="lp-plan-note"
+                          th:text="${plan.planName == 'FREE' ? 'Start immediately with your first store.' : 'Request yearly activation when you are ready.'}">
+                        Start immediately with your first store.
                     </span>
                 </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 1 Users</li>
-                    <li><i class="fas fa-check"></i> 100 Products</li>
-                    <li><i class="fas fa-check"></i> Purchases + stock control</li>
-                    <li><i class="fas fa-check"></i> GST invoice flow</li>
-                </ul>
-                <a href="/register" class="btn-pricing">Choose Basic</a>
-            </div>
-
-            <!-- PREMIUM Plan -->
-            <div class="pricing-card popular">
-                <div class="popular-badge">🔥 MOST POPULAR</div>
-                <div class="pricing-name">PREMIUM</div>
-                <div class="pricing-price">
-                    <span class="monthly-price">₹999 <span class="price-period">/mo</span></span>
-                    <span class="yearly-price" style="display: none;">
-                        ₹9,990 <span class="price-period">/yr</span>
-                        <span class="original-price">₹11,988</span>
-                        <span class="savings-tag">Save ₹1,998</span>
-                    </span>
-                </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 15 Users</li>
-                    <li><i class="fas fa-check"></i> 1000 Products</li>
-                    <li><i class="fas fa-check"></i> WhatsApp Integration</li>
-                    <li><i class="fas fa-check"></i> Insights workspace</li>
-                    <li><i class="fas fa-check"></i> Batch and expiry visibility</li>
-                </ul>
-                <a href="/register" class="btn-pricing">Go Premium</a>
-            </div>
-
-            <!-- ENTERPRISE Plan -->
-            <div class="pricing-card">
-                <div class="pricing-name">ENTERPRISE</div>
-                <div class="pricing-price">
-                    <span class="monthly-price">₹1,999 <span class="price-period">/mo</span></span>
-                    <span class="yearly-price" style="display: none;">
-                        ₹19,990 <span class="price-period">/yr</span>
-                        <span class="original-price">₹23,988</span>
-                        <span class="savings-tag">Save ₹3,998</span>
-                    </span>
-                </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> Unlimited Users</li>
-                    <li><i class="fas fa-check"></i> Unlimited Products</li>
-                    <li><i class="fas fa-check"></i> Priority Support</li>
-                    <li><i class="fas fa-check"></i> Enterprise rollout support</li>
-                </ul>
-                <a href="/contact" class="btn-pricing">Contact Sales</a>
-            </div>
+            </article>
         </div>
     </div>
+</section>
 
-    <!-- SUPPORT SECTION - Glassy -->
-    <div class="support-section" id="support">
-        <h2>Support that matches store operations</h2>
-        <p>Use the built-in support desk when your team needs onboarding help, issue tracking, subscription guidance, or workflow assistance.</p>
-
-        <div class="support-grid">
-            <div class="support-card">
-                <i class="fas fa-headset"></i>
-                <h4>Ticket Desk</h4>
-                <p>Create and track support tickets from the same workspace your team already uses daily.</p>
-            </div>
-            <div class="support-card">
-                <i class="fas fa-envelope"></i>
-                <h4>Email Follow-up</h4>
-                <p>Keep onboarding, issue resolution, and store-level requests documented cleanly.</p>
-            </div>
-            <div class="support-card">
-                <i class="fab fa-whatsapp"></i>
-                <h4>Operational Guidance</h4>
-                <p>Get help for billing, stock, purchases, staff access, and invoice workflows.</p>
-            </div>
-            <div class="support-card">
-                <i class="fas fa-phone"></i>
-                <h4>Escalation Ready</h4>
-                <p>Priority flows stay available for bigger stores and urgent operational issues.</p>
-            </div>
-        </div>
-
-        <div class="support-stats">
-            <div class="support-stat">
-                <span class="number">Desk</span>
-                <span class="label">Track store issues cleanly</span>
-            </div>
-            <div class="support-stat">
-                <span class="number">Role</span>
-                <span class="label">Owner, manager, cashier aware</span>
-            </div>
-            <div class="support-stat">
-                <span class="number">Flow</span>
-                <span class="label">Built into the application</span>
-            </div>
-        </div>
-
-        <a href="/support" class="btn-support">
-            <i class="fas fa-life-ring"></i> Explore Support
-        </a>
-    </div>
-
-    <!-- TESTIMONIALS SECTION -->
-    <div class="testimonials-section">
-        <h2>Built around real pharmacy operations</h2>
-
-        <div class="testimonials-grid">
-            <div class="testimonial-card">
-                <div class="testimonial-rating">Billing</div>
-                <p class="testimonial-text">Thermal print, PDF, and WhatsApp invoice flow keeps the counter fast without losing invoice control.</p>
-                <div class="testimonial-author">
-                    <div class="author-avatar"><i class="fas fa-user"></i></div>
-                    <div class="author-info">
-                        <h4>Counter First</h4>
-                        <p>Search, scan, print, and move quickly</p>
-                    </div>
+        <!-- TRUST -->
+        <section class="lp-trust">
+            <div class="lp-shell">
+                <div class="lp-trust-card">
+                    <h2>Trusted by 10 + Medical Store Owners</h2>
+                    <p>
+                        Streamline your pharmacy operations and join thousands of businesses growing with
+                        <strong>Expygen</strong>.
+                    </p>
+                    <a href="/register" class="lp-btn lp-btn-primary lp-trust-btn">Get Started Now</a>
                 </div>
             </div>
+        </section>
 
-            <div class="testimonial-card">
-                <div class="testimonial-rating">Inventory</div>
-                <p class="testimonial-text">Purchase inward, batch ledger, expiry report, and stock adjustments stay connected instead of living in separate tools.</p>
-                <div class="testimonial-author">
-                    <div class="author-avatar"><i class="fas fa-user"></i></div>
-                    <div class="author-info">
-                        <h4>Batch Aware</h4>
-                        <p>Expiry and stock visibility that stays usable</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="testimonial-card">
-                <div class="testimonial-rating">Insights</div>
-                <p class="testimonial-text">Keep operations in the app and open Insights only when you need trends, audit visibility, stock risk, or purchase understanding.</p>
-                <div class="testimonial-author">
-                    <div class="author-avatar"><i class="fas fa-user"></i></div>
-                    <div class="author-info">
-                        <h4>Owner View</h4>
-                        <p>Understand the business without cluttering daily screens</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- NEWSLETTER SECTION -->
-    <div class="newsletter-section">
-        <div class="newsletter-card">
-            <h2>See how Expygen fits your store workflow</h2>
-            <p>Talk to us if you want billing, purchases, product control, staff roles, support, subscription visibility, and Insights in one pharmacy system.</p>
-
-            <div class="newsletter-form">
-                <input type="email" placeholder="Enter your work email">
-                <button>
-                    <i class="fas fa-paper-plane"></i> Request a walkthrough
-                </button>
-            </div>
-
-            <div class="trust-badges">
-                <span><i class="fas fa-shield-alt"></i> Practical pharmacy setup guidance</span>
-                <span><i class="fas fa-lock"></i> Private business discussion</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toggle Script -->
-    <script th:inline="javascript">
-        function toggleBilling() {
-            const toggle = document.getElementById('billingToggle');
-            const monthlyPrices = document.querySelectorAll('.monthly-price');
-            const yearlyPrices = document.querySelectorAll('.yearly-price');
-            const monthlyLabel = document.getElementById('monthlyLabel');
-            const yearlyLabel = document.getElementById('yearlyLabel');
-
-            if (toggle.checked) {
-                // Yearly selected
-                monthlyPrices.forEach(el => el.style.display = 'none');
-                yearlyPrices.forEach(el => el.style.display = 'block');
-                monthlyLabel.classList.remove('active');
-                yearlyLabel.classList.add('active');
-            } else {
-                // Monthly selected
-                monthlyPrices.forEach(el => el.style.display = 'block');
-                yearlyPrices.forEach(el => el.style.display = 'none');
-                monthlyLabel.classList.add('active');
-                yearlyLabel.classList.remove('active');
-            }
-        }
-    </script>
+    </main>
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>
+
 </body>
 
 </html>

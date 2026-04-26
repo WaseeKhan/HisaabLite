@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.expygen.entity.PlanType;
 import com.expygen.entity.Product;
 import com.expygen.entity.Shop;
 import com.expygen.entity.User;
@@ -25,6 +24,7 @@ import com.expygen.service.BarcodeLabelService;
 import com.expygen.service.ProductBarcodeService;
 import com.expygen.service.ProductService;
 import com.expygen.service.PlanLimitService;
+import com.expygen.service.SubscriptionAccessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -51,6 +51,7 @@ public class ProductController {
     private final BatchInventoryVisibilityService batchInventoryVisibilityService;
     private final BarcodeLabelService barcodeLabelService;
     private final ProductBarcodeService productBarcodeService;
+    private final SubscriptionAccessService subscriptionAccessService;
 
     private static final int PAGE_SIZE = 20;
 
@@ -104,9 +105,7 @@ public class ProductController {
         model.addAttribute("productLimitRaw", productLimit);
         model.addAttribute("canAddMore", canAddMore);
 
-        PlanType planType = user.getShop().getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
 
         return "products";
     }
@@ -350,9 +349,7 @@ public class ProductController {
         model.addAttribute("role", user.getRole().name());
         model.addAttribute("currentPage", "products");
         
-        PlanType planType = shop.getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
         model.addAttribute("productLimit", isUnlimited ? "Unlimited" : maxLimit);
         model.addAttribute("productLimitRaw", maxLimit);
         model.addAttribute("currentProductCount", currentCount);
@@ -519,9 +516,7 @@ public class ProductController {
         model.addAttribute("productLimitRaw", maxLimit);
         model.addAttribute("canAddMore", isUnlimited || planLimitService.canAddProduct(shop));
 
-        PlanType planType = shop.getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
 
         return "product-form";
     }
@@ -828,8 +823,6 @@ public class ProductController {
         model.addAttribute("productLimitRaw", maxLimit);
         model.addAttribute("canAddMore", isUnlimited || currentCount < maxLimit || product.getId() != null);
 
-        PlanType planType = shop.getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
     }
 }

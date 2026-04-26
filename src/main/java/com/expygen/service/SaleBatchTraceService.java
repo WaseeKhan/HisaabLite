@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.expygen.dto.SaleBatchTraceSummaryDTO;
 import com.expygen.dto.SoldBatchTraceDTO;
@@ -31,6 +32,7 @@ public class SaleBatchTraceService {
     private final SaleItemRepository saleItemRepository;
     private final SaleItemBatchAllocationRepository saleItemBatchAllocationRepository;
 
+    @Transactional(readOnly = true)
     public Map<Long, List<SoldBatchTraceDTO>> getBatchTraceBySaleItem(List<SaleItem> items) {
         if (items == null || items.isEmpty()) {
             return Collections.emptyMap();
@@ -66,6 +68,7 @@ public class SaleBatchTraceService {
         return traceBySaleItemId;
     }
 
+    @Transactional(readOnly = true)
     public Map<Long, SaleBatchTraceSummaryDTO> summarizeSales(List<Sale> sales) {
         if (sales == null || sales.isEmpty()) {
             return Collections.emptyMap();

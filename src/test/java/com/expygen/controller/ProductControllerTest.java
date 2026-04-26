@@ -40,6 +40,7 @@ import com.expygen.repository.UserRepository;
 import com.expygen.service.PlanLimitService;
 import com.expygen.service.ProductBarcodeService;
 import com.expygen.service.ProductService;
+import com.expygen.service.SubscriptionAccessService;
 
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
@@ -70,6 +71,9 @@ class ProductControllerTest {
 
     @Mock
     private ProductBarcodeService productBarcodeService;
+
+    @Mock
+    private SubscriptionAccessService subscriptionAccessService;
 
     @Mock
     private Authentication authentication;
@@ -219,6 +223,7 @@ class ProductControllerTest {
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(planLimitService.getProductLimit(shop)).thenReturn(1000);
         when(planLimitService.canAddProduct(shop)).thenReturn(true);
+        when(subscriptionAccessService.getPlanName(shop)).thenReturn("PRO");
         when(productRepository.existsByShopAndBarcodeIgnoreCaseAndActiveTrue(shop, "890100000111")).thenReturn(true);
 
         ExtendedModelMap model = new ExtendedModelMap();
@@ -456,7 +461,7 @@ class ProductControllerTest {
         return Shop.builder()
                 .id(1L)
                 .name("Core Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build();
     }
@@ -472,7 +477,7 @@ class ProductControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
     }
 }

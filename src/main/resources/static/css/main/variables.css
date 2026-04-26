@@ -43,7 +43,10 @@
     --shadow-md: 0 18px 34px rgba(15, 23, 42, 0.08);
     
     /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-primary: 'Manrope', sans-serif;
+    --font-brand: 'Sora', 'Manrope', sans-serif;
+    --font-family: var(--font-primary);
+    --font-display: var(--font-brand);
     --font-size-xs: 11px;
     --font-size-sm: 12px;
     --font-size-md: 13px;

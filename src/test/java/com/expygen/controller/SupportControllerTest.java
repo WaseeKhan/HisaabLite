@@ -62,7 +62,7 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(5L)
                 .name("Support Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build();
         User owner = User.builder()
@@ -177,7 +177,7 @@ class SupportControllerTest {
         Shop shop = Shop.builder()
                 .id(7L)
                 .name("Support Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build();
         User owner = User.builder()

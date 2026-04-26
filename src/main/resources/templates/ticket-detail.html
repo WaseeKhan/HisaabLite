@@ -4,10 +4,9 @@
 <head>
     <title>Ticket #${ticket.ticketNumber} • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
@@ -20,6 +19,7 @@
     <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
     <link rel="stylesheet" th:href="@{/css/pages/shop-ticket-detail.css}">
+
 </head>
 
 <body class="shop-body">

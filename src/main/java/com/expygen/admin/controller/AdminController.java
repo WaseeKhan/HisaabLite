@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,12 +39,20 @@ import com.expygen.admin.repository.AdminUserRepository;
 import com.expygen.admin.service.AdminService;
 import com.expygen.admin.service.AuditService;
 import com.expygen.entity.AuditLog;
+import com.expygen.entity.UpgradeRequest;
+import com.expygen.entity.UpgradeRequestStatus;
 import com.expygen.entity.PlanType;
 import com.expygen.entity.Role;
 import com.expygen.entity.Shop;
 import com.expygen.entity.SubscriptionPlan;
 import com.expygen.entity.User;
+import com.expygen.dto.SubscriptionLifecycleSnapshot;
+import com.expygen.repository.UpgradeRequestRepository;
 import com.expygen.service.EmailService;
+import com.expygen.service.SubscriptionEntitlementAuditService;
+import com.expygen.service.SubscriptionLedgerService;
+import com.expygen.service.SubscriptionLifecycleStatus;
+import com.expygen.service.SubscriptionLifecycleService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +75,10 @@ public class AdminController {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService; // Added EmailService
     private final ContactService contactService;
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
+    private final UpgradeRequestRepository upgradeRequestRepository;
+    private final SubscriptionLedgerService subscriptionLedgerService;
+    private final SubscriptionEntitlementAuditService subscriptionEntitlementAuditService;
 
     // ===== LOGIN PAGES =====
 
@@ -120,6 +134,16 @@ public class AdminController {
             log.info("Dashboard loaded successfully: {} shops, {} users, {} tickets",
                     stats.getTotalShops(), stats.getTotalUsers(), stats.getTotalTickets());
 
+            List<Shop> shops = adminShopRepo.findAll();
+            Map<Long, SubscriptionLifecycleSnapshot> lifecycleByShopId = buildLifecycleMap(shops);
+            model.addAttribute("renewalDueShops", countLifecycleStatus(lifecycleByShopId, SubscriptionLifecycleStatus.RENEWAL_DUE));
+            model.addAttribute("gracePeriodShops", countLifecycleStatus(lifecycleByShopId, SubscriptionLifecycleStatus.GRACE_PERIOD));
+            model.addAttribute("expiredLifecycleShops", countLifecycleStatus(lifecycleByShopId, SubscriptionLifecycleStatus.EXPIRED));
+            Map<UpgradeRequestStatus, Long> commercialCounts = getCommercialStatusCounts();
+            model.addAttribute("requestedCommercialCount", commercialCounts.getOrDefault(UpgradeRequestStatus.REQUESTED, 0L));
+            model.addAttribute("contactedCommercialCount", commercialCounts.getOrDefault(UpgradeRequestStatus.CONTACTED, 0L));
+            model.addAttribute("paymentReceivedCommercialCount", commercialCounts.getOrDefault(UpgradeRequestStatus.PAYMENT_RECEIVED, 0L));
+
         } catch (Exception e) {
             log.error("Error loading dashboard: {}", e.getMessage(), e);
 
@@ -134,21 +158,26 @@ public class AdminController {
             defaultStats.setActiveShops(0L);
             defaultStats.setInactiveShops(0L);
             defaultStats.setTotalRevenue(0.0);
+            model.addAttribute("renewalDueShops", 0L);
+            model.addAttribute("gracePeriodShops", 0L);
+            model.addAttribute("expiredLifecycleShops", 0L);
+            model.addAttribute("requestedCommercialCount", 0L);
+            model.addAttribute("contactedCommercialCount", 0L);
+            model.addAttribute("paymentReceivedCommercialCount", 0L);
 
             // Create default popular plans
             List<PopularPlanDTO> defaultPlans = new ArrayList<>();
             defaultPlans.add(new PopularPlanDTO("FREE", 0L));
             defaultPlans.add(new PopularPlanDTO("BASIC", 0L));
-            defaultPlans.add(new PopularPlanDTO("PREMIUM", 0L));
-            defaultPlans.add(new PopularPlanDTO("ENTERPRISE", 0L));
+            defaultPlans.add(new PopularPlanDTO("PRO", 0L));
             defaultStats.setPopularPlans(defaultPlans);
 
             // Set default chart data
             defaultStats.setRevenueLabels(getLast7DaysLabels());
             defaultStats.setRevenueData(getDefaultRevenueData());
             defaultStats.setUsersData(getDefaultUsersData());
-            defaultStats.setPlanLabels(Arrays.asList("FREE", "BASIC", "PREMIUM", "ENTERPRISE"));
-            defaultStats.setPlanData(Arrays.asList(0L, 0L, 0L, 0L));
+            defaultStats.setPlanLabels(Arrays.asList("FREE", "BASIC", "PRO"));
+            defaultStats.setPlanData(Arrays.asList(0L, 0L, 0L));
             defaultStats.setPeriod("Last 7 days");
 
             defaultStats.setTotalTickets(0L);
@@ -1152,22 +1181,32 @@ public class AdminController {
     public String shops(Model model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String search) {
-        log.info("Loading admin shops page - page: {}, size: {}, search: {}", page, size, search);
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String lifecycle) {
+        log.info("Loading admin shops page - page: {}, size: {}, search: {}, lifecycle: {}", page, size, search, lifecycle);
 
         try {
-            // Create pageable object
-            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-            // Get paginated shops with search if provided
-            Page<Shop> shopPage;
+            List<Shop> allMatchingShops;
             if (search != null && !search.trim().isEmpty()) {
-
-                shopPage = adminShopRepo.searchShops(search.trim(), pageable);
+                allMatchingShops = adminShopRepo.searchShops(
+                        search.trim(),
+                        PageRequest.of(0, 10000, Sort.by("createdAt").descending()))
+                        .getContent();
                 log.info("Searching shops with term: {}", search);
             } else {
-                shopPage = adminShopRepo.findAll(pageable);
+                allMatchingShops = adminShopRepo.findAll(Sort.by("createdAt").descending());
             }
+
+            Map<Long, SubscriptionLifecycleSnapshot> allLifecycleByShopId = buildLifecycleMap(allMatchingShops);
+            List<Shop> filteredShops = filterShopsByLifecycle(allMatchingShops, allLifecycleByShopId, lifecycle);
+
+            int safeSize = Math.max(1, size);
+            int start = Math.min(page * safeSize, filteredShops.size());
+            int end = Math.min(start + safeSize, filteredShops.size());
+            List<Shop> pagedShops = filteredShops.subList(start, end);
+            long totalFilteredItems = filteredShops.size();
+            int totalPages = totalFilteredItems == 0 ? 0 : (int) Math.ceil((double) totalFilteredItems / safeSize);
+            Map<Long, String> ownerNames = buildOwnerNameMap(pagedShops);
 
             // Get shop statistics
             long totalShops = adminShopRepo.count();
@@ -1175,20 +1214,27 @@ public class AdminController {
             long inactiveShops = totalShops - activeShops;
 
             // Add to model
-            model.addAttribute("shops", shopPage.getContent());
-            model.addAttribute("currentPage", shopPage.getNumber());
-            model.addAttribute("totalPages", shopPage.getTotalPages());
-            model.addAttribute("totalItems", shopPage.getTotalElements());
-            model.addAttribute("pageSize", size);
+            model.addAttribute("shops", pagedShops);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("totalItems", totalFilteredItems);
+            model.addAttribute("pageSize", safeSize);
             model.addAttribute("search", search);
+            model.addAttribute("selectedLifecycle", lifecycle);
+            model.addAttribute("ownerNames", ownerNames);
+            model.addAttribute("lifecycleByShopId", buildLifecycleMap(pagedShops));
+            model.addAttribute("openCommercialRequestsByShopId", buildOpenCommercialRequestMap(pagedShops));
 
             // Stats
             model.addAttribute("totalShops", totalShops);
             model.addAttribute("activeShops", activeShops);
             model.addAttribute("inactiveShops", inactiveShops);
             model.addAttribute("planStats", adminShopRepo.countShopsByPlanType().size());
+            model.addAttribute("renewalDueShops", countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.RENEWAL_DUE));
+            model.addAttribute("gracePeriodShops", countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.GRACE_PERIOD));
+            model.addAttribute("expiredLifecycleShops", countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.EXPIRED));
 
-            log.info("Loaded {} shops out of {} total", shopPage.getNumberOfElements(), totalShops);
+            log.info("Loaded {} shops out of {} filtered shops", pagedShops.size(), totalFilteredItems);
 
         } catch (Exception e) {
             log.error("Error loading shops: {}", e.getMessage(), e);
@@ -1201,6 +1247,13 @@ public class AdminController {
             model.addAttribute("totalPages", 0);
             model.addAttribute("totalItems", 0);
             model.addAttribute("pageSize", size);
+            model.addAttribute("selectedLifecycle", lifecycle);
+            model.addAttribute("ownerNames", Map.of());
+            model.addAttribute("lifecycleByShopId", Map.of());
+            model.addAttribute("openCommercialRequestsByShopId", Map.of());
+            model.addAttribute("renewalDueShops", 0L);
+            model.addAttribute("gracePeriodShops", 0L);
+            model.addAttribute("expiredLifecycleShops", 0L);
             model.addAttribute("error", "Could not load shops: " + e.getMessage());
         }
 
@@ -1324,11 +1377,28 @@ public class AdminController {
                 return "redirect:/admin/shops?error=Shop+not+found";
             }
             model.addAttribute("shop", shop);
+            model.addAttribute("subscriptionLifecycle", subscriptionLifecycleService.buildSnapshot(shop));
+            model.addAttribute("openCommercialRequest", buildOpenCommercialRequestMap(List.of(shop)).get(shop.getId()));
+            model.addAttribute("ledgerEntries", subscriptionLedgerService.getRecentEntriesForShop(shop));
+            model.addAttribute("entitlementItems", subscriptionEntitlementAuditService.buildAudit(shop));
         } catch (Exception e) {
             log.error("Error loading shop details: {}", e.getMessage());
             return "redirect:/admin/shops?error=Error+loading+shop";
         }
         return "admin/shop-details";
+    }
+
+    @GetMapping("/subscription-ledger")
+    public String subscriptionLedger(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<com.expygen.entity.SubscriptionLedgerEntry> ledgerPage = subscriptionLedgerService.getEntries(pageable);
+        model.addAttribute("ledgerPage", ledgerPage);
+        model.addAttribute("currentPage", ledgerPage.getNumber());
+        model.addAttribute("totalPages", ledgerPage.getTotalPages());
+        model.addAttribute("pageSize", size);
+        return "admin/subscription-ledger";
     }
 
     @GetMapping("/shops/edit/{id}")
@@ -1418,6 +1488,25 @@ public class AdminController {
         return "redirect:/admin/shops";
     }
 
+    @PostMapping("/shops/{id}/renew")
+    public String renewShopPlan(@PathVariable Long id,
+            @RequestParam(required = false) String adminNote,
+            RedirectAttributes redirectAttributes) {
+        try {
+            String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            User admin = adminUserRepo.findByUsername(adminUsername).orElseThrow();
+            Shop renewedShop = subscriptionLifecycleService.renewCurrentPlan(id, admin, adminNote);
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Renewed " + renewedShop.getPlanType() + " plan until "
+                            + renewedShop.getSubscriptionEndDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+        } catch (Exception e) {
+            log.error("Error renewing shop plan: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not renew subscription: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
     // Subscription URL Start here
 
     // ===== SUBSCRIPTION MANAGEMENT =====
@@ -1500,8 +1589,10 @@ public class AdminController {
 
             // Set/Update fields
             plan.setPlanName(planDTO.getPlanName().toUpperCase());
-            plan.setPrice(planDTO.getPrice());
-            plan.setDurationInDays(planDTO.getDurationInDays());
+            plan.setPrice(normalizeAmount(planDTO.getPrice()));
+            plan.setAnnualPrice(resolveAnnualPrice(plan.getPrice(), planDTO.getAnnualPrice(), planDTO.getAnnualDiscountPercent()));
+            plan.setAnnualDiscountPercent(calculateAnnualDiscountPercent(plan.getPrice(), plan.getAnnualPrice()));
+            plan.setDurationInDays(planDTO.getDurationInDays() != null ? planDTO.getDurationInDays() : 365);
             plan.setDescription(planDTO.getDescription());
             plan.setMaxUsers(planDTO.getMaxUsers());
             plan.setMaxProducts(planDTO.getMaxProducts());
@@ -1605,6 +1696,10 @@ public class AdminController {
                 plan.getMaxUsers(),
                 plan.getMaxProducts());
         dto.setId(plan.getId());
+        dto.setAnnualPrice(plan.getAnnualPrice());
+        dto.setAnnualDiscountPercent(plan.getAnnualDiscountPercent());
+        dto.setAnnualListPrice(plan.getAnnualListPrice());
+        dto.setEffectiveAnnualDiscountPercent(plan.getEffectiveAnnualDiscountPercent());
         dto.setFeatures(plan.getFeatures());
         dto.setActive(plan.isActive());
         return dto;
@@ -1614,21 +1709,22 @@ public class AdminController {
         SubscriptionPlanDTO dto;
         switch (planName.toUpperCase()) {
             case "FREE":
-                dto = new SubscriptionPlanDTO("FREE", 0.0, 30, "Basic features for small businesses", 2, 50);
+                dto = new SubscriptionPlanDTO("FREE", 0.0, 365, "Basic features for small businesses", 2, 50);
                 break;
             case "BASIC":
-                dto = new SubscriptionPlanDTO("BASIC", 499.0, 30, "Standard features for growing businesses", 5, 200);
+                dto = new SubscriptionPlanDTO("BASIC", 499.0, 365, "Standard features for growing businesses", 5, 200);
                 break;
-            case "PREMIUM":
-                dto = new SubscriptionPlanDTO("PREMIUM", 999.0, 30, "Advanced features for established businesses", 15,
+            case "PRO":
+                dto = new SubscriptionPlanDTO("PRO", 999.0, 365, "Advanced features for established businesses", 15,
                         1000);
                 break;
-            case "ENTERPRISE":
-                dto = new SubscriptionPlanDTO("ENTERPRISE", 1999.0, 30, "All features for large enterprises", -1, -1);
-                break;
             default:
-                dto = new SubscriptionPlanDTO(planName, 0.0, 30, "", 0, 0);
+                dto = new SubscriptionPlanDTO(planName, 0.0, 365, "", 0, 0);
         }
+        dto.setAnnualDiscountPercent(dto.getPrice() != null && dto.getPrice() > 0 ? 17.0 : 0.0);
+        dto.setAnnualPrice(resolveAnnualPrice(dto.getPrice(), null, dto.getAnnualDiscountPercent()));
+        dto.setAnnualListPrice(dto.getPrice() == null ? 0.0 : dto.getPrice() * 12.0);
+        dto.setEffectiveAnnualDiscountPercent(dto.getAnnualDiscountPercent());
         dto.setShopCount(shopCount != null ? shopCount : 0L);
         dto.setUsagePercent(percentage != null ? percentage : 0.0);
         dto.setActive(true);
@@ -1639,14 +1735,13 @@ public class AdminController {
         List<SubscriptionPlanDTO> defaultPlans = new ArrayList<>();
         defaultPlans.add(createDefaultPlanDTO("FREE", 0L, 0.0));
         defaultPlans.add(createDefaultPlanDTO("BASIC", 0L, 0.0));
-        defaultPlans.add(createDefaultPlanDTO("PREMIUM", 0L, 0.0));
-        defaultPlans.add(createDefaultPlanDTO("ENTERPRISE", 0L, 0.0));
+        defaultPlans.add(createDefaultPlanDTO("PRO", 0L, 0.0));
         return defaultPlans;
     }
 
     private List<SubscriptionPlanDTO> sortPlansByOrder(List<SubscriptionPlanDTO> plans) {
         List<SubscriptionPlanDTO> sortedPlans = new ArrayList<>();
-        String[] order = { "FREE", "BASIC", "PREMIUM", "ENTERPRISE" };
+        String[] order = { "FREE", "BASIC", "PRO" };
 
         for (String planName : order) {
             for (SubscriptionPlanDTO plan : plans) {
@@ -1663,6 +1758,125 @@ public class AdminController {
             }
         }
         return sortedPlans;
+    }
+
+    private Double normalizeAmount(Double amount) {
+        if (amount == null || amount < 0) {
+            return 0.0;
+        }
+        return Math.round(amount * 100.0d) / 100.0d;
+    }
+
+    private Double normalizePercent(Double percent) {
+        if (percent == null || percent < 0) {
+            return 0.0;
+        }
+        if (percent > 100) {
+            return 100.0;
+        }
+        return Math.round(percent * 10.0d) / 10.0d;
+    }
+
+    private Double resolveAnnualPrice(Double monthlyPrice, Double explicitAnnualPrice, Double discountPercent) {
+        if (explicitAnnualPrice != null && explicitAnnualPrice >= 0) {
+            return normalizeAmount(explicitAnnualPrice);
+        }
+        if (monthlyPrice == null || monthlyPrice <= 0) {
+            return 0.0;
+        }
+        double discount = discountPercent == null ? 0.0 : Math.max(0.0, Math.min(100.0, discountPercent));
+        return normalizeAmount((monthlyPrice * 12.0d) * (1.0d - (discount / 100.0d)));
+    }
+
+    private Double calculateAnnualDiscountPercent(Double monthlyPrice, Double annualPrice) {
+        if (monthlyPrice == null || monthlyPrice <= 0 || annualPrice == null || annualPrice <= 0) {
+            return 0.0;
+        }
+
+        double listAnnualPrice = monthlyPrice * 12.0d;
+        if (listAnnualPrice <= 0) {
+            return 0.0;
+        }
+
+        double discount = ((listAnnualPrice - annualPrice) / listAnnualPrice) * 100.0d;
+        return normalizePercent(Math.max(0.0, discount));
+    }
+
+    private Map<Long, SubscriptionLifecycleSnapshot> buildLifecycleMap(List<Shop> shops) {
+        return shops.stream()
+                .collect(Collectors.toMap(
+                        Shop::getId,
+                        subscriptionLifecycleService::buildSnapshot,
+                        (first, second) -> first,
+                        HashMap::new));
+    }
+
+    private long countLifecycleStatus(Map<Long, SubscriptionLifecycleSnapshot> lifecycleByShopId,
+            SubscriptionLifecycleStatus status) {
+        return lifecycleByShopId.values().stream()
+                .filter(snapshot -> snapshot.getStatus() == status)
+                .count();
+    }
+
+    private List<Shop> filterShopsByLifecycle(List<Shop> shops,
+            Map<Long, SubscriptionLifecycleSnapshot> lifecycleByShopId,
+            String lifecycle) {
+        if (lifecycle == null || lifecycle.isBlank() || lifecycle.equalsIgnoreCase("ALL")) {
+            return shops;
+        }
+
+        SubscriptionLifecycleStatus selectedStatus;
+        try {
+            selectedStatus = SubscriptionLifecycleStatus.valueOf(lifecycle.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return shops;
+        }
+
+        return shops.stream()
+                .filter(shop -> {
+                    SubscriptionLifecycleSnapshot snapshot = lifecycleByShopId.get(shop.getId());
+                    return snapshot != null && snapshot.getStatus() == selectedStatus;
+                })
+                .sorted(Comparator.comparing(Shop::getCreatedAt).reversed())
+                .toList();
+    }
+
+    private Map<Long, String> buildOwnerNameMap(List<Shop> shops) {
+        Map<Long, String> ownerNames = new HashMap<>();
+        for (Shop shop : shops) {
+            List<User> users = adminUserRepo.findByShop(shop);
+            String ownerName = users.stream()
+                    .filter(user -> user.getRole() == Role.OWNER)
+                    .map(User::getName)
+                    .findFirst()
+                    .orElseGet(() -> users.stream().findFirst().map(User::getName).orElse("No Owner"));
+            ownerNames.put(shop.getId(), ownerName);
+        }
+        return ownerNames;
+    }
+
+    private Map<Long, UpgradeRequest> buildOpenCommercialRequestMap(List<Shop> shops) {
+        if (shops == null || shops.isEmpty()) {
+            return Map.of();
+        }
+
+        List<UpgradeRequestStatus> openStatuses = List.of(
+                UpgradeRequestStatus.REQUESTED,
+                UpgradeRequestStatus.CONTACTED,
+                UpgradeRequestStatus.PAYMENT_RECEIVED);
+
+        Map<Long, UpgradeRequest> requestsByShopId = new HashMap<>();
+        upgradeRequestRepository.findByShopInAndStatusInOrderByCreatedAtDesc(shops, openStatuses)
+                .forEach(request -> requestsByShopId.putIfAbsent(request.getShop().getId(), request));
+        return requestsByShopId;
+    }
+
+    private Map<UpgradeRequestStatus, Long> getCommercialStatusCounts() {
+        Map<UpgradeRequestStatus, Long> counts = new HashMap<>();
+        for (Object[] row : upgradeRequestRepository.countGroupedByStatus()) {
+            counts.put((UpgradeRequestStatus) row[0], (Long) row[1]);
+        }
+        return counts;
     }
 
     // Subscription URLs end here

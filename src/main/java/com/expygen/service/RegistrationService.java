@@ -35,9 +35,10 @@ public class RegistrationService {
     private final EmailVerificationTokenRepository tokenRepository;
     private final EmailService emailService;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final UrlService urlService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void registerShop(RegisterRequest request, String appUrl) {
+    public boolean registerShop(RegisterRequest request) {
         PlanType registrationPlan = PlanType.FREE;
 
         log.info("Starting registration for email: {} with auto trial plan: {}", request.getUsername(), registrationPlan);
@@ -120,19 +121,56 @@ public class RegistrationService {
             log.info("Verification token saved");
 
             // Generate verification link
-            String verifyLink = appUrl + "/verify?token=" + token;
+            String verifyLink = urlService.getVerificationUrl(token);
             
-            emailService.sendVerificationEmail(owner, verifyLink, selectedPlan);
-
-            log.info("Verification email sent to: {} (free trial activates after verification + login)",
-                    owner.getUsername());
+            boolean verificationEmailSent = true;
+            try {
+                emailService.sendVerificationEmail(owner, verifyLink, selectedPlan);
+                log.info("Verification email sent to: {} (free trial activates after verification + login)",
+                        owner.getUsername());
+            } catch (RuntimeException emailException) {
+                verificationEmailSent = false;
+                log.error("Registration completed but verification email could not be sent to {}: {}",
+                        owner.getUsername(),
+                        emailException.getMessage());
+            }
 
             log.info("Registration completed successfully for shop: {} with plan: {}", 
                      shop.getName(), selectedPlan.getPlanName());
+            return verificationEmailSent;
 
         } catch (Exception e) {
             log.error("Registration failed: {}", e.getMessage(), e);
             throw e;
         }
     }
-}
+
+    @Transactional
+    public void resendVerificationEmail(String username) {
+        User user = userRepository.findByUsername(username == null ? "" : username.trim().toLowerCase())
+                .orElseThrow(() -> new RuntimeException("No account found for this email."));
+
+        if (user.isActive()) {
+            throw new RuntimeException("This email is already verified. Please sign in.");
+        }
+
+        SubscriptionPlan plan = subscriptionPlanRepository.findByPlanName(
+                        user.getCurrentPlan() != null ? user.getCurrentPlan().name() : PlanType.FREE.name())
+                .orElseThrow(() -> new RuntimeException("Current plan not configured in database."));
+
+        EmailVerificationToken token = tokenRepository.findByUser(user);
+        if (token == null) {
+            token = new EmailVerificationToken();
+            token.setUser(user);
+            token.setTokenType(TokenType.EMAIL_VERIFICATION);
+        }
+
+        token.setToken(UUID.randomUUID().toString());
+        token.setExpiryDate(LocalDateTime.now().plusHours(24));
+        tokenRepository.save(token);
+
+        String verifyLink = urlService.getVerificationUrl(token.getToken());
+        emailService.sendVerificationEmail(user, verifyLink, plan);
+        log.info("Verification email resent to {}", user.getUsername());
+        }
+    }

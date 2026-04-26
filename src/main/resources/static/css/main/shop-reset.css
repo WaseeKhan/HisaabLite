@@ -5,7 +5,7 @@
 }
 
 .shop-body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-family);
     background: var(--shop-page-bg);
     color: var(--shop-page-text);
     height: 100dvh;

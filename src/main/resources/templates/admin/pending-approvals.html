@@ -4,12 +4,10 @@
 <head>
     <title>Pending Approvals • Expygen Admin</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
@@ -21,7 +19,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -351,7 +349,7 @@
             outline: none;
             font-size: 11px;
             width: 100%;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
         }
 
         .search-box input::placeholder {
@@ -889,6 +887,7 @@
             pointer-events: none;
         }
     </style>
+
 </head>
 
 <body>
@@ -959,6 +958,14 @@
             <a th:href="@{/admin/subscriptions}">
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
             <a th:href="@{/admin/support}">
                 <i class="fas fa-headset"></i>
@@ -1041,7 +1048,7 @@
                 <div class="stat-content">
                     <div class="stat-title">Paid Plans</div>
                     <div class="stat-value" th:text="${paidPlansCount != null ? paidPlansCount : 0}">0</div>
-                    <div class="stat-label">BASIC/PREMIUM/ENTERPRISE</div>
+                    <div class="stat-label">BASIC/PRO</div>
                 </div>
             </div>
         </div>
@@ -1294,9 +1301,6 @@
         button.disabled = false;
     });
 }
-
-
-
 
         function viewUserDetails(userId) {
             if (!userId) return;

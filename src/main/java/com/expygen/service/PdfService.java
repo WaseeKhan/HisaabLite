@@ -27,6 +27,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.layout.element.Image;
 import java.io.ByteArrayOutputStream;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +45,7 @@ public class PdfService {
 
     private final AppConfig appConfig;
     private final SaleBatchTraceService saleBatchTraceService;
+    private final ShopSealStorageService shopSealStorageService;
 
     private static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("en", "IN"));
     private static final DeviceRgb PRIMARY_COLOR = new DeviceRgb(15, 23, 42);
@@ -430,8 +432,7 @@ public class PdfService {
         sealCell.setMaxHeight(78);
 
         try {
-            Image sealSignature = new Image(ImageDataFactory.create(
-                    getClass().getResource("/static/images/seal_signature.png")));
+            Image sealSignature = new Image(ImageDataFactory.create(resolveSealImageSource(sale.getShop())));
 
             sealSignature.setWidth(84);
             sealSignature.setHorizontalAlignment(HorizontalAlignment.CENTER);
@@ -497,6 +498,14 @@ public class PdfService {
         document.add(mainTable);
 
         addPaymentDetailsBox(document, sale);
+    }
+
+    private String resolveSealImageSource(Shop shop) {
+        if (shop != null && shop.getSealStoredFilename() != null && !shop.getSealStoredFilename().isBlank()) {
+            Path sealPath = shopSealStorageService.resolvePathForShop(shop);
+            return sealPath.toAbsolutePath().toString();
+        }
+        return Objects.requireNonNull(getClass().getResource("/static/images/seal_signature.png")).toExternalForm();
     }
 
     private void addPaymentDetailsBox(Document document, Sale sale) {

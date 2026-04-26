@@ -11,7 +11,6 @@ import com.expygen.dto.RegisterRequest;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.RegistrationService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -31,8 +30,7 @@ public class RegisterController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute RegisterRequest request,
             BindingResult bindingResult,
-            Model model,
-            HttpServletRequest httpRequest) {
+            Model model) {
 
         if (userRepository.existsByUsername(request.getUsername())) {
             bindingResult.rejectValue("username", null, "Username already registered");
@@ -46,10 +44,22 @@ public class RegisterController {
             return "register";
         }
 
-        String appUrl = httpRequest.getRequestURL().toString()
-                .replace(httpRequest.getServletPath(), "");
+        try {
+            boolean verificationEmailSent = registrationService.registerShop(request);
 
-        registrationService.registerShop(request, appUrl);
+            if (!verificationEmailSent) {
+                model.addAttribute("success",
+                        "Shop registered successfully, but we could not send the verification email right now. Please use resend verification after mail credentials are fixed.");
+                model.addAttribute("registerRequest", new RegisterRequest());
+                return "register";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage() != null && !e.getMessage().isBlank()
+                    ? e.getMessage()
+                    : "Registration completed partially, but verification email could not be sent. Please check email configuration and try again.");
+            model.addAttribute("registerRequest", request);
+            return "register";
+        }
 
        
 

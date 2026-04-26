@@ -4,7 +4,7 @@
 <head>
     <title>Expygen • Billing</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
@@ -17,9 +17,10 @@
 
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
-<body class="shop-body billing-body">
+<body class="shop-body billing-body" th:attr="data-whatsapp-available=${whatsappAvailable}">
     <div class="shop-layout">
         <div th:replace="~{fragments/shop-sidebar :: sidebar}"></div>
 
@@ -59,18 +60,21 @@
 
                             <!-- SEARCH BAR -->
                             <section class="billing-card billing-search-card billing-search-strip-card">
+                                <span hidden>Medicine Search Desk</span>
                                 <div class="billing-search-strip">
 
                                     <div class="billing-search-toggle-group">
-                                       <button type="button" id="scanModeBtn" class="search-mode-btn search-mode-btn-scan">
-    <i class="fas fa-barcode"></i>
-    <span>Scan</span>
-</button>
+                                        <button type="button" id="scanModeBtn"
+                                            class="search-mode-btn search-mode-btn-scan">
+                                            <i class="fas fa-barcode"></i>
+                                            <span>Scan</span>
+                                        </button>
 
-                                       <button type="button" id="searchModeBtn" class="search-mode-btn search-mode-btn-search">
-    <i class="fas fa-search"></i>
-    <span>Search</span>
-</button>
+                                        <button type="button" id="searchModeBtn"
+                                            class="search-mode-btn search-mode-btn-search">
+                                            <i class="fas fa-search"></i>
+                                            <span>Search</span>
+                                        </button>
                                     </div>
 
                                     <div class="billing-search-strip-input">
@@ -110,9 +114,9 @@
                             <section class="billing-card current-sale-card">
                                 <div class="current-sale-head">
                                     <h3>
-    Current Sale
-    <span id="cartCountBadge" class="cart-count-badge">0</span>
-</h3>
+                                        Current Sale
+                                        <span id="cartCountBadge" class="cart-count-badge">0</span>
+                                    </h3>
                                     <div class="sale-head-grid">
                                         <span>Qty</span>
                                         <span>Price</span>
@@ -137,7 +141,8 @@
                                     <div id="cartLatestInvoiceActions" class="cart-latest-invoice-actions" hidden></div>
 
                                     <div class="footer-actions-right">
-                                        <button type="button" class="footer-light-btn" id="holdSaleBtn">Hold Sale</button>
+                                        <button type="button" class="footer-light-btn" id="holdSaleBtn">Hold
+                                            Sale</button>
 
                                         <button type="button" class="footer-icon-btn" id="quickLatestReceiptBtn"><i
                                                 class="fas fa-receipt"></i></button>
@@ -159,7 +164,7 @@
                                     <div class="section-top">
                                         <div class="section-title">
                                             <i class="fas fa-user"></i>
-                                            <span>Customer: Walk-in</span>
+                                            <span>Patient / Customer</span>
                                         </div>
                                         <button type="button" class="section-top-icon">
                                             <i class="fas fa-angle-down"></i>
@@ -186,10 +191,8 @@
                                             <input type="text" name="doctorName" class="customer-input"
                                                 placeholder=" Doctor Name">
                                         </div>
-                                        
-                                    </div>
 
-                                    
+                                    </div>
 
                                     <div class="customer-history-card" id="customerHistoryCard" hidden>
                                         <div class="customer-history-copy">
@@ -207,7 +210,8 @@
                                                 <span>Last Doctor</span>
                                                 <strong id="customerHistoryDoctor">—</strong>
                                             </div>
-                                            <button type="button" class="customer-history-open-btn" id="customerHistoryOpenBtn">
+                                            <button type="button" class="customer-history-open-btn"
+                                                id="customerHistoryOpenBtn">
                                                 <i class="fas fa-eye"></i>
                                                 <span>View History</span>
                                             </button>
@@ -246,26 +250,22 @@
                                         <input type="hidden" name="prescriptionVerified" id="prescriptionVerified"
                                             value="false">
 
-                                       <div class="field-group-row">
+                                        <div class="field-group-row">
 
-    <div class="field-group">
-        <label>Prescription Date</label>
-        <input type="date"
-               name="prescriptionDate"
-               id="prescriptionDate"
-               class="customer-input">
-    </div>
+                                            <div class="field-group">
+                                                <label>Prescription Date</label>
+                                                <input type="date" name="prescriptionDate" id="prescriptionDate"
+                                                    class="customer-input">
+                                            </div>
 
-    <div class="field-group">
-        <label>Prescription Reference</label>
-        <input type="text"
-               name="prescriptionReference"
-               id="prescriptionReference"
-               class="customer-input"
-               placeholder="Rx no., file no., or note">
-    </div>
+                                            <div class="field-group">
+                                                <label>Prescription Reference</label>
+                                                <input type="text" name="prescriptionReference"
+                                                    id="prescriptionReference" class="customer-input"
+                                                    placeholder="Rx no., file no., or note">
+                                            </div>
 
-</div>
+                                        </div>
 
                                         <div class="field-group">
                                             <label>Prescription File</label>
@@ -284,16 +284,13 @@
                                             <i class="fas fa-check-circle"></i>
                                             <span>Mark As Ready</span>
                                         </button>
-                                        <button type="button" class="preview-btn" id="previewPrescriptionBtn">Preview Regs...</button>
+                                        <button type="button" class="preview-btn" id="previewPrescriptionBtn">Preview
+                                            Regs...</button>
                                     </div>
 
-                                   
                                 </section>
 
                             </div>
-
-
-                           
 
                         </div>
 
@@ -335,7 +332,7 @@
                                 <div class="payment-mode-quick">
                                     <button type="button" class="payment-mode-chip is-active"
                                         onclick="document.getElementById('paymentMode').value='CASH'; this.parentElement.querySelectorAll('.payment-mode-chip').forEach(btn=>btn.classList.remove('is-active')); this.classList.add('is-active');">
-                                       <i class="fas fa-money-bill-wave"></i> Cash
+                                        <i class="fas fa-money-bill-wave"></i> Cash
                                     </button>
                                     <button type="button" class="payment-mode-chip"
                                         onclick="document.getElementById('paymentMode').value='UPI'; this.parentElement.querySelectorAll('.payment-mode-chip').forEach(btn=>btn.classList.remove('is-active')); this.classList.add('is-active');">
@@ -391,25 +388,24 @@
 
                                 </div>
 
+                                <div class="payment-shortcuts">
 
-                               <div class="payment-shortcuts">
+                                    <div class="shortcut-item">
+                                        <span class="shortcut-key">Ctrl + Enter</span>
+                                        <i class="fas fa-check-circle shortcut-icon"></i>
+                                    </div>
 
-    <div class="shortcut-item">
-        <span class="shortcut-key">Ctrl + Enter</span>
-        <i class="fas fa-check-circle shortcut-icon"></i>
-    </div>
+                                    <div class="shortcut-item" th:if="${whatsappAvailable}">
+                                        <span class="shortcut-key">F9</span>
+                                        <i class="fab fa-whatsapp shortcut-icon"></i>
+                                    </div>
 
-    <div class="shortcut-item">
-        <span class="shortcut-key">F9</span>
-        <i class="fab fa-whatsapp shortcut-icon"></i>
-    </div>
+                                    <div class="shortcut-item">
+                                        <span class="shortcut-key">F10</span>
+                                        <i class="fas fa-print shortcut-icon"></i>
+                                    </div>
 
-    <div class="shortcut-item">
-        <span class="shortcut-key">F10</span>
-        <i class="fas fa-print shortcut-icon"></i>
-    </div>
-
-</div>
+                                </div>
 
                                 <div class="payment-hidden-helpers">
                                     <span id="totalGstAmount" hidden>0.00</span>
@@ -450,13 +446,13 @@
         <div class="success-actions">
             <a id="invoiceBtn" href="#" target="_blank" class="invoice-link">View invoice</a>
             <button type="button" id="printInvoiceBtn" class="invoice-link invoice-link-button">Thermal print</button>
-            <button type="button" id="whatsappInvoiceBtn" class="invoice-link invoice-link-button">Send
+            <button th:if="${whatsappAvailable}" type="button" id="whatsappInvoiceBtn" class="invoice-link invoice-link-button">Send
                 WhatsApp</button>
         </div>
     </div>
 
     <!-- PHONE MODAL -->
-    <div id="invoicePhoneModal" class="popup-overlay">
+    <div th:if="${whatsappAvailable}" id="invoicePhoneModal" class="popup-overlay">
         <div class="popup-card invoice-phone-card">
             <div class="popup-icon"><i class="fab fa-whatsapp"></i></div>
             <div class="popup-title">Send Invoice on WhatsApp</div>
@@ -484,7 +480,8 @@
                         Returning customer summary
                     </div>
                 </div>
-                <button type="button" class="customer-history-modal-close" id="customerHistoryModalClose" aria-label="Close customer history">
+                <button type="button" class="customer-history-modal-close" id="customerHistoryModalClose"
+                    aria-label="Close customer history">
                     <i class="fas fa-times"></i>
                 </button>
             </div>

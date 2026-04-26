@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -21,11 +22,21 @@ import jakarta.persistence.LockModeType;
 
 public interface PurchaseBatchRepository extends JpaRepository<PurchaseBatch, Long> {
 
+    @EntityGraph(attributePaths = { "product", "purchaseEntry", "purchaseEntry.supplier" })
     Page<PurchaseBatch> findByShopAndActiveTrueOrderByCreatedAtDesc(Shop shop, Pageable pageable);
 
     List<PurchaseBatch> findByShopAndActiveTrueAndProductIdIn(Shop shop, List<Long> productIds);
 
+    @EntityGraph(attributePaths = { "product", "purchaseEntry" })
     List<PurchaseBatch> findByPurchaseEntryOrderByExpiryDateAscIdAsc(PurchaseEntry purchaseEntry);
+
+    @Query("""
+            SELECT b.purchaseEntry.id, COUNT(b)
+            FROM PurchaseBatch b
+            WHERE b.purchaseEntry.id IN :purchaseEntryIds
+            GROUP BY b.purchaseEntry.id
+            """)
+    List<Object[]> countByPurchaseEntryIds(@Param("purchaseEntryIds") List<Long> purchaseEntryIds);
 
     List<PurchaseBatch> findByPurchaseEntryAndActiveTrueOrderByExpiryDateAscIdAsc(PurchaseEntry purchaseEntry);
 
@@ -168,6 +179,8 @@ public interface PurchaseBatchRepository extends JpaRepository<PurchaseBatch, Lo
     @Query("""
             SELECT b
             FROM PurchaseBatch b
+            JOIN FETCH b.product p
+            JOIN FETCH b.purchaseEntry pe
             WHERE b.shop = :shop
             AND b.active = true
             AND b.availableQuantity > 0
@@ -182,6 +195,8 @@ public interface PurchaseBatchRepository extends JpaRepository<PurchaseBatch, Lo
     @Query("""
             SELECT b
             FROM PurchaseBatch b
+            JOIN FETCH b.product p
+            JOIN FETCH b.purchaseEntry pe
             WHERE b.shop = :shop
             AND b.active = true
             AND b.availableQuantity > 0
@@ -196,6 +211,8 @@ public interface PurchaseBatchRepository extends JpaRepository<PurchaseBatch, Lo
     @Query("""
             SELECT b
             FROM PurchaseBatch b
+            JOIN FETCH b.product p
+            JOIN FETCH b.purchaseEntry pe
             WHERE b.shop = :shop
             AND b.active = true
             AND b.availableQuantity > 0
@@ -206,6 +223,7 @@ public interface PurchaseBatchRepository extends JpaRepository<PurchaseBatch, Lo
                                            @Param("today") LocalDate today,
                                            Pageable pageable);
 
+    @EntityGraph(attributePaths = { "product", "purchaseEntry" })
     @Query("""
             SELECT b
             FROM PurchaseBatch b

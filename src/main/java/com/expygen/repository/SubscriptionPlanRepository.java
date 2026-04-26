@@ -91,13 +91,8 @@ public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPl
         return findByPlanNameIgnoreCase("BASIC");
     }
     
-    // Default method to get PREMIUM plan
-    default Optional<SubscriptionPlan> getPremiumPlan() {
-        return findByPlanNameIgnoreCase("PREMIUM");
-    }
-    
-    // Default method to get ENTERPRISE plan
-    default Optional<SubscriptionPlan> getEnterprisePlan() {
-        return findByPlanNameIgnoreCase("ENTERPRISE");
+    // Default method to get PRO plan
+    default Optional<SubscriptionPlan> getProPlan() {
+        return findByPlanNameIgnoreCase("PRO");
     }
 }

@@ -111,7 +111,7 @@ class AdminPageIntegrationTest {
         subscriptionPlanRepository.deleteAll();
 
         subscriptionPlanRepository.save(SubscriptionPlan.builder()
-                .planName("PREMIUM")
+                .planName("PRO")
                 .price(1999.0)
                 .durationInDays(30)
                 .description("Premium admin test plan")
@@ -128,7 +128,7 @@ class AdminPageIntegrationTest {
                 .city("Bengaluru")
                 .state("Karnataka")
                 .pincode("560001")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .subscriptionStartDate(LocalDateTime.now().minusDays(5))
                 .subscriptionEndDate(LocalDateTime.now().plusDays(25))
@@ -143,7 +143,7 @@ class AdminPageIntegrationTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .createdAt(LocalDateTime.now().minusDays(5))
                 .approvalDate(LocalDateTime.now().minusDays(5))
                 .build());
@@ -157,7 +157,7 @@ class AdminPageIntegrationTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .createdAt(LocalDateTime.now().minusDays(5))
                 .approvalDate(LocalDateTime.now().minusDays(5))
                 .build());

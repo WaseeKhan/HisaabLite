@@ -174,7 +174,7 @@ class InventoryControlServiceTest {
                 .name("Inventory Shop " + suffix)
                 .city("Mumbai")
                 .state("MH")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build());
     }
@@ -189,7 +189,7 @@ class InventoryControlServiceTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .createdAt(LocalDateTime.now())
                 .approvalDate(LocalDateTime.now())
                 .build());

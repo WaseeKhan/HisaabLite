@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
@@ -17,7 +16,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -539,6 +538,7 @@
             text-align: center;
         }
     </style>
+
 </head>
 <body>
     <div class="sidebar">
@@ -563,6 +563,14 @@
             <a th:href="@{/admin/subscriptions}" class="active">
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
             <a th:href="@{/admin/support}">
                 
@@ -623,15 +631,15 @@
         <!-- Plans Grid -->
         <div class="plans-grid" th:if="${not #lists.isEmpty(plans)}">
             <div class="plan-card-large" th:each="plan : ${plans}">
-                <div class="plan-header" th:classappend="${plan.planName == 'FREE' ? 'free' : 
-                                                             (plan.planName == 'BASIC' ? 'basic' : 
-                                                             (plan.planName == 'PREMIUM' ? 'premium' : 'enterprise'))}">
-                    <h3 th:text="${plan.planName}">PREMIUM</h3>
+                <div class="plan-header"
+                     th:classappend="${plan.planName == 'FREE' ? 'free' : (plan.planName == 'BASIC' ? 'basic' : 'premium')}">
+                    <h3 th:text="${plan.planName}">PRO</h3>
                     <div class="plan-price">
                         <span class="currency">₹</span>
-                        <span class="amount" th:text="${plan.price}">999</span>
-                        <span class="period">/month</span>
+                        <span class="amount" th:text="${plan.annualPrice != null ? plan.annualPrice : plan.price}">9990</span>
+                        <span class="period">/year public</span>
                     </div>
+                    <div class="period" th:if="${plan.price != null}" th:text="'Internal monthly: ₹' + ${plan.price}">Internal monthly: ₹999</div>
                 </div>
 
                 <div class="plan-body">
@@ -648,7 +656,11 @@
                         </li>
                         <li>
                             <i class="fas fa-check"></i>
-                            <span>Duration: <strong th:text="${plan.durationInDays} + ' days'">30 days</strong></span>
+                            <span>Billing: <strong th:text="${plan.durationInDays} + ' days yearly'">365 days yearly</strong></span>
+                        </li>
+                        <li>
+                            <i class="fas fa-percent"></i>
+                            <span>Yearly Discount: <strong th:text="${plan.effectiveAnnualDiscountPercent != null ? plan.effectiveAnnualDiscountPercent + '%' : '0%'}">17%</strong></span>
                         </li>
                         <li>
                             <i class="fas fa-shop"></i>

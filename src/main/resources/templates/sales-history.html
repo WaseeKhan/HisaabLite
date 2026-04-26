@@ -4,9 +4,7 @@
 <head>
     <title>Sales History • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Shop CSS -->
@@ -20,6 +18,7 @@
 
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
 <body class="shop-body">
@@ -47,7 +46,7 @@
                             <i class="fas fa-cash-register"></i>
                             <span>Open Billing</span>
                         </a>
-                        <a th:href="@{/insights/sales/summary}" class="sales-hero-btn">
+                        <a th:if="${insightsAvailable}" th:href="@{/insights/sales/summary}" class="sales-hero-btn">
                             <i class="fas fa-chart-line"></i>
                             <span>Sales Insights</span>
                         </a>
@@ -176,7 +175,7 @@
     </div>
 
     <!-- WhatsApp Modal -->
-    <div id="whatsappModal" class="whatsapp-modal" style="display: none;">
+    <div th:if="${whatsappAvailable}" id="whatsappModal" class="whatsapp-modal" style="display: none;">
         <div class="whatsapp-modal-content">
             <div class="whatsapp-modal-header">
                 <i class="fab fa-whatsapp" style="color: #25D366; font-size: 24px;"></i>
@@ -210,6 +209,7 @@
         let searchTimeout;
         let currentSaleId = null;
         const currentRole = /*[[${role}]]*/ 'OWNER';
+        const whatsappAvailable = /*[[${whatsappAvailable}]]*/ false;
 
         // Get initial server data
         const totalSales = /*[[${totalSales}]]*/ 0;
@@ -358,9 +358,9 @@
                                 <button onclick="downloadPDF(${sale.id})" class="sales-btn-pdf" title="Download PDF">
                                     <i class="fas fa-file-pdf"></i>
                                 </button>
-                                <button onclick="openWhatsAppModal(${sale.id}, '${escapeHtml(sale.customerPhone || '')}')" class="sales-btn-whatsapp" title="Send via WhatsApp">
+                                ${whatsappAvailable ? `<button onclick="openWhatsAppModal(${sale.id}, '${escapeHtml(sale.customerPhone || '')}')" class="sales-btn-whatsapp" title="Send via WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
-                                </button>
+                                </button>` : ``}
                                 ${(sale.status === 'COMPLETED' && currentRole !== 'CASHIER') ? `
                                     <button type="button" class="sales-btn-cancel"
                                        onclick="cancelSale(${sale.id})" title="Cancel Sale">
@@ -485,6 +485,10 @@
         }
 
         function openWhatsAppModal(saleId, phone) {
+            if (!whatsappAvailable) {
+                showToast('WhatsApp invoice sending is available on the PRO plan.', 'warning');
+                return;
+            }
             currentSaleId = saleId;
             const phoneInput = document.getElementById('whatsappPhone');
             phoneInput.value = phone;
@@ -531,6 +535,10 @@
         }
 
         async function sendWhatsAppPDF() {
+            if (!whatsappAvailable) {
+                showToast('WhatsApp invoice sending is available on the PRO plan.', 'warning');
+                return;
+            }
             const phone = document.getElementById('whatsappPhone').value;
             if (!phone) {
                 showToast('Please enter phone number', 'error');
@@ -735,7 +743,7 @@
             } else if (event.key === 'F8') {
                 event.preventDefault();
                 runTopVisibleSaleAction('.sales-btn-print', 'No visible thermal invoice found');
-            } else if (event.key === 'F9') {
+            } else if (event.key === 'F9' && whatsappAvailable) {
                 event.preventDefault();
                 runTopVisibleSaleAction('.sales-btn-whatsapp', 'No visible WhatsApp action found');
             } else if (event.key === 'F10') {
@@ -744,7 +752,6 @@
             }
         });
     </script>
-
 
 </body>
 

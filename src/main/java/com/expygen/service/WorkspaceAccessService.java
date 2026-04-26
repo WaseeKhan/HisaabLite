@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 public class WorkspaceAccessService {
 
     private final PlanLimitService planLimitService;
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
 
     public WorkspaceAccessState getAccessState(User user) {
         if (user == null) {
@@ -27,7 +28,7 @@ public class WorkspaceAccessService {
             return WorkspaceAccessState.APPROVAL_PENDING;
         }
 
-        if (user.getShop() != null && !planLimitService.isSubscriptionActive(user.getShop())) {
+        if (user.getShop() != null && !subscriptionLifecycleService.canAccessWorkspace(user.getShop())) {
             return WorkspaceAccessState.SUBSCRIPTION_EXPIRED;
         }
 

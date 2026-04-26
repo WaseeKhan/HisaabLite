@@ -250,7 +250,7 @@
     background: #ffffff;
     color: #152030;
     font-size: 13px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 

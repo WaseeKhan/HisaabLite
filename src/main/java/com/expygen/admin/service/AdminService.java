@@ -109,14 +109,9 @@ public class AdminService {
     }
 
     private String getShopOwnerName(Shop shop) {
-        if (shop.getUsers() != null) {
-            return shop.getUsers().stream()
-                    .filter(u -> u.getRole() != null && u.getRole() == Role.OWNER) 
-                    .findFirst()
-                    .map(User::getName)
-                    .orElse("N/A");
-        }
-        return "N/A";
+        return adminUserRepo.findFirstByShopAndRoleOrderByIdAsc(shop, Role.OWNER)
+                .map(User::getName)
+                .orElse("N/A");
     }
 
     private List<PopularPlanDTO> getPlanStatistics() {
@@ -127,8 +122,7 @@ public class AdminService {
             Map<String, Long> counts = new HashMap<>();
             counts.put("FREE", 0L);
             counts.put("BASIC", 0L);
-            counts.put("PREMIUM", 0L);
-            counts.put("ENTERPRISE", 0L);
+            counts.put("PRO", 0L);
 
             // Get all shops
             List<Shop> allShops = adminShopRepo.findAll();
@@ -149,7 +143,7 @@ public class AdminService {
             }
 
             // Sort by predefined order
-            List<String> order = Arrays.asList("FREE", "BASIC", "PREMIUM", "ENTERPRISE");
+            List<String> order = Arrays.asList("FREE", "BASIC", "PRO");
             planStats.sort(Comparator.comparingInt(a -> order.indexOf(a.getPlanName())));
 
         } catch (Exception e) {
@@ -157,8 +151,7 @@ public class AdminService {
             // Default values
             planStats.add(new PopularPlanDTO("FREE", 0L));
             planStats.add(new PopularPlanDTO("BASIC", 0L));
-            planStats.add(new PopularPlanDTO("PREMIUM", 0L));
-            planStats.add(new PopularPlanDTO("ENTERPRISE", 0L));
+            planStats.add(new PopularPlanDTO("PRO", 0L));
         }
 
         return planStats;
@@ -267,11 +260,11 @@ public class AdminService {
         List<PopularPlanDTO> defaultPlans = new ArrayList<>();
         defaultPlans.add(new PopularPlanDTO("FREE", 0L));
         defaultPlans.add(new PopularPlanDTO("BASIC", 0L));
-        defaultPlans.add(new PopularPlanDTO("PREMIUM", 0L));
-        defaultPlans.add(new PopularPlanDTO("ENTERPRISE", 0L));
+        defaultPlans.add(new PopularPlanDTO("PRO", 0L));
+        defaultPlans.add(new PopularPlanDTO("PRO", 0L));
         dto.setPopularPlans(defaultPlans);
 
-        dto.setPlanLabels(Arrays.asList("FREE", "BASIC", "PREMIUM", "ENTERPRISE"));
+        dto.setPlanLabels(Arrays.asList("FREE", "BASIC", "PRO"));
         dto.setPlanData(Arrays.asList(0L, 0L, 0L, 0L));
 
         dto.setRevenueLabels(getLast7DaysLabels());

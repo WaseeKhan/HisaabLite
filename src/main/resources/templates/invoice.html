@@ -6,11 +6,12 @@
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link rel="stylesheet" th:href="@{/css/pages/shop-invoice.css}">
+
 </head>
 
 <body>
@@ -25,7 +26,7 @@
                 <a th:href="@{/sales/history}" class="invoice-toolbar-btn secondary"><i class="fas fa-arrow-left"></i><span>Sales History</span></a>
                 <a th:href="@{/sales/invoice/{saleId}/thermal(saleId=${sale.id},autoprint=true)}" target="_blank" class="invoice-toolbar-btn primary"><i class="fas fa-print"></i><span>Print Thermal</span></a>
                 <button class="invoice-toolbar-btn secondary" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i><span>Download PDF</span></button>
-                <button class="invoice-toolbar-btn secondary" onclick="showWhatsAppModal()"><i class="fab fa-whatsapp"></i><span>Send PDF</span></button>
+                <button th:if="${whatsappAvailable}" class="invoice-toolbar-btn secondary" onclick="showWhatsAppModal()"><i class="fab fa-whatsapp"></i><span>Send PDF</span></button>
             </div>
         </section>
 
@@ -197,7 +198,7 @@
         </section>
     </div>
 
-    <div id="whatsappModal" class="whatsapp-modal">
+    <div th:if="${whatsappAvailable}" id="whatsappModal" class="whatsapp-modal">
         <div class="modal-content">
             <h3><i class="fab fa-whatsapp"></i> Send Invoice</h3>
             <input type="text" id="whatsappPhone" class="modal-input" placeholder="Enter phone number" th:value="${sale.customerPhone}">

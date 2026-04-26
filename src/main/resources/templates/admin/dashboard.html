@@ -4,12 +4,10 @@
 <head>
     <title>Admin Dashboard • Expygen</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Chart.js -->
@@ -23,7 +21,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -129,7 +127,6 @@
             text-transform: uppercase;
             padding: 0 10px 4px 10px;
         }
-
 
         .quick-action-item {
             display: flex;
@@ -642,6 +639,7 @@
             }
         }
     </style>
+
 </head>
 
 <body>
@@ -668,6 +666,14 @@
             <a th:href="@{/admin/subscriptions}">
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
             <a th:href="@{/admin/support}">
 
@@ -697,6 +703,14 @@
             <a th:href="@{/admin/subscriptions/new}" class="quick-action-item">
                 <i class="fas fa-credit-card"></i>
                 <span>New Plan</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}" class="quick-action-item">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}" class="quick-action-item">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
         </div>
 
@@ -765,16 +779,67 @@
                     <div class="stat-label">This month</div>
                 </div>
             </div>
-        </div>
 
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Renewal Due</div>
+                    <div class="stat-value" th:text="${renewalDueShops}">0</div>
+                    <div class="stat-label">Need manual follow-up</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Grace Period</div>
+                    <div class="stat-value" th:text="${gracePeriodShops}">0</div>
+                    <div class="stat-label">Access still open</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-ban"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Expired</div>
+                    <div class="stat-value" th:text="${expiredLifecycleShops}">0</div>
+                    <div class="stat-label">Renewal required</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-file-signature"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Requests</div>
+                    <div class="stat-value" th:text="${requestedCommercialCount}">0</div>
+                    <div class="stat-label">Fresh commercial submissions</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-phone-volume"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Contacted</div>
+                    <div class="stat-value" th:text="${contactedCommercialCount}">0</div>
+                    <div class="stat-label">Awaiting payment proof</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-indian-rupee-sign"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Paid Pending</div>
+                    <div class="stat-value" th:text="${paymentReceivedCommercialCount}">0</div>
+                    <div class="stat-label">Ready for activation</div>
+                </div>
+            </div>
+        </div>
 
         <div class="plan-stats-grid" th:if="${stats.popularPlans != null}">
             <div class="plan-card" th:each="plan : ${stats.popularPlans}"
                 th:classappend="'plan-' + ${#strings.toLowerCase(plan.planName)}">
-                <div class="plan-icon" th:classappend="
-                    ${plan.planName == 'FREE'} ? 'fas fa-gem' : 
-                    (${plan.planName == 'BASIC'} ? 'fas fa-rocket' : 
-                     (${plan.planName == 'PREMIUM'} ? 'fas fa-crown' : 'fas fa-building'))">
+                <div class="plan-icon"
+                    th:classappend="${plan.planName == 'FREE' ? 'fas fa-gem' : (plan.planName == 'BASIC' ? 'fas fa-rocket' : 'fas fa-crown')}">
                 </div>
                 <div class="plan-name" th:text="${plan.planName}">FREE</div>
                 <div class="plan-count" th:text="${plan.shopCount}">0</div>
@@ -853,11 +918,9 @@
                                     style="margin-left: 4px;">Newest</span>
                             </td>
                             <td>
-                                <span class="badge" th:text="${shop.planType}" th:classappend="
-                                    ${shop.planType == 'PREMIUM'} ? 'badge-premium' : 
-                                    (${shop.planType == 'BASIC'} ? 'badge-basic' : 
-                                     (${shop.planType == 'ENTERPRISE'} ? 'badge-enterprise' : 'badge-free'))">
-                                    PREMIUM
+                                <span class="badge" th:text="${shop.planType}"
+                                    th:classappend="${shop.planType == 'PRO' ? 'badge-premium' : (shop.planType == 'BASIC' ? 'badge-basic' : 'badge-free')}">
+                                    PRO
                                 </span>
                             </td>
                             <td th:text="${shop.owner}">John Doe</td>
@@ -933,11 +996,6 @@
                 </table>
             </div>
         </div>
-
-
-
-
-
 
         <!-- Stats Cards - 4 in one row -->
         <!-- MAIN CONTAINER -->
@@ -1017,15 +1075,13 @@
 
     <!-- Chart Initialization with Real Data -->
 
-
-
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             // Get data from server
             const revenueLabels = /*[[${stats.revenueLabels}]]*/[];
             const revenueData = /*[[${stats.revenueData}]]*/[];
-            const planLabels = /*[[${stats.planLabels}]]*/['FREE', 'BASIC', 'PREMIUM', 'ENTERPRISE'];
-            const planData = /*[[${stats.planData}]]*/[0, 0, 0, 0];
+            const planLabels = /*[[${stats.planLabels}]]*/['FREE', 'BASIC', 'PRO'];
+            const planData = /*[[${stats.planData}]]*/[0, 0, 0];
             const usersData = /*[[${stats.usersData}]]*/[];
           
             const ticketData = /*[[${stats.ticketData}]]*/[0, 0, 0, 0, 0, 0, 0];
@@ -1034,8 +1090,7 @@
             const planColors = {
                 'FREE': '#94a3b8',
                 'BASIC': '#2563eb',
-                'PREMIUM': '#7c3aed',
-                'ENTERPRISE': '#dc2626'
+                'PRO': '#7c3aed'
             };
 
             const backgroundColors = planLabels.map(label => planColors[label] || '#94a3b8');

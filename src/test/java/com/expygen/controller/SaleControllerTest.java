@@ -53,6 +53,7 @@ import com.expygen.service.ProductService;
 import com.expygen.service.PrescriptionDocumentService;
 import com.expygen.service.SaleBatchTraceService;
 import com.expygen.service.SaleService;
+import com.expygen.service.SubscriptionAccessService;
 import com.expygen.service.WhatsAppService;
 
 import jakarta.servlet.http.HttpSession;
@@ -86,6 +87,9 @@ class SaleControllerTest {
 
     @Mock
     private PrescriptionDocumentService prescriptionDocumentService;
+
+    @Mock
+    private SubscriptionAccessService subscriptionAccessService;
 
     @Mock
     private Authentication authentication;
@@ -169,6 +173,9 @@ class SaleControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(saleRepository.findByShop(any(), any())).thenReturn(salesPage);
+        when(subscriptionAccessService.getPlanName(shop)).thenReturn("PRO");
+        when(subscriptionAccessService.canUseWhatsAppIntegration(shop)).thenReturn(true);
+        when(subscriptionAccessService.canAccessInsights(shop)).thenReturn(true);
         when(saleRepository.countByShop(shop)).thenReturn(1L);
         when(saleRepository.getTotalRevenueByShop(shop)).thenReturn(new BigDecimal("120.00"));
         when(saleRepository.countByShopAndStatus(shop, SaleStatus.COMPLETED)).thenReturn(1L);
@@ -460,6 +467,7 @@ class SaleControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(saleRepository.findByIdWithShop(31L)).thenReturn(Optional.of(sale));
+        when(subscriptionAccessService.canUseWhatsAppIntegration(shop)).thenReturn(true);
         when(whatsAppService.sendInvoiceWithPdf(eq(sale), eq("9999999999"))).thenReturn(true);
 
         ResponseEntity<?> response = saleController.sendWhatsAppWithPdf(31L, "9999999999", null, authentication);
@@ -472,7 +480,7 @@ class SaleControllerTest {
         return Shop.builder()
                 .id(1L)
                 .name("Core Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build();
     }
@@ -488,7 +496,7 @@ class SaleControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
     }
 }

@@ -59,7 +59,7 @@ public class AdminInitializer implements CommandLineRunner {
                 .pincode("400001")
                 .gstNumber("ADMIN00GST001")
                 .upiId("admin@expygen")
-                .planType(PlanType.ENTERPRISE)  
+                .planType(PlanType.PRO)  
                 .createdAt(LocalDateTime.now())
                 .build();
             

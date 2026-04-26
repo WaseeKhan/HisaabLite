@@ -4,12 +4,10 @@
 <head>
     <title>User Management • Expygen Admin</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
@@ -21,7 +19,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -327,7 +325,7 @@
             outline: none;
             font-size: 11px;
             width: 100%;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
         }
 
         .search-box input::placeholder {
@@ -612,6 +610,7 @@
             pointer-events: none;
         }
     </style>
+
 </head>
 
 <body>
@@ -637,6 +636,14 @@
             <a th:href="@{/admin/subscriptions}">
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
             <a th:href="@{/admin/support}">
 
@@ -789,7 +796,6 @@
             <a th:href="@{/admin/users/new}" class="btn-primary">
                 <i class="fas fa-plus"></i> Add New User
             </a>
-
 
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="search-box">

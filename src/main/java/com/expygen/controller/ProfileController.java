@@ -3,12 +3,15 @@ package com.expygen.controller;
 import com.expygen.dto.ShopProfileUpdateRequest;
 import com.expygen.entity.Shop;
 import com.expygen.entity.User;
-import com.expygen.entity.PlanType;
 import com.expygen.repository.UserRepository;
 import com.expygen.repository.ProductRepository;
 import com.expygen.repository.SaleRepository;
 import com.expygen.service.ShopService;
 import com.expygen.service.EvolutionApiService;
+import com.expygen.service.PlanLimitService;
+import com.expygen.service.ShopLogoStorageService;
+import com.expygen.service.ShopSealStorageService;
+import com.expygen.service.SubscriptionAccessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -16,7 +19,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -34,6 +42,10 @@ public class ProfileController {
     private final EvolutionApiService evolutionApiService;
     private final ProductRepository productRepository;
     private final SaleRepository saleRepository;
+    private final PlanLimitService planLimitService;
+    private final SubscriptionAccessService subscriptionAccessService;
+    private final ShopLogoStorageService shopLogoStorageService;
+    private final ShopSealStorageService shopSealStorageService;
 
     @GetMapping
     @Transactional(readOnly = true)
@@ -42,6 +54,7 @@ public class ProfileController {
         Shop shop = user.getShop();
 
         ShopProfileUpdateRequest request = new ShopProfileUpdateRequest();
+        request.setShopName(shop.getName());
         request.setGstNumber(shop.getGstNumber());
         request.setAddress(shop.getAddress());
         request.setCity(shop.getCity());
@@ -53,9 +66,7 @@ public class ProfileController {
         model.addAttribute("profileRequest", request);
         model.addAttribute("role", user.getRole().name());
         
-        // Plan Type
-        PlanType planType = shop.getPlanType() != null ? shop.getPlanType() : PlanType.FREE;
-        String planTypeDisplay = planType.name();
+        String planTypeDisplay = subscriptionAccessService.getPlanName(shop);
         model.addAttribute("planType", planTypeDisplay);
         model.addAttribute("subscriptionPlan", planTypeDisplay);
         
@@ -68,7 +79,7 @@ public class ProfileController {
         LocalDateTime planEndDate = shop.getSubscriptionEndDate();
         long daysRemaining = 0;
         
-        if (planType != PlanType.FREE && planEndDate != null) {
+        if (!subscriptionAccessService.isFreePlan(shop) && planEndDate != null) {
             daysRemaining = ChronoUnit.DAYS.between(LocalDateTime.now(), planEndDate);
             daysRemaining = Math.max(0, daysRemaining);
             model.addAttribute("planEndDate", planEndDate);
@@ -80,17 +91,23 @@ public class ProfileController {
         
         // Staff Usage
         long currentStaffCount = userRepository.countByShop(shop);
-        int maxStaffLimit = getMaxStaffLimit(planType);
+        int maxStaffLimit = planLimitService.getUserLimit(shop);
         model.addAttribute("currentStaffCount", currentStaffCount);
         model.addAttribute("maxStaffLimit", maxStaffLimit);
-        
+        model.addAttribute("staffLimitUnlimited", maxStaffLimit == -1);
+
         // Products Usage
-        long currentProductCount = productRepository.countByShop(shop);
-        int productLimitRaw = getProductLimit(planType);
+        long currentProductCount = productRepository.countByShopAndActiveTrue(shop);
+        int productLimitRaw = planLimitService.getProductLimit(shop);
         String productLimit = productLimitRaw == -1 ? "∞" : String.valueOf(productLimitRaw);
         model.addAttribute("currentProductCount", currentProductCount);
         model.addAttribute("productLimitRaw", productLimitRaw);
         model.addAttribute("productLimit", productLimit);
+        model.addAttribute("productLimitUnlimited", productLimitRaw == -1);
+        model.addAttribute("whatsappAvailable", subscriptionAccessService.canUseWhatsAppIntegration(shop));
+        model.addAttribute("whatsappUpgradeMessage", subscriptionAccessService.getWhatsAppUpgradeMessage(shop));
+        model.addAttribute("hasShopLogo", shop.getLogoStoredFilename() != null && !shop.getLogoStoredFilename().isBlank());
+        model.addAttribute("hasShopSeal", shop.getSealStoredFilename() != null && !shop.getSealStoredFilename().isBlank());
         
         // Invoices Count (for additional info)
         long totalInvoices = saleRepository.countByShop(shop);
@@ -103,41 +120,101 @@ public class ProfileController {
     }
 
     @PostMapping
-    public String updateProfile(@ModelAttribute ShopProfileUpdateRequest request, Authentication authentication) {
+    public String updateProfile(@ModelAttribute ShopProfileUpdateRequest request,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
         shopService.updateProfile(user, request);
-        return "redirect:/dashboard";
-    }
-    
-    private int getMaxStaffLimit(PlanType planType) {
-        if (planType == null || planType == PlanType.FREE || planType == PlanType.BASIC) {
-            return 1; // Only owner
-        }
-        if (planType == PlanType.PREMIUM) {
-            return 10; // 1 Owner + 9 Staff
-        }
-        if (planType == PlanType.ENTERPRISE) {
-            return -1; // Unlimited
-        }
-        return 1;
-    }
-    
-    private int getProductLimit(PlanType planType) {
-        if (planType == null || planType == PlanType.FREE) {
-            return 10;
-        }
-        if (planType == PlanType.BASIC) {
-            return 50;
-        }
-        if (planType == PlanType.PREMIUM) {
-            return 1000;
-        }
-        if (planType == PlanType.ENTERPRISE) {
-            return -1; // Unlimited
-        }
-        return 10;
+        redirectAttributes.addFlashAttribute("success", "Shop profile updated successfully.");
+        return "redirect:/profile";
     }
 
+    @PostMapping("/logo")
+    public String uploadShopLogo(@RequestParam("logoFile") MultipartFile logoFile,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+            shopLogoStorageService.storeForShop(user.getShop(), logoFile);
+            redirectAttributes.addFlashAttribute("success", "Shop logo updated successfully.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/logo/remove")
+    public String removeShopLogo(Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        shopLogoStorageService.removeForShop(user.getShop());
+        redirectAttributes.addFlashAttribute("success", "Shop logo removed.");
+        return "redirect:/profile";
+    }
+
+    @GetMapping("/logo")
+    @ResponseBody
+    public ResponseEntity<Resource> getShopLogo(Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Shop shop = user.getShop();
+
+        if (shop.getLogoStoredFilename() == null || shop.getLogoStoredFilename().isBlank()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Resource resource = shopLogoStorageService.loadForShop(shop);
+        MediaType mediaType = shop.getLogoContentType() != null
+                ? MediaType.parseMediaType(shop.getLogoContentType())
+                : MediaType.IMAGE_PNG;
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .body(resource);
+    }
+
+    @PostMapping("/seal")
+    public String uploadShopSeal(@RequestParam("sealFile") MultipartFile sealFile,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+            shopSealStorageService.storeForShop(user.getShop(), sealFile);
+            redirectAttributes.addFlashAttribute("success", "Invoice seal updated successfully.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/seal/remove")
+    public String removeShopSeal(Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        shopSealStorageService.removeForShop(user.getShop());
+        redirectAttributes.addFlashAttribute("success", "Invoice seal removed.");
+        return "redirect:/profile";
+    }
+
+    @GetMapping("/seal")
+    @ResponseBody
+    public ResponseEntity<Resource> getShopSeal(Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        Shop shop = user.getShop();
+
+        if (shop.getSealStoredFilename() == null || shop.getSealStoredFilename().isBlank()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Resource resource = shopSealStorageService.loadForShop(shop);
+        MediaType mediaType = shop.getSealContentType() != null
+                ? MediaType.parseMediaType(shop.getSealContentType())
+                : MediaType.IMAGE_PNG;
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                .body(resource);
+    }
+    
     // ========== WHATSAPP METHODS ==========
     @PostMapping("/whatsapp/create-instance")
     @ResponseBody
@@ -148,6 +225,11 @@ public class ProfileController {
         try {
             User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
             Shop shop = user.getShop();
+
+            if (!subscriptionAccessService.canUseWhatsAppIntegration(shop)) {
+                response.put("error", subscriptionAccessService.getWhatsAppUpgradeMessage(shop));
+                return ResponseEntity.status(403).body(response);
+            }
 
             if (whatsappNumber == null || !whatsappNumber.matches("\\d{10}")) {
                 response.put("error", "Invalid WhatsApp number");
@@ -224,6 +306,11 @@ public class ProfileController {
         try {
             User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
             Shop shop = user.getShop();
+
+            if (!subscriptionAccessService.canUseWhatsAppIntegration(shop)) {
+                response.put("error", subscriptionAccessService.getWhatsAppUpgradeMessage(shop));
+                return ResponseEntity.status(403).body(response);
+            }
 
             if (shop.getWhatsappInstanceName() != null) {
                 evolutionApiService.deleteInstance(shop.getWhatsappInstanceName());

@@ -1,17 +1,29 @@
+# ================================================================
+#  application.yaml
+#  Expygen — Base configuration (shared across all profiles)
+# ================================================================
+#  SAFE TO COMMIT — contains zero secrets.
+#
+#  How secrets work:
+#    Dev  → reads from ./config/... or ../config/...
+#    Prod → reads from ./config/... or ../config/...
+#    Secret files stay outside src/main/resources and outside the jar.
+# ================================================================
+
 spring:
   application:
     name: expygen
-  config:
-    import: optional:application-secrets.yml
 
   profiles:
-    active: dev
-  
+    default: dev
+
+  # ---- File uploads ----
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  # ---- Static resources ----
   web:
     resources:
       static-locations: classpath:/static/
@@ -19,26 +31,37 @@ spring:
       cache:
         period: 3600
 
+  # ---- MVC ----
   mvc:
     static-path-pattern: /**
     favicon:
       enabled: true
     throw-exception-if-no-handler-found: false
+
+  # ---- JPA base (overridden per profile) ----
   jpa:
-    open-in-view: true
+    open-in-view: false              # Disabled — prevents N+1 queries in Thymeleaf templates
 
 
+# ----------------------------------------------------------------
+# SERVER
+# ----------------------------------------------------------------
 server:
+  port: 8080
   forward-headers-strategy: framework
   servlet:
     session:
       timeout: 1h
 
+
+# ----------------------------------------------------------------
+# ACTUATOR (profile overrides apply below)
+# ----------------------------------------------------------------
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,logfile
+        include: health,info
   endpoint:
     health:
       probes:
@@ -48,19 +71,10 @@ management:
     env:
       enabled: true
 
-# Evolution API
-evolution:
-  api:
-    url: http://localhost:8081
-    key: ${EVOLUTION_API_KEY:expygen-whatsapp-key}
 
-app:
-  name: Expygen
-  tagline: Simplify Pharmacy
-  short-code: RX
-  security:
-    enforce-single-session: true
-
+# ----------------------------------------------------------------
+# LOGGING base (profile overrides apply below)
+# ----------------------------------------------------------------
 logging:
   file:
     name: logs/expygen.log

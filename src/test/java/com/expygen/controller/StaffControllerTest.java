@@ -187,7 +187,7 @@ class StaffControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
@@ -217,7 +217,7 @@ class StaffControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
@@ -248,7 +248,7 @@ class StaffControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
@@ -304,7 +304,7 @@ class StaffControllerTest {
         return Shop.builder()
                 .id(1L)
                 .name("Core Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build();
     }
@@ -320,7 +320,7 @@ class StaffControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
     }
 }

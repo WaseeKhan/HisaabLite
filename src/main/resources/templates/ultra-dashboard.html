@@ -4,9 +4,7 @@
 <head>
     <title>Dashboard • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
@@ -19,6 +17,7 @@
 
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
 <body class="shop-body">
@@ -91,7 +90,7 @@
                                 <span>Return supplier stock batch-wise with audit trail.</span>
                             </div>
                         </a>
-                        <a th:href="@{/insights}" class="dashboard-command-card command-insights">
+                        <a th:if="${insightsAvailable}" th:href="@{/insights}" class="dashboard-command-card command-insights">
                             <i class="fas fa-chart-pie"></i>
                             <div>
                                 <strong>Open Insights</strong>
@@ -214,7 +213,7 @@
                                     <h3><i class="fas fa-wave-square"></i> Near Expiry Watch</h3>
                                     <p>Prioritize supplier return or stock adjustment before loss.</p>
                                 </div>
-                                <a th:href="@{/insights/inventory/near-expiry}" class="panel-link">Review risk</a>
+                                <a th:if="${insightsAvailable}" th:href="@{/insights/inventory/near-expiry}" class="panel-link">Review risk</a>
                             </div>
                             <div class="signals-grid">
                                 <div class="signal-tile">
@@ -328,7 +327,7 @@
                             </div>
                         </section>
 
-                        <section class="dashboard-panel panel-insights">
+                        <section th:if="${insightsAvailable}" class="dashboard-panel panel-insights">
                             <div class="panel-header">
                                 <div>
                                     <h3><i class="fas fa-chart-pie"></i> Insights Gateway</h3>

@@ -1,4 +1,8 @@
 :root {
+    --font-primary: 'Manrope', sans-serif;
+    --font-brand: 'Sora', 'Manrope', sans-serif;
+    --font-family: var(--font-primary);
+    --font-display: var(--font-brand);
     --shop-primary: #23262b;
     --shop-primary-dark: #17191d;
     --shop-secondary: #2f74da;

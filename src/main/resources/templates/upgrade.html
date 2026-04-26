@@ -4,7 +4,7 @@
 <head>
     <title>Upgrade Plan • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
@@ -15,6 +15,7 @@
     <link rel="stylesheet" th:href="@{/css/pages/upgrade.css}">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
 <body class="shop-body">
@@ -26,6 +27,17 @@
                 <div th:replace="~{fragments/shop-header :: header(shop=${shop}, user=${user}, role=${role}, planType=${planType})}"></div>
 
                 <div class="upgrade-shell">
+                    <div th:if="${param.requested}" class="status-message status-success" style="margin-bottom: 20px; padding: 16px 18px; border-radius: 16px; background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0;">
+                        Commercial request submitted for <strong th:text="${param.requested[0]}">PRO</strong>. The commercial desk can review and activate it now.
+                    </div>
+                    <div th:if="${subscriptionLifecycle != null and subscriptionLifecycle.helperText != null}"
+                         class="status-message"
+                         th:classappend="${subscriptionLifecycle.tone == 'critical'} ? ' status-error' : (${subscriptionLifecycle.tone == 'warning'} ? ' status-warning' : ' status-success')"
+                         style="margin-bottom: 20px; padding: 14px 16px; border-radius: 16px;">
+                        <strong th:text="${subscriptionLifecycle.statusLabel}">Renewal due</strong>
+                        <span th:text="${' • ' + subscriptionLifecycle.helperText}">Renew before the due date to avoid interruption.</span>
+                    </div>
+
                     <section class="upgrade-hero">
                         <div class="upgrade-hero-copy">
                             <span class="upgrade-kicker">Commercial Upgrade</span>
@@ -78,6 +90,24 @@
                         </div>
                     </section>
 
+                    <section class="upgrade-service-card" th:if="${recentRequests != null and !#lists.isEmpty(recentRequests)}" style="margin-top: 22px;">
+                        <div class="upgrade-section-head">
+                            <div>
+                                <h3>Recent Upgrade Requests</h3>
+                                <p>Track the latest commercial requests from this workspace.</p>
+                            </div>
+                        </div>
+                        <div class="contact-list">
+                            <div class="contact-card" th:each="request : ${recentRequests}">
+                                <i class="fas fa-file-signature"></i>
+                                <div>
+                                    <strong th:text="${request.currentPlan} + ' → ' + ${request.requestedPlan}">FREE → PRO</strong>
+                                    <span th:text="${request.status} + ' • ' + ${#temporals.format(request.createdAt, 'dd MMM yyyy hh:mm a')}">REQUESTED • 21 Apr 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <section class="plans-grid">
                         <article class="plan-card plan-free" th:classappend="${planType == 'FREE' ? ' current' : ''}">
                             <div class="plan-card-top">
@@ -95,11 +125,15 @@
                                     <span class="plan-state" th:if="${planType == 'FREE'}">Current</span>
                                 </div>
                                 <p class="plan-summary">For solo stores starting digital billing and basic stock control.</p>
+                                <div class="plan-snapshot">
+                                    <div class="snapshot-pill"><strong>1</strong><span>Owner</span></div>
+                                    <div class="snapshot-pill"><strong>10</strong><span>Products</span></div>
+                                    <div class="snapshot-pill"><strong>Essentials</strong><span>Support</span></div>
+                                </div>
                                 <ul class="features-list">
-                                    <li><i class="fas fa-check"></i><span>1 Owner</span></li>
-                                    <li><i class="fas fa-check"></i><span>10 Products</span></li>
-                                    <li><i class="fas fa-check"></i><span>GST Invoices</span></li>
-                                    <li><i class="fas fa-check"></i><span>Dashboard Access</span></li>
+                                    <li><i class="fas fa-check"></i><span>GST billing, invoices, and core dashboard</span></li>
+                                    <li><i class="fas fa-check"></i><span>Ideal for launch-stage digital adoption</span></li>
+                                    <li><i class="fas fa-check"></i><span>Start operating without paid activation</span></li>
                                     <li class="not-included"><i class="fas fa-minus"></i><span>Staff Management</span></li>
                                     <li class="not-included"><i class="fas fa-minus"></i><span>WhatsApp Integration</span></li>
                                 </ul>
@@ -115,10 +149,10 @@
                                 <span class="plan-tier">Core</span>
                                 <div class="plan-price">
                                     <span class="currency">₹</span>
-                                    <span class="amount">4,990</span>
+                                    <span class="amount" th:text="${plansByName != null and plansByName['BASIC'] != null ? #numbers.formatDecimal(plansByName['BASIC'].effectiveAnnualPrice, 1, 'COMMA', 0, 'POINT') : '4,990'}">4,990</span>
                                     <span class="period">/year</span>
                                 </div>
-                                <div class="price-note">Save ₹998 vs monthly</div>
+                                <div class="price-note" th:text="${plansByName != null and plansByName['BASIC'] != null and plansByName['BASIC'].effectiveAnnualDiscountPercent > 0 ? 'Save ' + #numbers.formatDecimal(plansByName['BASIC'].effectiveAnnualDiscountPercent, 1, 'COMMA', 0, 'POINT') + '% on annual billing' : 'Yearly billing only'}">Save 17% on annual billing</div>
                             </div>
                             <div class="plan-card-body">
                                 <div class="plan-name-row">
@@ -126,83 +160,60 @@
                                     <span class="plan-state" th:if="${planType == 'BASIC'}">Current</span>
                                 </div>
                                 <p class="plan-summary">For growing stores that need more medicine capacity and better reporting.</p>
+                                <div class="plan-snapshot">
+                                    <div class="snapshot-pill"><strong>1</strong><span>Owner</span></div>
+                                    <div class="snapshot-pill"><strong th:text="${plansByName != null and plansByName['BASIC'] != null ? (plansByName['BASIC'].maxProducts == -1 ? 'Unlimited' : plansByName['BASIC'].maxProducts) : '50'}">50</strong><span>Products</span></div>
+                                    <div class="snapshot-pill"><strong>Standard</strong><span>Support</span></div>
+                                </div>
                                 <ul class="features-list">
-                                    <li><i class="fas fa-check"></i><span>1 Owner</span></li>
-                                    <li><i class="fas fa-check"></i><span>50 Products</span></li>
-                                    <li><i class="fas fa-check"></i><span>Advanced Reports</span></li>
-                                    <li><i class="fas fa-check"></i><span>Email Support</span></li>
+                                    <li><i class="fas fa-check"></i><span>Purchases, stock control, and daily operations</span></li>
+                                    <li><i class="fas fa-check"></i><span>More capacity for stores with regular inventory flow</span></li>
+                                    <li><i class="fas fa-check"></i><span>Clear step up from FREE for serious usage</span></li>
                                     <li class="not-included"><i class="fas fa-minus"></i><span>Staff Management</span></li>
                                     <li class="not-included"><i class="fas fa-minus"></i><span>WhatsApp Integration</span></li>
                                 </ul>
                                 <div class="plan-footer">
-                                    <span th:if="${planType == 'BASIC'}" class="current-badge">Current Plan</span>
+                                    <a th:if="${planType == 'BASIC'}" th:href="@{/upgrade/request/BASIC}" class="btn-upgrade">Renew BASIC</a>
                                     <a th:if="${planType != 'BASIC'}" th:href="@{/upgrade/request/BASIC}" class="btn-upgrade">Upgrade to BASIC</a>
                                 </div>
                             </div>
                         </article>
 
-                        <article class="plan-card plan-premium popular" th:classappend="${planType == 'PREMIUM' ? ' current' : ''}">
+                        <article class="plan-card plan-premium popular" th:classappend="${planType == 'PRO' ? ' current' : ''}">
                             <div class="popular-badge">Most Popular</div>
                             <div class="plan-card-top">
                                 <span class="plan-tier">Growth</span>
                                 <div class="plan-price">
                                     <span class="currency">₹</span>
-                                    <span class="amount">9,990</span>
+                                    <span class="amount" th:text="${plansByName != null and plansByName['PRO'] != null ? #numbers.formatDecimal(plansByName['PRO'].effectiveAnnualPrice, 1, 'COMMA', 0, 'POINT') : '9,990'}">9,990</span>
                                     <span class="period">/year</span>
                                 </div>
-                                <div class="price-note">Save ₹1,998 vs monthly</div>
+                                <div class="price-note" th:text="${plansByName != null and plansByName['PRO'] != null and plansByName['PRO'].effectiveAnnualDiscountPercent > 0 ? 'Save ' + #numbers.formatDecimal(plansByName['PRO'].effectiveAnnualDiscountPercent, 1, 'COMMA', 0, 'POINT') + '% on annual billing' : 'Yearly billing only'}">Save 17% on annual billing</div>
                             </div>
                             <div class="plan-card-body">
                                 <div class="plan-name-row">
-                                    <h3>PREMIUM</h3>
-                                    <span class="plan-state" th:if="${planType == 'PREMIUM'}">Current</span>
+                                    <h3>PRO</h3>
+                                    <span class="plan-state" th:if="${planType == 'PRO'}">Current</span>
                                 </div>
                                 <p class="plan-summary">For multi-user stores needing WhatsApp billing, insights, and priority support.</p>
+                                <div class="plan-snapshot">
+                                    <div class="snapshot-pill"><strong th:text="${plansByName != null and plansByName['PRO'] != null ? (plansByName['PRO'].maxUsers == -1 ? 'Unlimited' : plansByName['PRO'].maxUsers) : '10'}">10</strong><span>Users</span></div>
+                                    <div class="snapshot-pill"><strong th:text="${plansByName != null and plansByName['PRO'] != null ? (plansByName['PRO'].maxProducts == -1 ? 'Unlimited' : plansByName['PRO'].maxProducts) : '1000'}">1000</strong><span>Products</span></div>
+                                    <div class="snapshot-pill"><strong>Priority</strong><span>Support</span></div>
+                                </div>
                                 <ul class="features-list">
-                                    <li><i class="fas fa-check"></i><span>1 Owner + 9 Staff</span></li>
-                                    <li><i class="fas fa-check"></i><span>1000 Products</span></li>
-                                    <li><i class="fas fa-check"></i><span>WhatsApp Integration</span></li>
-                                    <li><i class="fas fa-check"></i><span>Priority Support</span></li>
-                                    <li><i class="fas fa-check"></i><span>Staff Management</span></li>
-                                    <li><i class="fas fa-check"></i><span>24/7 Support</span></li>
+                                    <li><i class="fas fa-check"></i><span>WhatsApp invoice sending and Insights workspace</span></li>
+                                    <li><i class="fas fa-check"></i><span>Built for teams managing staff and higher volume</span></li>
+                                    <li><i class="fas fa-check"></i><span>Best-value plan for stores scaling operations</span></li>
+                                    <li><i class="fas fa-check"></i><span>Priority commercial and activation handling</span></li>
                                 </ul>
                                 <div class="plan-footer">
-                                    <span th:if="${planType == 'PREMIUM'}" class="current-badge">Current Plan</span>
-                                    <a th:if="${planType != 'PREMIUM'}" th:href="@{/upgrade/request/PREMIUM}" class="btn-upgrade primary">Upgrade to PREMIUM</a>
+                                    <a th:if="${planType == 'PRO'}" th:href="@{/upgrade/request/PRO}" class="btn-upgrade primary">Renew PRO</a>
+                                    <a th:if="${planType != 'PRO'}" th:href="@{/upgrade/request/PRO}" class="btn-upgrade primary">Upgrade to PRO</a>
                                 </div>
                             </div>
                         </article>
 
-                        <article class="plan-card plan-enterprise" th:classappend="${planType == 'ENTERPRISE' ? ' current' : ''}">
-                            <div class="plan-card-top">
-                                <span class="plan-tier">Enterprise</span>
-                                <div class="plan-price">
-                                    <span class="currency">₹</span>
-                                    <span class="amount">19,990</span>
-                                    <span class="period">/year</span>
-                                </div>
-                                <div class="price-note">Save ₹3,998 vs monthly</div>
-                            </div>
-                            <div class="plan-card-body">
-                                <div class="plan-name-row">
-                                    <h3>ENTERPRISE</h3>
-                                    <span class="plan-state" th:if="${planType == 'ENTERPRISE'}">Current</span>
-                                </div>
-                                <p class="plan-summary">For chain stores and high-volume teams requiring unlimited scale and dedicated assistance.</p>
-                                <ul class="features-list">
-                                    <li><i class="fas fa-check"></i><span>Unlimited Users</span></li>
-                                    <li><i class="fas fa-check"></i><span>Unlimited Products</span></li>
-                                    <li><i class="fas fa-check"></i><span>All Premium Features</span></li>
-                                    <li><i class="fas fa-check"></i><span>Dedicated Support</span></li>
-                                    <li><i class="fas fa-check"></i><span>API Access</span></li>
-                                    <li><i class="fas fa-check"></i><span>Custom Integration</span></li>
-                                </ul>
-                                <div class="plan-footer">
-                                    <span th:if="${planType == 'ENTERPRISE'}" class="current-badge">Current Plan</span>
-                                    <a th:if="${planType != 'ENTERPRISE'}" th:href="@{/upgrade/request/ENTERPRISE}" class="btn-upgrade">Contact Sales</a>
-                                </div>
-                            </div>
-                        </article>
                     </section>
 
                     <section class="upgrade-lower-grid">

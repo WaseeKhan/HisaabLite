@@ -11,6 +11,8 @@ public class SubscriptionPlanDTO {
     private Long id;
     private String planName;
     private Double price;
+    private Double annualPrice;
+    private Double annualDiscountPercent;
     private Integer durationInDays;
     private String description;
     private String features;
@@ -19,6 +21,8 @@ public class SubscriptionPlanDTO {
     private Long shopCount;
     private Double usagePercent;
     private boolean active;
+    private Double annualListPrice;
+    private Double effectiveAnnualDiscountPercent;
     
     // Constructor matching your existing usage
     public SubscriptionPlanDTO(String planName, Double price, Integer durationInDays, 

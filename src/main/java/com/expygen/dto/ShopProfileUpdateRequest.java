@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class ShopProfileUpdateRequest {
 
+    private String shopName;
     private String gstNumber;
     private String address;
     private String city;

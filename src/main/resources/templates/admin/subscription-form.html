@@ -6,8 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -18,7 +17,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -283,7 +282,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             font-size: 12px;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
             background: white;
             width: 100%;
         }
@@ -462,6 +461,7 @@
             gap: 4px;
         }
     </style>
+
 </head>
 <body>
     <!-- Sidebar - Direct HTML instead of partial -->
@@ -487,6 +487,10 @@
             <a th:href="@{/admin/subscriptions}" class="active">
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
             <a th:href="@{/admin/audit}">
                 <i class="fas fa-clipboard-list"></i>
@@ -559,7 +563,7 @@
                     <div class="form-group full-width">
                         <label><i class="fas fa-tag"></i> Plan Name <span class="required"></span></label>
                         <input type="text" name="planName" th:value="${plan.planName}" 
-                               placeholder="e.g., FREE, BASIC, PREMIUM, ENTERPRISE" required 
+                               placeholder="e.g., FREE, BASIC, PRO" required 
                                th:readonly="${plan.planName != null}" 
                                th:classappend="${plan.planName != null} ? 'readonly' : ''">
                         <div class="hint-text" th:if="${plan.planName == null}">
@@ -567,19 +571,35 @@
                         </div>
                     </div>
                     
-                    <!-- Price -->
+                    <!-- Internal Monthly Price -->
                     <div class="form-group">
-                        <label><i class="fas fa-rupee-sign"></i> Price (₹) <span class="required"></span></label>
+                        <label><i class="fas fa-rupee-sign"></i> Monthly Price (Internal) <span class="required"></span></label>
                         <input type="number" step="0.01" name="price" th:value="${plan.price}" 
                                placeholder="0.00" required>
+                        <div class="hint-text">Internal baseline only. Customers will not see monthly billing.</div>
                     </div>
                     
-                    <!-- Duration -->
+                    <!-- Yearly Duration -->
                     <div class="form-group">
-                        <label><i class="fas fa-clock"></i> Duration (Days) <span class="required"></span></label>
+                        <label><i class="fas fa-clock"></i> Yearly Duration (Days) <span class="required"></span></label>
                         <input type="number" name="durationInDays" th:value="${plan.durationInDays}" 
-                               placeholder="30" required>
-                        <div class="hint-text">Number of days the plan is valid</div>
+                               placeholder="365" required>
+                        <div class="hint-text">Billing is yearly only for customers.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-percent"></i> Yearly Discount (%)</label>
+                        <input type="number" step="0.1" min="0" max="100" name="annualDiscountPercent"
+                               th:value="${plan.effectiveAnnualDiscountPercent != null ? plan.effectiveAnnualDiscountPercent : plan.annualDiscountPercent}"
+                               placeholder="Auto calculated from monthly and yearly price" readonly>
+                        <div class="hint-text">Auto-calculated from monthly price × 12 compared with yearly payable price.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-check"></i> Yearly Payable Price (Public)</label>
+                        <input type="number" step="0.01" name="annualPrice" th:value="${plan.annualPrice}"
+                               placeholder="Enter yearly payable price" required>
+                        <div class="hint-text">Enter this with monthly price. Discount will be calculated automatically and shown on all public pages.</div>
                     </div>
                     
                     <!-- Max Users -->

@@ -4,7 +4,7 @@
 <head>
     <title>Pricing • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
@@ -14,6 +14,7 @@
     <link rel="stylesheet" th:href="@{/css/pages/pricing.css}">
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
 </head>
 
 <body>
@@ -29,102 +30,71 @@
 
     <section class="billing-toggle-strip">
         <div class="billing-toggle">
-            <span class="toggle-label active" id="monthlyLabel">Monthly</span>
-            <label class="switch">
-                <input type="checkbox" id="billingToggle" onclick="toggleBilling()">
-                <span class="slider"></span>
-            </label>
-            <span class="toggle-label" id="yearlyLabel">
-                Yearly <span class="save-badge">Save 17%</span>
-            </span>
+            <span class="toggle-label active">Yearly billing only</span>
+            <span class="save-badge">Best annual value</span>
         </div>
     </section>
 
     <section class="pricing-grid-section">
         <div class="pricing-grid">
-            <article class="pricing-card">
-                <div class="pricing-name">FREE</div>
+            <article th:each="plan : ${publicPlans}"
+                     class="pricing-card"
+                     th:classappend="${(plan.popular ? ' popular' : '') + (plan.enterprise ? ' enterprise' : '')}">
+                <div class="popular-badge" th:if="${plan.popular}">Most Popular</div>
+                <div class="pricing-tier"
+                     th:text="${plan.planName == 'FREE' ? 'Launch' : (plan.planName == 'BASIC' ? 'Operate' : 'Scale')}">Launch</div>
+                <div class="pricing-name" th:text="${plan.planName}">FREE</div>
+                <p class="pricing-summary"
+                   th:text="${plan.planName == 'FREE' ? 'A clean starting point for single-store billing and early digital adoption.' : (plan.planName == 'BASIC' ? 'The operational plan for stores running purchases, stock, and day-to-day pharmacy workflows.' : 'The growth plan for teams that want premium workflows, faster communication, and business visibility.')}">
+                    A clean starting point for single-store billing and early digital adoption.
+                </p>
                 <div class="pricing-price">
-                    <div class="monthly-price price-free">₹0</div>
-                    <div class="yearly-price price-free" style="display: none;">₹0</div>
-                    <span class="price-period">Start without upfront cost</span>
+                    <div class="yearly-price" th:classappend="${plan.free} ? ' price-free' : ''">
+                        <span th:text="${plan.totalPriceLabel}">₹0</span>
+                        <span class="price-period" th:if="${!plan.free}" th:text="${plan.totalPricePeriodLabel}">/year</span>
+                    </div>
+                    <span class="price-period" th:if="${!plan.free and plan.annualDiscountLabel != ''}" th:text="${plan.annualDiscountLabel + ' on annual billing'}">Save 17% on annual billing</span>
+                    <span class="price-period" th:text="${plan.durationLabel}">1 year</span>
                 </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 2 Users</li>
-                    <li><i class="fas fa-check"></i> 50 Products</li>
-                    <li><i class="fas fa-check"></i> Billing + Sales History</li>
-                    <li><i class="fas fa-check"></i> GST invoice flow</li>
-                    <li><i class="fas fa-check"></i> Basic support</li>
-                </ul>
-                <div class="pricing-footer">
-                    <a href="/register" class="btn-pricing primary">Start Free</a>
-                </div>
-            </article>
-
-            <article class="pricing-card">
-                <div class="pricing-name">BASIC</div>
-                <div class="pricing-price">
-                    <div class="monthly-price">₹499 <span class="price-period">/mo</span></div>
-                    <div class="yearly-price" style="display: none;">
-                        ₹4,990 <span class="price-period">/yr</span>
-                        <div class="original-price">₹5,988</div>
-                        <span class="savings-tag">Save ₹998</span>
+                <div class="pricing-stats">
+                    <div class="pricing-stat">
+                        <strong th:text="${plan.usersLabel}">2</strong>
+                        <span>Users</span>
+                    </div>
+                    <div class="pricing-stat">
+                        <strong th:text="${plan.productsLabel}">50</strong>
+                        <span>Products</span>
+                    </div>
+                    <div class="pricing-stat">
+                        <strong th:text="${plan.planName == 'PRO' ? 'Priority' : 'Standard'}">Standard</strong>
+                        <span>Support</span>
                     </div>
                 </div>
                 <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 5 Users</li>
-                    <li><i class="fas fa-check"></i> 200 Products</li>
-                    <li><i class="fas fa-check"></i> Purchases + stock control</li>
-                    <li><i class="fas fa-check"></i> Supplier and batch workflows</li>
-                    <li><i class="fas fa-check"></i> GST invoice flow</li>
-                </ul>
-                <div class="pricing-footer">
-                    <a href="/register" class="btn-pricing primary">Choose Basic</a>
-                </div>
-            </article>
+                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Billing, GST invoices, and sales visibility</span></li>
+                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Best for evaluating Expygen with one store</span></li>
+                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Simple yearly-free starting point</span></li>
 
-            <article class="pricing-card popular">
-                <div class="popular-badge">Most Popular</div>
-                <div class="pricing-name">PREMIUM</div>
-                <div class="pricing-price">
-                    <div class="monthly-price">₹999 <span class="price-period">/mo</span></div>
-                    <div class="yearly-price" style="display: none;">
-                        ₹9,990 <span class="price-period">/yr</span>
-                        <div class="original-price">₹11,988</div>
-                        <span class="savings-tag">Save ₹1,998</span>
-                    </div>
-                </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> 15 Users</li>
-                    <li><i class="fas fa-check"></i> 1000 Products</li>
-                    <li><i class="fas fa-check"></i> WhatsApp invoice sharing</li>
-                    <li><i class="fas fa-check"></i> Insights workspace</li>
-                    <li><i class="fas fa-check"></i> Batch and expiry visibility</li>
-                </ul>
-                <div class="pricing-footer">
-                    <a href="/register" class="btn-pricing primary">Go Premium</a>
-                </div>
-            </article>
+                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Purchases, inventory control, and stronger operations</span></li>
+                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>More medicine capacity for active stores</span></li>
+                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Reliable workflow for steady business growth</span></li>
 
-            <article class="pricing-card enterprise">
-                <div class="pricing-name">ENTERPRISE</div>
-                <div class="pricing-price">
-                    <div class="monthly-price">₹1,999 <span class="price-period">/mo</span></div>
-                    <div class="yearly-price" style="display: none;">
-                        ₹19,990 <span class="price-period">/yr</span>
-                        <div class="original-price">₹23,988</div>
-                        <span class="savings-tag">Save ₹3,998</span>
-                    </div>
-                </div>
-                <ul class="pricing-features">
-                    <li><i class="fas fa-check"></i> Unlimited Users</li>
-                    <li><i class="fas fa-check"></i> Unlimited Products</li>
-                    <li><i class="fas fa-check"></i> Priority support</li>
-                    <li><i class="fas fa-check"></i> Enterprise rollout help</li>
-                    <li><i class="fas fa-check"></i> Full Premium capability</li>
+                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>WhatsApp invoice delivery and Insights access</span></li>
+                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Premium workflow support for multi-user teams</span></li>
+                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Built for stores treating software as a growth engine</span></li>
+
+                    <li><i class="fas fa-check"></i><span>Yearly activation handled through admin pricing</span></li>
+                    <li><i class="fas fa-check"></i><span>Upgrade path stays available anytime</span></li>
                 </ul>
                 <div class="pricing-footer">
-                    <a href="/contact" class="btn-pricing">Contact Sales</a>
+                    <a th:href="${plan.actionHref}"
+                       class="btn-pricing"
+                       th:classappend="${!plan.enterprise} ? ' primary' : ''"
+                       th:text="${plan.actionLabel}">Start Free</a>
+                    <span class="pricing-note"
+                          th:text="${plan.planName == 'FREE' ? 'Start now and configure the store immediately.' : 'Move to yearly activation when you want the next growth tier.'}">
+                        Start now and configure the store immediately.
+                    </span>
                 </div>
             </article>
         </div>
@@ -149,15 +119,11 @@
         <div class="comparison-table">
             <div class="comparison-row header">
                 <div class="comparison-cell">Capability</div>
-                <div class="comparison-cell">FREE</div>
-                <div class="comparison-cell">BASIC</div>
-                <div class="comparison-cell">PREMIUM</div>
-                <div class="comparison-cell">ENTERPRISE</div>
+                <div class="comparison-cell" th:each="plan : ${publicPlans}" th:text="${plan.planName}">FREE</div>
             </div>
 
             <div class="comparison-row">
                 <div class="comparison-cell">Billing + Sales History</div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
@@ -167,13 +133,11 @@
                 <div class="comparison-cell"><i class="fas fa-times"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
             </div>
             <div class="comparison-row">
                 <div class="comparison-cell">WhatsApp Invoice Sharing</div>
                 <div class="comparison-cell"><i class="fas fa-times"></i></div>
                 <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
             </div>
             <div class="comparison-row">
@@ -181,21 +145,14 @@
                 <div class="comparison-cell"><i class="fas fa-times"></i></div>
                 <div class="comparison-cell"><i class="fas fa-times"></i></div>
                 <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
             </div>
             <div class="comparison-row">
                 <div class="comparison-cell">Product Limit</div>
-                <div class="comparison-cell">50</div>
-                <div class="comparison-cell">200</div>
-                <div class="comparison-cell">1000</div>
-                <div class="comparison-cell">Unlimited</div>
+                <div class="comparison-cell" th:each="plan : ${publicPlans}" th:text="${plan.productsLabel}">50</div>
             </div>
             <div class="comparison-row">
                 <div class="comparison-cell">User Limit</div>
-                <div class="comparison-cell">2</div>
-                <div class="comparison-cell">5</div>
-                <div class="comparison-cell">15</div>
-                <div class="comparison-cell">Unlimited</div>
+                <div class="comparison-cell" th:each="plan : ${publicPlans}" th:text="${plan.usersLabel}">2</div>
             </div>
         </div>
     </section>
@@ -263,7 +220,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Premium and Enterprise are the right choices if you want the dedicated Insights workspace for sales, purchases, stock risk, and audit visibility.
+                    Pro is the right choice if you want the dedicated Insights workspace for sales, purchases, stock risk, and audit visibility.
                 </div>
             </div>
         </div>
@@ -283,25 +240,6 @@
             faqItem.classList.toggle('active');
         }
 
-        function toggleBilling() {
-            const toggle = document.getElementById('billingToggle');
-            const monthlyPrices = document.querySelectorAll('.monthly-price');
-            const yearlyPrices = document.querySelectorAll('.yearly-price');
-            const monthlyLabel = document.getElementById('monthlyLabel');
-            const yearlyLabel = document.getElementById('yearlyLabel');
-
-            if (toggle.checked) {
-                monthlyPrices.forEach(el => el.style.display = 'none');
-                yearlyPrices.forEach(el => el.style.display = 'block');
-                monthlyLabel.classList.remove('active');
-                yearlyLabel.classList.add('active');
-            } else {
-                monthlyPrices.forEach(el => el.style.display = 'block');
-                yearlyPrices.forEach(el => el.style.display = 'none');
-                monthlyLabel.classList.add('active');
-                yearlyLabel.classList.remove('active');
-            }
-        }
     </script>
 
     <div th:replace="~{fragments/public-footer :: footer}"></div>

@@ -4,7 +4,7 @@
 <head>
     <title>Upgrade Request • Expygen</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/shop-variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/shop-reset.css}">
@@ -13,6 +13,7 @@
     <link rel="stylesheet" th:href="@{/css/components/shop-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/shop-footer.css}">
     <link rel="stylesheet" th:href="@{/css/pages/upgrade.css}">
+
 </head>
 
 <body class="shop-body">
@@ -27,19 +28,25 @@
                     <section class="upgrade-hero">
                         <div class="upgrade-hero-copy">
                             <span class="upgrade-kicker">Upgrade Request</span>
-                            <h1>We are ready to process your plan change</h1>
-                            <p>Use this confirmation desk to continue the commercial handoff for your selected plan.</p>
+                            <h1 th:text="${requestHeading}">We are ready to process your plan change</h1>
+                            <p>Use this payment desk to scan the QR, complete the transfer manually, and submit your activation request.</p>
                             <div class="upgrade-hero-pills">
-                                <span><i class="fas fa-arrow-up"></i> Requested plan: <strong th:text="${selectedPlan}">PREMIUM</strong></span>
+                                <span><i class="fas fa-arrow-up"></i> Requested plan: <strong th:text="${selectedPlan}">PRO</strong></span>
                                 <span><i class="fas fa-id-badge"></i> Current plan: <strong th:text="${currentPlan}">FREE</strong></span>
+                                <span th:if="${selectedPlanDetails != null}"><i class="fas fa-indian-rupee-sign"></i> Yearly amount: <strong th:text="'₹' + ${#numbers.formatDecimal(selectedPlanDetails.effectiveAnnualPrice, 0, 'COMMA', 0, 'POINT')}">₹9,990</strong></span>
                             </div>
                         </div>
 
                         <div class="upgrade-hero-status">
                             <div class="upgrade-status-card">
                                 <span>Selected plan</span>
-                                <strong th:text="${selectedPlan}">PREMIUM</strong>
+                                <strong th:text="${selectedPlan}">PRO</strong>
                                 <small>Commercial request ready</small>
+                            </div>
+                            <div class="upgrade-status-card" th:if="${selectedPlanDetails != null}">
+                                <span>Payable amount</span>
+                                <strong th:text="'₹' + ${#numbers.formatDecimal(selectedPlanDetails.effectiveAnnualPrice, 0, 'COMMA', 0, 'POINT')}">₹9,990</strong>
+                                <small th:text="${selectedPlanDetails.durationInDays != null and selectedPlanDetails.durationInDays > 0 ? selectedPlanDetails.durationInDays + ' day activation window' : 'Manual activation after verification'}">365 day activation window</small>
                             </div>
                             <div class="upgrade-status-card">
                                 <span>Current plan</span>
@@ -54,38 +61,104 @@
                             <div class="upgrade-section-head">
                                 <div>
                                     <h3>Next steps</h3>
-                                    <p>Complete the request by reaching the commercial desk and sharing your preferred plan.</p>
+                                    <p>Scan, pay, and share the transaction reference so the commercial desk can activate your plan manually.</p>
                                 </div>
                             </div>
+
+                            <div th:if="${error}" class="status-message status-error" style="margin-bottom: 18px; padding: 14px 16px; border-radius: 14px; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;">
+                                <span th:text="${error}"></span>
+                            </div>
+
+                            <form method="post" enctype="multipart/form-data" th:action="@{/upgrade/request/{planName}(planName=${selectedPlan})}" style="display: grid; gap: 14px; margin-bottom: 20px;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <div class="manual-payment-banner" th:if="${selectedPlanDetails != null}">
+                                    <div>
+                                        <strong th:text="'Pay ₹' + ${#numbers.formatDecimal(selectedPlanDetails.effectiveAnnualPrice, 0, 'COMMA', 0, 'POINT')} + ' for yearly billing using ' + ${paymentProvider}">Pay ₹9,990 yearly using PhonePe</strong>
+                                        <span th:text="'Payment receiver: ' + ${paymentReceiverName}">Payment receiver: Mohd. Waseem Akram</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight: 700; margin-bottom: 8px;">Preferred payment method</label>
+                                    <select name="paymentPreference" style="width:100%; min-height: 48px; border-radius: 14px; border: 1px solid #dbe4ef; padding: 0 14px; background: #fff;">
+                                        <option value="UPI QR">UPI QR</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                        <option value="WhatsApp Coordination">WhatsApp Coordination</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight: 700; margin-bottom: 8px;">Transaction reference / UTR</label>
+                                    <input type="text"
+                                           name="paymentReference"
+                                           placeholder="Enter UTR, transaction ID, or payment reference"
+                                           required
+                                           style="width:100%; min-height: 48px; border-radius: 14px; border: 1px solid #dbe4ef; padding: 0 14px; background: #fff;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight: 700; margin-bottom: 8px;">Notes for the commercial desk</label>
+                                    <textarea name="note" rows="4" placeholder="Add payer name, payment time, screenshot shared on WhatsApp, or any billing note..." style="width:100%; border-radius: 14px; border: 1px solid #dbe4ef; padding: 12px 14px; resize: vertical; background:#fff;"></textarea>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight: 700; margin-bottom: 8px;">Payment proof upload</label>
+                                    <input type="file"
+                                           name="receiptFile"
+                                           accept=".pdf,image/png,image/jpeg,image/webp"
+                                           style="width:100%; min-height: 48px; border-radius: 14px; border: 1px solid #dbe4ef; padding: 10px 14px; background:#fff;">
+                                    <small style="display:block; margin-top:8px; color:#64748b;">Optional but recommended. Upload PDF, JPG, PNG, or WEBP up to 8 MB so admin can verify faster.</small>
+                                </div>
+                                <button type="submit" class="btn-upgrade primary" style="justify-self:start;" th:text="${requestActionLabel}">Submit upgrade request</button>
+                            </form>
+
                             <div class="process-steps">
                                 <div class="step">
                                     <div class="step-number">1</div>
                                     <div class="step-content">
-                                        <h4>Confirm plan</h4>
-                                        <p>Tell support you want <strong th:text="${selectedPlan}">PREMIUM</strong>.</p>
+                                        <h4>Scan and pay</h4>
+                                        <p>Pay the exact amount for <strong th:text="${selectedPlan}">PRO</strong> using the QR shown on this page.</p>
                                     </div>
                                 </div>
                                 <div class="step">
                                     <div class="step-number">2</div>
                                     <div class="step-content">
-                                        <h4>Share shop details</h4>
-                                        <p>Use your store name and registered contact to speed up activation.</p>
+                                        <h4>Submit payment reference</h4>
+                                        <p>Enter the UTR or transaction ID and optionally attach the receipt so the commercial desk can match your payment quickly.</p>
                                     </div>
                                 </div>
                                 <div class="step">
                                     <div class="step-number">3</div>
                                     <div class="step-content">
-                                        <h4>Complete payment</h4>
-                                        <p>Pay using the shared method and send transaction proof.</p>
+                                        <h4>Share shop details</h4>
+                                        <p>Use your store name and registered contact details to speed up manual verification.</p>
                                     </div>
                                 </div>
                                 <div class="step">
                                     <div class="step-number">4</div>
                                     <div class="step-content">
                                         <h4>Activation</h4>
-                                        <p>Your workspace will be updated once support confirms the request.</p>
+                                        <p th:text="${renewalRequest ? 'Your current paid plan will be extended for the next yearly cycle after manual verification.' : 'Your workspace will be upgraded once payment is confirmed and the request is activated manually.'}">Your workspace will be upgraded once payment is confirmed and the request is activated manually.</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="upgrade-payment-card">
+                            <div class="upgrade-section-head">
+                                <div>
+                                    <h3>Pay with QR</h3>
+                                    <p>Complete the payment manually and then submit the transaction reference in the form.</p>
+                                </div>
+                            </div>
+                            <div class="payment-qr-card">
+                                <img th:src="${paymentQrImagePath}" alt="Payment QR code" class="payment-qr-image">
+                                <div class="payment-qr-meta">
+                                    <strong th:text="${paymentProvider}">PhonePe</strong>
+                                    <span th:text="${paymentReceiverName}">Mohd. Waseem Akram</span>
+                                    <span th:if="${selectedPlanDetails != null}" th:text="'Exact yearly amount: ₹' + ${#numbers.formatDecimal(selectedPlanDetails.effectiveAnnualPrice, 0, 'COMMA', 0, 'POINT')}">Exact yearly amount: ₹9,990</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-note-card">
+                                <h4>Important</h4>
+                                <p>Use the same registered shop owner account when submitting the upgrade request, and keep the UTR handy for admin verification.</p>
                             </div>
                         </div>
 
@@ -118,6 +191,24 @@
                                         <span>Continue the commercial handoff from support</span>
                                     </div>
                                 </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="upgrade-service-card" th:if="${recentRequests != null and !#lists.isEmpty(recentRequests)}" style="margin-top: 22px;">
+                        <div class="upgrade-section-head">
+                            <div>
+                                <h3>Recent Request Timeline</h3>
+                                <p>See the latest plan-change requests for this workspace.</p>
+                            </div>
+                        </div>
+                        <div class="contact-list">
+                            <div class="contact-card" th:each="request : ${recentRequests}">
+                                <i class="fas fa-clock-rotate-left"></i>
+                                <div>
+                                    <strong th:text="${request.currentPlan == request.requestedPlan ? request.requestedPlan + ' renewal' : request.currentPlan + ' → ' + request.requestedPlan}">FREE → PRO</strong>
+                                    <span th:text="${request.status} + ' • ' + ${#temporals.format(request.createdAt, 'dd MMM yyyy hh:mm a')}">REQUESTED • 21 Apr 2026</span>
+                                </div>
                             </div>
                         </div>
                     </section>

@@ -9,15 +9,17 @@
 
 .shop-sidebar {
     width: 240px;
-    background: linear-gradient(180deg, #202329 0%, #181b20 100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 18px 18px 20px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), transparent 12%),
+        #1f1f1f;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 14px;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - var(--shop-header-height));
+    height: 100dvh;
     position: fixed;
     left: 0;
-    top: var(--shop-header-height);
+    top: 0;
     bottom: 0;
     z-index: 10;
     overflow-y: auto;
@@ -26,21 +28,45 @@
 .shop-page-title {
     display: flex;
     align-items: center;
+    gap: 10px;
     margin-bottom: 18px;
-    padding: 0 4px 12px;
+    padding: 2px 4px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.shop-page-title span {
-    font-size: 14px;
-    font-weight: 700;
+.shop-sidebar-mark {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.shop-sidebar-brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.shop-sidebar-brand-copy strong {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
     color: #f8fafc;
+}
+
+.shop-sidebar-brand-copy span {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.58);
 }
 
 .shop-nav-links {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     flex: 1;
 }
 
@@ -51,48 +77,49 @@
 }
 
 .shop-nav-group-label {
-    padding: 0 6px;
+    padding: 0 8px;
     font-size: 10px;
+    font-family: var(--font-display);
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #7e8aa0;
+    color: rgba(255, 255, 255, 0.42);
 }
 
 .shop-nav-group-insights {
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0;
+    border-top: none;
 }
 
 .shop-nav-group-plan {
     margin-top: auto;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0;
+    border-top: none;
 }
 
 .shop-nav-link {
-    padding: 10px 14px;
+    padding: 10px 12px;
     border-radius: 12px;
     text-decoration: none;
-    color: #c2cad8;
+    color: rgba(255, 255, 255, 0.84);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.15s;
-    border-left: 3px solid transparent;
+    gap: 10px;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .shop-nav-link i {
-    width: 20px;
-    font-size: 15px;
-    color: #7e8aa0;
+    width: 16px;
+    text-align: center;
+    color: var(--shop-accent);
 }
 
 .shop-nav-link:hover {
     background: rgba(255, 255, 255, 0.06);
     color: #ffffff;
+    transform: translateX(2px);
 }
 
 .shop-nav-link:hover i {
@@ -100,11 +127,9 @@
 }
 
 .shop-nav-link.active {
-    background: rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, rgba(31, 111, 235, 0.18), rgba(242, 122, 33, 0.18));
     color: #ffffff;
-    font-weight: 600;
-    border-left-color: var(--shop-accent);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 .shop-nav-link.active i {
@@ -116,61 +141,33 @@
     padding: 2px 7px;
     border-radius: 999px;
     font-size: 9px;
+    font-family: var(--font-display);
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     background: rgba(255, 255, 255, 0.08);
     color: #d5e4ff;
 }
 
 .shop-nav-link-insights {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(31, 111, 235, 0.18), rgba(242, 122, 33, 0.14));
-    border: 1px solid rgba(106, 146, 220, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.shop-nav-link-insights::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
-    background: linear-gradient(180deg, #1f6feb 0%, #f27a21 100%);
-    border-radius: 999px;
-}
-
-.shop-nav-link-insights i {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, rgba(31, 111, 235, 0.2), rgba(242, 122, 33, 0.18));
-    color: #b9d4ff;
+    background: transparent;
 }
 
 .shop-nav-link-insights:hover {
-    background: linear-gradient(135deg, rgba(31, 111, 235, 0.24), rgba(242, 122, 33, 0.18));
-    color: #ffffff;
-    transform: translateX(1px);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .shop-nav-link-insights:hover i {
-    color: #ffffff;
+    color: var(--shop-accent);
 }
 
 .shop-nav-link-insights.active {
-    background: linear-gradient(135deg, rgba(31, 111, 235, 0.3), rgba(242, 122, 33, 0.22));
-    border-left-color: transparent;
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background: linear-gradient(135deg, rgba(31, 111, 235, 0.18), rgba(242, 122, 33, 0.18));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 .shop-nav-link-insights.active i {
-    color: #ffffff;
-    background: linear-gradient(135deg, rgba(31, 111, 235, 0.42), rgba(242, 122, 33, 0.34));
+    color: var(--shop-accent);
 }
 
 .shop-nav-link-insights.active .shop-nav-badge {
@@ -180,27 +177,29 @@
 
 .shop-logout-btn {
     width: 100%;
-    padding: 10px 14px;
-    background: rgba(220, 67, 67, 0.14);
-    border: none;
-    color: #fca5a5;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.84);
     border-radius: 12px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.15s;
+    gap: 10px;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
     margin-top: 20px;
 }
 
 .shop-logout-btn i {
-    color: #f87171;
+    color: var(--shop-accent);
 }
 
 .shop-logout-btn:hover {
-    background: rgba(220, 67, 67, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    transform: translateX(2px);
 }
 
 .shop-sidebar::-webkit-scrollbar {
@@ -219,7 +218,7 @@
 @media (max-width: 768px) {
     .shop-sidebar {
         width: 200px;
-        padding: 14px 14px 18px;
+        padding: 14px 12px 18px;
     }
     
     .shop-page-title {
@@ -246,7 +245,7 @@
     .shop-sidebar-overlay {
         display: block;
         position: fixed;
-        inset: var(--shop-header-height) 0 0 0;
+        inset: 0;
         background: rgba(15, 23, 42, 0.44);
         backdrop-filter: blur(2px);
         opacity: 0;

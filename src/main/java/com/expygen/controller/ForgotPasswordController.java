@@ -15,7 +15,7 @@ import com.expygen.entity.User;
 import com.expygen.repository.PasswordResetTokenRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.EmailService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.expygen.service.UrlService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +34,7 @@ public class ForgotPasswordController {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final UrlService urlService;
 
     // // Constructor Injection (ALL DEPENDENCIES)
     // public ForgotPasswordController(UserRepository userRepository,
@@ -51,7 +52,7 @@ public class ForgotPasswordController {
 
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam String username,
-            Model model, HttpServletRequest request) {
+            Model model) {
 
         String normalizedUsername = username == null ? "" : username.trim();
         if (normalizedUsername.isEmpty()) {
@@ -80,10 +81,7 @@ public class ForgotPasswordController {
 
         passwordResetTokenRepository.save(resetToken);
 
-        String appUrl = request.getRequestURL().toString()
-                .replace(request.getServletPath(), "");
-
-        String resetLink = appUrl + "/reset-password?token=" + token;
+        String resetLink = urlService.getResetPasswordUrl(token);
 
         emailService.sendResetEmail(user.getUsername(), resetLink);
 

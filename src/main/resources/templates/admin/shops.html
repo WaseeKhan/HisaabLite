@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
@@ -17,7 +16,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -278,6 +277,30 @@
             margin-bottom: 12px;
         }
 
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .filter-pill {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: white;
+            border: 1px solid #dbe4ef;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .filter-pill.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
         .btn-primary {
             background: #2563eb;
             color: white;
@@ -323,7 +346,7 @@
             outline: none;
             font-size: 11px;
             width: 100%;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
         }
 
         .search-box input::placeholder {
@@ -469,6 +492,24 @@
         .status-inactive {
             background: #fee2e2;
             color: #dc2626;
+        }
+
+        .commercial-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fdba74;
+        }
+
+        .commercial-pill i {
+            font-size: 9px;
         }
 
         /* ===== ACTION BUTTONS ===== */
@@ -630,6 +671,7 @@
             pointer-events: none;
         }
     </style>
+
 </head>
 
 <body>
@@ -655,6 +697,14 @@
             <a th:href="@{/admin/subscriptions}">
                 <i class="fas fa-credit-card"></i>
                 <span>Subscriptions</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Upgrade Requests</span>
+            </a>
+            <a th:href="@{/admin/subscription-ledger}">
+                <i class="fas fa-book-open"></i>
+                <span>Subscription Ledger</span>
             </a>
             <a th:href="@{/admin/support}">
                 
@@ -742,6 +792,33 @@
                     <div class="stat-label">Active plans</div>
                 </div>
             </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Renewal Due</div>
+                    <div class="stat-value" th:text="${renewalDueShops}">0</div>
+                    <div class="stat-label">Need follow-up</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Grace Period</div>
+                    <div class="stat-value" th:text="${gracePeriodShops}">0</div>
+                    <div class="stat-label">Access still open</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon-wrapper"><i class="fas fa-ban"></i></div>
+                <div class="stat-content">
+                    <div class="stat-title">Expired</div>
+                    <div class="stat-value" th:text="${expiredLifecycleShops}">0</div>
+                    <div class="stat-label">Blocked workspaces</div>
+                </div>
+            </div>
         </div>
 
         <!-- Action Bar -->
@@ -764,6 +841,27 @@
             </div>
         </div>
 
+        <div class="filter-pills">
+            <a class="filter-pill"
+               th:classappend="${selectedLifecycle == null or selectedLifecycle == 'ALL'} ? ' active' : ''"
+               th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle='ALL')}">All</a>
+            <a class="filter-pill"
+               th:classappend="${selectedLifecycle == 'ACTIVE'} ? ' active' : ''"
+               th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle='ACTIVE')}">Active</a>
+            <a class="filter-pill"
+               th:classappend="${selectedLifecycle == 'RENEWAL_DUE'} ? ' active' : ''"
+               th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle='RENEWAL_DUE')}">Renewal Due</a>
+            <a class="filter-pill"
+               th:classappend="${selectedLifecycle == 'GRACE_PERIOD'} ? ' active' : ''"
+               th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle='GRACE_PERIOD')}">Grace</a>
+            <a class="filter-pill"
+               th:classappend="${selectedLifecycle == 'EXPIRED'} ? ' active' : ''"
+               th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle='EXPIRED')}">Expired</a>
+            <a class="filter-pill"
+               th:classappend="${selectedLifecycle == 'FREE'} ? ' active' : ''"
+               th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle='FREE')}">Free</a>
+        </div>
+
         <!-- Shops Table - FIXED -->
         <div class="table-container" id="tableContainer">
             <table class="data-table" id="shopsTable">
@@ -773,6 +871,8 @@
                         <th>Shop Name</th>
                         <th>Owner</th>
                         <th>Plan</th>
+                        <th>Lifecycle</th>
+                        <th>Expiry</th>
                         <th>City</th>
                         <th>Status</th>
                         <th>Created</th>
@@ -784,18 +884,25 @@
                         <td th:text="${shop.id}">1</td>
                         <td th:text="${shop.name}">Shop Name</td>
                         <td>
-                            <span th:if="${shop.users != null and !shop.users.isEmpty()}" 
-                                  th:text="${shop.users[0].name}">Owner Name</span>
-                            <span th:if="${shop.users == null or shop.users.isEmpty()}" 
-                                  class="text-muted">No Owner</span>
+                            <span th:text="${ownerNames[shop.id]}">Owner Name</span>
+                            <div th:if="${openCommercialRequestsByShopId[shop.id] != null}"
+                                 class="commercial-pill">
+                                <i class="fas fa-file-signature"></i>
+                                <span th:text="${openCommercialRequestsByShopId[shop.id].currentPlan == openCommercialRequestsByShopId[shop.id].requestedPlan ? openCommercialRequestsByShopId[shop.id].requestedPlan + ' renewal • ' + openCommercialRequestsByShopId[shop.id].status : openCommercialRequestsByShopId[shop.id].currentPlan + ' → ' + openCommercialRequestsByShopId[shop.id].requestedPlan + ' • ' + openCommercialRequestsByShopId[shop.id].status}">PRO renewal • REQUESTED</span>
+                            </div>
                         </td>
                         <td>
                             <span class="badge" th:text="${shop.planType}"
-                                  th:classappend="${shop.planType == 'PREMIUM'} ? 'badge-premium' : 
-                                                 (${shop.planType == 'BASIC'} ? 'badge-basic' : 
-                                                 (${shop.planType == 'ENTERPRISE'} ? 'badge-enterprise' : 'badge-free'))">
+                                  th:classappend="${shop.planType == 'PRO' ? 'badge-premium' : (shop.planType == 'BASIC' ? 'badge-basic' : 'badge-free')}">
                             </span>
                         </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:text="${lifecycleByShopId[shop.id] != null ? lifecycleByShopId[shop.id].statusLabel : 'Unknown'}"
+                                  th:classappend="${lifecycleByShopId[shop.id] != null and lifecycleByShopId[shop.id].tone == 'critical' ? 'status-inactive' : (lifecycleByShopId[shop.id] != null and lifecycleByShopId[shop.id].tone == 'warning' ? 'status-pending' : 'status-active')}">
+                            </span>
+                        </td>
+                        <td th:text="${shop.subscriptionEndDate != null ? #temporals.format(shop.subscriptionEndDate, 'dd-MM-yyyy') : 'No expiry'}">31-12-2026</td>
                         <td th:text="${shop.city != null ? shop.city : 'N/A'}">Mumbai</td>
                         <td>
                             <span class="status-badge" th:text="${shop.active ? 'Active' : 'Inactive'}"
@@ -825,7 +932,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(shops)}">
-                        <td colspan="8" class="text-center">No shops found</td>
+                        <td colspan="10" class="text-center">No shops found</td>
                     </tr>
                 </tbody>
             </table>
@@ -841,7 +948,7 @@
             <div class="pagination-controls">
                 <!-- First Page -->
                 <a th:if="${currentPage > 0}" 
-                   th:href="@{/admin/shops(page=0, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   th:href="@{/admin/shops(page=0, size=20, search=${search}, lifecycle=${selectedLifecycle})}"
                    title="First Page">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
@@ -851,7 +958,7 @@
 
                 <!-- Previous Page -->
                 <a th:if="${currentPage > 0}"
-                   th:href="@{/admin/shops(page=${currentPage - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   th:href="@{/admin/shops(page=${currentPage - 1}, size=20, search=${search}, lifecycle=${selectedLifecycle})}"
                    title="Previous Page">
                     <i class="fas fa-angle-left"></i>
                 </a>
@@ -862,7 +969,7 @@
                 <!-- Page Numbers -->
                 <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
                     <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
-                       th:href="@{/admin/shops(page=${i}, size=20, search=${param.search != null ? param.search[0] : ''})}" 
+                       th:href="@{/admin/shops(page=${i}, size=20, search=${search}, lifecycle=${selectedLifecycle})}" 
                        th:text="${i + 1}"
                        th:classappend="${i == currentPage} ? 'active' : ''">1</a>
                     <span th:if="${i == currentPage + 3 and i < totalPages - 1}" class="disabled">...</span>
@@ -870,7 +977,7 @@
 
                 <!-- Next Page -->
                 <a th:if="${currentPage < totalPages - 1}"
-                   th:href="@{/admin/shops(page=${currentPage + 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   th:href="@{/admin/shops(page=${currentPage + 1}, size=20, search=${search}, lifecycle=${selectedLifecycle})}"
                    title="Next Page">
                     <i class="fas fa-angle-right"></i>
                 </a>
@@ -880,7 +987,7 @@
 
                 <!-- Last Page -->
                 <a th:if="${currentPage < totalPages - 1}"
-                   th:href="@{/admin/shops(page=${totalPages - 1}, size=20, search=${param.search != null ? param.search[0] : ''})}"
+                   th:href="@{/admin/shops(page=${totalPages - 1}, size=20, search=${search}, lifecycle=${selectedLifecycle})}"
                    title="Last Page">
                     <i class="fas fa-angle-double-right"></i>
                 </a>

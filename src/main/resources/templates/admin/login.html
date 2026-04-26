@@ -7,11 +7,8 @@
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Google Fonts - Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    
-    <style>
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +16,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: var(--font-primary);
             background: linear-gradient(135deg, #edf1f5 0%, #f8fafc 100%);
             color: #1e293b;
             min-height: 100vh;
@@ -319,7 +316,7 @@
             border: 1.5px solid #e2e8f0;
             border-radius: 14px;
             font-size: 14px;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
             transition: all 0.2s;
             background: #f8fafc;
         }
@@ -544,6 +541,7 @@
             }
         }
     </style>
+
 </head>
 <body>
     <!-- ===== HEADER ===== -->

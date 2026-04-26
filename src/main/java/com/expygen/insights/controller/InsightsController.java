@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.expygen.admin.service.AuditService;
 import com.expygen.entity.Sale;
@@ -41,7 +42,10 @@ import com.expygen.repository.UserRepository;
 import com.expygen.repository.StockAdjustmentRepository;
 import com.expygen.repository.ProductRepository;
 import com.expygen.service.ShopService;
+import com.expygen.service.SubscriptionAccessService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -70,6 +74,7 @@ public class InsightsController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ShopService shopService;
+    private final SubscriptionAccessService subscriptionAccessService;
 
     @ModelAttribute
     public void addInsightsActor(Model model, Principal principal) {
@@ -862,7 +867,12 @@ public class InsightsController {
     }
 
     private Shop currentShop(Principal principal) {
-        return shopService.getShopByUsername(principal.getName());
+        Shop shop = shopService.getShopByUsername(principal.getName());
+        if (!subscriptionAccessService.canAccessInsights(shop)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    subscriptionAccessService.getInsightsUpgradeMessage(shop));
+        }
+        return shop;
     }
 
     private List<InsightsSummaryCardDto> buildHomeCards(Shop shop) {

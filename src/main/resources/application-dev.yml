@@ -1,60 +1,146 @@
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/expygen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata
-    username: expygen
-    password: expygen123
+# ================================================================
+#  application-dev.yml
+#  Expygen — Development profile
+# ================================================================
+#  Activated by: spring.profiles.active=dev
+#  Loads secrets from:
+#    ./config/application-secrets-dev.yml
+#    ../config/application-secrets-dev.yml
+#  (supports running from project root or target/)
+#  SAFE TO COMMIT — no passwords here.
+#
+#  On your local machine, keep application-secrets-dev.yml
+#  in the project-level config/ folder.
+# ================================================================
 
+spring:
+  # Loads dev-specific secrets (gitignored)
+  config:
+    import: optional:file:./config/application-secrets-dev.yml,optional:file:../config/application-secrets-dev.yml
+
+  # ---- Database (values from application-secrets-dev.yml) ----
+  datasource:
+    url: ${dev.db.url}
+    username: ${dev.db.username}
+    password: ${dev.db.password}
+
+  # ---- JPA ----
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate             # Flyway manages schema — never use 'update'
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
+  # ---- Flyway ----
   flyway:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
 
+  # ---- Email (values from application-secrets-dev.yml) ----
   mail:
     host: smtp-relay.brevo.com
     port: 587
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    username: ${dev.mail.username}
+    password: ${dev.mail.password}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+
+  # ---- Thymeleaf ----
   thymeleaf:
     cache: false
 
+
+# ----------------------------------------------------------------
+# EVOLUTION API (from secrets file)
+# ----------------------------------------------------------------
 evolution:
   api:
-    url: ${EVOLUTION_API_URL:http://localhost:8081}
-    key: ${EVOLUTION_API_KEY:expygen-whatsapp-key}
+    url: ${dev.evolution.url:http://localhost:8081}
+    key: ${dev.evolution.key}
 
-server:
-  port: 8080
 
+# ----------------------------------------------------------------
+# ADMIN SUPER USER (from secrets file)
+# ----------------------------------------------------------------
+admin:
+  email: ${dev.admin.email}
+  password: ${dev.admin.password}
+  name: ${dev.admin.name}
+  phone: ${dev.admin.phone}
+
+
+# ----------------------------------------------------------------
+# APPLICATION — dev values (from secrets file)
+# ----------------------------------------------------------------
 app:
+  env: development
+  name: ${dev.app.name:Expygen}
+  tagline: ${dev.app.tagline:Simplify Pharmacy}
+  short-code: ${dev.app.shortCode:RX}
+  version: ${dev.app.version:2.2.0}
+  base-url: ${dev.app.baseUrl:http://localhost:8080}
+
+  email:
+    from: ${dev.app.email.from}
+    admin: ${dev.app.email.admin}
+    reply-to: ${dev.app.email.replyTo}
+
+  company:
+    name: ${dev.app.company.name}
+    address: ${dev.app.company.address}
+    phone: ${dev.app.company.phone}
+
+  contact:
+    supportEmail: ${dev.app.contact.supportEmail}
+    supportPhone: ${dev.app.contact.supportPhone}
+    whatsapp: ${dev.app.contact.whatsapp}
+
+  payment:
+    receiver-name: ${dev.app.payment.receiverName}
+    provider: ${dev.app.payment.provider:PhonePe}
+    qr-image-path: ${dev.app.payment.qrImagePath:/images/phonepe-qr.jpeg}
+
   security:
-    enforce-single-session: false
+    enforce-single-session: false    # Allow multiple tabs/browsers in dev
+    verification-token-expiry-hours: 24
+    reset-token-expiry-minutes: 15
+
+  features:
+    whatsapp: ${dev.app.features.whatsapp:true}
+    email-verification: ${dev.app.features.emailVerification:false}   # off in dev so you can test freely
+    admin-approval: ${dev.app.features.adminApproval:false}           # off in dev so registration is instant
+
+  pagination:
+    default-page-size: 20
+    max-page-size: 100
 
 
-# Logging Configuration
+# ----------------------------------------------------------------
+# ACTUATOR — expose everything locally for debugging
+# ----------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,logfile,env,beans,flyway
+
+
+# ----------------------------------------------------------------
+# LOGGING — verbose in dev
+# ----------------------------------------------------------------
 logging:
   level:
-    com:
-      expygen:
-        admin: DEBUG
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+    root: INFO
+    com.expygen: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG
+    org.flywaydb: DEBUG

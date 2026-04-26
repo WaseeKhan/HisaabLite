@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.expygen.entity.PlanType;
 import com.expygen.entity.Role;
 import com.expygen.entity.Shop;
 import com.expygen.entity.User;
@@ -29,6 +28,7 @@ import com.expygen.repository.SaleRepository;
 import com.expygen.repository.SupportTicketRepository;
 import com.expygen.repository.TicketReplyRepository;
 import com.expygen.service.PlanLimitService;
+import com.expygen.service.SubscriptionAccessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +45,7 @@ public class StaffController {
     private final SupportTicketRepository supportTicketRepository;
     private final TicketReplyRepository ticketReplyRepository;
     private final AuditService auditService;
+    private final SubscriptionAccessService subscriptionAccessService;
 
     @GetMapping
     public String listStaff(Model model, Authentication auth) {
@@ -61,8 +62,7 @@ public class StaffController {
         
         model.addAttribute("shop", shop);
         
-        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
         
         model.addAttribute("staffList", staff);
         model.addAttribute("role", owner.getRole().name());
@@ -94,9 +94,7 @@ public class StaffController {
             model.addAttribute("currentPage", "staff");
             model.addAttribute("user", owner);
             
-            PlanType planType = shop.getPlanType();
-            String planTypeDisplay = planType != null ? planType.name() : "FREE";
-            model.addAttribute("planType", planTypeDisplay);
+            model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
             
             model.addAttribute("usageStats", planLimitService.getUsageStats(shop));
             
@@ -108,12 +106,10 @@ public class StaffController {
         newUser.setShop(shop);
         newUser.setActive(true);
         
-        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
-        
         model.addAttribute("user", newUser);
         model.addAttribute("authUser", owner);
         model.addAttribute("shop", shop);
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
         model.addAttribute("role", owner.getRole().name());
         model.addAttribute("currentPage", "staff");
         
@@ -145,12 +141,10 @@ public class StaffController {
         }
 
         Shop shop = owner.getShop();
-        String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
-
         model.addAttribute("user", staff);
         model.addAttribute("authUser", owner);
         model.addAttribute("shop", shop);
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(shop));
         model.addAttribute("role", owner.getRole().name());
         model.addAttribute("currentPage", "staff");
         

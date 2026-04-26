@@ -1,14 +1,18 @@
 package com.expygen.scheduler;
 
-import com.expygen.entity.User;
+import com.expygen.config.AppConfig;
+import com.expygen.dto.SubscriptionLifecycleSnapshot;
+import com.expygen.entity.Role;
 import com.expygen.entity.Shop;
 import com.expygen.entity.SubscriptionPlan;
-import com.expygen.entity.PlanType;
-import com.expygen.entity.Role;
-import com.expygen.repository.UserRepository;
+import com.expygen.entity.User;
 import com.expygen.repository.SubscriptionPlanRepository;
-import com.expygen.repository.ShopRepository; // Add this import
+import com.expygen.repository.SubscriptionReminderLogRepository;
+import com.expygen.repository.UserRepository;
+import com.expygen.repository.ShopRepository;
 import com.expygen.service.EmailService;
+import com.expygen.service.SubscriptionLifecycleService;
+import com.expygen.service.SubscriptionLifecycleStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -24,9 +29,12 @@ import java.util.List;
 public class ExpiryScheduler {
 
     private final UserRepository userRepository;
-    private final SubscriptionPlanRepository planRepository;
-    private final ShopRepository shopRepository; // Add this for shop operations
+    private final ShopRepository shopRepository;
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final SubscriptionReminderLogRepository subscriptionReminderLogRepository;
     private final EmailService emailService;
+    private final AppConfig appConfig;
 
     /**
      * Run daily at midnight to check and update expired subscriptions
@@ -37,55 +45,37 @@ public class ExpiryScheduler {
         log.info("Running expired subscriptions check at {}", LocalDateTime.now());
 
         LocalDateTime now = LocalDateTime.now();
-        List<User> expiredUsers = userRepository.findBySubscriptionEndDateBeforeAndApprovedTrue(now);
+        List<Shop> shopsPastEndDate = shopRepository.findShopsWithExpiredSubscription(now);
 
-        int expiredCount = 0;
-        for (User user : expiredUsers) {
+        int graceCount = 0;
+        int blockedCount = 0;
+        for (Shop shop : shopsPastEndDate) {
             try {
-                log.info("Subscription expired for user: {} (ID: {}), Plan: {}, Expired on: {}",
-                        user.getUsername(), user.getId(), user.getCurrentPlan(), user.getSubscriptionEndDate());
+                SubscriptionLifecycleSnapshot snapshot = subscriptionLifecycleService.buildSnapshot(shop);
+                syncUsersWithShop(shop);
 
-                // Get FREE plan from database
-                SubscriptionPlan freePlan = planRepository.findByPlanNameIgnoreCase(PlanType.FREE.name())
-                        .orElse(null);
-
-                if (freePlan != null) {
-                    // Downgrade user to FREE plan
-                    user.setCurrentPlan(PlanType.FREE);
-                    user.setSubscriptionEndDate(null); // FREE plan has no expiry
-
-                    // Update user's shop if they are owner
-                    if (user.getRole() == Role.OWNER && user.getShop() != null) {
-                        Shop shop = user.getShop();
-                        shop.setPlanType(PlanType.FREE);
-                        shop.setSubscriptionEndDate(null);
-                        shopRepository.save(shop);
-                        log.info("Downgraded shop {} to FREE plan", shop.getId());
-                    }
-
-                    log.info("Downgraded user {} to FREE plan", user.getUsername());
-                } else {
-                    // If FREE plan not found, block access
-                    user.setApproved(false);
-                    log.info("Blocked access for user {} (no FREE plan found)", user.getUsername());
+                if (snapshot.getStatus() == SubscriptionLifecycleStatus.GRACE_PERIOD) {
+                    graceCount++;
+                    log.info("Shop {} is in grace period with {} day(s) remaining. Plan={}, ends={}",
+                            shop.getId(),
+                            snapshot.getGraceDaysRemaining(),
+                            shop.getPlanType(),
+                            shop.getSubscriptionEndDate());
+                } else if (snapshot.getStatus() == SubscriptionLifecycleStatus.EXPIRED) {
+                    blockedCount++;
+                    log.info("Shop {} is fully expired. Workspace remains blocked until manual renewal activation. Plan={}, ended={}",
+                            shop.getId(),
+                            shop.getPlanType(),
+                            shop.getSubscriptionEndDate());
                 }
-
-                userRepository.save(user);
-
-                // Send expiration email
-
-                SubscriptionPlan oldPlan = planRepository.findByPlanName(user.getCurrentPlan().name()).orElse(null);
-                if (oldPlan != null) {
-                    emailService.sendSubscriptionExpiredEmail(user, oldPlan);
-                }
-                expiredCount++;
 
             } catch (Exception e) {
-                log.error("Error processing expired user {}: {}", user.getId(), e.getMessage(), e);
+                log.error("Error processing expired shop {}: {}", shop.getId(), e.getMessage(), e);
             }
         }
 
-        log.info("Expired subscriptions check completed. Processed {} expired users.", expiredCount);
+        log.info("Expired subscriptions check completed. Grace period shops: {}, blocked expired shops: {}",
+                graceCount, blockedCount);
     }
 
     /**
@@ -94,33 +84,51 @@ public class ExpiryScheduler {
     @Scheduled(cron = "0 0 9 * * ?")
     @Transactional
     public void sendExpiryReminders() {
-        log.info("Sending expiry reminders at {}", LocalDateTime.now());
+        if (!appConfig.isAutomatedSubscriptionRemindersEnabled()) {
+            log.info("Automatic expiry reminders are disabled by configuration.");
+            return;
+        }
 
+        log.info("Running automatic expiry reminder scheduler");
         LocalDateTime now = LocalDateTime.now();
-
-        // Send reminders for 7 days before expiry
-        sendRemindersForDays(now, 7);
-
-        // Send reminders for 3 days before expiry
-        sendRemindersForDays(now, 3);
-
-        // Send reminders for 1 day before expiry
-        sendRemindersForDays(now, 1);
+        Arrays.asList(appConfig.getSubscriptionRenewalReminderDays(), 7, 1).stream()
+                .distinct()
+                .filter(days -> days > 0)
+                .forEach(days -> sendRemindersForDays(now, days));
     }
 
     private void sendRemindersForDays(LocalDateTime now, int days) {
-        LocalDateTime targetDate = now.plusDays(days);
-        LocalDateTime nextDay = targetDate.plusDays(1);
+        List<Shop> shops = shopRepository.findShopsWithExpiringSubscription(
+                now.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(days),
+                now.withHour(23).withMinute(59).withSecond(59).withNano(0).plusDays(days));
 
-        List<User> expiringUsers = userRepository.findBySubscriptionEndDateBetween(targetDate, nextDay);
-
-        for (User user : expiringUsers) {
+        for (Shop shop : shops) {
             try {
-                log.info("Sending {} day expiry reminder to user: {}", days, user.getUsername());
-                SubscriptionPlan currentPlan = planRepository.findByPlanName(user.getCurrentPlan().name()).orElse(null);
-                emailService.sendExpiryReminderEmail(user, days, currentPlan);
-            } catch (Exception e) {
-                log.error("Error sending {} day reminder to user {}: {}", days, user.getId(), e.getMessage());
+                User owner = userRepository.findFirstByShopAndRole(shop, Role.OWNER).orElse(null);
+                if (owner == null || owner.getSubscriptionEndDate() == null) {
+                    continue;
+                }
+
+                LocalDateTime targetDate = owner.getSubscriptionEndDate().withHour(0).withMinute(0).withSecond(0).withNano(0);
+                String reminderType = "EXPIRY_" + days + "_DAY";
+                if (subscriptionReminderLogRepository.findFirstByShopAndReminderTypeAndTargetDate(shop, reminderType, targetDate).isPresent()) {
+                    continue;
+                }
+
+                SubscriptionPlan plan = subscriptionPlanRepository.findByPlanNameIgnoreCase(
+                        shop.getPlanType() != null ? shop.getPlanType().name() : "FREE").orElse(null);
+                if (plan == null) {
+                    continue;
+                }
+
+                emailService.sendExpiryReminderEmail(owner, days, plan);
+                subscriptionReminderLogRepository.save(com.expygen.entity.SubscriptionReminderLog.builder()
+                        .shop(shop)
+                        .reminderType(reminderType)
+                        .targetDate(targetDate)
+                        .build());
+            } catch (Exception ex) {
+                log.error("Could not send {}-day reminder for shop {}: {}", days, shop.getId(), ex.getMessage(), ex);
             }
         }
     }
@@ -158,6 +166,38 @@ public class ExpiryScheduler {
         }
 
         log.info("Sync completed. Updated {} shops.", syncCount);
+    }
+
+    private void syncUsersWithShop(Shop shop) {
+        List<User> users = userRepository.findByShop(shop);
+        boolean changed = false;
+
+        for (User user : users) {
+            if (user.getCurrentPlan() != shop.getPlanType()) {
+                user.setCurrentPlan(shop.getPlanType());
+                changed = true;
+            }
+            if (!equalsDateTime(user.getSubscriptionStartDate(), shop.getSubscriptionStartDate())) {
+                user.setSubscriptionStartDate(shop.getSubscriptionStartDate());
+                changed = true;
+            }
+            if (!equalsDateTime(user.getSubscriptionEndDate(), shop.getSubscriptionEndDate())) {
+                user.setSubscriptionEndDate(shop.getSubscriptionEndDate());
+                changed = true;
+            }
+            if (user.getRole() == Role.OWNER && !user.isApproved()) {
+                user.setApproved(true);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            userRepository.saveAll(users);
+        }
+    }
+
+    private boolean equalsDateTime(LocalDateTime left, LocalDateTime right) {
+        return left == null ? right == null : left.equals(right);
     }
 
     /**

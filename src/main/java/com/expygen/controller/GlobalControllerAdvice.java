@@ -1,30 +1,41 @@
 package com.expygen.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.expygen.entity.User;
+import com.expygen.repository.UserRepository;
+import com.expygen.service.SubscriptionAccessService;
+
+import lombok.RequiredArgsConstructor;
+
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalControllerAdvice {
+
+    private final UserRepository userRepository;
+    private final SubscriptionAccessService subscriptionAccessService;
     
     // Admin details from YAML
-    @Value("${admin.email}")
+    @Value("${admin.email:waseemk.aws@gmail.com}")
     private String adminEmail;
     
-    @Value("${admin.phone}")
+    @Value("${admin.phone:${app.company.phone:+91 1234567890}}")
     private String adminPhone;
     
-    @Value("${admin.name}")
+    @Value("${admin.name:${app.company.name:Expygen}}")
     private String adminName;
     
     // Contact details from YAML with fallback
-    @Value("${app.contact.whatsapp:${admin.phone}}")
+    @Value("${app.contact.whatsapp:${app.company.phone:+91 1234567890}}")
     private String whatsappNumber;
     
-    @Value("${app.contact.supportEmail}")
+    @Value("${app.contact.supportEmail:waseemk.aws@gmail.com}")
     private String supportEmail;
     
-    @Value("${app.contact.supportPhone}")
+    @Value("${app.contact.supportPhone:${app.company.phone:+91 1234567890}}")
     private String supportPhone;
     
     // Make all values available in every view
@@ -70,5 +81,30 @@ public class GlobalControllerAdvice {
     @ModelAttribute("formattedSupportPhone")
     public String getFormattedSupportPhone() {
         return supportPhone;
+    }
+
+    @ModelAttribute("planType")
+    public String getWorkspacePlanType(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        return user != null ? subscriptionAccessService.getPlanName(user.getShop()) : null;
+    }
+
+    @ModelAttribute("whatsappAvailable")
+    public boolean isWhatsappAvailable(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        return user != null && subscriptionAccessService.canUseWhatsAppIntegration(user.getShop());
+    }
+
+    @ModelAttribute("insightsAvailable")
+    public boolean isInsightsAvailable(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        return user != null && subscriptionAccessService.canAccessInsights(user.getShop());
+    }
+
+    private User getAuthenticatedUser(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return null;
+        }
+        return userRepository.findByUsername(authentication.getName()).orElse(null);
     }
 }

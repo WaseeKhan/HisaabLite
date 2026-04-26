@@ -8,14 +8,14 @@
             <span></span>
         </button>
 
-        <a th:href="@{/dashboard}" class="app-brand-line" aria-label="Open dashboard">
-            <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="app-brand-image app-brand-image-dark">
-            <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="app-brand-image app-brand-image-light">
-        </a>
-
-        <span class="topbar-divider-line"></span>
-
-        <strong class="shop-title-inline" th:text="${shop != null and shop.name != null ? shop.name : 'NA'}">Shop Name</strong>
+        <div class="shop-title-cluster">
+            <div class="shop-header-logo-shell" th:if="${shop != null and shop.logoStoredFilename != null}">
+                <img th:src="@{/profile/logo}" alt="Shop logo" class="shop-header-logo-image">
+            </div>
+            <div class="shop-header-logo-shell shop-header-logo-shell-fallback" th:if="${shop == null or shop.logoStoredFilename == null}"
+                 th:text="${shop != null and shop.name != null ? #strings.substring(shop.name, 0, 1) : 'S'}">S</div>
+            <strong class="shop-title-inline" th:text="${shop != null and shop.name != null ? shop.name : 'NA'}">Shop Name</strong>
+        </div>
 
         <div class="shop-info">
             <div class="info-tag"><i class="fas fa-percent"></i> <span th:text="${shop?.gstNumber != null ? shop.gstNumber : 'N/A'}">GST123</span></div>
@@ -36,11 +36,10 @@
         <span class="shop-id" th:text="'RX' + ${shop.id}">RX</span>
         <span class="divider"></span>
         <div class="plan-wrapper">
-            <a th:href="@{/subscription}" class="plan-badge" th:classappend="${planType == 'FREE' ? 'plan-free' : (planType == 'BASIC' ? 'plan-basic' : (planType == 'PREMIUM' ? 'plan-premium' : 'plan-enterprise'))}">
+            <a th:href="@{/subscription}" class="plan-badge" th:classappend="${planType == 'FREE' ? 'plan-free' : (planType == 'BASIC' ? 'plan-basic' : 'plan-premium')}">
                 <i th:if="${planType == 'FREE'}" class="fas fa-star"></i>
                 <i th:if="${planType == 'BASIC'}" class="fas fa-gem"></i>
-                <i th:if="${planType == 'PREMIUM'}" class="fas fa-crown"></i>
-                <i th:if="${planType == 'ENTERPRISE'}" class="fas fa-building"></i>
+                <i th:if="${planType == 'PRO'}" class="fas fa-crown"></i>
                 <span th:text="${planType}">FREE</span>
             </a>
         </div>

@@ -43,7 +43,6 @@ import com.expygen.dto.CustomerHistorySaleDTO;
 import com.expygen.dto.ProductLookupResult;
 import com.expygen.dto.SaleBatchTraceSummaryDTO;
 import com.expygen.dto.SaleHistoryDTO;
-import com.expygen.entity.PlanType;
 import com.expygen.entity.Product;
 import com.expygen.entity.Sale;
 import com.expygen.entity.SaleItem;
@@ -57,6 +56,7 @@ import com.expygen.service.ProductService;
 import com.expygen.service.PrescriptionDocumentService;
 import com.expygen.service.SaleBatchTraceService;
 import com.expygen.service.SaleService;
+import com.expygen.service.SubscriptionAccessService;
 import com.expygen.service.WhatsAppService;
 
 import jakarta.servlet.http.HttpSession;
@@ -78,6 +78,7 @@ public class SaleController {
     private final PdfService pdfService;
     private final SaleBatchTraceService saleBatchTraceService;
     private final PrescriptionDocumentService prescriptionDocumentService;
+    private final SubscriptionAccessService subscriptionAccessService;
 
     private User getAuthenticatedUser(Authentication authentication) {
         return userRepository.findByUsername(authentication.getName())
@@ -121,12 +122,12 @@ public class SaleController {
         model.addAttribute("user", user);
         model.addAttribute("role", user.getRole().name());
         model.addAttribute("currentPage", "billing");
-        PlanType planType = user.getShop().getPlanType();
-        String planTypeDisplay = planType != null ? planType.name() : "FREE";
-        model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(user.getShop()));
+        model.addAttribute("whatsappAvailable", subscriptionAccessService.canUseWhatsAppIntegration(user.getShop()));
+        model.addAttribute("insightsAvailable", subscriptionAccessService.canAccessInsights(user.getShop()));
 
         log.info("Billing page loaded - Shop: {}, Plan: {}",
-                user.getShop().getName(), planTypeDisplay);
+                user.getShop().getName(), subscriptionAccessService.getPlanName(user.getShop()));
 
         return "sale-form";
     }
@@ -302,7 +303,10 @@ public class SaleController {
             }
         }
 
-        if (sendWhatsApp && savedSale != null && savedSale.getCustomerPhone() != null
+        if (sendWhatsApp && !subscriptionAccessService.canUseWhatsAppIntegration(user.getShop())) {
+            redirectAttributes.addFlashAttribute("whatsappWarning",
+                    subscriptionAccessService.getWhatsAppUpgradeMessage(user.getShop()));
+        } else if (sendWhatsApp && savedSale != null && savedSale.getCustomerPhone() != null
                 && !savedSale.getCustomerPhone().isEmpty()) {
             try {
                 boolean sent = whatsAppService.sendInvoice(savedSale, savedSale.getCustomerPhone());
@@ -445,8 +449,9 @@ public class SaleController {
 
         model.addAttribute("role", user.getRole().name());
         model.addAttribute("shop", user.getShop());
-        model.addAttribute("planType",
-                user.getShop().getPlanType() != null ? user.getShop().getPlanType().name() : "FREE");
+        model.addAttribute("planType", subscriptionAccessService.getPlanName(user.getShop()));
+        model.addAttribute("whatsappAvailable", subscriptionAccessService.canUseWhatsAppIntegration(user.getShop()));
+        model.addAttribute("insightsAvailable", subscriptionAccessService.canAccessInsights(user.getShop()));
         model.addAttribute("user", user);
 
         // Get summary stats
@@ -781,6 +786,10 @@ public class SaleController {
 
         try {
             Sale sale = getAuthorizedSale(saleId, authentication);
+            if (!subscriptionAccessService.canUseWhatsAppIntegration(sale.getShop())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", subscriptionAccessService.getWhatsAppUpgradeMessage(sale.getShop())));
+            }
 
             boolean sent;
 

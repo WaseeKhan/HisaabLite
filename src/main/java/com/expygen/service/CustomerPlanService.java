@@ -38,7 +38,7 @@ public class CustomerPlanService {
         );
         
         
-        if (plan.getPlanName().equals("PREMIUM")) {
+        if (plan.getPlanName().equals("PRO")) {
             dto.setBadge("Popular");
         } else if (plan.getPlanName().equals("BASIC")) {
             dto.setBadge("Best Value");

@@ -5,6 +5,7 @@
 
 const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
 const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+const whatsappFeatureAvailable = document.body?.dataset?.whatsappAvailable !== "false";
 
 const searchInput = document.getElementById("searchInput");
 const searchIcon = document.querySelector(".search-icon");
@@ -975,6 +976,10 @@ function printInvoice(invoiceId = lastSavedInvoiceId) {
 }
 
 function sendInvoiceOnWhatsApp(invoiceId = lastSavedInvoiceId, phoneNumber = lastSavedPhone) {
+    if (!whatsappFeatureAvailable) {
+        showTempToast("WhatsApp invoice sending is available on the PRO plan.", "warning");
+        return;
+    }
     if (!invoiceId) {
         showTempToast("No completed invoice available yet", "warning");
         return;
@@ -1966,7 +1971,9 @@ document.addEventListener("keydown", event => {
         focusAndSelect(discountPercent);
     } else if (event.key === "F9") {
         event.preventDefault();
-        sendInvoiceOnWhatsApp();
+        if (whatsappFeatureAvailable) {
+            sendInvoiceOnWhatsApp();
+        }
     } else if (event.key === "F10") {
         event.preventDefault();
         printInvoice();

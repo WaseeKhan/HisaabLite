@@ -31,6 +31,7 @@ import com.expygen.entity.User;
 import com.expygen.repository.PasswordResetTokenRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.EmailService;
+import com.expygen.service.UrlService;
 
 @ExtendWith(MockitoExtension.class)
 class ForgotPasswordControllerTest {
@@ -47,21 +48,18 @@ class ForgotPasswordControllerTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private UrlService urlService;
+
     @InjectMocks
     private ForgotPasswordController forgotPasswordController;
 
     @Test
     void forgotPasswordForUnknownUserShowsGenericSuccessMessage() {
         Model model = new ExtendedModelMap();
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/forgot-password");
-        request.setServerName("localhost");
-        request.setServerPort(8080);
-        request.setScheme("http");
-        request.setRequestURI("/forgot-password");
-
         when(userRepository.findByUsername("missing@example.com")).thenReturn(Optional.empty());
 
-        String view = forgotPasswordController.processForgotPassword(" missing@example.com ", model, request);
+        String view = forgotPasswordController.processForgotPassword(" missing@example.com ", model);
 
         assertEquals("forgot-password", view);
         assertEquals("If an account exists for that email, a reset link has been sent.", model.getAttribute("message"));
@@ -72,16 +70,12 @@ class ForgotPasswordControllerTest {
     @Test
     void forgotPasswordForExistingUserCreatesTokenAndSendsEmail() {
         Model model = new ExtendedModelMap();
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/forgot-password");
-        request.setScheme("http");
-        request.setServerName("demo.example.com");
-        request.setServerPort(8080);
-        request.setRequestURI("/forgot-password");
-
         User user = testUser("owner@example.com");
         when(userRepository.findByUsername("owner@example.com")).thenReturn(Optional.of(user));
+        when(urlService.getResetPasswordUrl(any())).thenAnswer(invocation ->
+                "http://demo.example.com/reset-password?token=" + invocation.getArgument(0, String.class));
 
-        String view = forgotPasswordController.processForgotPassword("owner@example.com", model, request);
+        String view = forgotPasswordController.processForgotPassword("owner@example.com", model);
 
         assertEquals("forgot-password", view);
         assertEquals("If an account exists for that email, a reset link has been sent.", model.getAttribute("message"));
@@ -186,7 +180,7 @@ class ForgotPasswordControllerTest {
         Shop shop = Shop.builder()
                 .id(1L)
                 .name("Recovery Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .build();
 
@@ -200,7 +194,7 @@ class ForgotPasswordControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
     }
 }

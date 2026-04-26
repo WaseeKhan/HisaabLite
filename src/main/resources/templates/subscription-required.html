@@ -5,12 +5,11 @@
     <title>Subscription Required • Expygen</title>
     <meta charset="UTF-8">
 
-
 <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
 
 <style>
     body{
-        font-family: "Inter", sans-serif;
+        font-family: var(--font-primary);
         background:#f5f7fb;
         margin:0;
         display:flex;
@@ -61,13 +60,11 @@
     }
 </style>
 
-
 </head>
 
 <body>
 
 <div class="card">
-
 
 <h2 th:text="${accessState == 'APPROVAL_PENDING'} ? 'Approval Pending' : (${accessState == 'SUBSCRIPTION_EXPIRED'} ? 'Subscription Expired' : (${accessState == 'SHOP_INACTIVE'} ? 'Workspace Inactive' : 'Workspace Access Required'))">Subscription Required</h2>
 
@@ -79,6 +76,11 @@
 <p th:if="${accessState == 'SUBSCRIPTION_EXPIRED'}">
     Your <span th:text="${plan}"></span> plan has expired.
     Renew or upgrade your subscription to continue using <b>Expygen</b>.
+</p>
+
+<p th:if="${subscriptionLifecycle != null and subscriptionLifecycle.helperText != null and accessState == 'SUBSCRIPTION_EXPIRED'}">
+    <strong th:text="${subscriptionLifecycle.statusLabel}">Expired</strong>:
+    <span th:text="${subscriptionLifecycle.helperText}">Renew or upgrade to reactivate this workspace.</span>
 </p>
 
 <p th:if="${accessState == 'SHOP_INACTIVE'}">
@@ -104,7 +106,6 @@
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
     <button type="submit" class="logout">Logout</button>
 </form>
-
 
 </div>
 

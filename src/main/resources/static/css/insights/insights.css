@@ -33,7 +33,7 @@
         radial-gradient(circle at top left, rgba(31, 111, 235, 0.09), transparent 28%),
         radial-gradient(circle at top right, rgba(242, 122, 33, 0.08), transparent 24%),
         var(--ins-bg);
-    font-family: 'Manrope', sans-serif;
+    font-family: var(--font-family);
     color: var(--ins-text);
 }
 
@@ -90,6 +90,7 @@
     font-size: 15px;
     font-weight: 800;
     letter-spacing: 0.04em;
+    font-family: var(--font-display);
 }
 
 .insights-sidebar-brand-copy span {
@@ -218,16 +219,6 @@
     border-radius: 999px;
     background: var(--ins-text);
     display: block;
-}
-
-.insights-topbar-logo {
-    height: 30px;
-    width: auto;
-    object-fit: contain;
-}
-
-.insights-topbar-logo-dark {
-    display: none;
 }
 
 .insights-topbar-copy {
@@ -1189,14 +1180,6 @@ html[data-theme="dark"] .insights-user-menu button i {
     background: rgba(19, 28, 40, 0.92);
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
-}
-
-[data-theme="dark"] .insights-topbar-logo-light {
-    display: none;
-}
-
-[data-theme="dark"] .insights-topbar-logo-dark {
-    display: block;
 }
 
 [data-theme="dark"] .insights-footer-logo-image-light {

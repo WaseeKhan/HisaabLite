@@ -71,7 +71,7 @@
             <!-- Unlimited Plan Message -->
             <div class="text-center py-3" th:if="${usageStats.maxUsers == 'Unlimited' and usageStats.maxProducts == 'Unlimited'}">
                 <i class="fas fa-infinity fa-2x text-primary mb-2"></i>
-                <p class="mb-0">Unlimited users & products in your <strong th:text="${usageStats.planName}">ENTERPRISE</strong> plan</p>
+                <p class="mb-0">Unlimited users and products are enabled on your <strong th:text="${usageStats.planName}">plan</strong>.</p>
             </div>
             
             <!-- Expiry Info -->
@@ -94,7 +94,7 @@
             </div>
             
             <!-- Upgrade Button -->
-            <div class="text-center mt-3" th:if="${usageStats.planName != 'ENTERPRISE'}">
+            <div class="text-center mt-3" th:if="${usageStats.maxUsers != 'Unlimited' or usageStats.maxProducts != 'Unlimited'}">
                 <a href="/upgrade" class="btn btn-sm btn-outline-primary">
                     <i class="fas fa-rocket me-1"></i> Upgrade Plan
                 </a>

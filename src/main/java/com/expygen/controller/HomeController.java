@@ -1,14 +1,23 @@
 package com.expygen.controller;
 
+import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.expygen.service.PublicPricingService;
+
+import lombok.RequiredArgsConstructor;
+
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
+
+    private final PublicPricingService publicPricingService;
     
     // Home Page
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        model.addAttribute("publicPlans", publicPricingService.getActivePublicPlans());
         return "landing"; // landing page
     }
 
@@ -27,7 +36,8 @@ public class HomeController {
     
     // Pricing Page
     @GetMapping("/pricing")
-    public String pricing() {
+    public String pricing(Model model) {
+        model.addAttribute("publicPlans", publicPricingService.getActivePublicPlans());
         return "pricing";
     }
     

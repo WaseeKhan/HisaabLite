@@ -12,6 +12,7 @@ import com.expygen.repository.UserRepository;
 import com.expygen.service.BatchInventoryVisibilityService;
 import com.expygen.service.PlanLimitService;
 import com.expygen.service.SaleService;
+import com.expygen.service.SubscriptionAccessService;
 import com.expygen.service.WorkspaceAccessService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,6 +49,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
     private final BatchInventoryVisibilityService batchInventoryVisibilityService;
     private final WorkspaceAccessService workspaceAccessService;
+    private final SubscriptionAccessService subscriptionAccessService;
 
     // CANONICAL DASHBOARD
     @GetMapping("/dashboard")
@@ -96,6 +98,8 @@ public class DashboardController {
 
         String planTypeDisplay = shop.getPlanType() != null ? shop.getPlanType().name() : "FREE";
         model.addAttribute("planType", planTypeDisplay);
+        model.addAttribute("whatsappAvailable", subscriptionAccessService.canUseWhatsAppIntegration(shop));
+        model.addAttribute("insightsAvailable", subscriptionAccessService.canAccessInsights(shop));
         model.addAttribute("user", user);
         log.info("Plan type display: {}", planTypeDisplay);
 

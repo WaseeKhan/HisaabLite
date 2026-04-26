@@ -98,6 +98,8 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     
     // ===== FIND BY SHOP =====
     List<User> findByShop(Shop shop);
+
+    Optional<User> findFirstByShopAndRoleOrderByIdAsc(Shop shop, Role role);
     
     // ===== COUNT BY SHOP AND ROLE =====
     long countByShopAndRole(Shop shop, Role role);

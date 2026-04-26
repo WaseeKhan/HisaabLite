@@ -80,7 +80,7 @@ class SecurityFlowIntegrationTest {
 
         Shop shop = shopRepository.save(Shop.builder()
                 .name("Auth Test Shop")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .build());
 
         userRepository.save(User.builder()
@@ -92,7 +92,7 @@ class SecurityFlowIntegrationTest {
                 .approved(true)
                 .active(true)
                 .shop(shop)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build());
 
         userRepository.save(User.builder()
@@ -104,7 +104,7 @@ class SecurityFlowIntegrationTest {
                 .approved(true)
                 .active(true)
                 .shop(shop)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build());
     }
 

@@ -41,6 +41,7 @@ import com.expygen.repository.ProductRepository;
 import com.expygen.repository.PurchaseBatchRepository;
 import com.expygen.repository.PurchaseEntryRepository;
 import com.expygen.repository.PurchaseReturnRepository;
+import com.expygen.repository.PurchaseReturnLineRepository;
 import com.expygen.repository.StockAdjustmentRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.InventoryControlService;
@@ -63,6 +64,7 @@ public class PurchaseController {
     private final PurchaseBatchRepository purchaseBatchRepository;
     private final PurchaseService purchaseService;
     private final PurchaseReturnRepository purchaseReturnRepository;
+    private final PurchaseReturnLineRepository purchaseReturnLineRepository;
     private final StockAdjustmentRepository stockAdjustmentRepository;
     private final InventoryControlService inventoryControlService;
     private final ExpiryAlertService expiryAlertService;
@@ -89,6 +91,7 @@ public class PurchaseController {
 
         List<PurchaseEntry> purchases = purchaseEntryPage.getContent();
         List<PurchaseBatch> batches = batchLedgerPage.getContent();
+        Map<Long, Long> purchaseBatchCounts = countBatchesByPurchaseEntry(purchases);
         List<ExpiryReportItem> nearExpiryBatches = expiryAlertService.buildReportItems(shop, ExpiryReportBucket.DAYS_60, 6);
 
         long purchaseCount = purchaseEntryRepository.countByShop(shop);
@@ -99,6 +102,7 @@ public class PurchaseController {
         BigDecimal totalPurchasedValue = purchaseEntryRepository.sumTotalAmountByShop(shop);
 
         model.addAttribute("purchases", purchases);
+        model.addAttribute("purchaseBatchCounts", purchaseBatchCounts);
         model.addAttribute("batches", batches);
         model.addAttribute("purchasePageNumber", purchaseEntryPage.getNumber());
         model.addAttribute("purchaseTotalPages", purchaseEntryPage.getTotalPages());
@@ -243,6 +247,8 @@ public class PurchaseController {
         List<PurchaseReturn> returns = purchaseReturnRepository
                 .findByShopAndSupplierOrderByReturnDateDescIdDesc(shop, supplier, PageRequest.of(0, 10))
                 .getContent();
+        Map<Long, Long> purchaseBatchCounts = countBatchesByPurchaseEntry(purchases);
+        Map<Long, Long> purchaseReturnLineCounts = countLinesByPurchaseReturn(returns);
         List<PurchaseBatch> nearExpiryBatches = purchaseBatchRepository.findTopNearExpiryBatchesBySupplier(
                 shop,
                 supplier,
@@ -252,7 +258,9 @@ public class PurchaseController {
 
         model.addAttribute("supplier", supplier);
         model.addAttribute("purchases", purchases);
+        model.addAttribute("purchaseBatchCounts", purchaseBatchCounts);
         model.addAttribute("purchaseReturns", returns);
+        model.addAttribute("purchaseReturnLineCounts", purchaseReturnLineCounts);
         model.addAttribute("nearExpiryBatches", nearExpiryBatches);
         model.addAttribute("purchaseCount", purchaseEntryRepository.countByShopAndSupplier(shop, supplier));
         model.addAttribute("purchaseValue", nonNullMoney(purchaseEntryRepository.sumTotalAmountByShopAndSupplier(shop, supplier)));
@@ -264,6 +272,40 @@ public class PurchaseController {
         populateShellModel(model, user, shop);
         model.addAttribute("currentPageName", "purchases");
         return "supplier-detail";
+    }
+
+    private Map<Long, Long> countBatchesByPurchaseEntry(List<PurchaseEntry> purchases) {
+        List<Long> purchaseEntryIds = purchases.stream()
+                .map(PurchaseEntry::getId)
+                .toList();
+
+        Map<Long, Long> counts = new LinkedHashMap<>();
+        if (purchaseEntryIds.isEmpty()) {
+            return counts;
+        }
+
+        purchaseBatchRepository.countByPurchaseEntryIds(purchaseEntryIds)
+                .forEach(row -> counts.put((Long) row[0], (Long) row[1]));
+
+        purchaseEntryIds.forEach(id -> counts.putIfAbsent(id, 0L));
+        return counts;
+    }
+
+    private Map<Long, Long> countLinesByPurchaseReturn(List<PurchaseReturn> returns) {
+        List<Long> purchaseReturnIds = returns.stream()
+                .map(PurchaseReturn::getId)
+                .toList();
+
+        Map<Long, Long> counts = new LinkedHashMap<>();
+        if (purchaseReturnIds.isEmpty()) {
+            return counts;
+        }
+
+        purchaseReturnLineRepository.countByPurchaseReturnIds(purchaseReturnIds)
+                .forEach(row -> counts.put((Long) row[0], (Long) row[1]));
+
+        purchaseReturnIds.forEach(id -> counts.putIfAbsent(id, 0L));
+        return counts;
     }
 
     @GetMapping("/new")

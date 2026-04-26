@@ -30,6 +30,7 @@ public class ShopService {
         Shop shop = loggedInUser.getShop();
         Map<String, Object> oldProfile = snapshotShopProfile(shop);
 
+        shop.setName(request.getShopName());
         shop.setGstNumber(request.getGstNumber());
         shop.setAddress(request.getAddress());
         shop.setCity(request.getCity());
@@ -65,6 +66,10 @@ public class ShopService {
         snapshot.put("state", shop.getState());
         snapshot.put("pincode", shop.getPincode());
         snapshot.put("upiId", shop.getUpiId());
+        snapshot.put("logoOriginalFilename", shop.getLogoOriginalFilename());
+        snapshot.put("logoStoredFilename", shop.getLogoStoredFilename());
+        snapshot.put("sealOriginalFilename", shop.getSealOriginalFilename());
+        snapshot.put("sealStoredFilename", shop.getSealStoredFilename());
         snapshot.put("whatsappNumber", shop.getWhatsappNumber());
         snapshot.put("whatsappConnected", shop.isWhatsappConnected());
         return snapshot;

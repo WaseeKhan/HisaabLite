@@ -28,6 +28,7 @@ public class PlanLimitService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final SaleRepository saleRepository;
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
 
     /**
      * Get the current plan for a shop dynamically from database
@@ -117,20 +118,7 @@ public class PlanLimitService {
      * Check if subscription is active (not expired)
      */
     public boolean isSubscriptionActive(Shop shop) {
-        // FREE plan never expires (unless admin sets duration)
-        if (shop.getPlanType() == PlanType.FREE) {
-            SubscriptionPlan plan = getCurrentPlan(shop);
-            if (plan.getDurationInDays() == null || plan.getDurationInDays() <= 0) {
-                return true; // FREE plan with no expiry
-            }
-        }
-
-        // Check expiry date
-        if (shop.getSubscriptionEndDate() == null) {
-            return true; // No expiry set
-        }
-
-        return LocalDateTime.now().isBefore(shop.getSubscriptionEndDate());
+        return subscriptionLifecycleService.canAccessWorkspace(shop);
     }
 
     /**

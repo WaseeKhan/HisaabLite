@@ -4,6 +4,7 @@ import com.expygen.entity.Shop;
 import com.expygen.entity.User;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.PlanLimitService;
+import com.expygen.service.SubscriptionLifecycleService;
 import com.expygen.service.WorkspaceAccessService;
 import com.expygen.service.WorkspaceAccessState;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class WorkspaceAccessController {
     private final UserRepository userRepository;
     private final WorkspaceAccessService workspaceAccessService;
     private final PlanLimitService planLimitService;
+    private final SubscriptionLifecycleService subscriptionLifecycleService;
 
     @GetMapping("/workspace-status")
     public String workspaceStatus(Authentication authentication, Model model) {
@@ -35,6 +37,7 @@ public class WorkspaceAccessController {
         model.addAttribute("plan", shop != null && shop.getPlanType() != null ? shop.getPlanType().name() : "FREE");
         model.addAttribute("accessState", accessState.name());
         model.addAttribute("daysRemaining", shop != null ? planLimitService.getDaysRemaining(shop) : null);
+        model.addAttribute("subscriptionLifecycle", shop != null ? subscriptionLifecycleService.buildSnapshot(shop) : null);
 
         return "subscription-required";
     }

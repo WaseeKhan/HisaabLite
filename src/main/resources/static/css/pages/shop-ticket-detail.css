@@ -270,7 +270,7 @@
     padding: 14px 16px;
     border: 1.5px solid #e2e8f0;
     border-radius: 16px;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-primary);
     font-size: 0.85rem;
     line-height: 1.5;
     resize: vertical;

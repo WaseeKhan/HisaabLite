@@ -30,7 +30,7 @@ import com.expygen.service.WorkspaceAccessState;
 
 import java.io.IOException;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -43,24 +43,30 @@ public class SecurityConfig {
         private boolean enforceSingleSession;
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http)
+        public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                        DaoAuthenticationProvider authenticationProvider,
+                        AuthenticationSuccessHandler authenticationSuccessHandler,
+                        LogoutSuccessHandler logoutSuccessHandler,
+                        SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
+                        SessionRegistry sessionRegistry)
                         throws Exception {
 
                 http
-                        .authenticationProvider(authenticationProvider())
+                        .authenticationProvider(authenticationProvider)
                         .csrf(csrf -> csrf
                                 .ignoringRequestMatchers(
                                         "/admin/users/approve/*",
-                                        "/admin/users/bulk-approve"
+                                        "/admin/users/bulk-approve",
+                                        "/internal/payments/**"
                                 )
                         )    
                         .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/", "/login", "/register", "/forgot-password",
-                                                "/reset-password", "/verify",
+                                                "/reset-password", "/verify", "/verify/resend",
                                                 "/favicon.png", "/favicon.ico", "/css/**", "/js/**",
                                                 "/sales/whatsapp/test", "/about", "/careers", "/blog",
                                         "/pricing", "/features", "/images/**", "/blog", "/contact", "/privacy", "/terms",
-                                "/workflow", "/how-it-works","/features", "/help")
+                                "/workflow", "/how-it-works","/features", "/help", "/internal/payments/**")
                                 .permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/owner/**").hasRole("OWNER")
@@ -107,11 +113,11 @@ public class SecurityConfig {
                         .formLogin(form -> form
                                         .loginPage("/login")
                                         .failureHandler(failureHandler)
-                                        .successHandler(authenticationSuccessHandler()) // Add custom success handler
+                                        .successHandler(authenticationSuccessHandler)
                                         .permitAll())
                         .logout(logout -> logout
                                         .logoutUrl("/logout")
-                                        .logoutSuccessHandler(logoutSuccessHandler())
+                                        .logoutSuccessHandler(logoutSuccessHandler)
                                         .addLogoutHandler(new HeaderWriterLogoutHandler(
                                                         new ClearSiteDataHeaderWriter(
                                                                         ClearSiteDataHeaderWriter.Directive.CACHE,
@@ -126,8 +132,8 @@ public class SecurityConfig {
                         http.sessionManagement(session -> session
                                 .maximumSessions(1)
                                 .maxSessionsPreventsLogin(false)
-                                .expiredSessionStrategy(sessionInformationExpiredStrategy())
-                                .sessionRegistry(sessionRegistry()));
+                                .expiredSessionStrategy(sessionInformationExpiredStrategy)
+                                .sessionRegistry(sessionRegistry));
                 }
 
                 return http.build();
@@ -144,10 +150,10 @@ public class SecurityConfig {
         }
 
         @Bean
-        public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        public AuthenticationSuccessHandler authenticationSuccessHandler(SessionRegistry sessionRegistry) {
                 return (request, response, authentication) -> {
                         // Register new session
-                        sessionRegistry().registerNewSession(request.getSession().getId(), authentication.getPrincipal());
+                        sessionRegistry.registerNewSession(request.getSession().getId(), authentication.getPrincipal());
                         authAuditHelper.logLoginSuccess(authentication, request);
 
                         User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
@@ -187,10 +193,11 @@ public class SecurityConfig {
                 return new BCryptPasswordEncoder();
         }
 
-        private DaoAuthenticationProvider authenticationProvider() {
+        @Bean
+        public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
                 DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
                 auth.setUserDetailsService(userDetailsService);
-                auth.setPasswordEncoder(passwordEncoder());
+                auth.setPasswordEncoder(passwordEncoder);
                 return auth;
         }
 }

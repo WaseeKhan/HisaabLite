@@ -255,7 +255,7 @@ class DataImportServiceTest {
         Shop shop = new Shop();
         shop.setId(1L);
         shop.setName("Expygen Test Shop");
-        shop.setPlanType(PlanType.PREMIUM);
+        shop.setPlanType(PlanType.PRO);
         return shop;
     }
 
@@ -266,7 +266,7 @@ class DataImportServiceTest {
         user.setUsername("owner@example.com");
         user.setRole(Role.OWNER);
         user.setShop(shop);
-        user.setCurrentPlan(PlanType.PREMIUM);
+        user.setCurrentPlan(PlanType.PRO);
         user.setCreatedAt(LocalDateTime.now());
         return user;
     }

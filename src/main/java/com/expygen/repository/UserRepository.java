@@ -26,6 +26,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByShop(Shop shop);
 
+    Optional<User> findFirstByShopAndRole(Shop shop, Role role);
+
     Optional<User> findByPhone(String phone);
 
 

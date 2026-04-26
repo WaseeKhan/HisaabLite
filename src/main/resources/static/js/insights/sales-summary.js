@@ -16,7 +16,7 @@ function getChartThemePalette() {
 const gridColor = getChartThemePalette().gridColor;
 const labelColor = getChartThemePalette().axisColor;
 
-Chart.defaults.font.family = "'Manrope', 'Inter', sans-serif";
+Chart.defaults.font.family = "'Manrope', sans-serif";
 Chart.defaults.color = labelColor;
 
 function buildLineChart(ctx, labels, values) {

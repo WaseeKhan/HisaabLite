@@ -12,6 +12,7 @@ import com.expygen.repository.PurchaseReturnRepository;
 import com.expygen.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,9 +32,9 @@ public class PurchaseInsightsService {
     private final PurchaseReturnRepository purchaseReturnRepository;
     private final SupplierRepository supplierRepository;
 
+    @Transactional(readOnly = true)
     public List<PurchaseEntry> findPurchases(Shop shop, LocalDate fromDate, LocalDate toDate, String supplierKeyword, String keyword) {
-        return purchaseEntryRepository.findAll().stream()
-                .filter(entry -> entry.getShop() != null && entry.getShop().getId().equals(shop.getId()))
+        return purchaseEntryRepository.findAllWithInsightsRelationsByShop(shop).stream()
                 .filter(entry -> matchesDate(entry.getPurchaseDate(), fromDate, toDate))
                 .filter(entry -> contains(entry.getSupplierName(), supplierKeyword)
                         || contains(entry.getSupplier() != null ? entry.getSupplier().getName() : null, supplierKeyword)

@@ -7,6 +7,8 @@
 # Maven / Gradle
 target/
 build/
+uploads/
+config/
 
 
 # Eclipse / IntelliJ / VSCode
@@ -44,6 +46,9 @@ spring-boot-devtools.properties
 
 # Secrets
 application-secrets.yml
+application-secrets-dev.yml
+application-secrets-prod.yml
+config/application-secrets*.yml
 
 
 # Local docs / working notes

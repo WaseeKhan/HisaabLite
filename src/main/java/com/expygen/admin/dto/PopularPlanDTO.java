@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PopularPlanDTO {
-    private String planName;   // FREE, BASIC, PREMIUM, ENTERPRISE
+    private String planName;   // FREE, BASIC, PRO
     private Long shopCount;     // Kitne shops is plan par hain
 }

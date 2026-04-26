@@ -26,7 +26,9 @@ import com.expygen.repository.ProductRepository;
 import com.expygen.repository.SaleRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.EvolutionApiService;
+import com.expygen.service.PlanLimitService;
 import com.expygen.service.ShopService;
+import com.expygen.service.SubscriptionAccessService;
 
 @ExtendWith(MockitoExtension.class)
 class ProfileControllerTest {
@@ -47,6 +49,12 @@ class ProfileControllerTest {
     private SaleRepository saleRepository;
 
     @Mock
+    private PlanLimitService planLimitService;
+
+    @Mock
+    private SubscriptionAccessService subscriptionAccessService;
+
+    @Mock
     private Authentication authentication;
 
     @InjectMocks
@@ -61,15 +69,21 @@ class ProfileControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
         when(userRepository.countByShop(shop)).thenReturn(4L);
-        when(productRepository.countByShop(shop)).thenReturn(12L);
+        when(productRepository.countByShopAndActiveTrue(shop)).thenReturn(12L);
         when(saleRepository.countByShop(shop)).thenReturn(25L);
+        when(planLimitService.getUserLimit(shop)).thenReturn(10);
+        when(planLimitService.getProductLimit(shop)).thenReturn(1000);
+        when(subscriptionAccessService.getPlanName(shop)).thenReturn("PRO");
+        when(subscriptionAccessService.isFreePlan(shop)).thenReturn(false);
+        when(subscriptionAccessService.canUseWhatsAppIntegration(shop)).thenReturn(true);
+        when(subscriptionAccessService.getWhatsAppUpgradeMessage(shop)).thenReturn(null);
 
         String view = profileController.profilePage(authentication, model);
 
         assertEquals("profile", view);
         assertSame(shop, model.getAttribute("shop"));
         assertSame(owner, model.getAttribute("user"));
-        assertEquals("PREMIUM", model.getAttribute("planType"));
+        assertEquals("PRO", model.getAttribute("planType"));
         assertEquals("profile", model.getAttribute("currentPage"));
         assertEquals(4L, model.getAttribute("currentStaffCount"));
         assertEquals(12L, model.getAttribute("currentProductCount"));
@@ -96,7 +110,7 @@ class ProfileControllerTest {
         return Shop.builder()
                 .id(11L)
                 .name("Reliable Store")
-                .planType(PlanType.PREMIUM)
+                .planType(PlanType.PRO)
                 .active(true)
                 .createdAt(LocalDateTime.now().minusDays(30))
                 .subscriptionStartDate(LocalDateTime.now().minusDays(15))
@@ -115,7 +129,7 @@ class ProfileControllerTest {
                 .shop(shop)
                 .active(true)
                 .approved(true)
-                .currentPlan(PlanType.PREMIUM)
+                .currentPlan(PlanType.PRO)
                 .build();
     }
 }

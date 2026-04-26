@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -17,7 +16,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-primary);
             background: #f1f5f9;
             color: #0f172a;
             display: flex;
@@ -256,6 +255,61 @@
             display: flex;
             gap: 12px;
             margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .commercial-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px 24px;
+            max-width: 700px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .commercial-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .commercial-card p {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .commercial-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .commercial-item {
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .commercial-item label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .commercial-item span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        .commercial-item.full-width {
+            grid-column: span 2;
         }
 
         .btn-primary {
@@ -368,7 +422,20 @@
             border-radius: 20px;
             font-size: 7px;
         }
+
+        @media (max-width: 760px) {
+            .details-grid,
+            .commercial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-item.full-width,
+            .commercial-item.full-width {
+                grid-column: span 1;
+            }
+        }
     </style>
+
 </head>
 <body>
     <!-- Sidebar -->
@@ -383,6 +450,7 @@
             <a th:href="@{/admin/users}"><i class="fas fa-users"></i> Users</a>
             <a th:href="@{/admin/shops}" class="active"><i class="fas fa-store"></i> Shops</a>
             <a th:href="@{/admin/subscriptions}"><i class="fas fa-credit-card"></i> Plans</a>
+            <a th:href="@{/admin/subscription-ledger}"><i class="fas fa-book-open"></i> Subscription Ledger</a>
             <a th:href="@{/admin/support}">
                 
                <i class="fas fa-headset"></i>  <span> Support </span>
@@ -420,10 +488,8 @@
                 <div class="shop-title">
                     <h2 th:text="${shop.name}">Shop Name</h2>
                     <span class="badge" th:text="${shop.planType}" 
-                          th:classappend="${shop.planType == 'PREMIUM' ? 'badge-premium' : 
-                                         (shop.planType == 'BASIC' ? 'badge-basic' : 
-                                         (shop.planType == 'FREE' ? 'badge-free' : 'badge-enterprise'))}">
-                        PREMIUM
+                          th:classappend="${shop.planType == 'PRO' ? 'badge-premium' : (shop.planType == 'BASIC' ? 'badge-basic' : 'badge-free')}">
+                        PRO
                     </span>
                 </div>
                 <span class="status-badge" th:text="${shop.active ? 'Active' : 'Inactive'}"
@@ -443,7 +509,19 @@
                 </div>
                 <div class="detail-item">
                     <label>Plan Type</label>
-                    <span th:text="${shop.planType}">PREMIUM</span>
+                    <span th:text="${shop.planType}">PRO</span>
+                </div>
+                <div class="detail-item">
+                    <label>Lifecycle</label>
+                    <span th:text="${subscriptionLifecycle != null ? subscriptionLifecycle.statusLabel : 'Unknown'}">Active</span>
+                </div>
+                <div class="detail-item">
+                    <label>Subscription Ends</label>
+                    <span th:text="${shop.subscriptionEndDate != null ? #temporals.format(shop.subscriptionEndDate, 'dd MMM yyyy') : 'No expiry'}">31 Dec 2026</span>
+                </div>
+                <div class="detail-item">
+                    <label>Renewal Note</label>
+                    <span th:text="${subscriptionLifecycle != null ? subscriptionLifecycle.helperText : 'No lifecycle note available'}">Renew before the due date to avoid interruption.</span>
                 </div>
                 <div class="detail-item full-width">
                     <label>Address</label>
@@ -491,10 +569,92 @@
                         <i class="fas fa-pause-circle"></i> Suspend
                     </button>
                 </form>
+
+                <form th:if="${shop.planType != 'FREE'}"
+                      th:action="@{'/admin/shops/' + ${shop.id} + '/renew'}"
+                      method="post"
+                      style="display:inline-flex; gap:8px; align-items:center;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="text" name="adminNote" placeholder="Renewal note" style="min-height:42px; border-radius:10px; border:1px solid #cbd5e1; padding:0 12px;">
+                    <button type="submit" class="btn-primary" style="background:#0f766e;">
+                        <i class="fas fa-arrows-rotate"></i> Renew Current Plan
+                    </button>
+                </form>
                 
                 <a th:href="@{/admin/shops}" class="btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Shops
                 </a>
+            </div>
+        </div>
+
+        <div class="commercial-card" th:if="${openCommercialRequest != null}">
+            <h3>Open Commercial Request</h3>
+            <p>This workspace already has an in-progress renewal or upgrade request. You can use this summary before moving to the request queue.</p>
+
+            <div class="commercial-grid">
+                <div class="commercial-item">
+                    <label>Commercial Status</label>
+                    <span th:text="${openCommercialRequest.status}">REQUESTED</span>
+                </div>
+                <div class="commercial-item">
+                    <label>Plan Move</label>
+                    <span th:text="${openCommercialRequest.currentPlan == openCommercialRequest.requestedPlan ? openCommercialRequest.requestedPlan + ' renewal' : openCommercialRequest.currentPlan + ' → ' + openCommercialRequest.requestedPlan}">FREE → PRO</span>
+                </div>
+                <div class="commercial-item">
+                    <label>Requested On</label>
+                    <span th:text="${#temporals.format(openCommercialRequest.createdAt, 'dd MMM yyyy hh:mm a')}">21 Apr 2026 01:00 PM</span>
+                </div>
+                <div class="commercial-item">
+                    <label>Payment Reference</label>
+                    <span th:text="${openCommercialRequest.paymentReference != null && !openCommercialRequest.paymentReference.isBlank() ? openCommercialRequest.paymentReference : 'Not shared yet'}">UTR123</span>
+                </div>
+                <div class="commercial-item">
+                    <label>Receipt Proof</label>
+                    <span>
+                        <a th:if="${openCommercialRequest.receiptStoredFilename != null}" th:href="@{'/admin/upgrade-requests/' + ${openCommercialRequest.id} + '/receipt'}" target="_blank">View uploaded receipt</a>
+                        <span th:if="${openCommercialRequest.receiptStoredFilename == null}">Not uploaded</span>
+                    </span>
+                </div>
+                <div class="commercial-item">
+                    <label>Contacted At</label>
+                    <span th:text="${openCommercialRequest.contactedAt != null ? #temporals.format(openCommercialRequest.contactedAt, 'dd MMM yyyy hh:mm a') : 'Not marked'}">Not marked</span>
+                </div>
+                <div class="commercial-item">
+                    <label>Payment Received At</label>
+                    <span th:text="${openCommercialRequest.paymentReceivedAt != null ? #temporals.format(openCommercialRequest.paymentReceivedAt, 'dd MMM yyyy hh:mm a') : 'Not marked'}">Not marked</span>
+                </div>
+                <div class="commercial-item full-width">
+                    <label>Owner Note</label>
+                    <span th:text="${openCommercialRequest.note != null && !openCommercialRequest.note.isBlank() ? openCommercialRequest.note : 'No owner note shared'}">No owner note shared</span>
+                </div>
+                <div class="commercial-item full-width">
+                    <label>Admin Note</label>
+                    <span th:text="${openCommercialRequest.adminNote != null && !openCommercialRequest.adminNote.isBlank() ? openCommercialRequest.adminNote : 'No admin note yet'}">No admin note yet</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="commercial-card" th:if="${entitlementItems != null and !#lists.isEmpty(entitlementItems)}">
+            <h3>Entitlement Audit</h3>
+            <p>Current premium access and capacity checks for this workspace.</p>
+
+            <div class="commercial-grid">
+                <div class="commercial-item" th:each="item : ${entitlementItems}">
+                    <label th:text="${item.label}">Workspace Access</label>
+                    <span th:text="${item.availability + ' • ' + item.helperText}">Enabled • Workspace active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="commercial-card" th:if="${ledgerEntries != null and !#lists.isEmpty(ledgerEntries)}">
+            <h3>Recent Subscription Ledger</h3>
+            <p>Latest commercial entries recorded for this workspace.</p>
+
+            <div class="commercial-grid">
+                <div class="commercial-item full-width" th:each="entry : ${ledgerEntries}">
+                    <label th:text="${entry.entryType} + ' • ' + ${#temporals.format(entry.createdAt, 'dd MMM yyyy hh:mm a')}">PLAN_ACTIVATED • 25 Apr 2026</label>
+                    <span th:text="${entry.planType} + ' • ' + (${entry.amount != null ? '₹' + #numbers.formatDecimal(entry.amount, 1, 'COMMA', 0, 'POINT') : '—'}) + ' • ' + (${entry.note != null ? entry.note : 'No note'})">PRO • ₹4990 • Payment received by admin.</span>
+                </div>
             </div>
         </div>
         
