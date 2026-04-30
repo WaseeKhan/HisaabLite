@@ -3,28 +3,49 @@
 
 <head>
     <title>Careers • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+
+    <link rel="icon" type="image/png" href="/images/favicon_light.png">
+    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
     <link rel="stylesheet" th:href="@{/css/pages/careers.css}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
 </head>
 
-<body>
-    <div th:replace="~{fragments/public-header :: header}"></div>
+<body class="careers-page">
 
+<div th:replace="~{fragments/public-header :: header}"></div>
+
+<main class="careers-root">
+
+    <!-- HERO -->
     <section class="careers-hero">
-        <div class="careers-hero-content">
-            <span class="careers-kicker">Careers</span>
-            <h1>Build practical pharmacy software that stores use every day</h1>
-            <p>Join Expygen to work on billing, inventory, Insights, subscription workflows, and support systems that solve real medical-store operations.</p>
+        <div class="public-shell careers-hero-content">
+            <span class="section-kicker">
+                <i class="fas fa-briefcase"></i>
+                Careers
+            </span>
+
+            <h1>
+                Build practical pharmacy software
+                <span>stores use every day.</span>
+            </h1>
+
+            <p>
+                Join Expygen to work on billing, inventory, Insights, subscription workflows,
+                support systems and product experiences that solve real medical-store operations.
+            </p>
+
             <div class="careers-hero-pills">
                 <span><i class="fas fa-briefcase"></i> 3 open roles</span>
                 <span><i class="fas fa-laptop-house"></i> Remote-friendly</span>
@@ -33,132 +54,203 @@
         </div>
     </section>
 
-    <section class="careers-why">
-        <div class="section-head">
-            <span class="section-kicker">Why Expygen</span>
-            <h2>Work on a product that stays close to operations, not slide decks</h2>
-            <p>We care about fast billing, cleaner stock control, role safety, useful support, and intelligence that actually helps stores run better.</p>
-        </div>
+    <!-- WHY -->
+    <section class="careers-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Why Expygen</span>
+                <h2>Work on a product that stays close to operations.</h2>
+                <p>
+                    We care about fast billing, cleaner stock control, role safety,
+                    useful support and intelligence that actually helps stores run better.
+                </p>
+            </div>
 
-        <div class="benefits-grid">
-            <article class="benefit-card">
-                <div class="benefit-icon"><i class="fas fa-bolt"></i></div>
-                <h3>Fast product loops</h3>
-                <p>Ship on real workflows like billing, purchases, subscription usage, and reports instead of abstract platform work.</p>
-            </article>
-            <article class="benefit-card">
-                <div class="benefit-icon"><i class="fas fa-compass"></i></div>
-                <h3>Clear product direction</h3>
-                <p>We build around pharmacy operations, so the product scope and problem set stay grounded and understandable.</p>
-            </article>
-            <article class="benefit-card">
-                <div class="benefit-icon"><i class="fas fa-user-shield"></i></div>
-                <h3>Ownership with safety</h3>
-                <p>People can move quickly while still respecting quality, role control, data clarity, and maintainable implementation.</p>
-            </article>
-            <article class="benefit-card">
-                <div class="benefit-icon"><i class="fas fa-seedling"></i></div>
-                <h3>Room to grow</h3>
-                <p>You get to work across product, UI, workflows, and customer-facing improvements instead of staying boxed into one slice.</p>
-            </article>
-        </div>
-    </section>
+            <div class="benefits-grid">
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-bolt"></i></div>
+                    <h3>Fast product loops</h3>
+                    <p>Ship on real workflows like billing, purchases, subscription usage and reports.</p>
+                </article>
 
-    <section class="positions-section">
-        <div class="section-head">
-            <span class="section-kicker">Open Roles</span>
-            <h2>Current positions</h2>
-            <p>We are keeping the hiring list focused. If one of these fits, reach out directly.</p>
-        </div>
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-compass"></i></div>
+                    <h3>Clear product direction</h3>
+                    <p>We build around pharmacy operations, so the product scope stays grounded.</p>
+                </article>
 
-        <div class="positions-grid">
-            <article class="position-card">
-                <span class="position-badge">Urgent Hiring</span>
-                <h3 class="position-title">Senior Full Stack Developer</h3>
-                <div class="position-meta">
-                    <span><i class="fas fa-map-marker-alt"></i> Bangalore / Remote</span>
-                    <span><i class="fas fa-briefcase"></i> Full Time</span>
-                </div>
-                <p class="position-desc">Lead product engineering across billing, inventory, Insights, support, and internal workflow systems.</p>
-                <ul class="position-requirements">
-                    <li><i class="fas fa-check"></i> 4+ years with Java and Spring Boot</li>
-                    <li><i class="fas fa-check"></i> Strong HTML, CSS, JS or modern frontend experience</li>
-                    <li><i class="fas fa-check"></i> Comfortable owning product-quality implementation end to end</li>
-                </ul>
-                <a href="#" class="btn-apply">Apply for this role <i class="fas fa-arrow-right"></i></a>
-            </article>
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-user-shield"></i></div>
+                    <h3>Ownership with safety</h3>
+                    <p>Move quickly while respecting quality, permissions, data clarity and maintainability.</p>
+                </article>
 
-            <article class="position-card">
-                <span class="position-badge position-badge-soft">New</span>
-                <h3 class="position-title">Frontend Developer</h3>
-                <div class="position-meta">
-                    <span><i class="fas fa-map-marker-alt"></i> Remote</span>
-                    <span><i class="fas fa-briefcase"></i> Full Time</span>
-                </div>
-                <p class="position-desc">Design and ship cleaner public pages, operational UIs, and Newgen-style product surfaces across Expygen.</p>
-                <ul class="position-requirements">
-                    <li><i class="fas fa-check"></i> Strong CSS, component thinking, and responsive UI work</li>
-                    <li><i class="fas fa-check"></i> Able to turn product needs into polished interfaces</li>
-                    <li><i class="fas fa-check"></i> Comfortable refining UX details, density, and dark mode</li>
-                </ul>
-                <a href="#" class="btn-apply">Apply for this role <i class="fas fa-arrow-right"></i></a>
-            </article>
-
-            <article class="position-card">
-                <h3 class="position-title">Customer Success Manager</h3>
-                <div class="position-meta">
-                    <span><i class="fas fa-map-marker-alt"></i> Remote</span>
-                    <span><i class="fas fa-briefcase"></i> Full Time</span>
-                </div>
-                <p class="position-desc">Help stores onboard faster, manage support conversations better, and keep product feedback close to the team.</p>
-                <ul class="position-requirements">
-                    <li><i class="fas fa-check"></i> Strong communication in Hindi and English</li>
-                    <li><i class="fas fa-check"></i> Experience with support, onboarding, or account handling</li>
-                    <li><i class="fas fa-check"></i> Comfortable translating store pain into product clarity</li>
-                </ul>
-                <a href="#" class="btn-apply">Apply for this role <i class="fas fa-arrow-right"></i></a>
-            </article>
-        </div>
-    </section>
-
-    <section class="careers-flow">
-        <div class="section-head">
-            <span class="section-kicker">How We Work</span>
-            <h2>Small team, product-first rhythm</h2>
-            <p>We prefer clarity, quick iteration, and practical execution over process-heavy layers.</p>
-        </div>
-
-        <div class="flow-grid">
-            <article class="flow-card">
-                <div class="flow-number">01</div>
-                <h3>Understand the workflow</h3>
-                <p>We start from medical-store operations and actual product behavior, not abstract requirement documents.</p>
-            </article>
-            <article class="flow-card">
-                <div class="flow-number">02</div>
-                <h3>Ship meaningful improvements</h3>
-                <p>Most work turns into visible product movement quickly, from billing flow to support handling to reporting.</p>
-            </article>
-            <article class="flow-card">
-                <div class="flow-number">03</div>
-                <h3>Keep quality close</h3>
-                <p>UI polish, dark mode, permissions, and operational safety are treated as product quality, not cleanup work.</p>
-            </article>
-        </div>
-    </section>
-
-    <section class="careers-cta">
-        <div class="careers-cta-card">
-            <span class="section-kicker">Open Application</span>
-            <h2>Don’t see the exact role yet?</h2>
-            <p>If you think you can help Expygen build better pharmacy software, send us your profile and tell us where you can contribute.</p>
-            <div class="careers-cta-actions">
-                <a href="#" class="btn-big"><i class="fas fa-paper-plane"></i> Send Open Application</a>
-                <a href="/contact" class="btn-secondary">Talk to us first</a>
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-seedling"></i></div>
+                    <h3>Room to grow</h3>
+                    <p>Work across product, UI, workflows and customer-facing improvements.</p>
+                </article>
             </div>
         </div>
     </section>
 
-    <div th:replace="~{fragments/public-footer :: footer}"></div>
+    <!-- OPEN ROLES -->
+    <section class="careers-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Open Roles</span>
+                <h2>Current positions</h2>
+                <p>We are keeping the hiring list focused. If one of these fits, reach out directly.</p>
+            </div>
+
+            <div class="positions-grid">
+                <article class="position-card featured">
+                    <span class="position-badge">Urgent Hiring</span>
+                    <h3>Senior Full Stack Developer</h3>
+
+                    <div class="position-meta">
+                        <span><i class="fas fa-map-marker-alt"></i> Bangalore / Remote</span>
+                        <span><i class="fas fa-briefcase"></i> Full Time</span>
+                    </div>
+
+                    <p>
+                        Lead product engineering across billing, inventory, Insights,
+                        support and internal workflow systems.
+                    </p>
+
+                    <ul>
+                        <li><i class="fas fa-check"></i> 4+ years with Java and Spring Boot</li>
+                        <li><i class="fas fa-check"></i> Strong HTML, CSS, JS or modern frontend experience</li>
+                        <li><i class="fas fa-check"></i> Comfortable owning product-quality implementation end to end</li>
+                    </ul>
+
+                    <a href="#" class="btn-apply">
+                        Apply for this role <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+
+                <article class="position-card">
+                    <span class="position-badge soft">New</span>
+                    <h3>Frontend Developer</h3>
+
+                    <div class="position-meta">
+                        <span><i class="fas fa-map-marker-alt"></i> Remote</span>
+                        <span><i class="fas fa-briefcase"></i> Full Time</span>
+                    </div>
+
+                    <p>
+                        Design and ship cleaner public pages, operational UIs and polished product surfaces.
+                    </p>
+
+                    <ul>
+                        <li><i class="fas fa-check"></i> Strong CSS, component thinking and responsive UI work</li>
+                        <li><i class="fas fa-check"></i> Able to turn product needs into polished interfaces</li>
+                        <li><i class="fas fa-check"></i> Comfortable refining UX, density and dark mode</li>
+                    </ul>
+
+                    <a href="#" class="btn-apply">
+                        Apply for this role <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+
+                <article class="position-card">
+                    <span class="position-badge neutral">Support</span>
+                    <h3>Customer Success Manager</h3>
+
+                    <div class="position-meta">
+                        <span><i class="fas fa-map-marker-alt"></i> Remote</span>
+                        <span><i class="fas fa-briefcase"></i> Full Time</span>
+                    </div>
+
+                    <p>
+                        Help stores onboard faster, manage support conversations and keep product feedback close.
+                    </p>
+
+                    <ul>
+                        <li><i class="fas fa-check"></i> Strong communication in Hindi and English</li>
+                        <li><i class="fas fa-check"></i> Experience with support, onboarding or account handling</li>
+                        <li><i class="fas fa-check"></i> Comfortable translating store pain into product clarity</li>
+                    </ul>
+
+                    <a href="#" class="btn-apply">
+                        Apply for this role <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW WE WORK -->
+    <section class="careers-section">
+        <div class="public-shell-wide careers-work-card">
+            <div class="careers-work-copy">
+                <span class="section-kicker">How We Work</span>
+                <h2>Small team, product-first rhythm.</h2>
+                <p>
+                    We prefer clarity, quick iteration and practical execution over process-heavy layers.
+                    Every improvement should make the product easier for stores to use.
+                </p>
+            </div>
+
+            <div class="flow-grid">
+                <article class="flow-card">
+                    <div class="flow-number">01</div>
+                    <h3>Understand the workflow</h3>
+                    <p>We start from medical-store operations and actual product behavior.</p>
+                </article>
+
+                <article class="flow-card">
+                    <div class="flow-number">02</div>
+                    <h3>Ship meaningful improvements</h3>
+                    <p>Most work turns into visible product movement quickly.</p>
+                </article>
+
+                <article class="flow-card">
+                    <div class="flow-number">03</div>
+                    <h3>Keep quality close</h3>
+                    <p>UI polish, dark mode, permissions and operational safety matter.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="careers-final-cta">
+        <div class="public-shell-wide careers-cta-card">
+            <span class="section-kicker">Open Application</span>
+            <h2>Don’t see the exact role yet?</h2>
+            <p>
+                If you think you can help Expygen build better pharmacy software,
+                send us your profile and tell us where you can contribute.
+            </p>
+
+            <div class="careers-cta-actions">
+                <a href="#" class="btn-big">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Open Application
+                </a>
+                <a th:href="@{/contact}" class="btn-secondary-career">
+                    Talk to us first
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/public-footer :: footer}"></div>
+
+<script th:src="@{/js/public-theme-toggle.js}"></script>
+<script>
+const menuToggle = document.getElementById("menuToggle");
+const mobileMenu = document.getElementById("mobileMenu");
+
+if (menuToggle && mobileMenu) {
+    menuToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("active");
+    });
+}
+</script>
+
 </body>
 </html>

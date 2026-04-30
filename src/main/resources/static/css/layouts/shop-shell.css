@@ -1,0 +1,9 @@
+body.theme-shop.shop-shell {
+    background: var(--theme-page-bg, #eef1f5);
+}
+
+.shop-shell-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

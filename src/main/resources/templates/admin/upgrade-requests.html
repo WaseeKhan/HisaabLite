@@ -5,6 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+    <link rel="stylesheet" th:href="@{/css/core/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/core/themes.css}">
+    <link rel="stylesheet" th:href="@{/css/core/base.css}">
+    <link rel="stylesheet" th:href="@{/css/core/utilities.css}">
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}">
+    <link rel="stylesheet" th:href="@{/css/components/badges.css}">
+    <link rel="stylesheet" th:href="@{/css/components/cards.css}">
+    <link rel="stylesheet" th:href="@{/css/components/page-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/stat-cards.css}">
+    <link rel="stylesheet" th:href="@{/css/components/alerts.css}">
+    <link rel="stylesheet" th:href="@{/css/layouts/admin-shell.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,8 +27,16 @@
         .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
         .filters a { text-decoration:none; padding:10px 14px; border-radius:999px; background:#fff; border:1px solid #dbe4ef; color:#334155; font-weight:700; }
         .filters a.active { background:#1f6feb; color:#fff; border-color:#1f6feb; }
+        .summary-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:20px; }
+        .summary-card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:18px; box-shadow: 0 16px 36px rgba(15,23,42,.05); }
+        .summary-card label { display:block; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#64748b; margin-bottom:10px; }
+        .summary-card strong { display:block; font-size:2rem; color:#0f172a; margin-bottom:8px; }
+        .summary-card span { color:#64748b; font-size:.92rem; line-height:1.5; }
         .grid { display:grid; gap:16px; }
         .card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; padding:20px; box-shadow: 0 16px 36px rgba(15,23,42,.05); }
+        .section-heading { display:flex; justify-content:space-between; align-items:end; gap:16px; margin:30px 0 14px; }
+        .section-heading h2 { font-size:1.25rem; }
+        .section-heading p { color:#64748b; }
         .top { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
         .title strong { font-size:1.1rem; display:block; }
         .title span, .meta span { color:#64748b; display:block; margin-top:6px; }
@@ -32,27 +51,78 @@
         form { display:grid; grid-template-columns: 1.3fr 1fr auto; gap:12px; align-items:start; }
         textarea, input, select { width:100%; border:1px solid #dbe4ef; border-radius:14px; padding:12px 14px; font:inherit; background:#fff; }
         button { min-height:48px; border:0; border-radius:14px; padding:0 18px; background:#111827; color:#fff; font-weight:800; cursor:pointer; }
+        .shop-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; }
+        .shop-card { background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:18px; box-shadow: 0 12px 28px rgba(15,23,42,.04); }
+        .shop-card h3 { font-size:1rem; margin-bottom:6px; }
+        .shop-card p { color:#64748b; font-size:.92rem; margin-bottom:14px; }
+        .shop-meta { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }
+        .shop-meta div { padding:12px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0; }
+        .shop-meta strong { display:block; font-size:.75rem; text-transform:uppercase; color:#64748b; margin-bottom:4px; }
+        .shop-meta span { color:#0f172a; font-weight:700; font-size:.92rem; }
+        .shop-actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .chip { display:inline-flex; align-items:center; padding:8px 12px; border-radius:999px; font-size:.8rem; font-weight:800; }
+        .chip.active { background:#dbeafe; color:#1d4ed8; }
+        .chip.warning { background:#fef3c7; color:#b45309; }
+        .chip.critical { background:#fee2e2; color:#b91c1c; }
+        .chip.neutral { background:#e2e8f0; color:#334155; }
+        .banner { margin-bottom:18px; padding:14px 16px; border-radius:16px; font-weight:700; }
+        .banner.success { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+        .banner.error { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
         .empty { padding:40px; text-align:center; color:#64748b; background:#fff; border-radius:20px; border:1px solid #e2e8f0; }
         @media (max-width: 920px) {
+            .summary-grid { grid-template-columns:1fr; }
             .meta { grid-template-columns:1fr; }
             .timeline { grid-template-columns:1fr; }
             form { grid-template-columns:1fr; }
             .top { flex-direction:column; }
+            .shop-grid { grid-template-columns:1fr; }
+            .shop-meta { grid-template-columns:1fr; }
         }
     </style>
 
+    <link rel="stylesheet" th:href="@{/css/admin/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/admin-phase-a-bridge.css}">
+
 </head>
-<body>
+<body class="theme-admin density-admin admin-shell">
+<div th:replace="~{admin/fragments/sidebar :: sidebar('commercial')}"></div>
+<div class="admin-main admin-shell-main">
 <div class="shell">
-    <div class="header">
+    <div class="header ui-page-header">
         <div>
-            <h1>Upgrade Requests</h1>
-            <p>Review free-to-paid conversions, contact requests, payment notes, and activate plans from one admin queue.</p>
+            <h1>Commercial Console</h1>
+            <p>Run upgrades, renewals, activation follow-up, and paid subscription monitoring from one admin workspace.</p>
         </div>
         <div style="display:flex; gap:14px;">
             <a href="/admin/subscriptions" style="text-decoration:none; font-weight:700; color:#1f6feb;">Subscriptions</a>
             <a href="/admin/subscription-ledger" style="text-decoration:none; font-weight:700; color:#1f6feb;">Subscription ledger</a>
             <a href="/admin/dashboard" style="text-decoration:none; font-weight:700; color:#1f6feb;">Back to dashboard</a>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="banner success ui-alert ui-alert-success" th:text="${success}">Updated successfully.</div>
+    <div th:if="${error}" class="banner error ui-alert ui-alert-danger" th:text="${error}">Something went wrong.</div>
+
+    <div class="summary-grid ui-stat-grid">
+        <div class="summary-card ui-stat-card">
+            <label>Queue Volume</label>
+            <strong th:text="${totalRequestCount}">0</strong>
+            <span>Total commercial requests in the current queue view.</span>
+        </div>
+        <div class="summary-card ui-stat-card">
+            <label>Fresh Requests</label>
+            <strong th:text="${requestedCount}">0</strong>
+            <span>New upgrade or renewal requests still waiting for first admin follow-up.</span>
+        </div>
+        <div class="summary-card ui-stat-card">
+            <label>Contacted</label>
+            <strong th:text="${contactedCount}">0</strong>
+            <span>Shops you already reached but which still need payment closure or next action.</span>
+        </div>
+        <div class="summary-card ui-stat-card">
+            <label>Paid Pending Activation</label>
+            <strong th:text="${paymentReceivedCount}">0</strong>
+            <span>Commercially ready requests that should be activated quickly.</span>
         </div>
     </div>
 
@@ -64,8 +134,15 @@
            th:classappend="${selectedStatus == status.name()} ? ' active' : ''">REQUESTED</a>
     </div>
 
+    <div class="section-heading">
+        <div>
+            <h2>Request Queue</h2>
+            <p>Handle the live renewal and upgrade queue with notes, payment references, and activation controls.</p>
+        </div>
+    </div>
+
     <div class="grid" th:if="${not #lists.isEmpty(requests)}">
-        <div class="card" th:each="request : ${requests}">
+        <div class="card ui-card" th:each="request : ${requests}">
             <div class="top">
                 <div class="title">
                     <strong th:text="${request.shop.name}">Waseem Medico</strong>
@@ -144,6 +221,168 @@
     <div class="empty" th:if="${#lists.isEmpty(requests)}">
         No upgrade requests found for this filter.
     </div>
+
+    <div class="section-heading">
+        <div>
+            <h2>Pending Activation</h2>
+            <p>Requests already marked paid and ready for final activation.</p>
+        </div>
+    </div>
+
+    <div class="shop-grid" th:if="${pendingActivationRequests != null and !#lists.isEmpty(pendingActivationRequests)}">
+        <div class="shop-card ui-card" th:each="request : ${pendingActivationRequests}">
+            <h3 th:text="${request.shop.name}">Shop Name</h3>
+            <p th:text="${request.currentPlan == request.requestedPlan ? request.requestedPlan + ' renewal is paid and ready.' : request.currentPlan + ' → ' + request.requestedPlan + ' is paid and ready.'}">PRO renewal is paid and ready.</p>
+            <div class="shop-meta">
+                <div>
+                    <strong>Owner</strong>
+                    <span th:text="${request.requestedBy.name}">Owner Name</span>
+                </div>
+                <div>
+                    <strong>Paid At</strong>
+                    <span th:text="${request.paymentReceivedAt != null ? #temporals.format(request.paymentReceivedAt, 'dd MMM yyyy') : 'Marked paid'}">29 Apr 2026</span>
+                </div>
+                <div>
+                    <strong>Amount</strong>
+                    <span th:text="${request.requestedAnnualPrice != null ? '₹' + #numbers.formatDecimal(request.requestedAnnualPrice, 1, 'COMMA', 0, 'POINT') : 'Plan-based'}">₹9,990</span>
+                </div>
+                <div>
+                    <strong>Reference</strong>
+                    <span th:text="${request.paymentReference != null && !request.paymentReference.isBlank() ? request.paymentReference : 'No reference'}">UTR123</span>
+                </div>
+            </div>
+            <div class="shop-actions">
+                <a class="chip active" th:href="@{/admin/shops/{id}(id=${request.shop.id})}">Open shop</a>
+                <a class="chip neutral" th:href="@{/admin/upgrade-requests(status='PAYMENT_RECEIVED')}">View paid queue</a>
+            </div>
+        </div>
+    </div>
+    <div class="empty" th:if="${pendingActivationRequests == null or #lists.isEmpty(pendingActivationRequests)}">
+        No paid requests are waiting for activation right now.
+    </div>
+
+    <div class="section-heading">
+        <div>
+            <h2>Paid Portfolio</h2>
+            <p>Paid shops ordered by their subscription horizon so you can spot upcoming commercial attention.</p>
+        </div>
+    </div>
+
+    <div class="shop-grid" th:if="${paidShops != null and !#lists.isEmpty(paidShops)}">
+        <div class="shop-card ui-card" th:each="row : ${paidShops}">
+            <h3 th:text="${row.shop.name}">Shop Name</h3>
+            <p th:text="${row.lifecycle.helperText}">This workspace is active and approaching renewal.</p>
+            <div class="shop-meta">
+                <div>
+                    <strong>Plan</strong>
+                    <span th:text="${row.shop.planType}">PRO</span>
+                </div>
+                <div>
+                    <strong>Lifecycle</strong>
+                    <span>
+                        <span class="chip"
+                              th:classappend="${row.lifecycle.tone == 'critical'} ? ' critical' : (${row.lifecycle.tone == 'warning'} ? ' warning' : ' active')"
+                              th:text="${row.lifecycle.statusLabel}">Active</span>
+                    </span>
+                </div>
+                <div>
+                    <strong>Expiry</strong>
+                    <span th:text="${row.shop.subscriptionEndDate != null ? #temporals.format(row.shop.subscriptionEndDate, 'dd MMM yyyy') : 'No expiry'}">31 Dec 2026</span>
+                </div>
+                <div>
+                    <strong>Open Commercial</strong>
+                    <span th:text="${row.openRequest != null ? row.openRequest.status : 'None'}">None</span>
+                </div>
+            </div>
+            <div class="shop-actions">
+                <a class="chip active" th:href="@{/admin/shops/{id}(id=${row.shop.id})}">Open shop</a>
+            </div>
+        </div>
+    </div>
+    <div class="empty" th:if="${paidShops == null or #lists.isEmpty(paidShops)}">
+        No paid shops found yet.
+    </div>
+
+    <div class="section-heading">
+        <div>
+            <h2>Renewal Due</h2>
+            <p>Paid shops inside the renewal window and likely to need commercial follow-up.</p>
+        </div>
+    </div>
+
+    <div class="shop-grid" th:if="${renewalDueShops != null and !#lists.isEmpty(renewalDueShops)}">
+        <div class="shop-card ui-card" th:each="row : ${renewalDueShops}">
+            <h3 th:text="${row.shop.name}">Shop Name</h3>
+            <p th:text="${row.lifecycle.helperText}">Renewal due.</p>
+            <div class="shop-meta">
+                <div>
+                    <strong>Plan</strong>
+                    <span th:text="${row.shop.planType}">BASIC</span>
+                </div>
+                <div>
+                    <strong>Expiry</strong>
+                    <span th:text="${row.shop.subscriptionEndDate != null ? #temporals.format(row.shop.subscriptionEndDate, 'dd MMM yyyy') : 'No expiry'}">31 May 2026</span>
+                </div>
+                <div>
+                    <strong>Commercial Thread</strong>
+                    <span th:text="${row.openRequest != null ? row.openRequest.status : 'No open request'}">REQUESTED</span>
+                </div>
+                <div>
+                    <strong>Attention</strong>
+                    <span th:text="${row.shop.adminAttentionLevel != null ? row.shop.adminAttentionLevel.displayName : 'Healthy'}">Healthy</span>
+                </div>
+            </div>
+            <div class="shop-actions">
+                <a class="chip warning" th:href="@{/admin/shops/{id}(id=${row.shop.id})}">Open shop</a>
+            </div>
+        </div>
+    </div>
+    <div class="empty" th:if="${renewalDueShops == null or #lists.isEmpty(renewalDueShops)}">
+        No shops are currently inside the renewal-due window.
+    </div>
+
+    <div class="section-heading">
+        <div>
+            <h2>Grace & Expired</h2>
+            <p>Commercial recovery list for paid shops that have already crossed their yearly end date.</p>
+        </div>
+    </div>
+
+    <div class="shop-grid" th:if="${graceOrExpiredShops != null and !#lists.isEmpty(graceOrExpiredShops)}">
+        <div class="shop-card ui-card" th:each="row : ${graceOrExpiredShops}">
+            <h3 th:text="${row.shop.name}">Shop Name</h3>
+            <p th:text="${row.lifecycle.helperText}">Grace period active.</p>
+            <div class="shop-meta">
+                <div>
+                    <strong>Lifecycle</strong>
+                    <span>
+                        <span class="chip"
+                              th:classappend="${row.lifecycle.status.name() == 'EXPIRED'} ? ' critical' : ' warning'"
+                              th:text="${row.lifecycle.statusLabel}">Expired</span>
+                    </span>
+                </div>
+                <div>
+                    <strong>Plan</strong>
+                    <span th:text="${row.shop.planType}">PRO</span>
+                </div>
+                <div>
+                    <strong>Ended</strong>
+                    <span th:text="${row.shop.subscriptionEndDate != null ? #temporals.format(row.shop.subscriptionEndDate, 'dd MMM yyyy') : 'No expiry'}">12 Apr 2026</span>
+                </div>
+                <div>
+                    <strong>Commercial Thread</strong>
+                    <span th:text="${row.openRequest != null ? row.openRequest.status : 'No open request'}">None</span>
+                </div>
+            </div>
+            <div class="shop-actions">
+                <a class="chip critical" th:href="@{/admin/shops/{id}(id=${row.shop.id})}">Recover shop</a>
+            </div>
+        </div>
+    </div>
+    <div class="empty" th:if="${graceOrExpiredShops == null or #lists.isEmpty(graceOrExpiredShops)}">
+        No shops are currently in grace or expired state.
+    </div>
+</div>
 </div>
 </body>
 </html>

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.expygen.entity.Role;
+import com.expygen.entity.SupportRootCause;
 import com.expygen.entity.SupportTicket;
 import com.expygen.entity.TicketPriority;
 import com.expygen.entity.TicketReply;
@@ -48,6 +49,8 @@ public class AdminSupportController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority,
+            @RequestParam(required = false) String rootCause,
+            @RequestParam(required = false, defaultValue = "false") boolean mine,
             Authentication authentication) {
 
         // Check if user is admin
@@ -63,10 +66,14 @@ public class AdminSupportController {
         Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
 
         Page<SupportTicket> tickets;
-        if (status != null && !status.isEmpty()) {
+        if (mine) {
+            tickets = ticketRepository.findByAssignedAdminUsername(admin.getUsername(), pageable);
+        } else if (status != null && !status.isEmpty()) {
             tickets = ticketRepository.findByStatus(TicketStatus.valueOf(status), pageable);
         } else if (priority != null && !priority.isEmpty()) {
             tickets = ticketRepository.findByPriority(TicketPriority.valueOf(priority), pageable);
+        } else if (rootCause != null && !rootCause.isEmpty()) {
+            tickets = ticketRepository.findByRootCause(SupportRootCause.valueOf(rootCause), pageable);
         } else {
             tickets = ticketRepository.findAll(pageable);
         }
@@ -75,10 +82,18 @@ public class AdminSupportController {
         model.addAttribute("currentPage", page);
         model.addAttribute("status", status);
         model.addAttribute("priority", priority);
+        model.addAttribute("rootCause", rootCause);
+        model.addAttribute("mine", mine);
+        model.addAttribute("now", LocalDateTime.now());
+        model.addAttribute("rootCauses", SupportRootCause.values());
         model.addAttribute("totalTickets", ticketRepository.count());
         model.addAttribute("openTickets", ticketRepository.countByStatus(TicketStatus.OPEN));
         model.addAttribute("inProgressTickets", ticketRepository.countByStatus(TicketStatus.IN_PROGRESS));
         model.addAttribute("resolvedTickets", ticketRepository.countByStatus(TicketStatus.RESOLVED));
+        model.addAttribute("overdueTickets", ticketRepository.countOverdueTickets(LocalDateTime.now()));
+        model.addAttribute("assignedToMeTickets", ticketRepository.countByAssignedAdminUsername(admin.getUsername()));
+        model.addAttribute("subscriptionIssueTickets", ticketRepository.countByRootCause(SupportRootCause.SUBSCRIPTION));
+        model.addAttribute("whatsappIssueTickets", ticketRepository.countByRootCause(SupportRootCause.WHATSAPP));
 
         return "admin/support-dashboard";
     }
@@ -105,6 +120,8 @@ public class AdminSupportController {
             model.addAttribute("ticket", ticket);
             model.addAttribute("replies", replies);
             model.addAttribute("isAdmin", isAdmin);
+            model.addAttribute("rootCauses", SupportRootCause.values());
+            model.addAttribute("now", LocalDateTime.now());
 
             return "admin/support-ticket";
 
@@ -181,13 +198,46 @@ public class AdminSupportController {
             return "redirect:/admin/support";
         }
 
-        // You can add an 'assignedTo' field in SupportTicket if needed
-        // ticket.setAssignedTo(admin);
+        ticket.setAssignedAdminUsername(admin.getUsername());
         ticket.setStatus(TicketStatus.IN_PROGRESS);
         ticket.setUpdatedAt(LocalDateTime.now());
         ticketRepository.save(ticket);
 
         redirectAttributes.addFlashAttribute("success", "Ticket assigned to you");
+        return "redirect:/admin/support/ticket/" + ticketNumber;
+    }
+
+    @PostMapping("/ticket/{ticketNumber}/ops")
+    public String updateTicketOps(@PathVariable String ticketNumber,
+            @RequestParam(required = false) SupportRootCause rootCause,
+            @RequestParam(required = false) String internalNote,
+            @RequestParam(required = false) String assignedAdminUsername,
+            @RequestParam(required = false) String dueAt,
+            @RequestParam(defaultValue = "false") boolean relatedSubscriptionIssue,
+            @RequestParam(defaultValue = "false") boolean relatedWhatsappIssue,
+            RedirectAttributes redirectAttributes) {
+        SupportTicket ticket = ticketRepository.findByTicketNumber(ticketNumber);
+        if (ticket == null) {
+            redirectAttributes.addFlashAttribute("error", "Ticket not found");
+            return "redirect:/admin/support";
+        }
+
+        ticket.setRootCause(rootCause);
+        ticket.setInternalNote(internalNote != null && !internalNote.isBlank() ? internalNote.trim() : null);
+        ticket.setAssignedAdminUsername(assignedAdminUsername != null && !assignedAdminUsername.isBlank()
+                ? assignedAdminUsername.trim()
+                : null);
+        ticket.setRelatedSubscriptionIssue(relatedSubscriptionIssue);
+        ticket.setRelatedWhatsappIssue(relatedWhatsappIssue);
+        if (dueAt != null && !dueAt.isBlank()) {
+            ticket.setDueAt(LocalDateTime.parse(dueAt));
+        } else {
+            ticket.setDueAt(null);
+        }
+        ticket.setUpdatedAt(LocalDateTime.now());
+        ticketRepository.save(ticket);
+
+        redirectAttributes.addFlashAttribute("success", "Ticket operations updated");
         return "redirect:/admin/support/ticket/" + ticketNumber;
     }
 

@@ -125,6 +125,13 @@
     </div>
 
     <div class="insights-topbar-actions">
+        <form th:if="${impersonationActive}" th:action="@{/app/admin-impersonation/stop}" method="post" class="insights-impersonation-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="insights-topbar-btn insights-impersonation-btn">
+                <i class="fas fa-user-secret"></i>
+                <span th:text="'Return to Admin (' + ${impersonatorAdminUsername} + ')'">Return to Admin</span>
+            </button>
+        </form>
         <button type="button" class="insights-topbar-btn insights-theme-btn" onclick="toggleAppTheme()" data-theme-toggle>
             <i class="fas fa-moon" data-theme-icon></i>
             <span data-theme-label data-theme-label-mode="compact">Dark</span>

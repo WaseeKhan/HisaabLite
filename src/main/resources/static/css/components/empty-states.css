@@ -1,0 +1,20 @@
+.ui-empty-state {
+    padding: 32px 20px;
+    border-radius: var(--radius-md);
+    border: var(--border-soft);
+    border-color: var(--theme-border, #dde5ef);
+    background: var(--theme-surface, var(--surface-white));
+    text-align: center;
+}
+
+.ui-empty-title {
+    margin-top: 10px;
+    font-size: var(--text-md);
+    font-weight: 800;
+}
+
+.ui-empty-copy {
+    margin-top: 6px;
+    font-size: var(--text-sm);
+    color: var(--theme-muted, var(--text-muted));
+}

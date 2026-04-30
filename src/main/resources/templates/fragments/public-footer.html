@@ -1,42 +1,70 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Footer Fragment - COMPACT -->
 <footer th:fragment="footer" class="site-footer">
     <div class="footer-container">
+
         <div class="footer-brand-block">
-            <a href="/" class="footer-logo">
-                <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="footer-logo-image footer-logo-image-dark">
-                <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="footer-logo-image footer-logo-image-light">
+
+            <a th:href="@{/}" class="footer-logo">
+                <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}"
+                    class="footer-logo-image footer-logo-image-dark">
+
+                <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}"
+                    class="footer-logo-image footer-logo-image-light">
             </a>
+
+            <p class="footer-desc">
+                Modern billing, inventory, WhatsApp invoices and insights
+                for Indian medical stores.
+            </p>
+
+
+
+            <div class="footer-social">
+                
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
         </div>
 
         <div class="footer-links-cluster">
+            <div class="footer-links-title">Product</div>
             <div class="footer-links">
-                <a href="/features">Features</a>
-                <a href="/workflow">Workflow</a>
-                <a href="/pricing">Pricing</a>
-                <a href="/contact">Contact</a>
-                <a href="/blog">Blog</a>
-                <a href="/careers">Careers</a>
-                <a href="/privacy">Privacy</a>
-                <a href="/terms">Terms</a>
-            </div>
-            <div class="footer-socials">
-                <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a th:href="@{/features}">Features</a>
+                <a th:href="@{/workflow}">Workflow</a>
+                <a th:href="@{/pricing}">Pricing</a>
+                <a th:href="@{login}">Login</a>
+                <a th:href="@{/register}">Start Free</a>
             </div>
         </div>
 
-        <div class="footer-meta">
-            <div class="footer-meta-links">
-                <span th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 Expygen</span>
-                <span class="separator">•</span>
-                <span class="footer-made">Made with <span class="heart">♥</span> in India</span>
+        <div class="footer-links-cluster">
+            <div class="footer-links-title">Company</div>
+            <div class="footer-links">
+                <a th:href="@{/about}">About</a>
+                <a th:href="@{/contact}">Contact</a>
+                <a th:href="@{/career}">Career</a>
+                <a th:href="@{/help}">Support</a>
+                <a th:href="@{/blog}">Blog</a>
             </div>
-            <span class="version" th:text="'v' + ${@appConfig.appVersion}">v2.1.2</span>
         </div>
+
+        <div class="footer-links-cluster">
+            <div class="footer-links-title">Legal</div>
+            <div class="footer-links">
+                <a th:href="@{/privacy}">Privacy</a>
+                <a th:href="@{/terms}">Terms</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <span th:text="'© 2026 ' + ${@appConfig.appName}">© 2026 Expygen</span>
+        <span>Made with <span class="heart">♥</span> in India</span>
     </div>
 </footer>
+
+</html>

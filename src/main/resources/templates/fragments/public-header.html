@@ -1,120 +1,90 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Public Header - Relevant Pages for Billing SaaS -->
-<header th:fragment="header" class="hl-public-header">
-    <div class="hl-header-container">
-        <a href="/" class="hl-logo">
-            <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-dark">
-            <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}" class="hl-logo-image hl-logo-image-light">
+<header th:fragment="header" class="site-header">
+    <div class="header-container">
+
+        <a th:href="@{/}" class="header-logo">
+            <span class="logo-img-wrap">
+                <img th:src="@{/images/expygen-mark-light.svg}" th:alt="${@appConfig.appName}"
+                     class="header-logo-img logo-dark">
+                <img th:src="@{/images/expygen-mark-dark.svg}" th:alt="${@appConfig.appName}"
+                     class="header-logo-img logo-light">
+            </span>
+
+            <span class="logo-text">
+                <span class="logo-name">ÉXPYGEN</span>
+                <span class="logo-tagline">Simplified Pharmacy</span>
+            </span>
         </a>
 
-        <nav class="hl-nav">
-            <a href="/about" class="hl-nav-link" data-nav-path="/about">
-                <i class="fas fa-building"></i> About
-            </a>
-            <a href="/features" class="hl-nav-link" data-nav-path="/features">
-                <i class="fas fa-capsules"></i> Features
-            </a>
-            <a href="/workflow" class="hl-nav-link" data-nav-path="/workflow,/how-it-works">
-                <i class="fas fa-wave-square"></i> Workflow
-            </a>
-            <a href="/pricing" class="hl-nav-link" data-nav-path="/pricing">
-                <i class="fas fa-layer-group"></i> Pricing
-            </a>
-            <a href="/contact" class="hl-nav-link" data-nav-path="/contact">
-                <i class="fas fa-headset"></i> Contact
-            </a>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="header-nav" id="mobileMenu">
+
+            <div class="nav-dropdown">
+                <button type="button" class="nav-link nav-drop-btn">
+                    Product <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a th:href="@{/features}">Features</a>
+                    <a th:href="@{/workflow}">Workflow</a>
+                    <a th:href="@{/pricing}">Pricing</a>
+                </div>
+            </div>
+
+            <div class="nav-dropdown">
+                <button type="button" class="nav-link nav-drop-btn">
+                    Solutions <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#">Medical Stores</a>
+                    <a href="#">Retail Shops</a>
+                    <a href="#">Multi-user Stores</a>
+                </div>
+            </div>
+
+            <a th:href="@{/pricing}" class="nav-link nav-direct">Pricing</a>
+
+            <div class="nav-dropdown">
+                <button type="button" class="nav-link nav-drop-btn">
+                    Resources <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a th:href="@{/blog}">Blog</a>
+                    <a th:href="@{'/help'}">Help Center</a>
+                    <a th:href="@{/help}">Support</a>
+                </div>
+            </div>
+
+            <div class="nav-dropdown">
+                <button type="button" class="nav-link nav-drop-btn">
+                    Company <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a th:href="@{/about}">About</a>
+                    <a th:href="@{/careers}">Careers</a>
+                    <a th:href="@{/contact}">Contact</a>
+                </div>
+            </div>
+
         </nav>
 
-        <div class="hl-actions">
-            <button type="button" class="hl-theme-toggle" data-theme-toggle onclick="window.toggleAppTheme && window.toggleAppTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
-                <i class="fas fa-moon" data-theme-icon></i>
-                <span data-theme-label>Dark Mode</span>
+        <div class="header-actions">
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
             </button>
-            <a href="/login" class="hl-btn-login" data-nav-path="/login">Login</a>
-            <a href="/register" class="hl-btn-register" data-nav-path="/register">Start Free</a>
+
+            <a th:href="@{/login}" class="header-login">Login</a>
+
+            <a th:href="@{/register}" class="header-cta">
+                Start Free <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
 
-        <button class="hl-mobile-toggle" id="hlMenuToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
     </div>
-
-    <div class="hl-mobile-menu" id="hlMobileMenu">
-        <div class="hl-mobile-inner">
-            <a href="/about" class="hl-mobile-link" data-nav-path="/about">
-                <i class="fas fa-building"></i> About
-            </a>
-            <a href="/features" class="hl-mobile-link" data-nav-path="/features">
-                <i class="fas fa-capsules"></i> Features
-            </a>
-            <a href="/workflow" class="hl-mobile-link" data-nav-path="/workflow,/how-it-works">
-                <i class="fas fa-wave-square"></i> Workflow
-            </a>
-            <a href="/pricing" class="hl-mobile-link" data-nav-path="/pricing">
-                <i class="fas fa-layer-group"></i> Pricing
-            </a>
-            <a href="/contact" class="hl-mobile-link" data-nav-path="/contact">
-                <i class="fas fa-headset"></i> Support
-            </a>
-            <div class="hl-mobile-actions">
-                <a href="/login" class="hl-mobile-login" data-nav-path="/login">Login</a>
-                <a href="/register" class="hl-mobile-register" data-nav-path="/register">Start Free</a>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('hlMenuToggle');
-        const menu = document.getElementById('hlMobileMenu');
-        const currentPath = window.location.pathname;
-
-        document.querySelectorAll('[data-nav-path]').forEach(function(link) {
-            const paths = (link.getAttribute('data-nav-path') || '')
-                .split(',')
-                .map(function(item) { return item.trim(); })
-                .filter(Boolean);
-
-            if (paths.includes(currentPath)) {
-                if (link.classList.contains('hl-nav-link')) link.classList.add('hl-nav-link-active');
-                if (link.classList.contains('hl-btn-login')) link.classList.add('hl-btn-login-active');
-                if (link.classList.contains('hl-btn-register')) link.classList.add('hl-btn-register-active');
-                if (link.classList.contains('hl-mobile-link')) link.classList.add('hl-mobile-link-active');
-                if (link.classList.contains('hl-mobile-login')) link.classList.add('hl-mobile-login-active');
-                if (link.classList.contains('hl-mobile-register')) link.classList.add('hl-mobile-register-active');
-            }
-        });
-        
-        if (toggle && menu) {
-            toggle.addEventListener('click', function() {
-                toggle.classList.toggle('hl-active');
-                menu.classList.toggle('hl-active');
-                document.body.style.overflow = menu.classList.contains('hl-active') ? 'hidden' : '';
-            });
-            
-            document.addEventListener('click', function(e) {
-                if (menu.classList.contains('hl-active') && 
-                    !toggle.contains(e.target) && 
-                    !menu.contains(e.target)) {
-                    toggle.classList.remove('hl-active');
-                    menu.classList.remove('hl-active');
-                    document.body.style.overflow = '';
-                }
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && menu.classList.contains('hl-active')) {
-                    toggle.classList.remove('hl-active');
-                    menu.classList.remove('hl-active');
-                    document.body.style.overflow = '';
-                }
-            });
-        }
-    });
-    </script>
-    <script th:src="@{/js/theme-toggle.js}"></script>
 </header>
+
+</html>

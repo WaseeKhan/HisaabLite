@@ -1,6 +1,7 @@
 package com.expygen.repository;
 
 import com.expygen.entity.SupportTicket;
+import com.expygen.entity.SupportRootCause;
 import com.expygen.entity.TicketPriority;
 import com.expygen.entity.TicketStatus;
 import com.expygen.entity.Shop;
@@ -28,6 +29,8 @@ public interface SupportTicketRepository extends JpaRepository<SupportTicket, Lo
     // Admin methods
     Page<SupportTicket> findByStatus(TicketStatus status, Pageable pageable);
     Page<SupportTicket> findByPriority(TicketPriority priority, Pageable pageable);
+    Page<SupportTicket> findByRootCause(SupportRootCause rootCause, Pageable pageable);
+    Page<SupportTicket> findByAssignedAdminUsername(String assignedAdminUsername, Pageable pageable);
     
     @Query("SELECT COUNT(t) FROM SupportTicket t WHERE t.status = ?1")
     long countByStatus(TicketStatus status);
@@ -43,6 +46,13 @@ public interface SupportTicketRepository extends JpaRepository<SupportTicket, Lo
 
     @Query("SELECT COUNT(t) FROM SupportTicket t WHERE t.priority = ?1")
     long countByPriority(TicketPriority priority);
+
+    long countByAssignedAdminUsername(String assignedAdminUsername);
+
+    @Query("SELECT COUNT(t) FROM SupportTicket t WHERE t.dueAt IS NOT NULL AND t.dueAt < :now AND t.status <> 'RESOLVED' AND t.status <> 'CLOSED'")
+    long countOverdueTickets(@Param("now") LocalDateTime now);
+
+    long countByRootCause(SupportRootCause rootCause);
 
     @Query("SELECT COUNT(t) FROM SupportTicket t WHERE t.createdAt BETWEEN ?1 AND ?2")
     Long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);

@@ -84,7 +84,7 @@ admin:
 app:
   env: development
   name: ${dev.app.name:Expygen}
-  tagline: ${dev.app.tagline:Simplify Pharmacy}
+  tagline: ${dev.app.tagline:Simplified Pharmacy}
   short-code: ${dev.app.shortCode:RX}
   version: ${dev.app.version:2.2.0}
   base-url: ${dev.app.baseUrl:http://localhost:8080}

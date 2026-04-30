@@ -1,2219 +1,1097 @@
-body.landing-page {
-    --lp-bg: #f8fbff;
-    --lp-surface: rgba(255, 255, 255, 0.94);
-    --lp-surface-strong: #ffffff;
-    --lp-border: rgba(214, 223, 242, 0.92);
-    --lp-border-strong: rgba(193, 205, 231, 0.96);
-    --lp-text: #1F1F1F;
-    --lp-text-soft: #5f6f8d;
-    --lp-text-muted: #7e8ca7;
-    --lp-blue: #1F6FEB;
-    --lp-blue-deep: #164fb1;
-    --lp-orange: #F27A21;
-    --lp-orange-deep: #dd6c14;
-    --lp-green: #25b05a;
-    --lp-shadow: 0 20px 50px rgba(31, 41, 68, 0.08);
-    --lp-shadow-soft: 0 12px 28px rgba(31, 41, 68, 0.06);
-
-    background:
-        radial-gradient(circle at top left, rgba(31, 111, 235, 0.08), transparent 28%),
-        radial-gradient(circle at top right, rgba(242, 122, 33, 0.08), transparent 22%),
-        linear-gradient(180deg, #f8fbff 0%, #ffffff 38%, #f8fbff 100%);
-    color: var(--lp-text);
+.landing-page {
+    background: var(--gradient-page);
 }
 
 .landing-root {
-    padding-bottom: 32px;
+    flex: 1;
 }
 
-.lp-shell {
-    width: min(1450px, calc(100% - 44px));
-    margin: 0 auto;
-}
-
-/* HERO */
-.lp-hero {
-    padding: 6px 0 0;
-}
-
-.lp-hero-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.98fr) minmax(540px, 0.96fr);
-    gap: 24px;
-    align-items: center;
-    padding: 28px 8px 30px;
-    border-top: 1px solid rgba(225, 231, 245, 0.96);
-    border-bottom: 1px solid rgba(225, 231, 245, 0.96);
-    background:
-        radial-gradient(circle at 14% 35%, rgba(31, 111, 235, 0.05), transparent 24%),
-        radial-gradient(circle at 90% 44%, rgba(242, 122, 33, 0.06), transparent 18%);
-}
-
-.lp-hero-copy h1 {
-    margin: 0;
-    max-width: 760px;
-    font-size: clamp(2.55rem, 3.7vw, 4rem);
-    line-height: 1.08;
-    letter-spacing: -0.056em;
-    font-weight: 700;
-    color: #1d2742;
-}
-
-.lp-hero-copy .is-blue {
-    color: var(--lp-blue);
-}
-
-.lp-hero-copy .is-orange {
-    color: var(--lp-orange);
-}
-
-.lp-hero-text {
-    margin: 18px 0 0;
-    max-width: 100%px;
-    font-size: 1rem;
-    line-height: 1.62;
-    color: var(--lp-text-soft);
-}
-
-.features-hero-pills {
-
-    flex-direction: column;
-    align-items: stretch;
-    margin-top: 30px;
-    margin-bottom: 20px;
-}
-
-
-.sales-btn-whatsapp{
-color:#25D366;
-}
-
-
-.sales-btn-cancel:hover{
-background:#fde8e8;
-color:#ef4444;
-}
-
-.sales-btn-cancel{
-color:#ef4444;
-}
-
-.sales-action-buttons{
-display:flex;
-align-items:center;
-gap:8px;
-flex-wrap:wrap;
-}
-
-.sales-btn-view:hover{
-background:#e6f4ff;
-color:#1f6feb;
-}
-
-.features-hero-pills span {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid #dbe4ef;
-    color: var(--gray-700);
-    font-size: 12px;
-    font-weight: 700;
-    box-shadow: var(--shadow-sm);
-}
-
-.features-hero-pills i {
-    color: var(--accent);
-}
-
-.lp-hero-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-top: 24px;
-}
-
-.lp-btn,
-.lp-plan-btn {
-    min-height: 52px;
-    padding: 0 24px;
-    border-radius: 16px;
-    border: 1px solid transparent;
-    font-size: 1rem;
-    font-weight: 800;
-    text-decoration: none;
+/* Buttons */
+.xl-btn {
+    min-height: 50px;
+    padding: 0 23px;
+    border-radius: var(--radius-full);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 900;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.lp-btn:hover,
-.lp-plan-btn:hover {
+.xl-btn:hover {
     transform: translateY(-2px);
 }
 
-.lp-btn-primary {
-    background: linear-gradient(180deg, #f79a37 0%, #F27A21 100%);
-    color: #ffffff;
-    box-shadow: 0 14px 28px rgba(242, 122, 33, 0.22);
+.xl-btn-primary {
+    color: #fff;
+    background: var(--gradient-cta);
+    box-shadow: var(--shadow-accent);
 }
 
-.lp-btn-secondary {
-    background: #ffffff;
-    color: var(--lp-blue);
-    border-color: rgba(208, 219, 242, 0.95);
-    box-shadow: var(--lp-shadow-soft);
+.xl-btn-secondary {
+    color: var(--page-text);
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid var(--page-border);
 }
 
-.lp-hero-stage {
-    position: relative;
-    min-height: 500px;
+/* HERO */
+.xl-hero {
+    padding: 54px 0 48px;
+    background:
+        radial-gradient(circle at 0% 28%, rgba(242, 122, 33, 0.14), transparent 26%),
+        radial-gradient(circle at 78% 20%, rgba(31, 111, 235, 0.14), transparent 30%),
+        radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.12), transparent 28%);
 }
 
-.lp-device-cloud {
-    position: absolute;
-    border-radius: 30px;
-    z-index: 0;
-}
-
-.cloud-a {
-    width: 104px;
-    height: 210px;
-    top: 102px;
-    left: 42px;
-    background: linear-gradient(180deg, rgba(31, 111, 235, 0.11) 0%, rgba(31, 111, 235, 0.05) 100%);
-}
-
-.cloud-b {
-    width: 114px;
-    height: 230px;
-    top: 122px;
-    left: 118px;
-    background: linear-gradient(180deg, rgba(242, 122, 33, 0.14) 0%, rgba(31, 111, 235, 0.08) 100%);
-}
-
-.cloud-c {
-    width: 88px;
-    height: 165px;
-    top: 132px;
-    left: 188px;
-    background: linear-gradient(180deg, rgba(31, 111, 235, 0.08) 0%, rgba(242, 122, 33, 0.05) 100%);
-}
-
-.lp-whatsapp-banner {
-    position: absolute;
-    top: 0;
-    right: 26px;
-    z-index: 4;
-    min-height: 62px;
-    width: min(100%, 560px);
-    padding: 0 20px;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(218, 225, 241, 0.95);
-    box-shadow: 0 14px 28px rgba(29, 41, 68, 0.06);
-    display: flex;
+.xl-hero-wrap {
+    min-height: 640px;
+    display: grid;
+    grid-template-columns: 41% 59%;
+    gap: 48px;
     align-items: center;
+}
+
+.xl-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid var(--page-border);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.xl-hero-copy h1 {
+    margin-top: 18px;
+    max-width: 620px;
+    font-family: var(--font-display);
+    font-size: clamp(2.85rem, 4.15vw, 4.95rem);
+    line-height: 1.02;
+    letter-spacing: -0.075em;
+    color: #111827;
+}
+
+.xl-hero-copy h1 span {
+    color: var(--accent);
+}
+
+.xl-hero-copy p {
+    margin-top: 20px;
+    max-width: 610px;
+    font-size: 15.5px;
+    line-height: 1.75;
+    color: #526173;
+}
+
+.xl-hero-actions {
+    margin-top: 28px;
+    display: flex;
     gap: 14px;
-}
-
-.lp-whatsapp-banner .fa-whatsapp {
-    font-size: 1.65rem;
-    color: #25d366;
-    flex-shrink: 0;
-}
-
-.lp-whatsapp-banner span {
-    flex: 1;
-    font-size: 0.98rem;
-    line-height: 1.4;
-    color: #253556;
-    font-weight: 500;
-}
-
-.lp-whatsapp-banner .fa-chevron-down {
-    color: #586988;
-    font-size: 0.9rem;
-}
-
-.lp-laptop {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: min(100%, 720px);
-    z-index: 2;
-}
-
-.lp-laptop-window {
-    border-radius: 22px;
-    border: 1px solid rgba(191, 204, 230, 0.96);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 255, 0.98) 100%);
-    box-shadow: 0 22px 44px rgba(31, 41, 68, 0.12);
-    overflow: hidden;
-}
-
-.lp-laptop-topbar {
-    min-height: 42px;
-    padding: 0 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-    border-bottom: 1px solid rgba(226, 233, 246, 0.95);
-}
-
-.topbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: #203153;
-    letter-spacing: 0.02em;
-}
-
-.brand-mark {
-    width: 18px;
-    height: 18px;
-    border-radius: 6px;
-    background: linear-gradient(180deg, var(--lp-orange) 0%, var(--lp-blue) 100%);
-}
-
-.topbar-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.topbar-actions span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #d7e0f2 0%, #c9d5ee 100%);
-}
-
-.lp-shot-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 186px;
-    background: linear-gradient(180deg, #f7faff 0%, #f3f7fd 100%);
-    min-height: 320px;
-}
-
-.lp-shot-main {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.lp-shot-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-}
-
-.tool-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    border: 1px solid rgba(216, 225, 242, 0.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    display: grid;
-    place-items: center;
-    color: #506281;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
-}
-
-.tool-icon.icon-primary {
-    background: linear-gradient(180deg, var(--lp-blue) 0%, #2257bc 100%);
-    border-color: transparent;
-    color: #ffffff;
-    box-shadow: 0 10px 18px rgba(31, 111, 235, 0.22);
-}
-
-.tool-icon.icon-secondary {
-    color: #233658;
-    border-color: rgba(205, 216, 239, 0.95);
-}
-
-.tool-search {
-    flex: 1;
-    min-height: 38px;
-    border-radius: 14px;
-    border: 1px solid rgba(214, 223, 242, 0.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 14px;
-    color: #7e8ca7;
-    font-size: 0.72rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
-}
-
-.tool-search i {
-    color: #7d8baa;
-    font-size: 0.8rem;
-}
-
-.tool-search span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.toolbar-right {
-    display: flex;
-    gap: 8px;
-}
-
-.tool-chip {
-    min-width: 50px;
-    min-height: 36px;
-    padding: 0 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(216, 225, 242, 0.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    color: #506281;
-    font-size: 0.72rem;
-    font-weight: 800;
-}
-
-.tool-chip.dark {
-    background: #1F1F1F;
-    color: #ffffff;
-    border-color: transparent;
-}
-
-.tool-chip.blue {
-    background: linear-gradient(180deg, var(--lp-blue) 0%, #2257bc 100%);
-    color: #ffffff;
-    border-color: transparent;
-}
-
-.lp-shot-table {
-    flex: 1;
-    border-radius: 16px;
-    border: 1px solid rgba(214, 223, 242, 0.95);
-    background: rgba(255, 255, 255, 0.96);
-    overflow: hidden;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94);
-}
-
-.table-head,
-.table-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 48px 72px 58px 82px;
-    gap: 8px;
-    align-items: center;
-    padding: 10px 12px;
-}
-
-.table-head {
-    font-size: 0.68rem;
-    font-weight: 800;
-    color: #28395c;
-    border-bottom: 1px solid rgba(230, 236, 247, 0.96);
-    background: linear-gradient(180deg, #fbfcff 0%, #f4f8ff 100%);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.table-head span:first-child {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.table-head em {
-    min-width: 22px;
-    height: 22px;
-    padding: 0 7px;
-    border-radius: 999px;
-    background: rgba(31, 111, 235, 0.1);
-    color: var(--lp-blue);
-    font-style: normal;
-    font-size: 0.66rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.table-row {
-    font-size: 0.66rem;
-    color: #445575;
-    border-bottom: 1px solid rgba(235, 240, 249, 0.92);
-}
-
-.table-row span:first-child {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.table-row strong {
-    font-weight: 800;
-    color: #253556;
-    line-height: 1.1;
-}
-
-.table-row small {
-    font-size: 0.58rem;
-    color: #7d8ba6;
-    line-height: 1.15;
-}
-
-.table-row span:not(:first-child) {
-    font-weight: 700;
-    color: #314566;
-}
-
-.compact-sale-btn {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(216, 225, 242, 0.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-    box-shadow: 0 4px 10px rgba(31, 41, 68, 0.04);
-}
-
-.compact-sale-btn i {
-    font-size: 0.78rem;
-}
-
-.footer-actions-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.footer-light-btn {
-    min-height: 32px;
-    padding: 0 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(216, 225, 242, 0.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-    color: #2e4061;
-    font-size: 0.68rem;
-    font-weight: 800;
-}
-
-.footer-icon-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
-    border: 1px solid rgba(216, 225, 242, 0.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-    color: #45618f;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.lp-shot-footerbar {
-    display: flex;
-    gap: 8px;
     flex-wrap: wrap;
 }
 
-.lp-shot-footerbar span {
-    min-height: 28px;
-    padding: 0 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(219, 227, 244, 0.96);
-    background: #ffffff;
+.xl-proof-row {
+    margin-top: 26px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.xl-proof-row span {
     display: inline-flex;
     align-items: center;
-    color: #41526f;
-    font-size: 0.62rem;
-    font-weight: 700;
+    gap: 8px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 800;
 }
 
-.lp-shot-payment {
-    margin: 12px 12px 12px 0;
-    padding: 14px;
-    border-radius: 16px;
-    border: 1px solid rgba(214, 223, 242, 0.95);
-    background: rgba(255, 255, 255, 0.98);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.xl-proof-row i {
+    color: var(--success);
 }
 
-.lp-shot-payment h4 {
-    margin: 0;
-    font-size: 0.92rem;
-    font-weight: 900;
-    color: #213153;
+.xl-hero-mini-stats {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 560px;
+    gap: 14px;
 }
 
-.payment-line,
-.payment-total {
+.xl-hero-mini-stats div {
+    min-height: 78px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--page-border);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 12px;
+    align-items: center;
+}
+
+.xl-hero-mini-stats i {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.xl-hero-mini-stats strong {
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: #111827;
+    letter-spacing: -0.05em;
+}
+
+.xl-hero-mini-stats span {
+    grid-column: 2;
+    margin-top: -8px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* HERO VISUAL */
+.xl-hero-visual {
+    position: relative;
+    min-height: 520px;
+}
+
+.xl-dashboard {
+    position: absolute;
+    top: 30px;
+    right: 110px;
+    width: min(720px, 86%);
+    border-radius: 30px;
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(18px);
+}
+
+.xl-dashboard-top {
+    height: 56px;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    background: rgba(255, 255, 255, 0.72);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.72rem;
-    color: #47597a;
 }
 
-.payment-total {
-    font-weight: 900;
-    color: #1d2d4e;
-}
-
-.payment-total strong {
-    color: var(--lp-orange-deep);
-    font-size: 0.94rem;
-}
-
-.payment-modes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-}
-
-.payment-modes span,
-.payment-field {
-    min-height: 30px;
-    border-radius: 10px;
-    border: 1px solid rgba(221, 229, 244, 0.98);
-    background: #ffffff;
+.xl-dashboard-top > div:first-child {
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: #40516e;
-    font-size: 0.64rem;
-    font-weight: 700;
+    gap: 10px;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 900;
 }
 
-.payment-modes span.active {
-    background: rgba(242, 122, 33, 0.08);
-    border-color: rgba(242, 122, 33, 0.28);
+.xl-mini-logo {
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+    background: var(--gradient-brand);
 }
 
-.payment-field {
-    justify-content: flex-start;
-    padding: 0 10px;
-    color: #7a88a2;
+.xl-window-dots {
+    display: flex;
+    gap: 8px;
 }
 
-.payment-btn {
-    min-height: 36px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #f79a37 0%, #F27A21 100%);
-    color: #ffffff;
+.xl-window-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+.xl-window-dots span:nth-child(1) { background: #ff5f57; }
+.xl-window-dots span:nth-child(2) { background: #ffbd2e; }
+.xl-window-dots span:nth-child(3) { background: #28c840; }
+
+.xl-dashboard-body {
+    padding: 20px;
+    background: linear-gradient(180deg, #f8fbff, #eef5ff);
+}
+
+.xl-stats-row {
     display: grid;
-    place-items: center;
-    font-size: 0.76rem;
-    font-weight: 800;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
 }
 
-.cancel-btn{
-    min-height: 36px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #24395f 0%, #1b2f53 100%);
-    color: #ffffff;
+.xl-stat-card,
+.xl-chart-card,
+.xl-side-panel {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: none;
+}
+
+.xl-stat-card {
+    padding: 17px;
+    border-radius: 20px;
+}
+
+.xl-stat-card span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.xl-stat-card strong {
+    display: block;
+    margin-top: 8px;
+    color: #111827;
+    font-family: var(--font-display);
+    font-size: 25px;
+    letter-spacing: -0.06em;
+}
+
+.xl-stat-card small {
+    color: #16a34a;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.xl-stat-card.orange small {
+    color: var(--accent);
+}
+
+.xl-dashboard-grid {
+    margin-top: 14px;
     display: grid;
-    place-items: center;
-    font-size: 0.76rem;
-    font-weight: 800;
+    grid-template-columns: 1fr 210px;
+    gap: 14px;
 }
 
-.lp-laptop-base {
-    width: calc(100% + 66px);
-    height: 14px;
-    margin-left: -33px;
-    margin-top: -1px;
-    border-radius: 0 0 999px 999px;
-    background: linear-gradient(180deg, #cfd8eb 0%, #a6b4cf 100%);
-    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.52);
+.xl-chart-card,
+.xl-side-panel {
+    border-radius: 24px;
 }
 
-/* COMMON SECTIONS */
-.lp-benefits,
-.lp-features,
-.lp-band,
-.lp-pricing,
-.lp-trust {
-    padding-top: 24px;
+.xl-chart-card {
+    padding: 20px;
 }
 
-.lp-benefit-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.lp-benefit-card,
-.lp-feature-card,
-.lp-plan-card {
-    border-radius: 22px;
-    border: 1px solid var(--lp-border);
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: var(--lp-shadow-soft);
-}
-
-.lp-benefit-card {
-    min-height: 94px;
-    padding: 16px;
-    display: grid;
-    grid-template-columns: 56px 1fr;
+.xl-chart-head {
+    display: flex;
+    justify-content: space-between;
     gap: 12px;
-    align-items: center;
 }
 
-.lp-benefit-icon,
-.lp-feature-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    display: grid;
-    place-items: center;
-    font-size: 1.25rem;
+.xl-chart-head strong {
+    display: block;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 900;
 }
 
-.icon-blue,
-.lp-feature-icon {
-    background: linear-gradient(180deg, rgba(31, 111, 235, 0.12) 0%, rgba(31, 111, 235, 0.06) 100%);
-    color: var(--lp-blue);
+.xl-chart-head span {
+    display: block;
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 800;
 }
 
-.icon-gold {
-    background: linear-gradient(180deg, rgba(242, 122, 33, 0.16) 0%, rgba(242, 122, 33, 0.08) 100%);
-    color: var(--lp-orange-deep);
+.xl-chart-head em {
+    font-style: normal;
+    color: var(--accent);
+    font-weight: 900;
+    font-size: 18px;
 }
 
-.icon-green {
-    background: linear-gradient(180deg, rgba(37, 176, 90, 0.14) 0%, rgba(37, 176, 90, 0.06) 100%);
-    color: var(--lp-green);
+.xl-chart-bars {
+    height: 160px;
+    margin-top: 22px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95);
 }
 
-.lp-benefit-card h3,
-.lp-feature-card h3,
-.lp-plan-card .lp-plan-name {
-    margin: 0;
-    color: #1d2742;
+.xl-chart-bars span {
+    flex: 1;
+    border-radius: 999px 999px 0 0;
+    background: linear-gradient(180deg, var(--primary), #8fc1ff);
 }
 
-.lp-benefit-card h3 {
-    font-size: 1.14rem;
-    line-height: 1.08;
-    letter-spacing: -0.03em;
+.xl-chart-bars span:nth-child(2n) {
+    background: linear-gradient(180deg, var(--accent), #ffd1a8);
 }
 
-.lp-benefit-card p,
-.lp-feature-card p {
-    margin: 6px 0 0;
-    color: var(--lp-text-soft);
-    line-height: 1.5;
-    font-size: 0.88rem;
+.xl-chart-labels {
+    margin-top: 11px;
+    display: flex;
+    justify-content: space-between;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 900;
 }
 
-.lp-heading {
-    max-width: 980px;
-    margin: 0 auto 18px;
-    text-align: center;
-    position: relative;
-    padding-top: 10px;
-}
-
-.lp-heading h2 {
-    margin: 0;
-    font-size: clamp(1.95rem, 3.1vw, 2.95rem);
-    line-height: 1.12;
-    letter-spacing: -0.045em;
-    color: #1d2742;
-}
-
-.lp-heading h2 span,
-.lp-band-copy h2 span {
-    color: var(--lp-blue);
-}
-
-.lp-heading p {
-    margin: 12px auto 0;
-    max-width: 760px;
-    color: var(--lp-text-soft);
-    font-size: 0.95rem;
-    line-height: 1.58;
-}
-
-.lp-feature-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.lp-feature-card {
-    min-height: 154px;
+.xl-side-panel {
     padding: 18px;
 }
 
-.lp-feature-card h3 {
-    margin-top: 12px;
-    font-size: 1.12rem;
-    line-height: 1.18;
-    letter-spacing: -0.03em;
+.xl-side-panel h4 {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 900;
+    margin-bottom: 13px;
 }
 
-/* BAND */
-.lp-band-inner {
-    display: grid;
-    grid-template-columns: 84px minmax(0, 1fr);
-    gap: 16px;
-    align-items: center;
-    padding-top: 12px;
-    border-top: 1px solid rgba(225, 231, 245, 0.96);
+.xl-product-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-.lp-band-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 22px;
-    background: linear-gradient(180deg, rgba(37, 176, 90, 0.16) 0%, rgba(37, 176, 90, 0.08) 100%);
-    color: var(--lp-green);
-    font-size: 2rem;
+.xl-product-line span {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.xl-product-line strong {
+    color: #111827;
+    font-size: 13px;
+}
+
+.xl-donut {
+    width: 94px;
+    height: 94px;
+    margin: 18px auto 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at center, #ffffff 0 52%, transparent 53%),
+        conic-gradient(var(--accent) 0 64%, #e2e8f0 64% 100%);
     display: grid;
     place-items: center;
 }
 
-.lp-band-copy h2 {
-    margin: 0;
-    font-size: clamp(1.8rem, 2.8vw, 2.7rem);
-    line-height: 1.14;
-    letter-spacing: -0.04em;
-    color: #1d2742;
+.xl-donut span {
+    color: #111827;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 900;
 }
 
-.lp-band-copy p {
-    margin: 10px 0 0;
-    color: var(--lp-text-soft);
-    font-size: 0.94rem;
-    line-height: 1.56;
-}
-
-/* PRICING */
-.lp-pricing-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.lp-plan-card {
-    min-height: 100%;
-    padding: 20px 18px 18px;
-    position: relative;
-}
-
-.lp-plan-popular {
-    border-color: rgba(31, 111, 235, 0.28);
-    box-shadow: 0 18px 36px rgba(31, 111, 235, 0.1);
-}
-
-.lp-plan-tag {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    min-height: 28px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: rgba(31, 111, 235, 0.1);
-    color: var(--lp-blue);
-    font-size: 0.7rem;
+.xl-side-panel p {
+    margin-top: 10px;
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
     font-weight: 800;
+}
+
+/* HERO PHONE */
+.xl-mobile,
+.xl-phone-large {
+    border-radius: 38px;
+    background: linear-gradient(180deg, #020617, #0b1220);
+    border: 8px solid #111827;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+}
+
+.xl-mobile {
+    position: absolute;
+    right: 70px;
+    bottom: 28px;
+    width: 195px;
+    height: 350px;
+    padding: 14px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.xl-mobile::before {
+    content: "";
+    width: 60px;
+    height: 14px;
+    border-radius: 0 0 12px 12px;
+    background: #020617;
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.xl-mobile::after {
+    content: "";
+    width: 30px;
+    height: 4px;
+    border-radius: 999px;
+    background: #1e293b;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.xl-mobile-head {
+    height: 40px;
+    margin-top: 22px;
+    border-radius: 18px;
+    background: #22c55e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-weight: 900;
+    font-size: 12px;
+}
+
+.xl-chat-card {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 17px 17px 17px 5px;
+    background: #dcf8c6;
+    color: #0f172a;
+}
+
+.xl-chat-card strong {
+    font-size: 11px;
+}
+
+.xl-chat-card p {
+    margin-top: 7px;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.xl-chat-card div {
+    margin-top: 10px;
     display: inline-flex;
+    gap: 7px;
+    color: #075e54;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.xl-chat-card.customer {
+    width: max-content;
+    margin-left: auto;
+    border-radius: 16px 16px 5px 16px;
+    background: #fff;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.xl-mobile-total {
+    margin-top: auto;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.xl-mobile-total span {
+    font-size: 11px;
+    color: #cbd5e1;
+}
+
+.xl-mobile-total strong {
+    display: block;
+    margin-top: 5px;
+    font-family: var(--font-display);
+    font-size: 22px;
+}
+
+/* SECTIONS */
+.xl-section {
+    padding: 76px 0 0;
+}
+
+.xl-feature-grid {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.xl-feature-card,
+.xl-step,
+.xl-plan-card {
+    padding: 26px;
+    border-radius: 28px;
+    border: 1px solid var(--page-border);
+    background: rgba(255,255,255,0.76);
+    box-shadow: none;
+    transition: all 0.22s ease;
+}
+
+.xl-feature-card:hover,
+.xl-step:hover,
+.xl-plan-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(31, 111, 235, 0.22);
+}
+
+.xl-feature-card > i {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 20px;
+}
+
+.xl-feature-card h3,
+.xl-step h3,
+.xl-plan-card h3 {
+    margin-top: 20px;
+    font-family: var(--font-display);
+    color: var(--page-text);
+    letter-spacing: -0.04em;
+}
+
+.xl-feature-card p,
+.xl-step p,
+.xl-plan-card p {
+    margin-top: 10px;
+    color: var(--page-text-soft);
+    line-height: 1.65;
+    font-size: 14px;
+}
+
+/* WhatsApp */
+.xl-whatsapp-card {
+    padding: 56px;
+    border-radius: 42px;
+    border: 1px solid var(--page-border);
+    background:
+        radial-gradient(circle at 14% 20%, rgba(37, 211, 102, 0.14), transparent 28%),
+        linear-gradient(135deg, #f2fff7, #ffffff 55%, #fff7ec);
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 44px;
     align-items: center;
 }
 
-.lp-plan-name {
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: -0.04em;
+.xl-whatsapp-card h2,
+.xl-final-card h2 {
+    margin-top: 16px;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.2vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.055em;
+    color: #111827;
 }
 
-.lp-plan-price {
-    margin-top: 14px;
-    font-size: 2.25rem;
-    line-height: 1;
-    color: var(--lp-blue);
-    font-weight: 900;
-    letter-spacing: -0.05em;
+.xl-whatsapp-card p,
+.xl-final-card p {
+    margin-top: 18px;
+    max-width: 640px;
+    color: #526173;
+    line-height: 1.75;
 }
 
-.lp-plan-price.price-free {
-    color: #1c9d55;
-}
-
-.lp-plan-price span {
-    font-size: 1.12rem;
-    font-weight: 700;
-    color: var(--lp-text-soft);
-}
-
-.lp-plan-card ul {
-    margin: 16px 0 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 10px;
-}
-
-.lp-plan-card li {
+.xl-whatsapp-points {
+    margin: 24px 0;
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    color: var(--lp-text-soft);
-    line-height: 1.48;
-    font-size: 0.94rem;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.lp-plan-card li i {
-    margin-top: 2px;
-    color: #1c9d55;
+.xl-whatsapp-points span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 900;
 }
 
-.lp-plan-btn {
+.xl-whatsapp-points i {
+    color: var(--success);
+}
+
+.xl-wa-extra {
+    margin: 26px 0;
+    display: grid;
+    gap: 12px;
+    max-width: 430px;
+}
+
+.xl-wa-extra div {
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--page-border);
+}
+
+.xl-wa-extra strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--page-text);
+}
+
+.xl-wa-extra span {
+    font-size: 12px;
+    color: var(--page-muted);
+}
+
+.xl-phone-large {
+    width: 300px;
+    min-height: 560px;
+    padding: 18px;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Workflow */
+.xl-steps-flow {
+    margin-top: 42px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.xl-step.active {
+    border-color: rgba(242, 122, 33, 0.42);
+}
+
+.step-no {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 900;
+    margin-bottom: 16px;
+}
+
+/* Pricing */
+.xl-pricing-wrap {
     width: 100%;
-    margin-top: 18px;
-    background: linear-gradient(180deg, #24395f 0%, #1b2f53 100%);
-    color: #ffffff;
+    display: flex;
+    justify-content: center;
 }
 
-/* TRUST */
-.lp-trust-card {
-    padding: 30px 18px 32px;
-    border-top: 1px solid rgba(225, 231, 245, 0.98);
+.xl-pricing-grid {
+    width: min(1120px, 100%);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.xl-plan-card {
+    min-height: 440px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.xl-plan-card.popular,
+.xl-plan-card.pro {
+    border-color: rgba(242, 122, 33, 0.45);
+}
+
+.xl-plan-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    padding: 7px 12px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-cta);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.xl-price {
+    margin-top: 18px;
+    color: var(--page-text);
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: -0.07em;
+}
+
+.xl-price small {
+    font-family: var(--font-family);
+    color: var(--page-muted);
+    font-size: 13px;
+    letter-spacing: 0;
+}
+
+.xl-plan-card ul {
+    margin-top: 22px;
+    display: grid;
+    gap: 12px;
+    flex: 1;
+}
+
+.xl-plan-card li {
+    display: flex;
+    gap: 9px;
+    color: var(--page-text-soft);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.xl-plan-card li i {
+    color: var(--success);
+    margin-top: 3px;
+}
+
+.xl-plan-btn {
+    width: 100%;
+    height: 48px;
+    margin-top: 24px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-dark);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.xl-plan-card.popular .xl-plan-btn {
+    background: var(--gradient-cta);
+}
+
+/* Final CTA */
+.xl-final-cta {
+    padding: 76px 0 64px;
+}
+
+.xl-final-card {
+    padding: 58px 34px;
+    border-radius: 42px;
     text-align: center;
+    border: 1px solid var(--page-border);
+    background:
+        radial-gradient(circle at 16% 20%, rgba(242,122,33,0.16), transparent 30%),
+        radial-gradient(circle at 84% 20%, rgba(31,111,235,0.14), transparent 30%),
+        linear-gradient(135deg, #fff7ec, #f8fbff);
+    box-shadow: none;
 }
 
-.lp-trust-card h2 {
-    margin: 0;
-    font-size: clamp(1.9rem, 3vw, 2.8rem);
-    line-height: 1.12;
-    letter-spacing: -0.05em;
-    color: #1d2742;
+.xl-final-card p {
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.lp-trust-card p {
-    margin: 12px auto 0;
-    max-width: 760px;
-    color: var(--lp-text-soft);
-    font-size: 0.95rem;
-    line-height: 1.58;
+.xl-final-card div {
+    margin-top: 26px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 
-.lp-trust-btn {
-    margin-top: 18px;
-    min-width: 240px;
+/* DARK MODE */
+:root[data-theme="dark"] .xl-hero-copy h1,
+:root[data-theme="dark"] .xl-dashboard-top > div:first-child,
+:root[data-theme="dark"] .xl-stat-card strong,
+:root[data-theme="dark"] .xl-chart-head strong,
+:root[data-theme="dark"] .xl-side-panel h4,
+:root[data-theme="dark"] .xl-product-line strong,
+:root[data-theme="dark"] .xl-donut span,
+:root[data-theme="dark"] .xl-whatsapp-card h2,
+:root[data-theme="dark"] .xl-final-card h2,
+:root[data-theme="dark"] .section-heading h2 {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .xl-hero-copy p,
+:root[data-theme="dark"] .xl-proof-row span,
+:root[data-theme="dark"] .xl-chart-head span,
+:root[data-theme="dark"] .xl-product-line span,
+:root[data-theme="dark"] .xl-chart-labels,
+:root[data-theme="dark"] .xl-side-panel p,
+:root[data-theme="dark"] .xl-whatsapp-card p,
+:root[data-theme="dark"] .xl-final-card p,
+:root[data-theme="dark"] .section-heading p {
+    color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .xl-kicker,
+:root[data-theme="dark"] .xl-dashboard,
+:root[data-theme="dark"] .xl-stat-card,
+:root[data-theme="dark"] .xl-chart-card,
+:root[data-theme="dark"] .xl-side-panel,
+:root[data-theme="dark"] .xl-feature-card,
+:root[data-theme="dark"] .xl-step,
+:root[data-theme="dark"] .xl-plan-card,
+:root[data-theme="dark"] .xl-btn-secondary,
+:root[data-theme="dark"] .xl-wa-extra div {
+    background: rgba(17, 24, 39, 0.84);
+    border-color: var(--page-border);
+}
+
+:root[data-theme="dark"] .xl-dashboard-top {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--page-border);
+}
+
+:root[data-theme="dark"] .xl-dashboard-body {
+    background: linear-gradient(180deg, #0f172a, #111827);
+}
+
+:root[data-theme="dark"] .xl-whatsapp-card,
+:root[data-theme="dark"] .xl-final-card {
+    background:
+        radial-gradient(circle at 12% 18%, rgba(242,122,33,0.14), transparent 28%),
+        radial-gradient(circle at 80% 12%, rgba(31,111,235,0.16), transparent 30%),
+        linear-gradient(135deg, #111827, #0f172a 58%, #111827);
+}
+
+:root[data-theme="dark"] .xl-btn-secondary {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .xl-donut {
+    background:
+        radial-gradient(circle at center, #111827 0 52%, transparent 53%),
+        conic-gradient(var(--accent) 0 64%, rgba(148,163,184,0.22) 64% 100%);
 }
 
 /* RESPONSIVE */
 @media (max-width: 1220px) {
-    .lp-hero-grid {
+    .xl-hero-wrap {
         grid-template-columns: 1fr;
-        padding-bottom: 22px;
     }
 
-    .lp-hero-stage {
-        min-height: 610px;
+    .xl-hero-visual {
+        min-height: 560px;
     }
 
-    .lp-laptop {
-        position: relative;
-        top: auto;
+    .xl-dashboard {
+        left: 0;
         right: auto;
-        width: 100%;
-        margin-top: 80px;
+        width: 86%;
     }
 
-    .lp-whatsapp-banner {
-        right: 0;
-        width: 100%;
+    .xl-mobile {
+        right: 30px;
     }
 
-    .lp-benefit-grid,
-    .lp-pricing-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .xl-feature-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .xl-steps-flow {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 920px) {
-    .lp-shell {
-        width: min(100% - 24px, 1320px);
+    .xl-hero {
+        padding-top: 36px;
     }
 
-    .lp-feature-grid,
-    .lp-benefit-grid,
-    .lp-pricing-grid {
-        grid-template-columns: 1fr;
+    .xl-hero-visual {
+        min-height: auto;
     }
 
-    .lp-shot-body {
-        grid-template-columns: 1fr;
+    .xl-dashboard {
+        position: relative;
+        width: 100%;
+        top: auto;
+        right: auto;
     }
 
-    .lp-shot-payment {
-        margin: 0 12px 12px;
-    }
-
-    .lp-band-inner {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-
-    .lp-band-icon {
-        margin: 0 auto;
-    }
-}
-
-@media (max-width: 720px) {
-    .lp-hero-grid {
-        padding: 20px 0 10px;
-        border-top: 0;
-    }
-
-    .lp-hero-copy h1 {
-        font-size: 1.8rem;
-    }
-
-    .lp-hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .lp-device-cloud {
+    .xl-mobile {
         display: none;
     }
 
-    .lp-hero-stage {
-        min-height: auto;
+    .xl-dashboard-grid,
+    .xl-whatsapp-card {
+        grid-template-columns: 1fr;
     }
 
-    .lp-whatsapp-banner {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin-bottom: 14px;
+    .xl-feature-grid,
+    .xl-pricing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .xl-phone-large {
+        max-width: 360px;
         width: 100%;
-        border-radius: 18px;
+    }
+}
+
+@media (max-width: 640px) {
+    .xl-hero-wrap {
         min-height: auto;
-        padding: 14px 16px;
     }
 
-    .lp-laptop {
-        margin-top: 0;
+    .xl-hero-copy h1 {
+        font-size: 2.35rem;
+        letter-spacing: -0.055em;
     }
 
-    .lp-shot-toolbar {
+    .xl-hero-actions,
+    .xl-final-card div {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .toolbar-right {
-        justify-content: flex-start;
+    .xl-btn {
+        width: 100%;
     }
 
-    .lp-laptop-base {
-        width: calc(100% + 18px);
-        margin-left: -9px;
-    }
-
-    .lp-trust-card {
-        padding-left: 0;
-        padding-right: 0;
-    }
-}
-
-
-/* container spacing */
-.sales-action-buttons.latest-bill-action-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: nowrap; 
-}
-
-/* common icon button style */
-.sales-action-buttons.latest-bill-action-row a,
-.sales-action-buttons.latest-bill-action-row button {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #f5f7fa;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-/* hover effect */
-.sales-action-buttons.latest-bill-action-row a:hover,
-.sales-action-buttons.latest-bill-action-row button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-}
-
-/* ICON COLORS */
-
-.sales-btn-view i {
-    color: #1F6FEB; /* tech blue */
-}
-
-.sales-btn-thermal i {
-    color: #F27A21; /* expygen orange */
-}
-
-.sales-btn-print i {
-    color: #374151;
-}
-
-.sales-btn-pdf i {
-    color: #DC2626;
-}
-
-.sales-btn-whatsapp i {
-    color: #25D366;
-}
-
-.sales-btn-cancel i {
-    color: #EF4444;
-}
-
-/* footer right icons */
-.footer-actions-right {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.footer-icon-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: none;
-    background: #f5f7fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.footer-icon-btn i {
-    color: #1F2937;
-}
-
-.footer-light-btn {
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    background: white;
-    font-weight: 500;
-}
-
-.footer-actions-left {
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-}
-
-.sales-action-buttons.latest-bill-action-row i {
-    font-size: 14px;
-}
-
-
-
-.current-sale-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.footer-actions-right {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-
-
-/* =========================================================
-   WHATSAPP SECTION - COMPACT LIGHT
-   ========================================================= */
-
-.lp-whatsapp-showcase{
-    padding:60px 0 70px;
-    margin-top:60px;              /* prevents sticking to section above */
-    background:#f6f8fc;
-}
-
-.lp-whatsapp-wrap{
-    padding:48px 32px 54px;      /* reduced from 70+ */
-    border-radius:28px;
-    background:white;
-    border:1px solid #e5e9f2;
-    box-shadow:0 12px 34px rgba(15,23,42,0.06);
-}
-
-/* heading */
-
-.lp-whatsapp-head{
-    text-align:center;
-    max-width:820px;
-    margin:0 auto 32px;          /* reduced spacing */
-}
-
-.lp-whatsapp-head h2{
-    font-size:32px;              /* smaller */
-    font-weight:800;
-    letter-spacing:-.02em;
-    color:#0f172a;
-}
-
-.lp-whatsapp-head p{
-    margin-top:10px;
-    font-size:15px;
-    color:#64748b;
-}
-
-/* grid */
-
-.lp-whatsapp-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:16px;                    /* tighter */
-}
-
-/* card */
-
-.lp-whatsapp-card{
-    padding:24px 20px;           /* reduced */
-    border-radius:18px;
-    border:1px solid #e6ebf4;
-    background:#ffffff;
-    text-align:center;
-    transition:all .25s ease;
-}
-
-.lp-whatsapp-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 10px 22px rgba(15,23,42,0.08);
-}
-
-/* active card */
-
-.lp-whatsapp-card.is-active{
-    border:1.5px solid #f27a21;
-    box-shadow:0 6px 18px rgba(242,122,33,0.14);
-}
-
-/* icon */
-
-.lp-whatsapp-icon{
-    font-size:34px;
-    color:#f27a21;
-    margin-bottom:12px;
-}
-
-/* title */
-
-.lp-whatsapp-card h3{
-    font-size:18px;
-    font-weight:700;
-    margin-bottom:6px;
-    color:#0f172a;
-}
-
-/* description */
-
-.lp-whatsapp-card p{
-    font-size:13px;
-    line-height:1.55;
-    color:#64748b;
-}
-
-/* CTA */
-
-.lp-whatsapp-cta{
-    margin-top:28px;
-    text-align:center;
-}
-
-.lp-whatsapp-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    padding:13px 30px;
-    border-radius:12px;
-    font-size:14px;
-    font-weight:700;
-    background:linear-gradient(135deg,#f27a21,#f79c3b);
-    color:white;
-    text-decoration:none;
-    box-shadow:0 8px 20px rgba(242,122,33,0.25);
-}
-
-.lp-whatsapp-btn:hover{
-    transform:translateY(-2px);
-}
-
-/* responsive */
-
-@media(max-width:1000px){
-
-    .lp-whatsapp-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-}
-
-@media(max-width:650px){
-
-    .lp-whatsapp-grid{
-        grid-template-columns:1fr;
-    }
-
-    .lp-whatsapp-head h2{
-        font-size:26px;
-    }
-
-}
-
-/* =========================================================
-   LANDING DARK MODE OVERRIDES - CURRENT LIVE CLASSES
-   ========================================================= */
-
-:root[data-theme="dark"] body.landing-page {
-    --lp-text: #edf3ff;
-    --lp-text-soft: #a7b4cc;
-    --lp-text-muted: #8290ab;
-    --lp-border: rgba(56, 71, 102, 0.92);
-    --lp-border-strong: rgba(68, 87, 126, 0.98);
-    --lp-shadow: 0 24px 56px rgba(0, 0, 0, 0.3);
-    --lp-shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.24);
-    background:
-        radial-gradient(circle at top left, rgba(47, 109, 215, 0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(242, 122, 33, 0.13), transparent 24%),
-        linear-gradient(180deg, #0d1422 0%, #111a2b 45%, #0f1626 100%);
-}
-
-:root[data-theme="dark"] .lp-hero-grid,
-:root[data-theme="dark"] .lp-benefit-card,
-:root[data-theme="dark"] .lp-feature-card,
-:root[data-theme="dark"] .lp-plan-card,
-:root[data-theme="dark"] .lp-trust-card,
-:root[data-theme="dark"] .lp-whatsapp-wrap,
-:root[data-theme="dark"] .lp-whatsapp-card,
-:root[data-theme="dark"] .lp-pricing-switch,
-:root[data-theme="dark"] .lp-laptop-window,
-:root[data-theme="dark"] .lp-shot-table,
-:root[data-theme="dark"] .lp-shot-payment,
-:root[data-theme="dark"] .lp-callback-line {
-    background: linear-gradient(180deg, rgba(16, 24, 39, 0.96) 0%, rgba(11, 17, 30, 0.96) 100%);
-    border-color: var(--lp-border);
-    box-shadow: var(--lp-shadow-soft);
-}
-
-:root[data-theme="dark"] .lp-hero-grid,
-:root[data-theme="dark"] .lp-band-inner,
-:root[data-theme="dark"] .lp-trust-card {
-    border-top-color: rgba(41, 55, 83, 0.95);
-    border-bottom-color: rgba(41, 55, 83, 0.95);
-}
-
-:root[data-theme="dark"] .lp-hero-copy h1,
-:root[data-theme="dark"] .lp-heading h2,
-:root[data-theme="dark"] .lp-band-copy h2,
-:root[data-theme="dark"] .lp-trust-card h2,
-:root[data-theme="dark"] .lp-benefit-card h3,
-:root[data-theme="dark"] .lp-feature-card h3,
-:root[data-theme="dark"] .lp-plan-name,
-:root[data-theme="dark"] .lp-whatsapp-head h2,
-:root[data-theme="dark"] .lp-whatsapp-card h3,
-:root[data-theme="dark"] .topbar-brand,
-:root[data-theme="dark"] .table-head,
-:root[data-theme="dark"] .lp-shot-payment h4,
-:root[data-theme="dark"] .payment-total {
-    color: #edf3ff;
-}
-
-:root[data-theme="dark"] .lp-hero-text,
-:root[data-theme="dark"] .lp-heading p,
-:root[data-theme="dark"] .lp-band-copy p,
-:root[data-theme="dark"] .lp-trust-card p,
-:root[data-theme="dark"] .lp-benefit-card p,
-:root[data-theme="dark"] .lp-feature-card p,
-:root[data-theme="dark"] .lp-plan-card li,
-:root[data-theme="dark"] .lp-whatsapp-head p,
-:root[data-theme="dark"] .lp-whatsapp-card p,
-:root[data-theme="dark"] .lp-plan-desc,
-:root[data-theme="dark"] .lp-whatsapp-banner span,
-:root[data-theme="dark"] .table-row,
-:root[data-theme="dark"] .payment-line,
-:root[data-theme="dark"] .payment-field,
-:root[data-theme="dark"] .tool-search {
-    color: #a7b4cc;
-}
-
-:root[data-theme="dark"] .lp-whatsapp-showcase,
-:root[data-theme="dark"] .lp-pricing {
-    background: linear-gradient(180deg, #0f1726 0%, #111a2d 100%);
-}
-
-:root[data-theme="dark"] .lp-whatsapp-banner,
-:root[data-theme="dark"] .lp-laptop-topbar,
-:root[data-theme="dark"] .tool-search,
-:root[data-theme="dark"] .tool-icon,
-:root[data-theme="dark"] .tool-chip,
-:root[data-theme="dark"] .payment-modes span,
-:root[data-theme="dark"] .payment-field,
-:root[data-theme="dark"] .sales-action-buttons.latest-bill-action-row a,
-:root[data-theme="dark"] .sales-action-buttons.latest-bill-action-row button,
-:root[data-theme="dark"] .footer-icon-btn,
-:root[data-theme="dark"] .footer-light-btn {
-    background: rgba(18, 27, 44, 0.96);
-    border-color: rgba(60, 77, 112, 0.96);
-    color: #d7e2fb;
-}
-
-:root[data-theme="dark"] .lp-shot-body {
-    background: linear-gradient(180deg, #121b2c 0%, #0f1726 100%);
-}
-
-:root[data-theme="dark"] .lp-shot-table,
-:root[data-theme="dark"] .lp-shot-payment {
-    background: rgba(15, 23, 37, 0.98);
-}
-
-:root[data-theme="dark"] .lp-laptop-topbar {
-    border-bottom-color: rgba(48, 63, 94, 0.94);
-}
-
-:root[data-theme="dark"] .table-head {
-    background: rgba(19, 29, 47, 0.94);
-    border-bottom-color: rgba(48, 63, 94, 0.94);
-}
-
-:root[data-theme="dark"] .table-row {
-    border-bottom-color: rgba(40, 53, 80, 0.92);
-}
-
-:root[data-theme="dark"] .table-row span:first-child,
-:root[data-theme="dark"] .payment-total strong {
-    color: #edf3ff;
-}
-
-:root[data-theme="dark"] .tool-icon.icon-primary,
-:root[data-theme="dark"] .lp-plan-btn,
-:root[data-theme="dark"] .lp-plan-btn-primary,
-:root[data-theme="dark"] .payment-btn {
-    background: linear-gradient(180deg, #2f6dd7 0%, #245ec0 100%);
-    color: #ffffff;
-    border-color: transparent;
-}
-
-:root[data-theme="dark"] .tool-chip.dark,
-:root[data-theme="dark"] .cancel-btn {
-    background: linear-gradient(180deg, #28354d 0%, #1d273a 100%);
-    color: #ffffff;
-    border-color: transparent;
-}
-
-:root[data-theme="dark"] .payment-modes span.active {
-    background: rgba(242, 122, 33, 0.14);
-    border-color: rgba(242, 122, 33, 0.34);
-    color: #ffd4b2;
-}
-
-:root[data-theme="dark"] .lp-plan-popular {
-    border-color: rgba(86, 132, 230, 0.6);
-    box-shadow: 0 18px 36px rgba(47, 109, 215, 0.16);
-}
-
-:root[data-theme="dark"] .lp-plan-tag,
-:root[data-theme="dark"] .lp-section-kicker {
-    background: rgba(47, 109, 215, 0.14);
-    color: #7fb0ff;
-    border-color: rgba(72, 101, 171, 0.44);
-}
-
-:root[data-theme="dark"] .lp-plan-price {
-    color: #8ab3ff;
-}
-
-:root[data-theme="dark"] .price-free,
-:root[data-theme="dark"] .lp-plan-features i {
-    color: #4dd28a;
-}
-
-:root[data-theme="dark"] .lp-plan-price span,
-:root[data-theme="dark"] .lp-plan-period {
-    color: #95a4c3;
-}
-
-:root[data-theme="dark"] .lp-plan-features li {
-    border-bottom-color: rgba(42, 56, 84, 0.92);
-}
-
-:root[data-theme="dark"] .lp-btn-secondary,
-:root[data-theme="dark"] .lp-plan-btn-light {
-    background: rgba(18, 27, 44, 0.96);
-    border-color: rgba(60, 77, 112, 0.96);
-    color: #d7e2fb;
-    box-shadow: none;
-}
-
-:root[data-theme="dark"] .lp-whatsapp-btn,
-:root[data-theme="dark"] .lp-btn-primary,
-:root[data-theme="dark"] .lp-trust-btn {
-    box-shadow: 0 12px 24px rgba(242, 122, 33, 0.22);
-}
-
-:root[data-theme="dark"] .lp-laptop-base {
-    background: linear-gradient(180deg, #3b4a68 0%, #26324a 100%);
-}
-
-/* =========================================================
-   PRICING - PRO REDESIGN
-   ========================================================= */
-
-.lp-pricing {
-    padding: 60px 0 65px;
-    background: linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
-}
-
-.lp-pricing-head {
-    max-width: 840px;
-    margin: 0 auto 18px;
-    text-align: center;
-}
-
-.lp-section-kicker {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 14px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(31, 111, 235, 0.08);
-    border: 1px solid rgba(31, 111, 235, 0.14);
-    color: #1f6feb;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.lp-pricing-head h2 {
-    margin: 0;
-    font-size: clamp(2rem, 3.2vw, 3rem);
-    line-height: 1.08;
-    letter-spacing: -0.04em;
-    color: #0f172a;
-    font-weight: 800;
-}
-
-.lp-pricing-head p {
-    margin: 16px auto 0;
-    max-width: 760px;
-    font-size: 16px;
-    line-height: 1.8;
-    color: #5b6778;
-}
-
-/* toggle */
-
-.lp-pricing-switch-wrap {
-    display: flex;
-    justify-content: center;
-    margin: 0 0 20px;
-}
-
-.lp-pricing-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 18px;
-    padding: 14px 20px;
-    background: linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
-    border: 1px solid #dbe4ef;
-    border-radius: 999px;
-    box-shadow:
-        0 10px 24px rgba(15, 23, 42, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.lp-switch-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #5b6778;
-    transition: color 0.22s ease;
-    white-space: nowrap;
-}
-
-.lp-switch-label.active {
-    color: #1f6feb;
-}
-
-.lp-save-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 26px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #12b76a 0%, #039855 100%);
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    box-shadow: 0 6px 14px rgba(18, 183, 106, 0.18);
-}
-
-.lp-switch-toggle {
-    position: relative;
-    width: 66px;
-    height: 36px;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-.lp-switch-toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.lp-switch-slider {
-    position: absolute;
-    inset: 0;
-    cursor: pointer;
-    background: linear-gradient(180deg, #cfd8e6 0%, #bcc8da 100%);
-    border-radius: 999px;
-    transition: all 0.25s ease;
-    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
-}
-
-.lp-switch-slider::before {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
-    box-shadow:
-        0 4px 12px rgba(15, 23, 42, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    transition: transform 0.25s ease;
-}
-
-.lp-switch-toggle input:checked + .lp-switch-slider {
-    background: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%);
-}
-
-.lp-switch-toggle input:checked + .lp-switch-slider::before {
-    transform: translateX(30px);
-}
-
-/* cards */
-
-.lp-pricing-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    align-items: stretch;
-}
-
-.lp-plan-card {
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 18px 18px 16px;
-    border-radius: 26px;
-    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    border: 1px solid #d9e3ef;
-    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-}
-
-.lp-plan-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.10);
-}
-
-.lp-plan-card-enterprise {
-    background: linear-gradient(180deg, #fffdf8 0%, #fbf8f2 100%);
-}
-
-.lp-plan-topline {
-    position: absolute;
-    top: 0;
-    left: 24px;
-    right: 24px;
-    height: 4px;
-    border-radius: 0 0 999px 999px;
-    background: linear-gradient(90deg, #2f6dd7 0%, #f27a21 100%);
-}
-
-.lp-plan-popular {
-    border: 2px solid #2f6dd7;
-    transform: translateY(-2px);
-    box-shadow: 0 24px 46px rgba(47, 109, 215, 0.14);
-}
-
-.lp-plan-badge {
-    position: absolute;
-    top: -1px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 16px;
-    border-radius: 0 0 16px 16px;
-    background: linear-gradient(135deg, #2f6dd7 0%, #f27a21 100%);
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.lp-plan-name {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 19px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.02em;
-}
-
-.lp-plan-tier {
-    display: inline-flex;
-    align-self: center;
-    align-items: center;
-    justify-content: center;
-    min-height: 28px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: #eef4ff;
-    color: #1f6feb;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.lp-plan-audience {
-    margin-top: 8px;
-    text-align: center;
-    font-size: 12px;
-    line-height: 1.55;
-    color: #667085;
-    min-height: 36px;
-}
-
-.lp-plan-price-wrap {
-    margin-top: 14px;
-    text-align: center;
-}
-
-.lp-plan-price {
-    display: inline-flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 4px;
-    font-size: 34px;
-    line-height: 1;
-    font-weight: 700;
-    color: #2f6dd7;
-    letter-spacing: -0.03em;
-}
-
-.lp-plan-price span {
-    color: inherit;
-}
-
-.lp-plan-price span:first-child,
-.lp-plan-price span:only-child {
-    font-size: 34px;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-}
-
-.lp-plan-price span:last-child:not(:only-child) {
-    font-size: 14px;
-    font-weight: 700;
-    color: #475569;
-}
-
-.price-free {
-    color: #12b76a;
-}
-
-.lp-plan-period {
-    margin-top: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #6b7280;
-    min-height: 18px;
-}
-
-.lp-plan-price-sub {
-    margin-top: 8px;
-    font-size: 11px;
-    line-height: 1.4;
-    color: #94a3b8;
-}
-
-.lp-plan-desc {
-    margin: 10px 0 12px;
-    text-align: center;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #5b6778;
-    min-height: 56px;
-}
-
-.lp-plan-stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    margin: 0 0 12px;
-}
-
-.lp-plan-stat {
-    padding: 10px 8px;
-    border-radius: 16px;
-    background: #f8fbff;
-    border: 1px solid #e7eef7;
-    text-align: center;
-}
-
-.lp-plan-stat strong {
-    display: block;
-    font-size: 15px;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.lp-plan-stat span {
-    display: block;
-    margin-top: 3px;
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.lp-plan-features {
-    list-style: none;
-    margin: 0 0 14px;
-    padding: 0;
-    flex: 1;
-}
-
-.lp-plan-features li {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid #edf2f7;
-    font-size: 13px;
-    line-height: 1.35;
-    color: #475569;
-}
-
-.lp-plan-features li:last-child {
-    border-bottom: 0;
-}
-
-.lp-plan-features i {
-    margin-top: 4px;
-    color: #12b76a;
-    font-size: 14px;
-}
-
-.lp-plan-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    width: 100%;
-    padding: 0 18px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #2f6dd7 0%, #245ec0 100%);
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 700;
-    box-shadow: 0 14px 30px rgba(47, 109, 215, 0.18);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.lp-plan-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 34px rgba(47, 109, 215, 0.24);
-}
-
-.lp-plan-btn-primary {
-    background: linear-gradient(135deg, #2f6dd7 0%, #245ec0 100%);
-}
-
-.lp-plan-btn-light {
-    background: linear-gradient(180deg, #eef2f7 0%, #e5ebf3 100%);
-    color: #475569;
-    box-shadow: none;
-}
-
-.lp-plan-cta {
-    display: grid;
-    gap: 10px;
-}
-
-.lp-plan-note {
-    display: block;
-    text-align: center;
-    font-size: 11px;
-    line-height: 1.4;
-    color: #667085;
-}
-
-/* responsive */
-
-@media (max-width: 1180px) {
-    .lp-pricing-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .lp-pricing {
-        padding: 64px 0 72px;
-    }
-
-    .lp-pricing-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .lp-pricing-switch {
-        gap: 12px;
-        padding: 12px 14px;
-    }
-
-    .lp-switch-label {
-        font-size: 14px;
-    }
-
-    .lp-save-badge {
-        font-size: 11px;
-        padding: 0 8px;
-    }
-
-    .lp-switch-toggle {
-        width: 58px;
-        height: 32px;
-    }
-
-    .lp-switch-slider::before {
-        width: 24px;
-        height: 24px;
-    }
-
-    .lp-switch-toggle input:checked + .lp-switch-slider::before {
-        transform: translateX(26px);
-    }
-
-    .lp-plan-price {
-        font-size: 42px;
-    }
-
-    .lp-plan-desc {
-        min-height: auto;
-    }
-
-    .lp-plan-audience {
-        min-height: auto;
-    }
-
-    .lp-plan-stats {
+    .xl-hero-mini-stats,
+    .xl-stats-row,
+    .xl-feature-grid,
+    .xl-steps-flow {
         grid-template-columns: 1fr;
     }
+
+    .xl-section {
+        padding-top: 54px;
+    }
+
+    .xl-whatsapp-card,
+    .xl-final-card {
+        padding: 38px 20px;
+        border-radius: 30px;
+    }
 }
 
-/* =========================================================
-   DARK MODE
-   ========================================================= */
-
-:root[data-theme="dark"] body.landing-page {
-    --lp-text: #edf3ff;
-    --lp-text-soft: #aab6cd;
-    --lp-text-muted: #8491ab;
-    --lp-border: rgba(52, 67, 98, 0.92);
-    --lp-border-strong: rgba(66, 85, 121, 0.98);
-    --lp-shadow: 0 24px 56px rgba(0, 0, 0, 0.28);
-    --lp-shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.24);
-    background:
-        radial-gradient(circle at top left, rgba(47, 99, 209, 0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(242, 140, 40, 0.12), transparent 24%),
-        linear-gradient(180deg, #0e1524 0%, #121a2a 42%, #0f1625 100%);
+/* HERO FINAL ALIGNMENT FIX */
+.xl-hero {
+    padding: 28px 0 40px;
 }
 
-:root[data-theme="dark"] .lp-hero-grid,
-:root[data-theme="dark"] .lp-benefit-card,
-:root[data-theme="dark"] .lp-feature-card,
-:root[data-theme="dark"] .lp-band-icon,
-:root[data-theme="dark"] .lp-callback-line,
-:root[data-theme="dark"] .lp-shot-toolbar,
-:root[data-theme="dark"] .lp-shot-table,
-:root[data-theme="dark"] .lp-shot-payment,
-:root[data-theme="dark"] .lp-whatsapp-wrap,
-:root[data-theme="dark"] .lp-whatsapp-card,
-:root[data-theme="dark"] .lp-pricing-switch,
-:root[data-theme="dark"] .lp-plan-card,
-:root[data-theme="dark"] .lp-trust-card {
-    background: linear-gradient(180deg, rgba(17, 25, 41, 0.96) 0%, rgba(12, 19, 33, 0.96) 100%);
-    border-color: var(--lp-border);
-    box-shadow: var(--lp-shadow-soft);
+.xl-hero-wrap {
+    min-height: 590px;
 }
 
-:root[data-theme="dark"] .lp-hero-grid,
-:root[data-theme="dark"] .lp-band-inner,
-:root[data-theme="dark"] .lp-trust-card {
-    border-top-color: rgba(42, 56, 84, 0.95);
-    border-bottom-color: rgba(42, 56, 84, 0.95);
+.xl-hero-copy {
+    transform: translateY(-10px);
 }
 
-:root[data-theme="dark"] .lp-hero-copy h1,
-:root[data-theme="dark"] .lp-heading h2,
-:root[data-theme="dark"] .lp-band-copy h2,
-:root[data-theme="dark"] .lp-trust-card h2,
-:root[data-theme="dark"] .lp-benefit-card h3,
-:root[data-theme="dark"] .lp-feature-card h3,
-:root[data-theme="dark"] .lp-shot-brand strong,
-:root[data-theme="dark"] .lp-shot-payment h4,
-:root[data-theme="dark"] .lp-plan-name,
-:root[data-theme="dark"] .lp-pricing-head h2,
-:root[data-theme="dark"] .lp-whatsapp-head h2,
-:root[data-theme="dark"] .lp-whatsapp-card h3 {
-    color: #edf3ff;
+.xl-hero-visual {
+    min-height: 500px;
+    transform: translateY(-8px);
 }
 
-:root[data-theme="dark"] .lp-hero-text,
-:root[data-theme="dark"] .lp-heading p,
-:root[data-theme="dark"] .lp-band-copy p,
-:root[data-theme="dark"] .lp-trust-card p,
-:root[data-theme="dark"] .lp-benefit-card p,
-:root[data-theme="dark"] .lp-feature-card p,
-:root[data-theme="dark"] .lp-whatsapp-head p,
-:root[data-theme="dark"] .lp-whatsapp-card p,
-:root[data-theme="dark"] .lp-pricing-head p,
-:root[data-theme="dark"] .lp-plan-desc,
-:root[data-theme="dark"] .lp-plan-features li,
-:root[data-theme="dark"] .lp-callback-line p {
-    color: #aab6cd;
+/* move dashboard slightly left */
+.xl-dashboard {
+    top: 18px;
+    right: 155px;
+    width: min(700px, 84%);
 }
 
-:root[data-theme="dark"] .features-hero-pills span,
-:root[data-theme="dark"] .tool-chip,
-:root[data-theme="dark"] .tool-icon,
-:root[data-theme="dark"] .payment-modes span,
-:root[data-theme="dark"] .footer-light-btn,
-:root[data-theme="dark"] .footer-icon-btn,
-:root[data-theme="dark"] .sales-btn-view,
-:root[data-theme="dark"] .sales-btn-pdf,
-:root[data-theme="dark"] .sales-btn-whatsapp,
-:root[data-theme="dark"] .sales-btn-cancel,
-:root[data-theme="dark"] .lp-switch-label,
-:root[data-theme="dark"] .lp-shot-pill,
-:root[data-theme="dark"] .lp-shot-chip {
-    background: rgba(19, 29, 47, 0.96);
-    border-color: rgba(60, 77, 112, 0.96);
-    color: #d7e3fb;
+/* keep phone on right, less covering dashboard */
+.xl-mobile {
+    right: 28px;
+    bottom: 56px;
+    width: 188px;
+    height: 338px;
 }
 
-:root[data-theme="dark"] .tool-chip.dark,
-:root[data-theme="dark"] .lp-plan-btn,
-:root[data-theme="dark"] .lp-plan-btn-primary,
-:root[data-theme="dark"] .lp-shot-complete {
-    background: linear-gradient(180deg, #2f6dd7 0%, #245ec0 100%);
-    color: #ffffff;
+/* slightly reduce chart card height */
+.xl-chart-bars {
+    height: 145px;
 }
 
-:root[data-theme="dark"] .lp-btn-secondary,
-:root[data-theme="dark"] .lp-plan-btn-light {
-    background: rgba(19, 29, 47, 0.96);
-    border-color: rgba(60, 77, 112, 0.96);
-    color: #d7e3fb;
-    box-shadow: none;
+/* responsive safety */
+@media (max-width: 1220px) {
+    .xl-dashboard {
+        right: auto;
+        left: 0;
+        width: 82%;
+    }
+
+    .xl-mobile {
+        right: 24px;
+        bottom: 40px;
+    }
 }
 
-:root[data-theme="dark"] .lp-laptop-window,
-:root[data-theme="dark"] .lp-shot-top,
-:root[data-theme="dark"] .lp-shot-main,
-:root[data-theme="dark"] .lp-shot-body,
-:root[data-theme="dark"] .lp-shot-payment,
-:root[data-theme="dark"] .current-sale-footer,
-:root[data-theme="dark"] .lp-shot-search-field,
-:root[data-theme="dark"] .payment-field,
-:root[data-theme="dark"] .lp-shot-payment-tax {
-    background: linear-gradient(180deg, rgba(17, 25, 41, 0.98) 0%, rgba(11, 18, 31, 0.98) 100%);
-    border-color: var(--lp-border);
+@media (max-width: 920px) {
+    .xl-hero {
+        padding-top: 30px;
+    }
+
+    .xl-hero-copy,
+    .xl-hero-visual {
+        transform: none;
+    }
+
+    .xl-dashboard {
+        width: 100%;
+        left: auto;
+    }
 }
 
-:root[data-theme="dark"] .lp-shot-divider {
-    background: linear-gradient(90deg, rgba(242, 140, 40, 0.9), rgba(47, 99, 209, 0.92));
+/* ===== MOBILE PREMIUM PATCH (ADD AT BOTTOM) ===== */
+
+/* device body */
+.xl-mobile {
+    border: 8px solid #0f172a !important;
+    background: linear-gradient(180deg, #020617, #0b1220) !important;
+    box-shadow:
+        0 25px 70px rgba(2, 6, 23, 0.6),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
 }
 
-:root[data-theme="dark"] .tool-search,
-:root[data-theme="dark"] .lp-shot-search-field,
-:root[data-theme="dark"] .payment-field,
-:root[data-theme="dark"] .table-row,
-:root[data-theme="dark"] .payment-line,
-:root[data-theme="dark"] .lp-shot-payment-tax div,
-:root[data-theme="dark"] .lp-plan-price span,
-:root[data-theme="dark"] .lp-plan-period {
-    color: #aab6cd;
+/* whatsapp header darker */
+.xl-mobile-head {
+    background: #16a34a !important;
 }
 
-:root[data-theme="dark"] .table-head,
-:root[data-theme="dark"] .payment-total,
-:root[data-theme="dark"] .lp-plan-price,
-:root[data-theme="dark"] .lp-pricing-head .lp-section-kicker,
-:root[data-theme="dark"] .lp-section-kicker,
-:root[data-theme="dark"] .lp-whatsapp-icon,
-:root[data-theme="dark"] .icon-blue,
-:root[data-theme="dark"] .lp-feature-icon,
-:root[data-theme="dark"] .lp-band-copy h2 span,
-:root[data-theme="dark"] .lp-heading h2 span {
-    color: #76a4ff;
+/* pharmacy message (light green) */
+.xl-chat-card {
+    background: #dcf8c6 !important;
+    color: #0f172a !important;
 }
 
-:root[data-theme="dark"] .icon-blue,
-:root[data-theme="dark"] .lp-feature-icon,
-:root[data-theme="dark"] .lp-section-kicker {
-    background: rgba(47, 99, 209, 0.16);
-    border-color: rgba(73, 103, 171, 0.46);
+/* customer message (dark bubble) */
+.xl-chat-card.customer {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
 }
 
-:root[data-theme="dark"] .icon-gold {
-    background: rgba(242, 140, 40, 0.16);
+/* bottom total section (glass dark) */
+.xl-mobile-total {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #fff !important;
 }
 
-:root[data-theme="dark"] .icon-green,
-:root[data-theme="dark"] .lp-band-icon {
-    background: rgba(37, 176, 90, 0.16);
-    color: #4fd18c;
+.xl-mobile-total span {
+    color: #94a3b8 !important;
 }
 
-:root[data-theme="dark"] .table-row,
-:root[data-theme="dark"] .lp-plan-features li,
-:root[data-theme="dark"] .payment-line,
-:root[data-theme="dark"] .current-sale-footer,
-:root[data-theme="dark"] .lp-plan-features li:last-child {
-    border-color: rgba(42, 56, 84, 0.95);
-}
+/* ===== FIX LANDING SIDE MARGIN (MATCH FEATURE PAGE) ===== */
 
-:root[data-theme="dark"] .lp-shot-payment h4,
-:root[data-theme="dark"] .payment-total strong,
-:root[data-theme="dark"] .price-free {
-    color: #ffb15e;
-}
-
-:root[data-theme="dark"] .sales-btn-whatsapp {
-    color: #57d98f;
-}
-
-:root[data-theme="dark"] .sales-btn-cancel {
-    color: #ff7b74;
-}
-
-:root[data-theme="dark"] .table-head {
-    color: #dce7ff;
-    background: linear-gradient(180deg, rgba(31, 45, 72, 0.96) 0%, rgba(23, 34, 54, 0.96) 100%);
-}
-
-:root[data-theme="dark"] .table-head em {
-    background: rgba(118, 164, 255, 0.18);
-    color: #dce8ff;
-}
-
-:root[data-theme="dark"] .table-row {
-    color: #c0cee7;
-    background: rgba(13, 21, 35, 0.34);
-}
-
-:root[data-theme="dark"] .table-row strong,
-:root[data-theme="dark"] .table-row span:not(:first-child) {
-    color: #edf4ff;
-}
-
-:root[data-theme="dark"] .table-row small {
-    color: #b5c4e0;
-}
-
-:root[data-theme="dark"] .footer-icon-btn,
-:root[data-theme="dark"] .footer-light-btn {
-    background: linear-gradient(180deg, rgba(34, 48, 76, 0.98) 0%, rgba(24, 35, 56, 0.98) 100%);
-    border-color: rgba(78, 97, 136, 0.96);
-    color: #e6efff;
-}
-
-:root[data-theme="dark"] .footer-icon-btn i {
-    color: #f2f6ff;
-}
-
-:root[data-theme="dark"] .lp-whatsapp-showcase,
-:root[data-theme="dark"] .lp-pricing {
-    background: linear-gradient(180deg, #0f1726 0%, #111b2d 100%);
-}
-
-:root[data-theme="dark"] .lp-switch-slider {
-    background: linear-gradient(180deg, #34425d 0%, #27344d 100%);
-}
-
-:root[data-theme="dark"] .lp-switch-slider::before {
-    background: linear-gradient(180deg, #dfe8fa 0%, #c7d4ee 100%);
-}
-
-:root[data-theme="dark"] .lp-plan-tier,
-:root[data-theme="dark"] .lp-plan-stat {
-    background: rgba(15, 23, 42, 0.72);
-    border-color: rgba(148, 163, 184, 0.18);
-}
-
-:root[data-theme="dark"] .lp-plan-price-sub,
-:root[data-theme="dark"] .lp-plan-audience,
-:root[data-theme="dark"] .lp-plan-note,
-:root[data-theme="dark"] .lp-plan-stat span {
-    color: #94a3b8;
-}
-
-:root[data-theme="dark"] .lp-plan-stat strong {
-    color: #f8fafc;
+.xl-hero-wrap,
+.xl-section .public-shell,
+.xl-section .public-shell-wide {
+    width: min(var(--container), calc(100% - var(--container-padding))) !important;
+    margin: 0 auto !important;
 }

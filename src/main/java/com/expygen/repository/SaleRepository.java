@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,7 +25,15 @@ import java.util.Optional;
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     // Fetch sale with shop to avoid lazy loading issues
-    @Query("SELECT s FROM Sale s JOIN FETCH s.shop WHERE s.id = :id")
+    @Query("""
+            SELECT DISTINCT s
+            FROM Sale s
+            JOIN FETCH s.shop
+            LEFT JOIN FETCH s.createdBy
+            LEFT JOIN FETCH s.items i
+            LEFT JOIN FETCH i.product
+            WHERE s.id = :id
+            """)
     Optional<Sale> findByIdWithShop(@Param("id") Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -34,6 +43,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             "WHERE s.id = :id")
     Optional<Sale> findByIdForUpdate(@Param("id") Long id);
 
+    @EntityGraph(attributePaths = { "createdBy" })
     Page<Sale> findByShop(Shop shop, Pageable pageable);
 
     // ===== ADD THESE METHODS FOR SALES HISTORY =====
@@ -42,15 +52,31 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     Page<Sale> findByShopAndStatus(Shop shop, SaleStatus status, Pageable pageable);
     
     // Search sales by keyword with pagination
-    @Query("SELECT s FROM Sale s WHERE s.shop = :shop AND " +
-           "(CAST(s.id AS string) LIKE CONCAT('%', :keyword, '%') OR " +
-           "LOWER(s.customerName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(s.createdBy.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    @Query(
+            value = """
+                    SELECT s
+                    FROM Sale s
+                    LEFT JOIN FETCH s.createdBy
+                    WHERE s.shop = :shop
+                      AND (CAST(s.id AS string) LIKE CONCAT('%', :keyword, '%')
+                           OR LOWER(COALESCE(s.customerName, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                           OR LOWER(COALESCE(s.createdBy.name, '')) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                    """,
+            countQuery = """
+                    SELECT COUNT(s)
+                    FROM Sale s
+                    WHERE s.shop = :shop
+                      AND (CAST(s.id AS string) LIKE CONCAT('%', :keyword, '%')
+                           OR LOWER(COALESCE(s.customerName, '')) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                           OR LOWER(COALESCE(s.createdBy.name, '')) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                    """)
     Page<Sale> searchSales(@Param("shop") Shop shop, @Param("keyword") String keyword, Pageable pageable);
     
     // Find by date after with pagination
+    @EntityGraph(attributePaths = { "createdBy" })
     Page<Sale> findByShopAndSaleDateAfter(Shop shop, LocalDateTime date, Pageable pageable);
 
+    @EntityGraph(attributePaths = { "createdBy" })
     List<Sale> findTop5ByShopAndCustomerPhoneAndStatusOrderBySaleDateDesc(Shop shop, String customerPhone, SaleStatus status);
 
     Long countByShopAndCustomerPhoneAndStatus(Shop shop, String customerPhone, SaleStatus status);
@@ -133,6 +159,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                     @Param("end") LocalDateTime end);
 
     long countByShop(Shop shop);
+    long countByShopAndSaleDateAfter(Shop shop, LocalDateTime saleDate);
 
     @Modifying
     @Transactional
@@ -142,6 +169,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     Long countByCreatedBy(User user);
     
     // Get recent completed sales using Enum
+    @EntityGraph(attributePaths = { "createdBy" })
     @Query("SELECT s FROM Sale s WHERE s.shop = :shop AND s.status = :status ORDER BY s.saleDate DESC")
     List<Sale> findRecentSalesByShopAndStatus(@Param("shop") Shop shop, @Param("status") SaleStatus status, Pageable pageable);
     
@@ -347,8 +375,6 @@ List<Sale> findByShopAndSaleDateBetweenOrderBySaleDateDesc(
 
 
 }
-
-
 
 
 

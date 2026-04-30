@@ -38,6 +38,25 @@ public class SupportTicket {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TicketPriority priority = TicketPriority.MEDIUM;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "root_cause")
+    private SupportRootCause rootCause;
+
+    @Column(name = "internal_note", length = 4000)
+    private String internalNote;
+
+    @Column(name = "assigned_admin_username")
+    private String assignedAdminUsername;
+
+    @Column(name = "due_at")
+    private LocalDateTime dueAt;
+
+    @Column(name = "related_subscription_issue", nullable = false)
+    private boolean relatedSubscriptionIssue = false;
+
+    @Column(name = "related_whatsapp_issue", nullable = false)
+    private boolean relatedWhatsappIssue = false;
     
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

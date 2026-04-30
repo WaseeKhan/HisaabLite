@@ -47,6 +47,9 @@ public class SubscriptionAccessService {
         if (!appConfig.isWhatsappEnabled()) {
             return false;
         }
+        if (shop != null && shop.isWhatsappAdminDisabled()) {
+            return false;
+        }
         return getPlanTypeOrFree(shop) == PlanType.PRO;
     }
 
@@ -57,6 +60,9 @@ public class SubscriptionAccessService {
     public String getWhatsAppUpgradeMessage(Shop shop) {
         if (!appConfig.isWhatsappEnabled()) {
             return "WhatsApp integration is currently disabled by system configuration.";
+        }
+        if (shop != null && shop.isWhatsappAdminDisabled()) {
+            return "WhatsApp integration is temporarily disabled by admin for this workspace.";
         }
         if (canUseWhatsAppIntegration(shop)) {
             return null;

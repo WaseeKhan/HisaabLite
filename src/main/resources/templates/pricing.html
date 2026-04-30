@@ -3,245 +3,300 @@
 
 <head>
     <title>Pricing • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+
+    <link rel="icon" type="image/png" href="/images/favicon_light.png">
+    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
     <link rel="stylesheet" th:href="@{/css/pages/pricing.css}">
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body>
-    <div th:replace="~{fragments/public-header :: header}"></div>
+<body class="pricing-page">
 
+<div th:replace="~{fragments/public-header :: header}"></div>
+
+<main class="pricing-root">
+
+    <!-- HERO -->
     <section class="pricing-hero">
-        <div class="pricing-hero-content">
-            <span class="pricing-kicker">Pricing</span>
-            <h1>Plans that grow from single-store setup to full pharmacy operations</h1>
-            <p>Start with billing and sales history, move into purchases and stock control, then unlock Insights, WhatsApp invoices, and larger product or staff capacity as the store grows.</p>
+        <div class="public-shell pricing-hero-wrap">
+            <span class="section-kicker">
+                <i class="fas fa-tags"></i>
+                Simple yearly pricing
+            </span>
+
+            <h1>
+                Plans that grow with your
+                <span>pharmacy operations.</span>
+            </h1>
+
+            <p>
+                Start with billing and sales history, then unlock inventory control,
+                WhatsApp invoices, staff capacity and business insights as your store grows.
+            </p>
+
+            <div class="pricing-hero-pills">
+                <span><i class="fas fa-check"></i> Yearly activation</span>
+                <span><i class="fas fa-check"></i> Upgrade anytime</span>
+                <span><i class="fas fa-check"></i> Pharmacy-focused limits</span>
+            </div>
         </div>
     </section>
 
-    <section class="billing-toggle-strip">
-        <div class="billing-toggle">
-            <span class="toggle-label active">Yearly billing only</span>
-            <span class="save-badge">Best annual value</span>
+    <!-- BILLING STRIP -->
+    <section class="pricing-billing-strip">
+        <div class="public-shell">
+            <div class="billing-card">
+                <div>
+                    <strong>Yearly billing only</strong>
+                    <span>Best value for stores planning serious digital operations.</span>
+                </div>
+                <span class="billing-badge">Annual value</span>
+            </div>
         </div>
     </section>
 
-    <section class="pricing-grid-section">
-        <div class="pricing-grid">
-            <article th:each="plan : ${publicPlans}"
-                     class="pricing-card"
-                     th:classappend="${(plan.popular ? ' popular' : '') + (plan.enterprise ? ' enterprise' : '')}">
-                <div class="popular-badge" th:if="${plan.popular}">Most Popular</div>
-                <div class="pricing-tier"
-                     th:text="${plan.planName == 'FREE' ? 'Launch' : (plan.planName == 'BASIC' ? 'Operate' : 'Scale')}">Launch</div>
-                <div class="pricing-name" th:text="${plan.planName}">FREE</div>
-                <p class="pricing-summary"
-                   th:text="${plan.planName == 'FREE' ? 'A clean starting point for single-store billing and early digital adoption.' : (plan.planName == 'BASIC' ? 'The operational plan for stores running purchases, stock, and day-to-day pharmacy workflows.' : 'The growth plan for teams that want premium workflows, faster communication, and business visibility.')}">
-                    A clean starting point for single-store billing and early digital adoption.
-                </p>
-                <div class="pricing-price">
-                    <div class="yearly-price" th:classappend="${plan.free} ? ' price-free' : ''">
-                        <span th:text="${plan.totalPriceLabel}">₹0</span>
+    <!-- PLANS -->
+    <section class="pricing-section">
+        <div class="public-shell">
+            <div class="pricing-grid">
+
+                <article th:each="plan : ${publicPlans}"
+                         class="pricing-card"
+                         th:classappend="${(plan.popular ? ' popular' : '') + (plan.enterprise ? ' enterprise' : '')}">
+
+                    <div class="popular-badge" th:if="${plan.popular}">
+                        Most Popular
+                    </div>
+
+                    <div class="pricing-tier"
+                         th:text="${plan.planName == 'FREE' ? 'Launch' : (plan.planName == 'BASIC' ? 'Operate' : 'Scale')}">
+                        Launch
+                    </div>
+
+                    <h3 class="pricing-name"
+                        th:text="${plan.planName == 'PREMIUM' ? 'PRO' : plan.planName}">
+                        FREE
+                    </h3>
+
+                    <p class="pricing-summary"
+                       th:text="${plan.planName == 'FREE' ? 'A clean starting point for single-store billing and early digital adoption.' : (plan.planName == 'BASIC' ? 'For stores running purchases, stock, and daily pharmacy workflows.' : 'For growing teams that want WhatsApp invoices, premium workflows and insights.')}">
+                        A clean starting point.
+                    </p>
+
+                    <div class="pricing-price">
+                        <div class="price-main" th:classappend="${plan.free} ? ' price-free' : ''">
+                            <span th:text="${plan.totalPriceLabel}">₹0</span>
+                        </div>
                         <span class="price-period" th:if="${!plan.free}" th:text="${plan.totalPricePeriodLabel}">/year</span>
+                        <span class="price-period" th:text="${plan.durationLabel}">1 year</span>
                     </div>
-                    <span class="price-period" th:if="${!plan.free and plan.annualDiscountLabel != ''}" th:text="${plan.annualDiscountLabel + ' on annual billing'}">Save 17% on annual billing</span>
-                    <span class="price-period" th:text="${plan.durationLabel}">1 year</span>
-                </div>
-                <div class="pricing-stats">
-                    <div class="pricing-stat">
-                        <strong th:text="${plan.usersLabel}">2</strong>
-                        <span>Users</span>
+
+                    <div class="pricing-stats">
+                        <div>
+                            <strong th:text="${plan.usersLabel}">2</strong>
+                            <span>Users</span>
+                        </div>
+                        <div>
+                            <strong th:text="${plan.productsLabel}">50</strong>
+                            <span>Products</span>
+                        </div>
+                        <div>
+                            <strong th:text="${plan.planName == 'PRO' ? 'Priority' : 'Standard'}">Standard</strong>
+                            <span>Support</span>
+                        </div>
                     </div>
-                    <div class="pricing-stat">
-                        <strong th:text="${plan.productsLabel}">50</strong>
-                        <span>Products</span>
+
+                    <ul class="pricing-features">
+                        <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Billing, GST invoices and sales visibility</span></li>
+                        <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Best for evaluating Expygen with one store</span></li>
+                        <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Simple yearly-free starting point</span></li>
+
+                        <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Purchases, inventory control and stronger operations</span></li>
+                        <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>More medicine capacity for active stores</span></li>
+                        <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Reliable workflow for steady growth</span></li>
+
+                        <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>WhatsApp invoice delivery and Insights access</span></li>
+                        <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Premium support for multi-user teams</span></li>
+                        <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Built for stores using software as a growth engine</span></li>
+
+                        <li><i class="fas fa-check"></i><span>Yearly activation handled through admin pricing</span></li>
+                        <li><i class="fas fa-check"></i><span>Upgrade path available anytime</span></li>
+                    </ul>
+
+                    <div class="pricing-footer">
+                        <a th:href="${plan.actionHref}"
+                           class="pricing-btn"
+                           th:classappend="${!plan.enterprise} ? ' primary' : ''"
+                           th:text="${plan.actionLabel}">
+                            Start Free
+                        </a>
+
+                        <span class="pricing-note"
+                              th:text="${plan.planName == 'FREE' ? 'Start now and configure your store immediately.' : 'Move to yearly activation when you want the next growth tier.'}">
+                            Start now.
+                        </span>
                     </div>
-                    <div class="pricing-stat">
-                        <strong th:text="${plan.planName == 'PRO' ? 'Priority' : 'Standard'}">Standard</strong>
-                        <span>Support</span>
-                    </div>
-                </div>
-                <ul class="pricing-features">
-                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Billing, GST invoices, and sales visibility</span></li>
-                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Best for evaluating Expygen with one store</span></li>
-                    <li th:if="${plan.planName == 'FREE'}"><i class="fas fa-check"></i><span>Simple yearly-free starting point</span></li>
+                </article>
 
-                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Purchases, inventory control, and stronger operations</span></li>
-                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>More medicine capacity for active stores</span></li>
-                    <li th:if="${plan.planName == 'BASIC'}"><i class="fas fa-check"></i><span>Reliable workflow for steady business growth</span></li>
+            </div>
 
-                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>WhatsApp invoice delivery and Insights access</span></li>
-                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Premium workflow support for multi-user teams</span></li>
-                    <li th:if="${plan.planName == 'PRO'}"><i class="fas fa-check"></i><span>Built for stores treating software as a growth engine</span></li>
-
-                    <li><i class="fas fa-check"></i><span>Yearly activation handled through admin pricing</span></li>
-                    <li><i class="fas fa-check"></i><span>Upgrade path stays available anytime</span></li>
-                </ul>
-                <div class="pricing-footer">
-                    <a th:href="${plan.actionHref}"
-                       class="btn-pricing"
-                       th:classappend="${!plan.enterprise} ? ' primary' : ''"
-                       th:text="${plan.actionLabel}">Start Free</a>
-                    <span class="pricing-note"
-                          th:text="${plan.planName == 'FREE' ? 'Start now and configure the store immediately.' : 'Move to yearly activation when you want the next growth tier.'}">
-                        Start now and configure the store immediately.
-                    </span>
-                </div>
-            </article>
-        </div>
-
-        <div class="guarantee-box">
-            <div class="guarantee-icon">
+            <div class="guarantee-card">
                 <i class="fas fa-layer-group"></i>
-            </div>
-            <div class="guarantee-text">
-                <h3>Plan usage stays visible inside the app</h3>
-                <p>Once a store is active, owners can track product and staff limits, current plan status, and upgrade readiness from the subscription workspace.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="comparison-section">
-        <div class="section-head">
-            <h2>Compare the operational difference</h2>
-            <p>Choose based on how far you want to go beyond billing into purchases, stock control, WhatsApp delivery, and Insights.</p>
-        </div>
-
-        <div class="comparison-table">
-            <div class="comparison-row header">
-                <div class="comparison-cell">Capability</div>
-                <div class="comparison-cell" th:each="plan : ${publicPlans}" th:text="${plan.planName}">FREE</div>
-            </div>
-
-            <div class="comparison-row">
-                <div class="comparison-cell">Billing + Sales History</div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="comparison-row">
-                <div class="comparison-cell">Purchases + Stock Control</div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="comparison-row">
-                <div class="comparison-cell">WhatsApp Invoice Sharing</div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="comparison-row">
-                <div class="comparison-cell">Insights Workspace</div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-times"></i></div>
-                <div class="comparison-cell"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="comparison-row">
-                <div class="comparison-cell">Product Limit</div>
-                <div class="comparison-cell" th:each="plan : ${publicPlans}" th:text="${plan.productsLabel}">50</div>
-            </div>
-            <div class="comparison-row">
-                <div class="comparison-cell">User Limit</div>
-                <div class="comparison-cell" th:each="plan : ${publicPlans}" th:text="${plan.usersLabel}">2</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="faq-section">
-        <div class="section-head">
-            <h2>Frequently asked questions</h2>
-            <p>Clear answers around plan changes, billing cycle, onboarding, and activation.</p>
-        </div>
-
-        <div class="faq-grid">
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Can I switch plans later?
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Yes. Stores can start small and move to larger plans later as user count, product volume, purchases, or Insights needs grow.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Is there a paid-plan trial?
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    You can start with the free plan and move into paid capability when your store is ready for higher limits and operational depth.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    How does activation work today?
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Paid activation currently follows the assisted workflow shown on the workflow page. The team confirms payment and activates the workspace.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Do all plans support GST invoicing?
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Yes. GST invoicing is part of the product flow across plans, with higher plans adding more operational depth around purchases, WhatsApp delivery, and Insights.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Can I see plan usage inside the app?
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Yes. Owners can view subscription status, product usage, staff usage, and plan comparison from the subscription workspace.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Which plan is best for Insights?
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Pro is the right choice if you want the dedicated Insights workspace for sales, purchases, stock risk, and audit visibility.
+                <div>
+                    <h3>Plan usage stays visible inside the app</h3>
+                    <p>
+                        Owners can track product limits, staff limits, current plan status and upgrade readiness
+                        from the subscription workspace.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="pricing-cta">
-        <h2>Start with the plan your store can actually use today</h2>
-        <p>Begin with billing, then scale into purchases, inventory control, WhatsApp invoices, and Insights when the store is ready.</p>
-        <a href="/register" class="btn-cta">
-            <i class="fas fa-rocket"></i> Start Free
-        </a>
+    <!-- COMPARISON -->
+    <section class="pricing-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Compare Plans</span>
+                <h2>Choose based on your operational depth.</h2>
+                <p>Move beyond billing when your store needs purchases, stock control, WhatsApp delivery and Insights.</p>
+            </div>
+
+            <div class="comparison-table">
+                <div class="comparison-row header">
+                    <div>Capability</div>
+                    <div th:each="plan : ${publicPlans}" th:text="${plan.planName}">FREE</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div>Billing + Sales History</div>
+                    <div><i class="fas fa-check"></i></div>
+                    <div><i class="fas fa-check"></i></div>
+                    <div><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div>Purchases + Stock Control</div>
+                    <div><i class="fas fa-times"></i></div>
+                    <div><i class="fas fa-check"></i></div>
+                    <div><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div>WhatsApp Invoice Sharing</div>
+                    <div><i class="fas fa-times"></i></div>
+                    <div><i class="fas fa-times"></i></div>
+                    <div><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div>Insights Workspace</div>
+                    <div><i class="fas fa-times"></i></div>
+                    <div><i class="fas fa-times"></i></div>
+                    <div><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div>Product Limit</div>
+                    <div th:each="plan : ${publicPlans}" th:text="${plan.productsLabel}">50</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div>User Limit</div>
+                    <div th:each="plan : ${publicPlans}" th:text="${plan.usersLabel}">2</div>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <script>
-        function toggleFaq(element) {
-            const faqItem = element.parentElement;
-            faqItem.classList.toggle('active');
-        }
+    <!-- FAQ -->
+    <section class="pricing-section">
+        <div class="public-shell faq-shell">
+            <div class="section-heading">
+                <span class="section-kicker">FAQ</span>
+                <h2>Frequently asked questions</h2>
+                <p>Clear answers around plan changes, activation, onboarding and billing cycle.</p>
+            </div>
 
-    </script>
+            <div class="faq-grid">
+                <article class="faq-item">
+                    <button type="button" class="faq-question" onclick="toggleFaq(this)">
+                        Can I switch plans later?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Yes. Stores can start small and move to larger plans as user count, product volume, purchases or Insights needs grow.
+                    </div>
+                </article>
 
-    <div th:replace="~{fragments/public-footer :: footer}"></div>
+                <article class="faq-item">
+                    <button type="button" class="faq-question" onclick="toggleFaq(this)">
+                        Is there a paid-plan trial?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        You can start with the free plan and move into paid capability when your store is ready for higher limits.
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <button type="button" class="faq-question" onclick="toggleFaq(this)">
+                        How does activation work today?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Paid activation currently follows an assisted workflow. The team confirms payment and activates the workspace.
+                    </div>
+                </article>
+
+                <article class="faq-item">
+                    <button type="button" class="faq-question" onclick="toggleFaq(this)">
+                        Do all plans support GST invoicing?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Yes. GST invoicing is part of the product flow across plans.
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="pricing-final-cta">
+        <div class="public-shell pricing-final-card">
+            <span class="section-kicker">Start Today</span>
+            <h2>Start with the plan your store can actually use today.</h2>
+            <p>
+                Begin with billing, then scale into purchases, inventory control, WhatsApp invoices and Insights.
+            </p>
+            <a th:href="@{/register}" class="pricing-cta-btn">
+                <i class="fas fa-rocket"></i>
+                Start Free
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/public-footer :: footer}"></div>
+
+<script th:src="@{/js/public-theme-toggle.js}"></script>
+
+<script>
+function toggleFaq(element) {
+    element.parentElement.classList.toggle('active');
+}
+</script>
+
 </body>
 </html>

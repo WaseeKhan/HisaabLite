@@ -1,55 +1,76 @@
+/* src/main/resources/static/css/main/variables.css */
 :root {
-    --font-primary: 'Manrope', sans-serif;
-    --font-brand: 'Sora', 'Manrope', sans-serif;
+    --primary: #1F6FEB;
+    --primary-dark: #164FB1;
+    --primary-soft: #EAF2FF;
+    --accent: #F27A21;
+    --accent-dark: #D96A14;
+    --accent-soft: #FFF2E7;
+
+    --dark: #1F1F1F;
+    --dark-secondary: #101828;
+    --success: #16A34A;
+    --danger: #DC2626;
+    --warning: #F59E0B;
+
+    --white: #FFFFFF;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F6FA;
+    --gray-200: #E8EEF6;
+    --gray-300: #D9E2EE;
+    --gray-400: #B8C4D6;
+    --gray-500: #8A97AB;
+    --gray-600: #64748B;
+    --gray-700: #334155;
+    --gray-800: #1E293B;
+
+    --page-bg: #F8FBFF;
+    --page-text: #334155;
+    --page-heading: #172033;
+    --page-surface: rgba(255, 255, 255, 0.92);
+    --page-surface-solid: #FFFFFF;
+    --page-surface-soft: #F4F8FF;
+    --page-border: rgba(217, 226, 238, 0.95);
+    --page-muted: #7E8CA7;
+
+    --font-primary: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-brand: 'Sora', 'Manrope', system-ui, sans-serif;
     --font-family: var(--font-primary);
     --font-display: var(--font-brand);
-    --shop-primary: #23262b;
-    --shop-primary-dark: #17191d;
-    --shop-secondary: #2f74da;
-    --shop-secondary-dark: #225ab2;
-    --shop-secondary-soft: #edf4ff;
-    --shop-accent: #f28c28;
-    --shop-accent-soft: #fff1e2;
-    --shop-success: #16a34a;
-    --shop-danger: #dc4343;
-    --shop-danger-light: #fef0ef;
-    --shop-text-primary: #1f2937;
-    --shop-text-secondary: #5e6879;
-    --shop-text-muted: #94a0b2;
-    --shop-bg: #eef1f5;
-    --shop-white: #ffffff;
-    --shop-border: #d9e0e9;
-    --shop-border-light: #edf1f5;
-    --shop-surface: #ffffff;
-    --shop-surface-soft: #f8fafc;
-    --shop-panel-border: rgba(207, 215, 226, 0.95);
-    --shop-shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.05);
-    --shop-shadow-md: 0 16px 34px rgba(15, 23, 42, 0.08);
-    --shop-radius-lg: 14px;
-    --shop-radius-xl: 18px;
-    --shop-radius-pill: 999px;
-    --shop-input-height: 40px;
-    --shop-panel-padding: 18px;
-    --shop-page-bg: #eef1f5;
-    --shop-page-text: #1f2937;
-    --shop-footer-bg: #ffffff;
-    --shop-footer-text: #94a3b8;
-    --shop-main-bg: linear-gradient(180deg, #eef1f5 0%, #f5f7fa 100%);
+
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 20px;
+    --space-xxl: 24px;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+    --radius-xxl: 32px;
+    --radius-full: 999px;
+
+    --shadow-sm: 0 8px 18px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 18px 38px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 28px 70px rgba(15, 23, 42, 0.12);
+
+    --container: 1180px;
+    --container-wide: 1380px;
 }
 
 :root[data-theme="dark"] {
-    --shop-page-bg: #0b1220;
-    --shop-page-text: #dbe5f3;
-    --shop-bg: #0b1220;
-    --shop-surface: #111827;
-    --shop-surface-soft: #172033;
-    --shop-text-primary: #f8fafc;
-    --shop-text-secondary: #cbd5e1;
-    --shop-text-muted: #94a3b8;
-    --shop-border: rgba(148, 163, 184, 0.16);
-    --shop-border-light: rgba(148, 163, 184, 0.1);
-    --shop-panel-border: rgba(148, 163, 184, 0.18);
-    --shop-footer-bg: #111827;
-    --shop-footer-text: #94a3b8;
-    --shop-main-bg: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+    --page-bg: #0B1220;
+    --page-text: #D7E2F3;
+    --page-heading: #F8FAFC;
+    --page-surface: rgba(17, 24, 39, 0.92);
+    --page-surface-solid: #111827;
+    --page-surface-soft: #172033;
+    --page-border: rgba(148, 163, 184, 0.18);
+    --page-muted: #94A3B8;
+    --primary-soft: rgba(31, 111, 235, 0.14);
+    --accent-soft: rgba(242, 122, 33, 0.14);
+    --gray-200: rgba(148, 163, 184, 0.16);
+    --gray-300: rgba(148, 163, 184, 0.20);
 }

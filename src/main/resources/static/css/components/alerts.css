@@ -1,0 +1,12 @@
+.ui-alert {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    font-size: var(--text-sm);
+    font-weight: 700;
+}
+
+.ui-alert-success { background: var(--color-success-soft); color: var(--color-success); border-color: #86efac; }
+.ui-alert-info { background: var(--color-info-soft); color: var(--color-info); border-color: #93c5fd; }
+.ui-alert-warning { background: var(--color-warning-soft); color: var(--color-warning); border-color: #fcd34d; }
+.ui-alert-danger { background: var(--color-danger-soft); color: var(--color-danger); border-color: #fca5a5; }

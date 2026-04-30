@@ -3,213 +3,378 @@
 
 <head>
     <title>Features • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+
+    <link rel="icon" type="image/png" href="/images/favicon_light.png">
+    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
     <link rel="stylesheet" th:href="@{/css/pages/features.css}">
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body>
-    <div th:replace="~{fragments/public-header :: header}"></div>
+<body class="features-page">
 
+<div th:replace="~{fragments/public-header :: header}"></div>
+
+<main class="features-root">
+
+    <!-- HERO -->
     <section class="features-hero">
-        <div class="features-hero-content">
-            <span class="features-kicker">Features</span>
-            <h1>Everything Expygen already helps pharmacies do every day</h1>
-            <p>From billing and GST invoices to purchases, batch control, staff roles, support, subscription usage, and Insights, Expygen is built around real medical-store operations.</p>
-            <div class="features-hero-pills">
-                <span><i class="fas fa-receipt"></i> Billing</span>
-                <span><i class="fas fa-boxes-stacked"></i> Inventory</span>
-                <span><i class="fas fa-chart-line"></i> Insights</span>
+        <div class="public-shell-wide features-hero-card">
+
+            <div class="features-hero-copy">
+                <span class="section-kicker">
+                    <i class="fas fa-layer-group"></i>
+                    Product Features
+                </span>
+
+                <h1>
+                    One pharmacy system.
+                    <span>Every operation connected.</span>
+                </h1>
+
+                <p>
+                    Expygen brings billing, inventory, purchases, expiry tracking, WhatsApp invoices,
+                    staff control and sales insights together in one simple platform for modern medical stores.
+                </p>
+
+                <div class="features-actions">
+                    <a th:href="@{/register}" class="features-btn features-btn-primary">
+                        Start Free <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a th:href="@{/pricing}" class="features-btn features-btn-secondary">
+                        View Pricing
+                    </a>
+                </div>
+
+                <div class="features-proof">
+                    <span><i class="fas fa-check"></i> Counter ready</span>
+                    <span><i class="fas fa-check"></i> GST invoice ready</span>
+                    <span><i class="fas fa-check"></i> Staff friendly</span>
+                </div>
+            </div>
+
+            <!-- Circular Feature Map -->
+            <div class="feature-orbit-wrap">
+
+                <div class="orbit-ring orbit-ring-one"></div>
+                <div class="orbit-ring orbit-ring-two"></div>
+                <div class="orbit-ring orbit-ring-three"></div>
+
+                <div class="orbit-center">
+                    <span class="orbit-logo"></span>
+                    <strong>EXPYGEN</strong>
+                    <small>Pharmacy OS</small>
+                    <p>All-in-one platform for Indian medical stores</p>
+                </div>
+
+                <article class="orbit-card orbit-billing">
+                    <span class="orbit-icon blue"><i class="fas fa-cash-register"></i></span>
+                    <h3>Billing</h3>
+                    <p>Fast billing with GST, invoices & payments</p>
+                </article>
+
+                <article class="orbit-card orbit-inventory">
+                    <span class="orbit-icon orange"><i class="fas fa-boxes-stacked"></i></span>
+                    <h3>Inventory</h3>
+                    <p>Real-time stock, batch, expiry & low stock alert</p>
+                </article>
+
+                <article class="orbit-card orbit-purchase">
+                    <span class="orbit-icon green"><i class="fas fa-truck-loading"></i></span>
+                    <h3>Purchase</h3>
+                    <p>Supplier management, purchase & returns</p>
+                </article>
+
+                <article class="orbit-card orbit-whatsapp">
+                    <span class="orbit-icon purple"><i class="fab fa-whatsapp"></i></span>
+                    <h3>WhatsApp</h3>
+                    <p>Send invoices instantly to customers</p>
+                </article>
+
+                <article class="orbit-card orbit-staff">
+                    <span class="orbit-icon teal"><i class="fas fa-users"></i></span>
+                    <h3>Staff</h3>
+                    <p>Role-based access & staff management</p>
+                </article>
+
+                <article class="orbit-card orbit-insights">
+                    <span class="orbit-icon pink"><i class="fas fa-chart-line"></i></span>
+                    <h3>Insights</h3>
+                    <p>Sales reports, trends & business analytics</p>
+                </article>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FLOW -->
+    <section class="features-flow-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">
+                    <i class="fas fa-route"></i>
+                    How it works
+                </span>
+                <h2>From purchase to profit, the flow is simple.</h2>
+                <p>
+                    Expygen connects every important pharmacy activity so your daily operations feel smooth,
+                    trackable and controlled.
+                </p>
+            </div>
+
+            <div class="flow-row">
+                <article class="flow-card">
+                    <span>01</span>
+                    <i class="fas fa-cart-plus"></i>
+                    <h3>Purchase</h3>
+                    <p>Add purchases from suppliers with product and batch details.</p>
+                </article>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+                <article class="flow-card">
+                    <span>02</span>
+                    <i class="fas fa-box"></i>
+                    <h3>Stock In</h3>
+                    <p>Products are added to inventory with stock visibility.</p>
+                </article>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+                <article class="flow-card active">
+                    <span>03</span>
+                    <i class="fas fa-cash-register"></i>
+                    <h3>Billing</h3>
+                    <p>Create GST invoices with discounts and payments.</p>
+                </article>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+                <article class="flow-card">
+                    <span>04</span>
+                    <i class="fab fa-whatsapp"></i>
+                    <h3>Share</h3>
+                    <p>Send invoice copy instantly through WhatsApp.</p>
+                </article>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>
+
+                <article class="flow-card">
+                    <span>05</span>
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Insights</h3>
+                    <p>Track sales, stock and growth from analytics.</p>
+                </article>
             </div>
         </div>
     </section>
 
-    <section class="feature-stack-section">
-        <div class="section-head">
-            <h2>Core product areas</h2>
-            <p>The platform is structured around the way stores actually operate: run the counter, control stock, manage staff, and open Insights when business visibility is needed.</p>
-        </div>
-
-        <div class="feature-stack">
-            <article class="feature-block">
-                <div class="feature-block-head">
-                    <div class="feature-block-icon"><i class="fas fa-cash-register"></i></div>
-                    <div>
-                        <span class="feature-block-kicker">Billing Desk</span>
-                        <h3>Counter billing that stays fast and practical</h3>
-                    </div>
-                </div>
-                <div class="feature-chip-grid">
-                    <span>Medicine search and barcode-ready lookup</span>
-                    <span>GST calculation</span>
-                    <span>Thermal invoice</span>
-                    <span>PDF invoice</span>
-                    <span>WhatsApp invoice sharing</span>
-                    <span>Recent invoice actions</span>
-                    <span>Sales history</span>
-                    <span>Customer and doctor reference fields</span>
-                </div>
-            </article>
-
-            <article class="feature-block">
-                <div class="feature-block-head">
-                    <div class="feature-block-icon"><i class="fas fa-truck-loading"></i></div>
-                    <div>
-                        <span class="feature-block-kicker">Inventory Control</span>
-                        <h3>Purchases, batches, expiry, and stock movement in one flow</h3>
-                    </div>
-                </div>
-                <div class="feature-chip-grid">
-                    <span>Purchase entry</span>
-                    <span>Purchase returns</span>
-                    <span>Supplier management</span>
-                    <span>Batch tracking</span>
-                    <span>Expiry tracking</span>
-                    <span>Current stock visibility</span>
-                    <span>Stock adjustments</span>
-                    <span>Low-stock and expiry awareness</span>
-                </div>
-            </article>
-
-            <article class="feature-block">
-                <div class="feature-block-head">
-                    <div class="feature-block-icon"><i class="fas fa-users-cog"></i></div>
-                    <div>
-                        <span class="feature-block-kicker">Operations Control</span>
-                        <h3>Owner, manager, and cashier roles without mixing responsibilities</h3>
-                    </div>
-                </div>
-                <div class="feature-chip-grid">
-                    <span>Owner role</span>
-                    <span>Manager role</span>
-                    <span>Cashier role</span>
-                    <span>Role-based page visibility</span>
-                    <span>Action-level restrictions</span>
-                    <span>Staff management</span>
-                    <span>Shop profile</span>
-                    <span>User profile</span>
-                </div>
-            </article>
-
-            <article class="feature-block">
-                <div class="feature-block-head">
-                    <div class="feature-block-icon"><i class="fas fa-satellite-dish"></i></div>
-                    <div>
-                        <span class="feature-block-kicker">Insights Workspace</span>
-                        <h3>A dedicated intelligence center separate from daily operations</h3>
-                    </div>
-                </div>
-                <div class="feature-chip-grid">
-                    <span>Sales summary</span>
-                    <span>Invoice sales</span>
-                    <span>Purchase summary</span>
-                    <span>Current stock</span>
-                    <span>Near expiry</span>
-                    <span>Stock adjustments</span>
-                    <span>Activity audit</span>
-                    <span>Export and drill-down actions</span>
-                </div>
-            </article>
-
-            <article class="feature-block">
-                <div class="feature-block-head">
-                    <div class="feature-block-icon"><i class="fas fa-layer-group"></i></div>
-                    <div>
-                        <span class="feature-block-kicker">Subscription & Support</span>
-                        <h3>Clear plan visibility and store-side support handling</h3>
-                    </div>
-                </div>
-                <div class="feature-chip-grid">
-                    <span>Subscription usage page</span>
-                    <span>Plan limits</span>
-                    <span>Upgrade flow</span>
-                    <span>Support ticket desk</span>
-                    <span>Contact guidance</span>
-                    <span>Shop-side support workspace</span>
-                </div>
-            </article>
-        </div>
-    </section>
-
-    <section class="feature-grid-section">
-        <div class="section-head">
-            <h2>Feature highlights that stores notice quickly</h2>
-            <p>These are the capabilities that usually make the biggest operational difference once a pharmacy starts using the product daily.</p>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-print"></i></div>
-                <h3>Thermal-first invoicing</h3>
-                <p>Use thermal receipts at the counter, keep PDF as the official copy, and send invoices on WhatsApp when needed.</p>
+    <!-- CORE MODULES -->
+    <section class="features-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Core Modules</span>
+                <h2>Everything structured around real pharmacy work.</h2>
+                <p>
+                    Each module is designed to solve a practical store problem without making the system heavy.
+                </p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-box-open"></i></div>
-                <h3>Batch and expiry visibility</h3>
-                <p>Track inward batches, expiry windows, current stock, and risky inventory with clearer operational control.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fab fa-whatsapp"></i></div>
-                <h3>WhatsApp invoice delivery</h3>
-                <p>Share invoice copies on WhatsApp from billing, recent invoices, and sales history without leaving the workflow.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                <h3>GST-ready billing</h3>
-                <p>Keep CGST, SGST, discounts, and payment tracking inside the billing flow instead of calculating outside the system.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
-                <h3>Role-safe operations</h3>
-                <p>Let owners, managers, and cashiers work inside the same store system without exposing every action to everyone.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-history"></i></div>
-                <h3>Invoice recall and actions</h3>
-                <p>Reopen invoice preview, thermal view, print, PDF, or WhatsApp from sales history and recent billing actions.</p>
+
+            <div class="module-grid">
+
+                <article class="module-card">
+                    <div class="module-head">
+                        <i class="fas fa-cash-register"></i>
+                        <div>
+                            <span>Billing Desk</span>
+                            <h3>Fast pharmacy billing</h3>
+                        </div>
+                    </div>
+                    <p>Create invoices quickly with product search, GST, discounts, payment mode and customer details.</p>
+                    <div class="module-tags">
+                        <span>GST billing</span><span>PDF invoice</span><span>Thermal print</span><span>Sales history</span>
+                    </div>
+                </article>
+
+                <article class="module-card">
+                    <div class="module-head">
+                        <i class="fas fa-box-open"></i>
+                        <div>
+                            <span>Inventory</span>
+                            <h3>Stock and batch control</h3>
+                        </div>
+                    </div>
+                    <p>Track products, stock quantity, minimum stock, batches and near-expiry medicines.</p>
+                    <div class="module-tags">
+                        <span>Batch tracking</span><span>Expiry</span><span>Low stock</span><span>Adjustments</span>
+                    </div>
+                </article>
+
+                <article class="module-card">
+                    <div class="module-head">
+                        <i class="fas fa-truck-loading"></i>
+                        <div>
+                            <span>Purchase Flow</span>
+                            <h3>Supplier to shelf visibility</h3>
+                        </div>
+                    </div>
+                    <p>Manage supplier purchases, inward stock, purchase returns and stock movement.</p>
+                    <div class="module-tags">
+                        <span>Purchase entry</span><span>Suppliers</span><span>Returns</span><span>Stock movement</span>
+                    </div>
+                </article>
+
+                <article class="module-card">
+                    <div class="module-head">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <span>WhatsApp</span>
+                            <h3>Invoice delivery in seconds</h3>
+                        </div>
+                    </div>
+                    <p>Send invoice copies to customers directly from billing, invoice preview or sales history.</p>
+                    <div class="module-tags">
+                        <span>PDF sharing</span><span>Customer copy</span><span>Quick send</span><span>Billing linked</span>
+                    </div>
+                </article>
+
+                <article class="module-card">
+                    <div class="module-head">
+                        <i class="fas fa-users-cog"></i>
+                        <div>
+                            <span>Staff Control</span>
+                            <h3>Role-safe store operations</h3>
+                        </div>
+                    </div>
+                    <p>Keep owner, manager and cashier access clean with role-based page visibility.</p>
+                    <div class="module-tags">
+                        <span>Owner</span><span>Manager</span><span>Cashier</span><span>Access control</span>
+                    </div>
+                </article>
+
+                <article class="module-card">
+                    <div class="module-head">
+                        <i class="fas fa-chart-pie"></i>
+                        <div>
+                            <span>Insights</span>
+                            <h3>Sales and business visibility</h3>
+                        </div>
+                    </div>
+                    <p>Understand daily sales, top products, payment modes, stock movement and store performance.</p>
+                    <div class="module-tags">
+                        <span>Sales summary</span><span>Top products</span><span>Payment modes</span><span>Reports</span>
+                    </div>
+                </article>
+
             </div>
         </div>
     </section>
 
-    <section class="why-choose-section">
-        <div class="section-head">
-            <h2>Why this feels different from generic business software</h2>
-            <p>Expygen keeps the main app operational, the Insights area analytical, and the public plan/support layer clear enough for growing stores.</p>
-        </div>
+    <!-- DAILY ADVANTAGE -->
+    <section class="features-section">
+        <div class="public-shell-wide feature-strip">
+            <div class="feature-strip-copy">
+                <span class="section-kicker">Daily Advantage</span>
+                <h2>Designed to reduce counter pressure.</h2>
+                <p>
+                    Most stores do not need complicated software. They need fast billing, clear stock,
+                    easy invoice sharing and reliable visibility.
+                </p>
+            </div>
 
-        <div class="why-choose-grid">
-            <div class="why-card">
-                <i class="fas fa-bolt"></i>
-                <h3>Counter-first</h3>
-                <p>Billing stays fast and practical.</p>
-            </div>
-            <div class="why-card">
-                <i class="fas fa-wave-square"></i>
-                <h3>Workflow aware</h3>
-                <p>Purchases, stock, and invoices stay connected.</p>
-            </div>
-            <div class="why-card">
-                <i class="fas fa-chart-pie"></i>
-                <h3>Insights separated</h3>
-                <p>Analysis lives outside daily execution screens.</p>
-            </div>
-            <div class="why-card">
-                <i class="fas fa-shield-alt"></i>
-                <h3>Role safe</h3>
-                <p>Owner, manager, and cashier flows stay clear.</p>
+            <div class="strip-list">
+                <div><i class="fas fa-bolt"></i><span>Quick billing actions</span></div>
+                <div><i class="fas fa-barcode"></i><span>Barcode-ready lookup</span></div>
+                <div><i class="fas fa-calendar-xmark"></i><span>Expiry awareness</span></div>
+                <div><i class="fas fa-file-invoice"></i><span>Invoice recall</span></div>
+                <div><i class="fas fa-user-shield"></i><span>Role-safe access</span></div>
+                <div><i class="fas fa-chart-line"></i><span>Sales insights</span></div>
             </div>
         </div>
     </section>
 
-    <div th:replace="~{fragments/public-footer :: footer}"></div>
+    <!-- HIGHLIGHTS -->
+    <section class="features-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Feature Highlights</span>
+                <h2>Small features that make daily operations smoother.</h2>
+            </div>
+
+            <div class="highlight-grid">
+                <article>
+                    <i class="fas fa-print"></i>
+                    <h3>Thermal + PDF invoices</h3>
+                    <p>Print fast counter receipts and keep PDF copies for sharing or records.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-history"></i>
+                    <h3>Sales history actions</h3>
+                    <p>Reopen, print, download or share old invoices whenever required.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-users"></i>
+                    <h3>Owner and staff flow</h3>
+                    <p>Keep store access controlled with clear user roles and responsibilities.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Business insights</h3>
+                    <p>Track daily sales, payment modes, top products and performance trends.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-bell"></i>
+                    <h3>Low stock visibility</h3>
+                    <p>Know which items need attention before the customer asks for them.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <h3>GST-ready flow</h3>
+                    <p>Handle tax breakup, discount and payment summary inside billing.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="features-final-cta">
+        <div class="public-shell-wide features-final-card">
+            <span class="section-kicker">Ready to simplify?</span>
+            <h2>Move your pharmacy from manual work to connected operations.</h2>
+            <p>
+                Start free and experience billing, stock, WhatsApp invoices and insights in one clean platform.
+            </p>
+
+            <div>
+                <a th:href="@{/register}" class="features-btn features-btn-primary">
+                    Start Free <i class="fas fa-arrow-right"></i>
+                </a>
+                <a th:href="@{/contact}" class="features-btn features-btn-secondary">
+                    Request Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{fragments/public-footer :: footer}"></div>
+
+<script th:src="@{/js/public-theme-toggle.js}"></script>
+
 </body>
 </html>

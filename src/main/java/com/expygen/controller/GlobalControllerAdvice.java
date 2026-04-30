@@ -2,9 +2,12 @@ package com.expygen.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import com.expygen.admin.controller.AdminImpersonationController;
 import com.expygen.entity.User;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.SubscriptionAccessService;
@@ -99,6 +102,25 @@ public class GlobalControllerAdvice {
     public boolean isInsightsAvailable(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
         return user != null && subscriptionAccessService.canAccessInsights(user.getShop());
+    }
+
+    @ModelAttribute("impersonationActive")
+    public boolean isImpersonationActive() {
+        var attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null || attrs.getRequest().getSession(false) == null) {
+            return false;
+        }
+        return attrs.getRequest().getSession(false).getAttribute(AdminImpersonationController.IMPERSONATOR_USERNAME) != null;
+    }
+
+    @ModelAttribute("impersonatorAdminUsername")
+    public String getImpersonatorAdminUsername() {
+        var attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null || attrs.getRequest().getSession(false) == null) {
+            return null;
+        }
+        Object value = attrs.getRequest().getSession(false).getAttribute(AdminImpersonationController.IMPERSONATOR_USERNAME);
+        return value != null ? value.toString() : null;
     }
 
     private User getAuthenticatedUser(Authentication authentication) {

@@ -1,342 +1,396 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'Register • ' + ${@appConfig.appName}">Register • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+
+    <link rel="icon" type="image/png" href="/images/favicon_light.png">
+    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-    <link rel="stylesheet" th:href="@{/css/pages/login.css}">
     <link rel="stylesheet" th:href="@{/css/pages/register.css}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
 </head>
+
 <body class="register-page-body">
-<div th:replace="~{fragments/public-header :: header}"></div>
-<main class="login-main register-main">
-    <div class="login-shell register-layout">
-        <section class="login-showcase register-showcase">
-            
-            <div class="showcase-copy register-copy">
-                <h1>Create your Expygen workspace in a few simple steps</h1>
-                <p>
-                    Register your pharmacy account, verify your email,
-                    and start your free trial. Upgrade anytime later.
+
+    <div th:replace="~{fragments/public-header :: header}"></div>
+
+    <main class="register-main">
+        <div class="register-layout">
+
+            <section class="register-showcase">
+                <div class="register-copy">
+                    <span class="register-kicker">
+                        <i class="fas fa-store"></i>
+                        Expygen Onboarding
+                    </span>
+
+                    <h1>
+                        Create your pharmacy workspace
+                        <span>in a few simple steps.</span>
+                    </h1>
+
+                    <p>
+                        Register your pharmacy account, verify your email, start with your free access
+                        and upgrade anytime as your store grows.
+                    </p>
+                </div>
+
+                <div class="register-pill-row">
+                    <span class="register-pill"><i class="fas fa-bolt"></i> Fast signup</span>
+                    <span class="register-pill"><i class="fas fa-envelope"></i> Email verification</span>
+                    <span class="register-pill"><i class="fas fa-gift"></i> Free access</span>
+                </div>
+
+                <div class="register-onboarding-card">
+                    <div class="register-onboarding-head">
+                        <div>
+                            <span>How onboarding works</span>
+                            <h2>Go live with Expygen</h2>
+                        </div>
+                        <strong>4 steps</strong>
+                    </div>
+
+                    <div class="register-step-list">
+                        <div class="register-step active">
+                            <span>01</span>
+                            <div>
+                                <strong>Register</strong>
+                                <p>Create account with shop, owner, email and phone details.</p>
+                            </div>
+                        </div>
+
+                        <div class="register-step">
+                            <span>02</span>
+                            <div>
+                                <strong>Verify Email</strong>
+                                <p>Check your inbox and activate your account securely.</p>
+                            </div>
+                        </div>
+
+                        <div class="register-step">
+                            <span>03</span>
+                            <div>
+                                <strong>Login & Start</strong>
+                                <p>Sign in to your dashboard and explore core features.</p>
+                            </div>
+                        </div>
+
+                        <div class="register-step">
+                            <span>04</span>
+                            <div>
+                                <strong>Upgrade Anytime</strong>
+                                <p>Unlock advanced features as your pharmacy grows.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="register-footer-pills">
+                    <span class="register-pill"><i class="fas fa-shield-check"></i> Secure workspace</span>
+                    <span class="register-pill"><i class="fas fa-arrow-trend-up"></i> Upgrade anytime</span>
+                    <span class="register-pill"><i class="fab fa-whatsapp"></i> WhatsApp ready</span>
+                </div>
+            </section>
+
+            <section class="register-card-shell">
+                <div class="register-card">
+
+                    <div class="register-card-brand register-card-brand-new">
+                        <a th:href="@{/}" class="register-card-logo">
+                            <span class="register-logo-mark-wrap">
+                                <img th:src="@{/images/expygen-mark-light.svg}" th:alt="${@appConfig.appName}"
+                                    class="register-logo-mark register-logo-dark">
+
+                                <img th:src="@{/images/expygen-mark-dark.svg}" th:alt="${@appConfig.appName}"
+                                    class="register-logo-mark register-logo-light">
+                            </span>
+
+
+                        </a>
+
+                        <span class="register-card-badge">
+                            <i class="fa-solid fa-clinic-medical"></i>
+                            Register your pharmacy
+                        </span>
+                    </div>
+                    <div th:if="${error}" class="message error alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <form id="registrationForm" th:action="@{/register}" th:object="${registerRequest}" method="post"
+                        class="register-form" onsubmit="return handleSubmit()">
+
+                        <div class="form-section">
+                            <h3>Business Details</h3>
+
+                            <div class="input-group">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-store input-icon"></i>
+                                    <input type="text" th:field="*{shopName}" placeholder="Shop Name">
+                                </div>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" th:field="*{ownerName}" placeholder="Owner Name">
+                                </div>
+
+                                <input type="hidden" th:field="*{state}">
+
+                                <small class="field-error" th:if="${#fields.hasErrors('shopName')}"
+                                    th:errors="*{shopName}"></small>
+                                <small class="field-error" th:if="${#fields.hasErrors('ownerName')}"
+                                    th:errors="*{ownerName}"></small>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Owner Login Details</h3>
+
+                            <div class="input-group">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    <input type="email" th:field="*{username}" placeholder="Email Address"
+                                        oninput="this.value = this.value.toLowerCase()">
+                                </div>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-mobile-screen-button input-icon"></i>
+                                    <input type="tel" th:field="*{phone}" placeholder="Phone Number" maxlength="10"
+                                        pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                </div>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" th:field="*{password}" placeholder="Password">
+                                </div>
+
+                                <div class="input-wrapper">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" id="confirmPassword" name="confirmPassword"
+                                        placeholder="Confirm Password">
+                                </div>
+
+                                <small class="field-error" th:if="${#fields.hasErrors('username')}"
+                                    th:errors="*{username}"></small>
+                                <small class="field-error" th:if="${#fields.hasErrors('phone')}"
+                                    th:errors="*{phone}"></small>
+                                <small class="field-error" th:if="${#fields.hasErrors('password')}"
+                                    th:errors="*{password}"></small>
+                                <small id="confirmError" class="field-error" style="display:none;">Passwords don't
+                                    match</small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-register" id="submitBtn">
+                            <span id="buttonText">Create Business Account</span>
+                            <span id="buttonSpinner" style="display:none;" class="btn-spinner"></span>
+                        </button>
+
+                        <div class="back-link">
+                            Already have an account?
+                            <a th:href="@{/login}">Log in</a>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/public-footer :: footer}"></div>
+
+    <div id="successContainer" style="display:none;">
+        <div class="modal-overlay">
+            <div class="success-modal-content">
+                <div class="success-kicker">Workspace Ready</div>
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+
+                <h3>Registration complete</h3>
+                <p
+                    th:text="${success ?: 'Check your email to verify the account, then sign in to activate your free trial.'}">
+                    Check your email to verify the account, then sign in to activate your free trial.
+                </p>
+
+                <div class="success-summary">
+                    <div class="success-summary-item">
+                        <span class="success-summary-label">Next step</span>
+                        <strong>Verify email</strong>
+                    </div>
+                    <div class="success-summary-item">
+                        <span class="success-summary-label">Trial</span>
+                        <strong>Starts after login</strong>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" onclick="goToLoginNow()" class="action-btn primary">
+                        <i class="fas fa-sign-in-alt"></i> Login now
+                    </button>
+                    <button type="button" onclick="stayHere()" class="action-btn secondary">
+                        <i class="fas fa-clock"></i> Stay here <span id="countdownDisplay">5</span>s
+                    </button>
+                </div>
+
+                <p class="info-text">
+                    <span class="countdown-chip">
+                        <i class="fas fa-clock"></i>
+                        Auto-redirect in <span id="countdown">5</span>s
+                    </span>
                 </p>
             </div>
-
-            <div class="showcase-footer register-pill-row">
-                <span class="showcase-pill register-pill"><i class="fas fa-bolt"></i> Fast signup</span>
-                <span class="showcase-pill register-pill"><i class="fas fa-envelope"></i> Verify email</span>
-                <span class="showcase-pill register-pill"><i class="fas fa-gift"></i> Free trial access</span>
-            </div>
-
-          <div class="register-onboarding-card">
-    <div class="register-onboarding-head">
-        <h2>How onboarding works</h2>
-        <span class="register-step-count">4 steps</span>
-    </div>
-
-    <div class="register-step-list">
-
-        <div class="register-step">
-            <strong>1. Register</strong>
-            <p>Create your account with shop, owner, email and phone details</p>
-        </div>
-
-        <div class="register-step">
-            <strong>2. Verify Email</strong>
-            <p>Check your inbox and activate your account securely</p>
-        </div>
-
-        <div class="register-step">
-            <strong>3. Login & Start Free Trial</strong>
-            <p>Sign in to your dashboard and explore all core features</p>
-        </div>
-
-        <div class="register-step">
-            <strong>4. Upgrade Anytime</strong>
-            <p>Choose a plan and unlock advanced features as your shop grows</p>
-        </div>
-
-    </div>
-</div>
-
-            <div class="showcase-footer register-footer-pills">
-                <span class="showcase-pill register-footer-pill"><i class="fas fa-envelope"></i> Email verification required</span>
-                <span class="showcase-pill register-footer-pill"><i class="fas fa-gift"></i> Free trial starts after login</span>
-                <span class="showcase-pill register-footer-pill"><i class="fas fa-arrow-trend-up"></i> Upgrade plan anytime</span>
-            </div>
-        </section>
-
-        <section class="login-panel register-card-shell">
-            <div class="login-panel-card register-card">
-                <div class="panel-brand register-card-brand">
-                    <img th:src="@{/images/expygen-logo-light.png}" alt="Expygen" class="login-brand-image login-brand-image-dark">
-                    <img th:src="@{/images/expygen-logo-dark.png}" alt="Expygen" class="login-brand-image login-brand-image-light">
-                </div>
-
-                <div class="login-header register-card-header">
-    <span class="register-card-badge">
-        <i class="fa-solid fa-clinic-medical"></i>
-        &nbsp; Register your pharmacy
-    </span>
-</div>
-
-                <div th:if="${error}" class="message error alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span th:text="${error}"></span>
-                </div>
-
-                <form id="registrationForm"
-                      th:action="@{/register}"
-                      th:object="${registerRequest}"
-                      method="post"
-                      class="login-form register-form"
-                      onsubmit="return handleSubmit()">
-
-                    <div class="form-section form-group-stack">
-                        <h3>Business Details</h3>
-
-                        <div class="input-group">
-                            <div class="input-wrapper form-group">
-                                <i class="fas fa-user input-icon"></i>
-                                <input type="text" th:field="*{shopName}" placeholder="Shop Name">
-                            </div>
-                            <div class="input-wrapper form-group">
-                                <i class="fas fa-user input-icon"></i>
-                                <input type="text" th:field="*{ownerName}" placeholder="Owner Name">
-                            </div>
-                            <input type="hidden" th:field="*{state}">
-                            <small class="field-error" th:if="${#fields.hasErrors('shopName')}" th:errors="*{shopName}"></small>
-                            <small class="field-error" th:if="${#fields.hasErrors('ownerName')}" th:errors="*{ownerName}"></small>
-                        </div>
-                    </div>
-
-                    <div class="form-section form-group-stack">
-                        <h3>Owner Login Details</h3>
-
-                        <div class="input-group">
-                            <div class="input-wrapper form-group">
-                                <i class="fas fa-envelope input-icon"></i>
-                                <input type="email"
-                                       th:field="*{username}"
-                                       placeholder="Email Address"
-                                       oninput="this.value = this.value.toLowerCase()">
-                            </div>
-                            <div class="input-wrapper form-group">
-                                <i class="fas fa-mobile-screen-button input-icon"></i>
-                                <input type="tel"
-                                       th:field="*{phone}"
-                                       placeholder="Phone Number"
-                                       maxlength="10"
-                                       pattern="[0-9]{10}"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            </div>
-                            <div class="input-wrapper form-group">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" th:field="*{password}" placeholder="Password">
-                            </div>
-                            <div class="input-wrapper form-group">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
-                            </div>
-                            <small class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
-                            <small class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
-                            <small class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
-                            <small id="confirmError" class="field-error" style="display:none;">Passwords don't match</small>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-login btn-register" id="submitBtn">
-                        <span id="buttonText">Create Business Account</span>
-                        <span id="buttonSpinner" style="display:none;" class="btn-spinner"></span>
-                    </button>
-
-                    <div class="links back-link">
-                        Already have an account?
-                        <a th:href="@{/login}">Log in</a>
-                    </div>
-                </form>
-            </div>
-        </section>
-    </div>
-</main>
-<div th:replace="~{fragments/public-footer :: footer}"></div>
-
-<div id="successContainer" style="display:none;">
-    <div class="modal-overlay">
-        <div class="success-modal-content">
-            <div class="success-kicker">Workspace Ready</div>
-            <div class="success-icon">
-                <i class="fas fa-check"></i>
-            </div>
-            <h3>Registration complete</h3>
-            <p th:text="${success ?: 'Check your email to verify the account, then sign in to activate your free trial.'}">
-                Check your email to verify the account, then sign in to activate your free trial.
-            </p>
-
-            <div class="success-summary">
-                <div class="success-summary-item">
-                    <span class="success-summary-label">Next step</span>
-                    <strong>Verify email</strong>
-                </div>
-                <div class="success-summary-item">
-                    <span class="success-summary-label">Trial</span>
-                    <strong>Starts after login</strong>
-                </div>
-            </div>
-
-            <div class="progress-bar-container">
-                <div id="progressBar" class="progress-bar"></div>
-            </div>
-
-            <div class="action-buttons">
-                <button type="button" onclick="goToLoginNow()" class="action-btn primary">
-                    <i class="fas fa-sign-in-alt"></i> Login now
-                </button>
-                <button type="button" onclick="stayHere()" class="action-btn secondary">
-                    <i class="fas fa-clock"></i> Stay here <span id="countdownDisplay">5</span>s
-                </button>
-            </div>
-
-            <p class="info-text">
-                <span class="countdown-chip"><i class="fas fa-clock"></i> Auto-redirect in <span id="countdown">5</span>s</span>
-            </p>
         </div>
     </div>
-</div>
 
-<script th:inline="javascript">
-    let countdownInterval;
-    let countdownValue = 5;
-    let redirectCancelled = false;
+    <script th:inline="javascript">
+        let countdownInterval;
+        let countdownValue = 5;
+        let redirectCancelled = false;
 
-    function handleSubmit() {
-        const password = document.querySelector('[name="password"]').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const confirmError = document.getElementById('confirmError');
+        function handleSubmit() {
+            const password = document.querySelector('[name="password"]').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const confirmError = document.getElementById('confirmError');
 
-        if (password !== confirmPassword) {
-            confirmError.style.display = 'block';
-            return false;
-        }
-
-        confirmError.style.display = 'none';
-
-        const submitBtn = document.getElementById('submitBtn');
-        const buttonText = document.getElementById('buttonText');
-        const buttonSpinner = document.getElementById('buttonSpinner');
-
-        submitBtn.disabled = true;
-        buttonText.style.display = 'none';
-        buttonSpinner.style.display = 'inline-block';
-
-        return true;
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const password = document.querySelector('[name="password"]');
-        const confirmPassword = document.getElementById('confirmPassword');
-        const confirmError = document.getElementById('confirmError');
-
-        function checkMatch() {
-            if (confirmPassword.value.length > 0) {
-                confirmError.style.display = password.value !== confirmPassword.value ? 'block' : 'none';
+            if (password !== confirmPassword) {
+                confirmError.style.display = 'block';
+                return false;
             }
+
+            confirmError.style.display = 'none';
+
+            const submitBtn = document.getElementById('submitBtn');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+
+            submitBtn.disabled = true;
+            buttonText.style.display = 'none';
+            buttonSpinner.style.display = 'inline-block';
+
+            return true;
         }
 
-        password?.addEventListener('keyup', checkMatch);
-        confirmPassword?.addEventListener('keyup', checkMatch);
+        document.addEventListener('DOMContentLoaded', function () {
+            const password = document.querySelector('[name="password"]');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const confirmError = document.getElementById('confirmError');
 
-        const successParam = /*[[${success}]]*/ false;
-
-        if (successParam) {
-            const form = document.getElementById('registrationForm');
-            const successContainer = document.getElementById('successContainer');
-            const modalOverlay = document.querySelector('#successContainer .modal-overlay');
-
-            if (form) form.style.display = 'none';
-            if (successContainer) {
-                successContainer.style.display = 'block';
-                modalOverlay?.classList.add('show');
-                setTimeout(function() {
-                    startCountdown();
-                }, 100);
-            }
-        }
-    });
-
-    function startCountdown() {
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-        }
-
-        countdownValue = 5;
-        redirectCancelled = false;
-        updateCountdownDisplay();
-
-        const progressBar = document.getElementById('progressBar');
-        if (progressBar) {
-            progressBar.style.width = '100%';
-            progressBar.style.transition = 'width 0.3s linear';
-        }
-
-        countdownInterval = setInterval(() => {
-            if (redirectCancelled) return;
-
-            if (countdownValue > 0) {
-                countdownValue--;
-                updateCountdownDisplay();
-
-                if (progressBar) {
-                    const percentage = (countdownValue / 5) * 100;
-                    progressBar.style.width = percentage + '%';
+            function checkMatch() {
+                if (confirmPassword.value.length > 0) {
+                    confirmError.style.display = password.value !== confirmPassword.value ? 'block' : 'none';
                 }
+            }
 
-                if (countdownValue <= 0) {
-                    clearInterval(countdownInterval);
-                    if (!redirectCancelled) {
-                        window.location.href = '/login';
+            password?.addEventListener('keyup', checkMatch);
+            confirmPassword?.addEventListener('keyup', checkMatch);
+
+            const successParam = /*[[${success}]]*/ false;
+
+            if (successParam) {
+                const form = document.getElementById('registrationForm');
+                const successContainer = document.getElementById('successContainer');
+                const modalOverlay = document.querySelector('#successContainer .modal-overlay');
+
+                if (form) form.style.display = 'none';
+                if (successContainer) {
+                    successContainer.style.display = 'block';
+                    modalOverlay?.classList.add('show');
+                    setTimeout(function () {
+                        startCountdown();
+                    }, 100);
+                }
+            }
+
+            const menuToggle = document.getElementById("menuToggle");
+            const mobileMenu = document.getElementById("mobileMenu");
+
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener("click", () => {
+                    mobileMenu.classList.toggle("active");
+                });
+            }
+        });
+
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownValue = 5;
+            redirectCancelled = false;
+            updateCountdownDisplay();
+
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.style.transition = 'width 0.3s linear';
+            }
+
+            countdownInterval = setInterval(() => {
+                if (redirectCancelled) return;
+
+                if (countdownValue > 0) {
+                    countdownValue--;
+                    updateCountdownDisplay();
+
+                    if (progressBar) {
+                        const percentage = (countdownValue / 5) * 100;
+                        progressBar.style.width = percentage + '%';
+                    }
+
+                    if (countdownValue <= 0) {
+                        clearInterval(countdownInterval);
+                        if (!redirectCancelled) {
+                            window.location.href = '/login';
+                        }
                     }
                 }
+            }, 1000);
+        }
+
+        function updateCountdownDisplay() {
+            const countdownEl = document.getElementById('countdown');
+            const countdownDisplayEl = document.getElementById('countdownDisplay');
+            if (countdownEl) countdownEl.innerText = countdownValue;
+            if (countdownDisplayEl) countdownDisplayEl.innerText = countdownValue;
+        }
+
+        function goToLoginNow() {
+            redirectCancelled = true;
+            if (countdownInterval) clearInterval(countdownInterval);
+            window.location.href = '/login';
+        }
+
+        function stayHere() {
+            redirectCancelled = true;
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            const infoText = document.querySelector('.info-text');
+            if (infoText) {
+                infoText.innerHTML =
+                    '<span class="countdown-chip countdown-chip-success"><i class="fas fa-circle-check"></i> Redirect cancelled. You can login manually when ready.</span>';
             }
-        }, 1000);
-    }
-
-    function updateCountdownDisplay() {
-        const countdownEl = document.getElementById('countdown');
-        const countdownDisplayEl = document.getElementById('countdownDisplay');
-        if (countdownEl) countdownEl.innerText = countdownValue;
-        if (countdownDisplayEl) countdownDisplayEl.innerText = countdownValue;
-    }
-
-    function goToLoginNow() {
-        redirectCancelled = true;
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
         }
-        window.location.href = '/login';
-    }
-
-    function stayHere() {
-        redirectCancelled = true;
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-        }
-
-        const infoText = document.querySelector('.info-text');
-        if (infoText) {
-            infoText.innerHTML = '<span class="countdown-chip countdown-chip-success"><i class="fas fa-circle-check"></i> Redirect cancelled. You can login manually when ready.</span>';
-        }
-    }
-</script>
+    </script>
+    <script th:src="@{/js/public-theme-toggle.js}"></script>
 </body>
+
 </html>

@@ -1,0 +1,28 @@
+.u-text-muted { color: var(--theme-muted, var(--text-muted)); }
+.u-text-success { color: var(--color-success); }
+.u-text-danger { color: var(--color-danger); }
+.u-flex { display: flex; }
+.u-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.u-flex-wrap { flex-wrap: wrap; }
+.u-gap-sm { gap: var(--space-2); }
+.u-gap-md { gap: var(--space-3); }
+.u-stack-sm > * + * { margin-top: var(--space-2); }
+.u-stack-md > * + * { margin-top: var(--space-3); }
+
+body.density-admin {
+    --density-card-padding: 14px;
+    --density-section-gap: 12px;
+    --density-table-size: 11px;
+}
+
+body.density-shop {
+    --density-card-padding: 18px;
+    --density-section-gap: 16px;
+    --density-table-size: 12px;
+}
+
+body.density-public {
+    --density-card-padding: 24px;
+    --density-section-gap: 24px;
+    --density-table-size: 13px;
+}

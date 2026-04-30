@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import com.expygen.dto.ShopProfileUpdateRequest;
 import com.expygen.entity.PlanType;
@@ -27,6 +28,8 @@ import com.expygen.repository.SaleRepository;
 import com.expygen.repository.UserRepository;
 import com.expygen.service.EvolutionApiService;
 import com.expygen.service.PlanLimitService;
+import com.expygen.service.ShopLogoStorageService;
+import com.expygen.service.ShopSealStorageService;
 import com.expygen.service.ShopService;
 import com.expygen.service.SubscriptionAccessService;
 
@@ -53,6 +56,12 @@ class ProfileControllerTest {
 
     @Mock
     private SubscriptionAccessService subscriptionAccessService;
+
+    @Mock
+    private ShopLogoStorageService shopLogoStorageService;
+
+    @Mock
+    private ShopSealStorageService shopSealStorageService;
 
     @Mock
     private Authentication authentication;
@@ -100,9 +109,9 @@ class ProfileControllerTest {
         when(authentication.getName()).thenReturn(owner.getUsername());
         when(userRepository.findByUsername(owner.getUsername())).thenReturn(Optional.of(owner));
 
-        String view = profileController.updateProfile(request, authentication);
+        String view = profileController.updateProfile(request, authentication, new RedirectAttributesModelMap());
 
-        assertEquals("redirect:/dashboard", view);
+        assertEquals("redirect:/profile", view);
         verify(shopService).updateProfile(owner, request);
     }
 

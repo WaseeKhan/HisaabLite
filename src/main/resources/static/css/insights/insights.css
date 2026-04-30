@@ -251,6 +251,17 @@
     justify-content: flex-end;
 }
 
+.insights-impersonation-form {
+    margin: 0;
+}
+
+.insights-impersonation-btn {
+    border-color: #f5c98b;
+    background: #fff7ed;
+    color: #b45309;
+    font-weight: 800;
+}
+
 .insights-topbar-btn {
     display: inline-flex;
     align-items: center;

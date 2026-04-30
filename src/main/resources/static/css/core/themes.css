@@ -1,0 +1,32 @@
+body.theme-public {
+    --theme-page-bg: linear-gradient(180deg, #f5f8fc 0%, #eef3f9 100%);
+    --theme-surface: var(--surface-white);
+    --theme-surface-soft: #f8fbff;
+    --theme-border: #dce6f2;
+    --theme-text: var(--text-strong);
+    --theme-muted: var(--text-muted);
+    --theme-accent: var(--color-brand);
+    --theme-accent-strong: var(--color-brand-strong);
+}
+
+body.theme-shop {
+    --theme-page-bg: linear-gradient(180deg, #eef1f5 0%, #f6f8fb 100%);
+    --theme-surface: var(--surface-white);
+    --theme-surface-soft: var(--surface-soft);
+    --theme-border: #d9e0e9;
+    --theme-text: #1f2937;
+    --theme-muted: #5e6879;
+    --theme-accent: #2f74da;
+    --theme-accent-strong: #225ab2;
+}
+
+body.theme-admin {
+    --theme-page-bg: linear-gradient(180deg, #eff3f8 0%, #e8edf4 100%);
+    --theme-surface: var(--surface-white);
+    --theme-surface-soft: #f6f8fb;
+    --theme-border: #dde5ef;
+    --theme-text: var(--text-strong);
+    --theme-muted: #5f6877;
+    --theme-accent: #2563eb;
+    --theme-accent-strong: #1d4ed8;
+}

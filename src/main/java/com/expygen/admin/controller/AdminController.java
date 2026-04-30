@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,6 +41,7 @@ import com.expygen.admin.repository.AdminUserRepository;
 import com.expygen.admin.service.AdminService;
 import com.expygen.admin.service.AuditService;
 import com.expygen.entity.AuditLog;
+import com.expygen.entity.AdminAttentionLevel;
 import com.expygen.entity.UpgradeRequest;
 import com.expygen.entity.UpgradeRequestStatus;
 import com.expygen.entity.PlanType;
@@ -48,16 +51,34 @@ import com.expygen.entity.SubscriptionPlan;
 import com.expygen.entity.User;
 import com.expygen.dto.SubscriptionLifecycleSnapshot;
 import com.expygen.repository.UpgradeRequestRepository;
+import com.expygen.repository.EmailVerificationTokenRepository;
+import com.expygen.repository.PasswordResetTokenRepository;
+import com.expygen.repository.ProductRepository;
+import com.expygen.repository.PurchaseEntryRepository;
+import com.expygen.repository.PurchaseReturnRepository;
+import com.expygen.repository.SaleRepository;
+import com.expygen.repository.StockAdjustmentRepository;
+import com.expygen.repository.SupplierRepository;
+import com.expygen.repository.SupportTicketRepository;
 import com.expygen.service.EmailService;
+import com.expygen.service.RegistrationService;
 import com.expygen.service.SubscriptionEntitlementAuditService;
 import com.expygen.service.SubscriptionLedgerService;
 import com.expygen.service.SubscriptionLifecycleStatus;
 import com.expygen.service.SubscriptionLifecycleService;
+import com.expygen.service.UpgradeRequestService;
+import com.expygen.service.UrlService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.expygen.entity.ContactRequest;
 import com.expygen.entity.ContactRequestStatus;
+import com.expygen.entity.AuditLog;
+import com.expygen.entity.EmailVerificationToken;
+import com.expygen.entity.PasswordResetToken;
+import com.expygen.entity.SupportTicket;
+import com.expygen.entity.TicketStatus;
+import com.expygen.entity.TokenType;
 import com.expygen.service.ContactService;
 
 @Controller
@@ -79,6 +100,18 @@ public class AdminController {
     private final UpgradeRequestRepository upgradeRequestRepository;
     private final SubscriptionLedgerService subscriptionLedgerService;
     private final SubscriptionEntitlementAuditService subscriptionEntitlementAuditService;
+    private final ProductRepository productRepository;
+    private final SaleRepository saleRepository;
+    private final PurchaseEntryRepository purchaseEntryRepository;
+    private final PurchaseReturnRepository purchaseReturnRepository;
+    private final StockAdjustmentRepository stockAdjustmentRepository;
+    private final SupplierRepository supplierRepository;
+    private final SupportTicketRepository supportTicketRepository;
+    private final RegistrationService registrationService;
+    private final UrlService urlService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final UpgradeRequestService upgradeRequestService;
 
     // ===== LOGIN PAGES =====
 
@@ -143,6 +176,15 @@ public class AdminController {
             model.addAttribute("requestedCommercialCount", commercialCounts.getOrDefault(UpgradeRequestStatus.REQUESTED, 0L));
             model.addAttribute("contactedCommercialCount", commercialCounts.getOrDefault(UpgradeRequestStatus.CONTACTED, 0L));
             model.addAttribute("paymentReceivedCommercialCount", commercialCounts.getOrDefault(UpgradeRequestStatus.PAYMENT_RECEIVED, 0L));
+            model.addAttribute("disconnectedWhatsappShops", shops.stream()
+                    .filter(shop -> (shop.getWhatsappNumber() != null && !shop.getWhatsappNumber().isBlank()) || shop.isWhatsappAdminDisabled())
+                    .filter(shop -> !shop.isWhatsappConnected() || shop.isWhatsappAdminDisabled())
+                    .count());
+            model.addAttribute("dormantShops", shops.stream()
+                    .filter(Shop::isActive)
+                    .filter(shop -> saleRepository.countByShopAndSaleDateAfter(shop, LocalDateTime.now().minusDays(30)) == 0)
+                    .count());
+            model.addAttribute("platformRiskCount", auditLogRepository.countFailedActions());
 
         } catch (Exception e) {
             log.error("Error loading dashboard: {}", e.getMessage(), e);
@@ -164,6 +206,9 @@ public class AdminController {
             model.addAttribute("requestedCommercialCount", 0L);
             model.addAttribute("contactedCommercialCount", 0L);
             model.addAttribute("paymentReceivedCommercialCount", 0L);
+            model.addAttribute("disconnectedWhatsappShops", 0L);
+            model.addAttribute("dormantShops", 0L);
+            model.addAttribute("platformRiskCount", 0L);
 
             // Create default popular plans
             List<PopularPlanDTO> defaultPlans = new ArrayList<>();
@@ -250,6 +295,29 @@ public class AdminController {
         return snapshot;
     }
 
+    private Map<String, Object> snapshotShop(Shop shop) {
+        Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put("id", shop.getId());
+        snapshot.put("name", shop.getName());
+        snapshot.put("planType", shop.getPlanType() != null ? shop.getPlanType().name() : null);
+        snapshot.put("active", shop.isActive());
+        snapshot.put("subscriptionStartDate", shop.getSubscriptionStartDate());
+        snapshot.put("subscriptionEndDate", shop.getSubscriptionEndDate());
+        snapshot.put("whatsappConnected", shop.isWhatsappConnected());
+        snapshot.put("whatsappAdminDisabled", shop.isWhatsappAdminDisabled());
+        snapshot.put("adminAttentionLevel",
+                shop.getAdminAttentionLevel() != null ? shop.getAdminAttentionLevel().name() : null);
+        snapshot.put("adminInternalNote", shop.getAdminInternalNote());
+        snapshot.put("adminLastReviewedAt", shop.getAdminLastReviewedAt());
+        snapshot.put("adminLastReviewedBy", shop.getAdminLastReviewedBy());
+        return snapshot;
+    }
+
+    private User requireOwner(Shop shop) {
+        return adminUserRepo.findFirstByShopAndRoleOrderByIdAsc(shop, Role.OWNER)
+                .orElseThrow(() -> new RuntimeException("Owner account not found for this shop."));
+    }
+
     @GetMapping("/audit")
     public String auditLogs(Model model,
             @RequestParam(defaultValue = "0") int page,
@@ -310,6 +378,44 @@ public class AdminController {
         }
 
         return "admin/audit-logs";
+    }
+
+    @GetMapping("/platform-health")
+    public String platformHealth(Model model) {
+        try {
+            List<Shop> shops = adminShopRepo.findAll();
+            model.addAttribute("failedAuditLogs", auditLogRepository.countFailedActions());
+            model.addAttribute("recentFailedAuditLogs", auditLogRepository.findByStatusOrderByTimestampDesc("FAILED")
+                    .stream()
+                    .limit(12)
+                    .toList());
+            model.addAttribute("disconnectedWhatsappShops", shops.stream()
+                    .filter(shop -> (shop.getWhatsappNumber() != null && !shop.getWhatsappNumber().isBlank()) || shop.isWhatsappAdminDisabled())
+                    .filter(shop -> !shop.isWhatsappConnected() || shop.isWhatsappAdminDisabled())
+                    .count());
+            model.addAttribute("dormantShops", shops.stream()
+                    .filter(Shop::isActive)
+                    .filter(shop -> saleRepository.countByShopAndSaleDateAfter(shop, LocalDateTime.now().minusDays(30)) == 0)
+                    .count());
+            model.addAttribute("gracePeriodShops", countLifecycleStatus(buildLifecycleMap(shops), SubscriptionLifecycleStatus.GRACE_PERIOD));
+            model.addAttribute("expiredLifecycleShops", countLifecycleStatus(buildLifecycleMap(shops), SubscriptionLifecycleStatus.EXPIRED));
+            model.addAttribute("urgentTickets", supportTicketRepository.countByPriority(com.expygen.entity.TicketPriority.URGENT));
+            model.addAttribute("overdueTickets", supportTicketRepository.countOverdueTickets(LocalDateTime.now()));
+            model.addAttribute("paidPendingActivation", upgradeRequestRepository.countByStatus(UpgradeRequestStatus.PAYMENT_RECEIVED));
+        } catch (Exception e) {
+            log.error("Error loading platform health: {}", e.getMessage(), e);
+            model.addAttribute("failedAuditLogs", 0L);
+            model.addAttribute("recentFailedAuditLogs", List.of());
+            model.addAttribute("disconnectedWhatsappShops", 0L);
+            model.addAttribute("dormantShops", 0L);
+            model.addAttribute("gracePeriodShops", 0L);
+            model.addAttribute("expiredLifecycleShops", 0L);
+            model.addAttribute("urgentTickets", 0L);
+            model.addAttribute("overdueTickets", 0L);
+            model.addAttribute("paidPendingActivation", 0L);
+            model.addAttribute("error", "Could not load platform health right now.");
+        }
+        return "admin/platform-health";
     }
 
     // ===== USER MANAGEMENT =====
@@ -1376,16 +1482,308 @@ public class AdminController {
             if (shop == null) {
                 return "redirect:/admin/shops?error=Shop+not+found";
             }
+            List<User> shopUsers = adminUserRepo.findByShop(shop).stream()
+                    .sorted(Comparator.comparing(User::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                            .thenComparing(User::getId, Comparator.nullsLast(Comparator.reverseOrder())))
+                    .toList();
+            User ownerUser = adminUserRepo.findFirstByShopAndRoleOrderByIdAsc(shop, Role.OWNER).orElse(null);
+            List<User> staffUsers = shopUsers.stream()
+                    .filter(user -> user.getRole() != Role.OWNER)
+                    .toList();
+            long activeStaffCount = staffUsers.stream().filter(User::isActive).count();
+            long pendingApprovalCount = shopUsers.stream().filter(user -> !user.isApproved()).count();
+
+            List<SupportTicket> recentSupportTickets = supportTicketRepository
+                    .findByShop(shop, PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt")))
+                    .getContent();
+            List<AuditLog> recentActivityLogs = auditLogRepository
+                    .searchShopAuditLogs(shop.getId(), null, null, null,
+                            PageRequest.of(0, 6, Sort.by(Sort.Direction.DESC, "timestamp")))
+                    .getContent();
+            List<UpgradeRequest> recentCommercialRequests = upgradeRequestRepository
+                    .findTop10ByShopOrderByCreatedAtDesc(shop)
+                    .stream()
+                    .limit(5)
+                    .toList();
+
+            long totalSalesCount = saleRepository.countByShop(shop);
+            long completedSalesCount = saleRepository.countByShopAndStatus(shop, com.expygen.entity.SaleStatus.COMPLETED);
+            long cancelledSalesCount = saleRepository.countByShopAndStatus(shop, com.expygen.entity.SaleStatus.CANCELLED);
+            long productCount = productRepository.countByShopAndActiveTrue(shop);
+            long supplierCount = supplierRepository.countByShopAndActiveTrue(shop);
+            long purchaseCount = purchaseEntryRepository.countByShop(shop);
+            long returnCount = purchaseReturnRepository.countByShop(shop);
+            long adjustmentCount = stockAdjustmentRepository.countByShop(shop);
+            long totalSupportCount = supportTicketRepository.countByShop(shop);
+            long openSupportCount = supportTicketRepository.countByShopAndStatus(shop, TicketStatus.OPEN);
+            long inProgressSupportCount = supportTicketRepository.countByShopAndStatus(shop, TicketStatus.IN_PROGRESS);
+            long waitingSupportCount = supportTicketRepository.countByShopAndStatus(shop, TicketStatus.WAITING_CUSTOMER);
+            long resolvedSupportCount = supportTicketRepository.countByShopAndStatus(shop, TicketStatus.RESOLVED);
+            long closedSupportCount = supportTicketRepository.countByShopAndStatus(shop, TicketStatus.CLOSED);
+            long urgentSupportCount = supportTicketRepository.countByShopAndPriority(shop, com.expygen.entity.TicketPriority.URGENT);
+            long commercialOpenCount = recentCommercialRequests.stream()
+                    .filter(request -> List.of(
+                            UpgradeRequestStatus.REQUESTED,
+                            UpgradeRequestStatus.CONTACTED,
+                            UpgradeRequestStatus.PAYMENT_RECEIVED).contains(request.getStatus()))
+                    .count();
+
             model.addAttribute("shop", shop);
+            model.addAttribute("attentionLevels", AdminAttentionLevel.values());
+            model.addAttribute("overridePlanTypes", PlanType.values());
             model.addAttribute("subscriptionLifecycle", subscriptionLifecycleService.buildSnapshot(shop));
             model.addAttribute("openCommercialRequest", buildOpenCommercialRequestMap(List.of(shop)).get(shop.getId()));
             model.addAttribute("ledgerEntries", subscriptionLedgerService.getRecentEntriesForShop(shop));
             model.addAttribute("entitlementItems", subscriptionEntitlementAuditService.buildAudit(shop));
+            model.addAttribute("ownerUser", ownerUser);
+            model.addAttribute("staffUsers", staffUsers);
+            model.addAttribute("shopUsers", shopUsers);
+            model.addAttribute("recentSupportTickets", recentSupportTickets);
+            model.addAttribute("recentActivityLogs", recentActivityLogs);
+            model.addAttribute("recentCommercialRequests", recentCommercialRequests);
+            model.addAttribute("activeStaffCount", activeStaffCount);
+            model.addAttribute("pendingApprovalCount", pendingApprovalCount);
+            model.addAttribute("totalSalesCount", totalSalesCount);
+            model.addAttribute("completedSalesCount", completedSalesCount);
+            model.addAttribute("cancelledSalesCount", cancelledSalesCount);
+            model.addAttribute("productCount", productCount);
+            model.addAttribute("supplierCount", supplierCount);
+            model.addAttribute("purchaseCount", purchaseCount);
+            model.addAttribute("returnCount", returnCount);
+            model.addAttribute("adjustmentCount", adjustmentCount);
+            model.addAttribute("totalSupportCount", totalSupportCount);
+            model.addAttribute("openSupportCount", openSupportCount);
+            model.addAttribute("inProgressSupportCount", inProgressSupportCount);
+            model.addAttribute("waitingSupportCount", waitingSupportCount);
+            model.addAttribute("resolvedSupportCount", resolvedSupportCount);
+            model.addAttribute("closedSupportCount", closedSupportCount);
+            model.addAttribute("urgentSupportCount", urgentSupportCount);
+            model.addAttribute("commercialOpenCount", commercialOpenCount);
         } catch (Exception e) {
             log.error("Error loading shop details: {}", e.getMessage());
             return "redirect:/admin/shops?error=Error+loading+shop";
         }
         return "admin/shop-details";
+    }
+
+    @PostMapping("/shops/{id}/admin-ops")
+    public String updateShopAdminOps(@PathVariable Long id,
+            @RequestParam AdminAttentionLevel adminAttentionLevel,
+            @RequestParam(required = false) String adminInternalNote,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            Map<String, Object> oldShopState = snapshotShop(shop);
+
+            shop.setAdminAttentionLevel(adminAttentionLevel);
+            shop.setAdminInternalNote(adminInternalNote != null ? adminInternalNote.trim() : null);
+            shop.setAdminLastReviewedAt(LocalDateTime.now());
+            shop.setAdminLastReviewedBy(currentAdminUsername());
+            adminShopRepo.save(shop);
+
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    "ADMIN_SHOP_OPERATIONS_UPDATED",
+                    "Shop",
+                    shop.getId(),
+                    "SUCCESS",
+                    oldShopState,
+                    snapshotShop(shop),
+                    "Admin updated internal operating note and attention level");
+            redirectAttributes.addFlashAttribute("success", "Admin notes updated for " + shop.getName() + ".");
+        } catch (Exception e) {
+            log.error("Error updating admin ops note for shop {}: {}", id, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not update admin notes: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{id}/owner/resend-verification")
+    public String resendOwnerVerification(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            User owner = requireOwner(shop);
+
+            if (owner.isActive()) {
+                redirectAttributes.addFlashAttribute("error", "Owner email is already verified for this shop.");
+                return "redirect:/admin/shops/" + id;
+            }
+
+            registrationService.resendVerificationEmail(owner.getUsername());
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    "ADMIN_OWNER_VERIFICATION_RESENT",
+                    "User",
+                    owner.getId(),
+                    "SUCCESS",
+                    null,
+                    snapshotUser(owner),
+                    "Admin resent owner verification email");
+            redirectAttributes.addFlashAttribute("success", "Verification email resent to " + owner.getUsername());
+        } catch (Exception e) {
+            log.error("Error resending verification email: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not resend verification email: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{id}/owner/send-reset")
+    public String sendOwnerResetLink(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            User owner = requireOwner(shop);
+
+            passwordResetTokenRepository.deleteByUser(owner);
+
+            PasswordResetToken resetToken = new PasswordResetToken();
+            resetToken.setUser(owner);
+            resetToken.setToken(UUID.randomUUID().toString());
+            resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+            passwordResetTokenRepository.save(resetToken);
+
+            emailService.sendResetEmail(owner.getUsername(), urlService.getResetPasswordUrl(resetToken.getToken()));
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    "ADMIN_OWNER_RESET_LINK_SENT",
+                    "User",
+                    owner.getId(),
+                    "SUCCESS",
+                    null,
+                    snapshotUser(owner),
+                    "Admin triggered owner password reset email");
+            redirectAttributes.addFlashAttribute("success", "Password reset link sent to " + owner.getUsername());
+        } catch (Exception e) {
+            log.error("Error sending password reset link: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not send reset link: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{id}/owner/toggle-access")
+    public String toggleOwnerAccess(@PathVariable Long id,
+            @RequestParam boolean active,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            User owner = requireOwner(shop);
+            Map<String, Object> oldOwnerState = snapshotUser(owner);
+
+            owner.setActive(active);
+            adminUserRepo.save(owner);
+
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    active ? "ADMIN_OWNER_ACCESS_ENABLED" : "ADMIN_OWNER_ACCESS_DISABLED",
+                    "User",
+                    owner.getId(),
+                    "SUCCESS",
+                    oldOwnerState,
+                    snapshotUser(owner),
+                    active ? "Admin re-enabled owner access" : "Admin disabled owner access");
+            redirectAttributes.addFlashAttribute("success",
+                    active ? "Owner access enabled successfully." : "Owner access disabled successfully.");
+        } catch (Exception e) {
+            log.error("Error toggling owner access: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not update owner access: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{id}/override-plan")
+    public String overrideShopPlan(@PathVariable Long id,
+            @RequestParam PlanType planType,
+            @RequestParam(required = false) Integer durationDays,
+            @RequestParam(required = false) String adminNote,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            Map<String, Object> oldShopState = snapshotShop(shop);
+
+            shop.setPlanType(planType);
+            LocalDateTime now = LocalDateTime.now();
+            if (planType == PlanType.FREE) {
+                shop.setSubscriptionStartDate(null);
+                shop.setSubscriptionEndDate(null);
+            } else {
+                int effectiveDuration = durationDays != null && durationDays > 0 ? durationDays : 365;
+                shop.setSubscriptionStartDate(now);
+                shop.setSubscriptionEndDate(now.plusDays(effectiveDuration));
+            }
+            adminShopRepo.save(shop);
+
+            List<User> users = adminUserRepo.findByShop(shop);
+            for (User user : users) {
+                user.setCurrentPlan(planType);
+                user.setSubscriptionStartDate(shop.getSubscriptionStartDate());
+                user.setSubscriptionEndDate(shop.getSubscriptionEndDate());
+                user.setApproved(true);
+            }
+            adminUserRepo.saveAll(users);
+
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    "ADMIN_PLAN_OVERRIDDEN",
+                    "Shop",
+                    shop.getId(),
+                    "SUCCESS",
+                    oldShopState,
+                    snapshotShop(shop),
+                    adminNote != null && !adminNote.isBlank()
+                            ? "Admin changed plan to " + planType + ". Note: " + adminNote
+                            : "Admin changed plan to " + planType + ".");
+            redirectAttributes.addFlashAttribute("success", "Plan updated to " + planType + " for " + shop.getName() + ".");
+        } catch (Exception e) {
+            log.error("Error overriding shop plan: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not change plan: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{id}/toggle-whatsapp")
+    public String toggleShopWhatsapp(@PathVariable Long id,
+            @RequestParam boolean disabled,
+            @RequestParam(required = false) String adminNote,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            Map<String, Object> oldShopState = snapshotShop(shop);
+
+            shop.setWhatsappAdminDisabled(disabled);
+            if (disabled) {
+                shop.setWhatsappConnected(false);
+            }
+            adminShopRepo.save(shop);
+
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    disabled ? "ADMIN_WHATSAPP_DISABLED" : "ADMIN_WHATSAPP_ENABLED",
+                    "Shop",
+                    shop.getId(),
+                    "SUCCESS",
+                    oldShopState,
+                    snapshotShop(shop),
+                    adminNote != null && !adminNote.isBlank()
+                            ? "Admin changed WhatsApp availability. Note: " + adminNote
+                            : "Admin changed WhatsApp availability.");
+            redirectAttributes.addFlashAttribute("success",
+                    disabled ? "WhatsApp disabled for this workspace." : "WhatsApp re-enabled for this workspace.");
+        } catch (Exception e) {
+            log.error("Error toggling WhatsApp access: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not update WhatsApp state: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
     }
 
     @GetMapping("/subscription-ledger")
@@ -1431,7 +1829,7 @@ public class AdminController {
         return "redirect:/admin/shops";
     }
 
-    @GetMapping("/shops/activate/{id}")
+    @RequestMapping(value = "/shops/activate/{id}", method = { RequestMethod.GET, RequestMethod.POST })
     public String activateShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Activating shop id: {}", id);
         try {
@@ -1450,7 +1848,7 @@ public class AdminController {
         return "redirect:/admin/shops";
     }
 
-    @GetMapping("/shops/suspend/{id}")
+    @RequestMapping(value = "/shops/suspend/{id}", method = { RequestMethod.GET, RequestMethod.POST })
     public String suspendShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Suspending shop id: {}", id);
         try {
@@ -1505,6 +1903,90 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "Could not renew subscription: " + e.getMessage());
         }
         return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{id}/extend-subscription")
+    public String extendShopSubscription(@PathVariable Long id,
+            @RequestParam int extraDays,
+            @RequestParam(required = false) String adminNote,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (extraDays <= 0 || extraDays > 3650) {
+                throw new RuntimeException("Extension days must be between 1 and 3650.");
+            }
+
+            Shop shop = adminShopRepo.findById(id).orElseThrow(() -> new RuntimeException("Shop not found."));
+            Map<String, Object> oldShopState = snapshotShop(shop);
+
+            LocalDateTime baseline = shop.getSubscriptionEndDate() != null
+                    && shop.getSubscriptionEndDate().isAfter(LocalDateTime.now())
+                            ? shop.getSubscriptionEndDate()
+                            : LocalDateTime.now();
+            LocalDateTime newEndDate = baseline.plusDays(extraDays);
+
+            if (shop.getSubscriptionStartDate() == null) {
+                shop.setSubscriptionStartDate(LocalDateTime.now());
+            }
+            shop.setSubscriptionEndDate(newEndDate);
+            adminShopRepo.save(shop);
+
+            List<User> users = adminUserRepo.findByShop(shop);
+            for (User user : users) {
+                user.setSubscriptionStartDate(shop.getSubscriptionStartDate());
+                user.setSubscriptionEndDate(newEndDate);
+                if (shop.getPlanType() != null) {
+                    user.setCurrentPlan(shop.getPlanType());
+                }
+            }
+            adminUserRepo.saveAll(users);
+
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    "ADMIN_SUBSCRIPTION_EXTENDED",
+                    "Shop",
+                    shop.getId(),
+                    "SUCCESS",
+                    oldShopState,
+                    snapshotShop(shop),
+                    adminNote != null && !adminNote.isBlank()
+                            ? "Admin extended subscription by " + extraDays + " days. Note: " + adminNote
+                            : "Admin extended subscription by " + extraDays + " days.");
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Subscription extended by " + extraDays + " days until "
+                            + newEndDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+        } catch (Exception e) {
+            log.error("Error extending subscription: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not extend subscription: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + id;
+    }
+
+    @PostMapping("/shops/{shopId}/commercial/{requestId}/status")
+    public String updateShopCommercialStatus(@PathVariable Long shopId,
+            @PathVariable Long requestId,
+            @RequestParam UpgradeRequestStatus status,
+            @RequestParam(required = false) String adminNote,
+            @RequestParam(required = false) String paymentReference,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Shop shop = adminShopRepo.findById(shopId).orElseThrow(() -> new RuntimeException("Shop not found."));
+            UpgradeRequest request = upgradeRequestService.getRequest(requestId);
+            if (!request.getShop().getId().equals(shop.getId())) {
+                throw new RuntimeException("Commercial request does not belong to this shop.");
+            }
+
+            User admin = adminUserRepo.findByUsername(currentAdminUsername())
+                    .orElseThrow(() -> new RuntimeException("Admin user not found."));
+            upgradeRequestService.updateStatus(requestId, status, adminNote, paymentReference, admin);
+            redirectAttributes.addFlashAttribute("success", "Commercial request updated to " + status + ".");
+        } catch (Exception e) {
+            log.error("Error updating commercial request from shop page: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Could not update commercial request: " + e.getMessage());
+        }
+        return "redirect:/admin/shops/" + shopId;
     }
 
     // Subscription URL Start here

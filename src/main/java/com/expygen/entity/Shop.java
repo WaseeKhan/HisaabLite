@@ -64,6 +64,20 @@ public class Shop {
     @Column(name = "seal_uploaded_at")
     private LocalDateTime sealUploadedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "admin_attention_level", nullable = false)
+    @Builder.Default
+    private AdminAttentionLevel adminAttentionLevel = AdminAttentionLevel.NORMAL;
+
+    @Column(name = "admin_internal_note", length = 4000)
+    private String adminInternalNote;
+
+    @Column(name = "admin_last_reviewed_at")
+    private LocalDateTime adminLastReviewedAt;
+
+    @Column(name = "admin_last_reviewed_by")
+    private String adminLastReviewedBy;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
@@ -87,6 +101,10 @@ public class Shop {
     @Column(name = "whatsapp_connected")
     @Builder.Default
     private boolean whatsappConnected = false; // Connection status
+
+    @Column(name = "whatsapp_admin_disabled", nullable = false)
+    @Builder.Default
+    private boolean whatsappAdminDisabled = false;
 
     @Column(name = "whatsapp_connected_at")
     private LocalDateTime whatsappConnectedAt;

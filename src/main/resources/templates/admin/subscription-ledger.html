@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+    <link rel="stylesheet" th:href="@{/css/core/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/core/themes.css}">
+    <link rel="stylesheet" th:href="@{/css/core/base.css}">
+    <link rel="stylesheet" th:href="@{/css/core/utilities.css}">
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}">
+    <link rel="stylesheet" th:href="@{/css/components/badges.css}">
+    <link rel="stylesheet" th:href="@{/css/components/cards.css}">
+    <link rel="stylesheet" th:href="@{/css/components/page-header.css}">
+    <link rel="stylesheet" th:href="@{/css/components/stat-cards.css}">
+    <link rel="stylesheet" th:href="@{/css/layouts/admin-shell.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -259,75 +269,13 @@
             .card { overflow-x: auto; }
         }
     </style>
+    <link rel="stylesheet" th:href="@{/css/admin/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/admin-phase-a-bridge.css}">
 </head>
-<body>
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">HL</div>
-            <div class="logo-text">Expygen</div>
-        </div>
+<body class="theme-admin density-admin admin-shell">
+    <div th:replace="~{admin/fragments/sidebar :: sidebar('ledger')}"></div>
 
-        <div class="nav-links">
-            <a th:href="@{/admin/dashboard}">
-                <i class="fas fa-chart-pie"></i>
-                <span>Dashboard</span>
-            </a>
-            <a th:href="@{/admin/users}">
-                <i class="fas fa-users"></i>
-                <span>Users</span>
-            </a>
-            <a th:href="@{/admin/shops}">
-                <i class="fas fa-store"></i>
-                <span>Shops</span>
-            </a>
-            <a th:href="@{/admin/subscriptions}">
-                <i class="fas fa-credit-card"></i>
-                <span>Subscriptions</span>
-            </a>
-            <a th:href="@{/admin/upgrade-requests}">
-                <i class="fas fa-arrow-trend-up"></i>
-                <span>Upgrade Requests</span>
-            </a>
-            <a th:href="@{/admin/subscription-ledger}" class="active">
-                <i class="fas fa-book-open"></i>
-                <span>Subscription Ledger</span>
-            </a>
-            <a th:href="@{/admin/support}">
-                <i class="fas fa-headset"></i>
-                <span>Support</span>
-            </a>
-            <a th:href="@{/admin/audit}">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Audit Logs</span>
-            </a>
-        </div>
-
-        <div class="quick-actions">
-            <div class="quick-actions-title">Quick Actions</div>
-            <a th:href="@{/admin/subscriptions}" class="quick-action-item">
-                <i class="fas fa-credit-card"></i>
-                <span>Manage Plans</span>
-            </a>
-            <a th:href="@{/admin/upgrade-requests}" class="quick-action-item">
-                <i class="fas fa-arrow-trend-up"></i>
-                <span>Review Requests</span>
-            </a>
-            <a th:href="@{/admin/shops}" class="quick-action-item">
-                <i class="fas fa-store-alt"></i>
-                <span>Open Shops</span>
-            </a>
-        </div>
-
-        <form th:action="@{/admin/logout}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <button type="submit" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </button>
-        </form>
-    </div>
-
-    <div class="admin-main">
+    <div class="admin-main admin-shell-main">
         <div class="admin-header">
             <h1><i class="fas fa-book-open"></i> Subscription Ledger</h1>
             <div class="admin-user">

@@ -1,0 +1,33 @@
+.ui-table-wrap {
+    background: var(--theme-surface, var(--surface-white));
+    border: var(--border-soft);
+    border-color: var(--theme-border, #dde5ef);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.ui-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--density-table-size, 12px);
+}
+
+.ui-table th,
+.ui-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    text-align: left;
+}
+
+.ui-table th {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--theme-muted, var(--text-muted));
+    background: var(--theme-surface-soft, var(--surface-soft));
+}
+
+.ui-table tbody tr:hover {
+    background: rgba(37, 99, 235, 0.03);
+}

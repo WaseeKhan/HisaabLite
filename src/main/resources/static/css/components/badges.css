@@ -1,0 +1,19 @@
+.ui-badge,
+.ui-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.ui-chip-neutral { background: var(--color-neutral-soft); color: var(--color-neutral); }
+.ui-chip-info { background: var(--color-info-soft); color: var(--color-info); }
+.ui-chip-success { background: var(--color-success-soft); color: var(--color-success); }
+.ui-chip-warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.ui-chip-danger { background: var(--color-danger-soft); color: var(--color-danger); }
+.ui-chip-premium { background: #ede9fe; color: #6d28d9; }

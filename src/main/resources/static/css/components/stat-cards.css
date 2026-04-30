@@ -1,0 +1,49 @@
+.ui-stat-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.ui-stat-card {
+    background: var(--theme-surface, var(--surface-white));
+    border: var(--border-soft);
+    border-color: var(--theme-border, #dde5ef);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ui-stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-info-soft);
+    color: var(--theme-accent, var(--color-brand));
+    flex-shrink: 0;
+}
+
+.ui-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--theme-muted, var(--text-muted));
+}
+
+.ui-stat-value {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--theme-text, var(--text-strong));
+}
+
+.ui-stat-note {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--theme-muted, var(--text-muted));
+}

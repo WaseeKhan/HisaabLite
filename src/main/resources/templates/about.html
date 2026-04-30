@@ -2,172 +2,282 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>About • Expygen</title>
-    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-mark-fevicon.png}">
+    <title>About Expygen • Simplified Pharmacy</title>
 
-      <!-- Fonts & Icons -->    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+    <link rel="icon" type="image/png" href="/images/favicon_light.png">
+    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
     <link rel="stylesheet" th:href="@{/css/main/reset.css}">
     <link rel="stylesheet" th:href="@{/css/main/layout.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-header.css}">
     <link rel="stylesheet" th:href="@{/css/components/public-footer.css}">
-
-    <!-- Page Specific CSS -->
     <link rel="stylesheet" th:href="@{/css/pages/about.css}">
-    
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-
 </head>
 
-<body>
+<body class="about-page">
 
-     <div th:replace="~{fragments/public-header :: header}"></div>
-    
+<div th:replace="~{fragments/public-header :: header}"></div>
 
+<main class="about-root">
+
+    <!-- HERO -->
     <section class="about-hero">
-        <div class="about-hero-content">
-            <span class="about-kicker">About Expygen</span>
-            <h1>Built for India's medical stores, not generic retail software</h1>
-            <p>Expygen is designed around how pharmacies actually run: faster billing, cleaner inward entry, batch and expiry control, role-safe operations, and a separate Insights layer for owners and managers.</p>
-            <div class="about-hero-pills">
-                <span><i class="fas fa-receipt"></i> Billing first</span>
-                <span><i class="fas fa-boxes-stacked"></i> Batch aware</span>
-                <span><i class="fas fa-chart-line"></i> Intelligence ready</span>
+        <div class="public-shell-wide about-hero-card">
+
+            <div class="about-hero-copy">
+                <span class="section-kicker">
+                    <i class="fas fa-capsules"></i>
+                    About Expygen
+                </span>
+
+                <h1>
+                    Building pharmacy software that feels
+                    <span>simple, fast and modern.</span>
+                </h1>
+
+                <p>
+                    Expygen is a SaaS platform designed for Indian medical stores to manage
+                    billing, inventory, expiry tracking, GST invoices, WhatsApp sharing and
+                    sales insights from one clean system.
+                </p>
+
+                <div class="about-hero-actions">
+                    <a th:href="@{/register}" class="about-btn about-btn-primary">
+                        Start Free <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a th:href="@{/contact}" class="about-btn about-btn-secondary">
+                        Talk to us
+                    </a>
+                </div>
+
+                <div class="about-proof-row">
+                    <span><i class="fas fa-check"></i> Built for pharmacy counters</span>
+                    <span><i class="fas fa-check"></i> Cloud based</span>
+                    <span><i class="fas fa-check"></i> WhatsApp invoice ready</span>
+                </div>
+            </div>
+
+            <div class="about-hero-visual">
+                <div class="about-orbit-card card-one">
+                    <i class="fas fa-receipt"></i>
+                    <div>
+                        <strong>Fast Billing</strong>
+                        <span>GST-ready invoices</span>
+                    </div>
+                </div>
+
+                <div class="about-center-panel">
+                    <div class="about-panel-top">
+                        <span class="about-mini-logo"></span>
+                        <strong>Expygen OS</strong>
+                        <div class="about-dots"><span></span><span></span><span></span></div>
+                    </div>
+
+                    <div class="about-panel-body">
+                        <div class="about-main-stat">
+                            <span>Today’s Store Pulse</span>
+                            <strong>₹18,420</strong>
+                            <small>Sales captured with live inventory visibility</small>
+                        </div>
+
+                        <div class="about-stat-grid">
+                            <div>
+                                <i class="fas fa-boxes-stacked"></i>
+                                <strong>Inventory</strong>
+                                <span>Stock aware</span>
+                            </div>
+                            <div>
+                                <i class="fab fa-whatsapp"></i>
+                                <strong>WhatsApp</strong>
+                                <span>Invoice share</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-chart-line"></i>
+                                <strong>Insights</strong>
+                                <span>Sales trends</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-orbit-card card-two">
+                    <i class="fas fa-bell"></i>
+                    <div>
+                        <strong>Low Stock Alert</strong>
+                        <span>Reorder before it runs out</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- STORY -->
+    <section class="about-section">
+        <div class="public-shell about-story-grid">
+
+            <div class="about-story-copy">
+                <span class="section-kicker">Our Story</span>
+                <h2>Why we started Expygen</h2>
+                <p>
+                    Small pharmacies handle billing, stock, expiry dates, GST invoices,
+                    customer requests and staff operations every single day. But most tools
+                    either feel too basic, too complex, or not built around real pharmacy counters.
+                </p>
+                <p>
+                    Expygen was created to close that gap — a modern, reliable and easy-to-use
+                    SaaS product that helps pharmacy owners run daily operations with more control,
+                    better speed and clearer business visibility.
+                </p>
+            </div>
+
+            <div class="about-story-card">
+                <i class="fas fa-store"></i>
+                <h3>Made for Indian medical stores</h3>
+                <p>
+                    From GST billing to WhatsApp invoice sharing, Expygen is shaped around the
+                    actual needs of Indian retail pharmacies.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- MISSION -->
+    <section class="about-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Mission</span>
+                <h2>Make pharmacy operations simpler, smarter and more connected.</h2>
+                <p>
+                    We want every pharmacy owner to get access to clean software that saves time,
+                    reduces manual work and gives better control over daily business.
+                </p>
+            </div>
+
+            <div class="about-mission-grid">
+                <article>
+                    <i class="fas fa-bolt"></i>
+                    <h3>Speed at the counter</h3>
+                    <p>Fast billing flow with product search, GST, payment mode and invoice actions.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Operational control</h3>
+                    <p>Track inventory, stock movement, low stock and store performance in one place.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Better decisions</h3>
+                    <p>Understand sales trends, top products, payment modes and daily performance.</p>
+                </article>
             </div>
         </div>
     </section>
 
-    <section class="mission-section">
-        <h2>Our Mission</h2>
-        <p>To help Indian pharmacies run faster counters, cleaner stock rooms, and more reliable daily operations with compact software that is simple to learn, practical to trust, and built around real pharmacy workflows.</p>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">Billing</div>
-                <div class="stat-label">Counter-first invoice flow</div>
+    <!-- VALUES -->
+    <section class="about-section">
+        <div class="public-shell-wide about-values-card">
+
+            <div class="about-values-copy">
+                <span class="section-kicker">What we believe</span>
+                <h2>Software should support your shop, not slow it down.</h2>
+                <p>
+                    Expygen is designed with a simple belief: pharmacy software should be fast
+                    enough for busy counters, clear enough for staff, and powerful enough for owners.
+                </p>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">Inventory</div>
-                <div class="stat-label">Batch, inward, expiry visibility</div>
+
+            <div class="about-values-list">
+                <div>
+                    <span>01</span>
+                    <strong>Simple first</strong>
+                    <p>Clean screens, clear actions and easy daily usage.</p>
+                </div>
+                <div>
+                    <span>02</span>
+                    <strong>Built for growth</strong>
+                    <p>Start with billing, then grow into inventory, insights and automation.</p>
+                </div>
+                <div>
+                    <span>03</span>
+                    <strong>Customer connected</strong>
+                    <p>Use WhatsApp invoices to improve customer experience.</p>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">Insights</div>
-                <div class="stat-label">Sales, stock, purchase intelligence</div>
+
+        </div>
+    </section>
+
+    <!-- WHY -->
+    <section class="about-section">
+        <div class="public-shell">
+            <div class="section-heading">
+                <span class="section-kicker">Why Expygen</span>
+                <h2>A complete pharmacy system without enterprise complexity.</h2>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">Roles</div>
-                <div class="stat-label">Owner, manager, cashier control</div>
+
+            <div class="about-why-grid">
+                <article>
+                    <i class="fas fa-cash-register"></i>
+                    <h3>Billing-ready</h3>
+                    <p>Create invoices quickly with tax breakup, customer details and payment summary.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-box-open"></i>
+                    <h3>Inventory-aware</h3>
+                    <p>Keep visibility on stock, minimum quantity and product movement.</p>
+                </article>
+
+                <article>
+                    <i class="fab fa-whatsapp"></i>
+                    <h3>WhatsApp powered</h3>
+                    <p>Share invoice copies with customers directly through WhatsApp.</p>
+                </article>
+
+                <article>
+                    <i class="fas fa-users-cog"></i>
+                    <h3>Staff friendly</h3>
+                    <p>Designed for owner and staff workflows without unnecessary confusion.</p>
+                </article>
             </div>
         </div>
     </section>
 
-    <section class="values-section">
-        <h2>What we believe software for stores should do</h2>
-        <p>Expygen is shaped by practical counter work, not decorative feature lists.</p>
-        
-        <div class="values-grid">
-            <div class="value-card">
-                <div class="value-icon"><i class="fas fa-store"></i></div>
-                <h3>Built around the counter</h3>
-                <p>Billing, purchases, and stock control should feel fast and dependable during real store hours.</p>
-            </div>
-            <div class="value-card">
-                <div class="value-icon"><i class="fas fa-sliders"></i></div>
-                <h3>Compact but capable</h3>
-                <p>Powerful operations software should stay easy for owners, managers, and cashiers to understand.</p>
-            </div>
-            <div class="value-card">
-                <div class="value-icon"><i class="fas fa-flag"></i></div>
-                <h3>Made in India</h3>
-                <p>Built for Indian pharmacies by people who care about local store realities, GST flow, and practical day-to-day usage.</p>
+    <!-- CTA -->
+    <section class="about-final-cta">
+        <div class="public-shell-wide about-final-card">
+            <span class="section-kicker">Start with Expygen</span>
+            <h2>Run your pharmacy with more clarity from day one.</h2>
+            <p>
+                Start free and experience modern billing, inventory visibility,
+                WhatsApp invoices and pharmacy-focused insights.
+            </p>
+
+            <div>
+                <a th:href="@{/register}" class="about-btn about-btn-primary">
+                    Start Free <i class="fas fa-arrow-right"></i>
+                </a>
+                <a th:href="@{/pricing}" class="about-btn about-btn-secondary">
+                    View Pricing
+                </a>
             </div>
         </div>
     </section>
 
-    <section class="difference-section">
-        <h2>Why stores choose a pharmacy-first system</h2>
-        <p>Expygen is built to reduce daily friction at the counter and in the stock room, while still giving owners the visibility they need.</p>
+</main>
 
-        <div class="difference-grid">
-            <div class="difference-card">
-                <div class="difference-icon"><i class="fas fa-bolt"></i></div>
-                <h3>Faster daily operations</h3>
-                <p>Billing, purchases, stock adjustments, and invoice actions stay in one connected flow instead of scattered tools.</p>
-            </div>
-            <div class="difference-card">
-                <div class="difference-icon"><i class="fas fa-user-shield"></i></div>
-                <h3>Safer role control</h3>
-                <p>Owner, manager, and cashier access stays separated so the right people can operate without exposing sensitive controls.</p>
-            </div>
-            <div class="difference-card">
-                <div class="difference-icon"><i class="fas fa-wave-square"></i></div>
-                <h3>Operate first, understand later</h3>
-                <p>The main app stays operational and clean, while Insights handles sales, stock risk, purchase visibility, and audit intelligence.</p>
-            </div>
-        </div>
-    </section>
+<div th:replace="~{fragments/public-footer :: footer}"></div>
 
-  <section class="timeline-section">
-    <h2>Our Journey</h2>
-    
-    <div class="timeline">
-        <div class="timeline-item">
-            <div class="timeline-year">2025</div>
-            <div class="timeline-content">
-                <h3>The Idea</h3>
-                <p>The first idea was simple: local pharmacies deserved software that felt practical, fast, and trustworthy at the counter, not generic business software forced into medical store workflows.</p>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-year">2025</div>
-            <div class="timeline-content">
-                <h3>Research & Design</h3>
-                <p>Spoke with local store owners, studied counter workflows, and shaped the first version around billing speed, stock clarity, and operator confidence.</p>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-year">2025</div>
-            <div class="timeline-content">
-                <h3>Product Development</h3>
-                <p>Built core features like billing, stock tracking, GST calculations, purchase control, role-safe operations, and Insights, then kept improving with real usage feedback.</p>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-year">2026</div>
-            <div class="timeline-content">
-                <h3>Launch in Mumbai</h3>
-                <p>Officially launched Expygen and onboarded local medical stores in Mumbai, learning from live counter usage and day-to-day staff workflows.</p>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-year">2026</div>
-            <div class="timeline-content">
-                <h3>Continuous Improvement</h3>
-                <p>Learning from pharmacists and store operators, adding features they need, and making the product stronger every day.</p>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-year">Future</div>
-            <div class="timeline-content">
-                <h3>Growing Together</h3>
-                <p>Planning to help medical stores across India go digital with software that stays compact, reliable, role-aware, and easy to trust.</p>
-            </div>
-        </div>
-    </div>
-</section>
- 
-     
- 
-   <div th:replace="~{fragments/public-footer :: footer}"></div>
+<script th:src="@{/js/public-theme-toggle.js}"></script>
 
 </body>
 </html>

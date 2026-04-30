@@ -1,0 +1,7 @@
+body.theme-public.public-shell {
+    background: var(--theme-page-bg, #f5f8fc);
+}
+
+.public-shell-section {
+    margin-block: 32px;
+}

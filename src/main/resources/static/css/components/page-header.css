@@ -1,0 +1,22 @@
+.ui-page-header {
+    background: var(--theme-surface, var(--surface-white));
+    border: var(--border-soft);
+    border-color: var(--theme-border, #dde5ef);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.ui-page-header-title {
+    font-size: var(--text-xl);
+    font-weight: 800;
+}
+
+.ui-page-header-subtitle {
+    margin-top: 6px;
+    font-size: var(--text-sm);
+    color: var(--theme-muted, var(--text-muted));
+}

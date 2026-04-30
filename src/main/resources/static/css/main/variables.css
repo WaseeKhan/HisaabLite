@@ -1,78 +1,151 @@
-/* ===== CSS Variables - Ek jagah sab colors, spacing ===== */
 :root {
-    /* Colors */
-    --primary: #2f74da;
-    --primary-dark: #225ab2;
-    --accent: #f28c28;
-    --accent-light: #fff1e2;
-    --dark: #23262b;
-    --dark-secondary: #17191d;
-    --success: #16a34a;
-    --success-light: #e6f7e6;
-    --danger: #dc2626;
-    --danger-light: #fef2f2;
-    --info: #2f74da;
-    --info-light: #eef5ff;
-    --gray-100: #eef1f5;
-    --gray-200: #f6f8fb;
-    --gray-300: #dce3eb;
-    --gray-400: #c8d1dd;
-    --gray-500: #97a4b8;
-    --gray-600: #5f6b7f;
-    --gray-700: #4c5768;
-    --white: #ffffff;
-    
-    /* Spacing */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 12px;
-    --space-lg: 16px;
-    --space-xl: 20px;
-    --space-xxl: 24px;
-    
-    /* Border Radius */
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 10px;
-    --radius-xl: 12px;
-    --radius-xxl: 20px;
-    --radius-full: 30px;
-    
-    /* Shadows */
-    --shadow-sm: 0 6px 16px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 18px 34px rgba(15, 23, 42, 0.08);
-    
-    /* Typography */
-    --font-primary: 'Manrope', sans-serif;
-    --font-brand: 'Sora', 'Manrope', sans-serif;
-    --font-family: var(--font-primary);
-    --font-display: var(--font-brand);
-    --font-size-xs: 11px;
-    --font-size-sm: 12px;
-    --font-size-md: 13px;
-    --font-size-lg: 14px;
-    --font-size-xl: 16px;
-    --font-size-xxl: 22px;
+    /* Brand */
+    --primary: #1F6FEB;
+    --primary-dark: #164FB1;
+    --primary-soft: #EAF2FF;
 
-     /* Career specific */
-    --career-gradient: linear-gradient(135deg, #2f74da, #f28c28);
-    
-    /* Add if missing */
-    --primary-light: #5f93ea;
-    --primary-dark: #225ab2;
-    --page-bg: #eef1f5;
-    --page-text: #4c5768;
-    --page-surface: #ffffff;
-    --page-surface-soft: #f7faff;
-    --page-border: #dce3eb;
-    --page-muted: #8a97ab;
+    --accent: #F27A21;
+    --accent-dark: #D96512;
+    --accent-soft: #FFF1E5;
+
+    --charcoal: #1F1F1F;
+    --charcoal-soft: #2B2F36;
+
+    /* Base */
+    --white: #FFFFFF;
+    --black: #000000;
+
+    --page-bg: #FFF9F0;
+    --page-bg-soft: #F8FBFF;
+    --page-surface: #FFFFFF;
+    --page-surface-soft: #F7FAFF;
+    --page-text: #1F1F1F;
+    --page-text-soft: #526173;
+    --page-muted: #7A8798;
+    --page-border: #E2E8F0;
+
+    /* Status */
+    --success: #16A34A;
+    --success-soft: #EAFBF0;
+    --danger: #DC2626;
+    --danger-soft: #FEF2F2;
+    --warning: #F59E0B;
+    --warning-soft: #FFF7E6;
+
+    /* Gray */
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-400: #94A3B8;
+    --gray-500: #64748B;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1E293B;
+    --gray-900: #0F172A;
+
+    /* Typography */
+    --font-primary: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-display: 'Sora', 'Manrope', system-ui, sans-serif;
+    --font-family: var(--font-primary);
+
+    /* Font sizes */
+    --text-xs: 11px;
+    --text-sm: 12px;
+    --text-md: 13px;
+    --text-base: 14px;
+    --text-lg: 16px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 32px;
+    --text-4xl: 44px;
+    --text-5xl: 60px;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    /* Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+    --radius-2xl: 30px;
+    --radius-3xl: 40px;
+    --radius-full: 999px;
+
+    /* Shadow */
+    --shadow-xs: 0 4px 12px rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 18px 44px rgba(15, 23, 42, 0.09);
+    --shadow-lg: 0 30px 80px rgba(15, 23, 42, 0.12);
+    --shadow-accent: 0 18px 36px rgba(242, 122, 33, 0.24);
+    --shadow-primary: 0 18px 36px rgba(31, 111, 235, 0.20);
+
+    /* Layout */
+    --container: 1480px;
+    --container-wide: 1560px;
+    --container-padding: 48px;
+
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, var(--accent), var(--primary));
+    --gradient-cta: linear-gradient(135deg, var(--accent), #F7A044);
+    --gradient-dark: linear-gradient(135deg, #111827, #263449);
+    --gradient-page:
+        radial-gradient(circle at 8% 8%, rgba(242, 122, 33, 0.12), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(31, 111, 235, 0.10), transparent 28%),
+        linear-gradient(180deg, #FFF9F0 0%, #F8FBFF 45%, #FFFFFF 100%);
 }
 
+/* DARK MODE */
 :root[data-theme="dark"] {
-    --page-bg: #0b1220;
-    --page-text: #dbe5f3;
+    --page-bg: #0B1220;
+    --page-bg-soft: #101827;
     --page-surface: #111827;
     --page-surface-soft: #172033;
+    --page-text: #F8FAFC;
+    --page-text-soft: #CBD5E1;
+    --page-muted: #94A3B8;
     --page-border: rgba(148, 163, 184, 0.18);
-    --page-muted: #94a3b8;
+
+    --white: #111827;
+    --charcoal: #F8FAFC;
+    --charcoal-soft: #E2E8F0;
+
+    --gray-50: #0F172A;
+    --gray-100: #111827;
+    --gray-200: #1E293B;
+    --gray-300: rgba(148, 163, 184, 0.22);
+    --gray-400: #64748B;
+    --gray-500: #94A3B8;
+    --gray-600: #CBD5E1;
+    --gray-700: #E2E8F0;
+    --gray-800: #F1F5F9;
+    --gray-900: #F8FAFC;
+
+    --primary-soft: rgba(31, 111, 235, 0.16);
+    --accent-soft: rgba(242, 122, 33, 0.14);
+    --success-soft: rgba(22, 163, 74, 0.14);
+    --danger-soft: rgba(220, 38, 38, 0.14);
+
+    --shadow-xs: 0 4px 12px rgba(0, 0, 0, 0.22);
+    --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.26);
+    --shadow-md: 0 18px 44px rgba(0, 0, 0, 0.32);
+    --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.40);
+    --shadow-accent: 0 18px 36px rgba(242, 122, 33, 0.18);
+    --shadow-primary: 0 18px 36px rgba(31, 111, 235, 0.16);
+
+    --gradient-page:
+        radial-gradient(circle at 8% 8%, rgba(242, 122, 33, 0.16), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(31, 111, 235, 0.18), transparent 28%),
+        linear-gradient(180deg, #0B1220 0%, #101827 48%, #0B1220 100%);
 }

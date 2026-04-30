@@ -22,6 +22,7 @@ import com.expygen.entity.PlanType;
 import com.expygen.entity.Role;
 import com.expygen.entity.Shop;
 import com.expygen.entity.SubscriptionPlan;
+import com.expygen.entity.SupportTicket;
 import com.expygen.entity.User;
 import com.expygen.repository.ProductRepository;
 import com.expygen.repository.PurchaseBatchRepository;
@@ -92,6 +93,8 @@ class AdminPageIntegrationTest {
     @Autowired
     private TicketReplyRepository ticketReplyRepository;
 
+    private String supportTicketNumber;
+
     @BeforeEach
     void setUp() {
         ticketReplyRepository.deleteAll();
@@ -161,6 +164,17 @@ class AdminPageIntegrationTest {
                 .createdAt(LocalDateTime.now().minusDays(5))
                 .approvalDate(LocalDateTime.now().minusDays(5))
                 .build());
+
+        SupportTicket ticket = new SupportTicket();
+        ticket.setTicketNumber("SUP-ADMIN-001");
+        ticket.setShop(shop);
+        ticket.setUser(userRepository.findByUsername("owner@test.com").orElseThrow());
+        ticket.setSubject("Need help with subscription");
+        ticket.setMessage("Please help with activation.");
+        ticket.setStatus(com.expygen.entity.TicketStatus.OPEN);
+        ticket.setPriority(com.expygen.entity.TicketPriority.HIGH);
+        supportTicketRepository.save(ticket);
+        supportTicketNumber = ticket.getTicketNumber();
     }
 
     @Test
@@ -199,6 +213,18 @@ class AdminPageIntegrationTest {
 
     @Test
     @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void adminCanLoadShopCommandCenterDetailsPage() throws Exception {
+        Long shopId = shopRepository.findAll().getFirst().getId();
+
+        mockMvc.perform(get("/admin/shops/" + shopId))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/shop-details"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Internal Admin Notes")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Super Admin Actions")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
     void adminCanLoadSubscriptionsPage() throws Exception {
         mockMvc.perform(get("/admin/subscriptions"))
                 .andExpect(status().isOk())
@@ -208,11 +234,41 @@ class AdminPageIntegrationTest {
 
     @Test
     @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void adminCanLoadCommercialConsolePage() throws Exception {
+        mockMvc.perform(get("/admin/upgrade-requests"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/upgrade-requests"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Commercial Console")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Pending Activation")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void adminCanLoadPlatformHealthPage() throws Exception {
+        mockMvc.perform(get("/admin/platform-health"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/platform-health"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Platform Health")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Recent Failed Operations")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
     void adminCanLoadSupportDashboard() throws Exception {
         mockMvc.perform(get("/admin/support"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/support-dashboard"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Support Dashboard")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void adminCanLoadSupportTicketOperationsPage() throws Exception {
+        mockMvc.perform(get("/admin/support/ticket/" + supportTicketNumber))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/support-ticket"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Internal Support Operations")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Support Health Snapshot")));
     }
 
     @Test
