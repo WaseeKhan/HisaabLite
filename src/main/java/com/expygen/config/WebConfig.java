@@ -9,6 +9,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Admin static assets live under classpath:/static/admin/ and must remain
+        // available even when Spring's default static mappings are disabled in prod.
+        registry.addResourceHandler("/admin/**")
+                .addResourceLocations("classpath:/static/admin/")
+                .setCachePeriod(3600);
+
         // CSS files
         registry.addResourceHandler("/css/**")
                 .addResourceLocations("classpath:/static/css/")

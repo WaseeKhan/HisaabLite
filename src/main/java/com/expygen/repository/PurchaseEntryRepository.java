@@ -7,12 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.expygen.entity.PurchaseEntry;
 import com.expygen.entity.Shop;
 import com.expygen.entity.Supplier;
+import com.expygen.entity.User;
+
+import jakarta.transaction.Transactional;
 
 public interface PurchaseEntryRepository extends JpaRepository<PurchaseEntry, Long> {
 
@@ -45,4 +49,9 @@ public interface PurchaseEntryRepository extends JpaRepository<PurchaseEntry, Lo
 
     @Query("SELECT COALESCE(SUM(p.totalAmount), 0) FROM PurchaseEntry p WHERE p.shop = :shop AND p.supplier = :supplier")
     BigDecimal sumTotalAmountByShopAndSupplier(@Param("shop") Shop shop, @Param("supplier") Supplier supplier);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE PurchaseEntry p SET p.createdBy = :newUser WHERE p.createdBy = :oldUser")
+    int reassignCreatedBy(@Param("oldUser") User oldUser, @Param("newUser") User newUser);
 }

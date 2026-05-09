@@ -58,8 +58,11 @@ import com.expygen.repository.PurchaseEntryRepository;
 import com.expygen.repository.PurchaseReturnRepository;
 import com.expygen.repository.SaleRepository;
 import com.expygen.repository.StockAdjustmentRepository;
+import com.expygen.repository.SubscriptionLedgerEntryRepository;
+import com.expygen.repository.SubscriptionReminderLogRepository;
 import com.expygen.repository.SupplierRepository;
 import com.expygen.repository.SupportTicketRepository;
+import com.expygen.repository.TicketReplyRepository;
 import com.expygen.service.EmailService;
 import com.expygen.service.RegistrationService;
 import com.expygen.service.SubscriptionEntitlementAuditService;
@@ -107,6 +110,9 @@ public class AdminController {
     private final StockAdjustmentRepository stockAdjustmentRepository;
     private final SupplierRepository supplierRepository;
     private final SupportTicketRepository supportTicketRepository;
+    private final TicketReplyRepository ticketReplyRepository;
+    private final SubscriptionLedgerEntryRepository subscriptionLedgerEntryRepository;
+    private final SubscriptionReminderLogRepository subscriptionReminderLogRepository;
     private final RegistrationService registrationService;
     private final UrlService urlService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
@@ -124,7 +130,7 @@ public class AdminController {
             model.addAttribute("error", "Invalid username or password");
         if (logout != null)
             model.addAttribute("message", "Logged out successfully");
-        return "admin/login";
+        return "admin/auth/login";
     }
 
     @PostMapping("/login")
@@ -343,18 +349,30 @@ public class AdminController {
             model.addAttribute("selectedStatus", status);
             model.addAttribute("availableActions", auditLogRepository.findDistinctActions());
             model.addAttribute("availableShops", auditLogRepository.findDistinctShopNames());
-            model.addAttribute("totalAuditLogs", auditLogRepository.count());
-            model.addAttribute("failedAuditLogs", auditLogRepository.countFailedActions());
-            model.addAttribute("recentAuditLogs",
-                    auditLogRepository.countRecentActions(LocalDateTime.now().minusHours(24)));
-            model.addAttribute("successAuditLogs",
-                    Math.max(0L, auditLogRepository.count() - auditLogRepository.countFailedActions()));
-            model.addAttribute("shopActivitySummary",
-                    auditLogRepository.getShopActivitySummary(PageRequest.of(0, 5)));
-            model.addAttribute("actionSummary",
-                    auditLogRepository.getActionStats(LocalDateTime.now().minusDays(7)));
-            model.addAttribute("userActivitySummary",
-                    auditLogRepository.getUserActivitySummary(PageRequest.of(0, 5)));
+            long totalAuditLogs = auditLogRepository.count();
+            long failedAuditLogs = auditLogRepository.countFailedActions();
+            long recentAuditLogs = auditLogRepository.countRecentActions(LocalDateTime.now().minusHours(24));
+            long successAuditLogs = Math.max(0L, totalAuditLogs - failedAuditLogs);
+            List<Object[]> shopActivitySummary = auditLogRepository.getShopActivitySummary(PageRequest.of(0, 5));
+            List<Object[]> actionSummary = auditLogRepository.getActionStats(LocalDateTime.now().minusDays(7));
+            List<Object[]> userActivitySummary = auditLogRepository.getUserActivitySummary(PageRequest.of(0, 5));
+            double auditFailureRate = totalAuditLogs > 0 ? (failedAuditLogs * 100.0) / totalAuditLogs : 0.0;
+            long maxActionCount = actionSummary.stream()
+                    .mapToLong(row -> ((Number) row[1]).longValue())
+                    .max()
+                    .orElse(0L);
+
+            model.addAttribute("totalAuditLogs", totalAuditLogs);
+            model.addAttribute("failedAuditLogs", failedAuditLogs);
+            model.addAttribute("recentAuditLogs", recentAuditLogs);
+            model.addAttribute("successAuditLogs", successAuditLogs);
+            model.addAttribute("shopActivitySummary", shopActivitySummary);
+            model.addAttribute("actionSummary", actionSummary);
+            model.addAttribute("userActivitySummary", userActivitySummary);
+            model.addAttribute("auditFailureRate", auditFailureRate);
+            model.addAttribute("activeAuditShopCount", shopActivitySummary.size());
+            model.addAttribute("activeAuditUserCount", userActivitySummary.size());
+            model.addAttribute("maxActionCount", maxActionCount);
         } catch (Exception e) {
             log.error("Error loading audit logs: {}", e.getMessage(), e);
             model.addAttribute("auditLogs", Page.empty());
@@ -374,34 +392,50 @@ public class AdminController {
             model.addAttribute("shopActivitySummary", List.of());
             model.addAttribute("actionSummary", List.of());
             model.addAttribute("userActivitySummary", List.of());
+            model.addAttribute("auditFailureRate", 0.0);
+            model.addAttribute("activeAuditShopCount", 0);
+            model.addAttribute("activeAuditUserCount", 0);
+            model.addAttribute("maxActionCount", 0L);
             model.addAttribute("error", "Could not load audit logs right now.");
         }
 
         return "admin/audit-logs";
     }
 
-    @GetMapping("/platform-health")
+    @GetMapping({"/system-health", "/platform-health"})
     public String platformHealth(Model model) {
         try {
             List<Shop> shops = adminShopRepo.findAll();
-            model.addAttribute("failedAuditLogs", auditLogRepository.countFailedActions());
+            long failedAuditLogs = auditLogRepository.countFailedActions();
+            long disconnectedWhatsappShops = shops.stream()
+                    .filter(shop -> (shop.getWhatsappNumber() != null && !shop.getWhatsappNumber().isBlank()) || shop.isWhatsappAdminDisabled())
+                    .filter(shop -> !shop.isWhatsappConnected() || shop.isWhatsappAdminDisabled())
+                    .count();
+            long dormantShops = shops.stream()
+                    .filter(Shop::isActive)
+                    .filter(shop -> saleRepository.countByShopAndSaleDateAfter(shop, LocalDateTime.now().minusDays(30)) == 0)
+                    .count();
+            long gracePeriodShops = countLifecycleStatus(buildLifecycleMap(shops), SubscriptionLifecycleStatus.GRACE_PERIOD);
+            long expiredLifecycleShops = countLifecycleStatus(buildLifecycleMap(shops), SubscriptionLifecycleStatus.EXPIRED);
+            long urgentTickets = supportTicketRepository.countByPriority(com.expygen.entity.TicketPriority.URGENT);
+            long overdueTickets = supportTicketRepository.countOverdueTickets(LocalDateTime.now());
+            long paidPendingActivation = upgradeRequestRepository.countByStatus(UpgradeRequestStatus.PAYMENT_RECEIVED);
+            long platformRiskCount = failedAuditLogs + disconnectedWhatsappShops + dormantShops + overdueTickets
+                    + paidPendingActivation;
+
+            model.addAttribute("failedAuditLogs", failedAuditLogs);
             model.addAttribute("recentFailedAuditLogs", auditLogRepository.findByStatusOrderByTimestampDesc("FAILED")
                     .stream()
                     .limit(12)
                     .toList());
-            model.addAttribute("disconnectedWhatsappShops", shops.stream()
-                    .filter(shop -> (shop.getWhatsappNumber() != null && !shop.getWhatsappNumber().isBlank()) || shop.isWhatsappAdminDisabled())
-                    .filter(shop -> !shop.isWhatsappConnected() || shop.isWhatsappAdminDisabled())
-                    .count());
-            model.addAttribute("dormantShops", shops.stream()
-                    .filter(Shop::isActive)
-                    .filter(shop -> saleRepository.countByShopAndSaleDateAfter(shop, LocalDateTime.now().minusDays(30)) == 0)
-                    .count());
-            model.addAttribute("gracePeriodShops", countLifecycleStatus(buildLifecycleMap(shops), SubscriptionLifecycleStatus.GRACE_PERIOD));
-            model.addAttribute("expiredLifecycleShops", countLifecycleStatus(buildLifecycleMap(shops), SubscriptionLifecycleStatus.EXPIRED));
-            model.addAttribute("urgentTickets", supportTicketRepository.countByPriority(com.expygen.entity.TicketPriority.URGENT));
-            model.addAttribute("overdueTickets", supportTicketRepository.countOverdueTickets(LocalDateTime.now()));
-            model.addAttribute("paidPendingActivation", upgradeRequestRepository.countByStatus(UpgradeRequestStatus.PAYMENT_RECEIVED));
+            model.addAttribute("disconnectedWhatsappShops", disconnectedWhatsappShops);
+            model.addAttribute("dormantShops", dormantShops);
+            model.addAttribute("gracePeriodShops", gracePeriodShops);
+            model.addAttribute("expiredLifecycleShops", expiredLifecycleShops);
+            model.addAttribute("urgentTickets", urgentTickets);
+            model.addAttribute("overdueTickets", overdueTickets);
+            model.addAttribute("paidPendingActivation", paidPendingActivation);
+            model.addAttribute("platformRiskCount", platformRiskCount);
         } catch (Exception e) {
             log.error("Error loading platform health: {}", e.getMessage(), e);
             model.addAttribute("failedAuditLogs", 0L);
@@ -413,9 +447,10 @@ public class AdminController {
             model.addAttribute("urgentTickets", 0L);
             model.addAttribute("overdueTickets", 0L);
             model.addAttribute("paidPendingActivation", 0L);
+            model.addAttribute("platformRiskCount", 0L);
             model.addAttribute("error", "Could not load platform health right now.");
         }
-        return "admin/platform-health";
+        return "admin/system-health";
     }
 
     // ===== USER MANAGEMENT =====
@@ -445,6 +480,13 @@ public class AdminController {
             long activeUsers = adminUserRepo.countByActiveTrue();
             long inactiveUsers = totalUsers - activeUsers;
             long pendingApprovals = adminUserRepo.countByApprovedFalse();
+            long ownerUserCount = adminUserRepo.countByRole(Role.OWNER);
+            long managerUserCount = adminUserRepo.countByRole(Role.MANAGER);
+            long cashierUserCount = adminUserRepo.countByRole(Role.CASHIER);
+            long adminRoleCount = adminUserRepo.countByRole(Role.ADMIN);
+            long approvedUsers = Math.max(0L, totalUsers - pendingApprovals);
+            long pendingOwnerCount = adminUserRepo.countByRoleAndApprovedFalse(Role.OWNER);
+            long inactiveOwnerCount = adminUserRepo.countByRoleAndActiveFalse(Role.OWNER);
 
             // Add to model
             model.addAttribute("users", userPage.getContent());
@@ -459,6 +501,13 @@ public class AdminController {
             model.addAttribute("activeUsers", activeUsers);
             model.addAttribute("inactiveUsers", inactiveUsers);
             model.addAttribute("pendingApprovals", pendingApprovals);
+            model.addAttribute("ownerUserCount", ownerUserCount);
+            model.addAttribute("managerUserCount", managerUserCount);
+            model.addAttribute("cashierUserCount", cashierUserCount);
+            model.addAttribute("adminRoleCount", adminRoleCount);
+            model.addAttribute("approvedUsers", approvedUsers);
+            model.addAttribute("pendingOwnerCount", pendingOwnerCount);
+            model.addAttribute("inactiveOwnerCount", inactiveOwnerCount);
 
             log.info("Loaded {} users out of {} total", userPage.getNumberOfElements(), totalUsers);
 
@@ -469,6 +518,13 @@ public class AdminController {
             model.addAttribute("activeUsers", 0);
             model.addAttribute("inactiveUsers", 0);
             model.addAttribute("pendingApprovals", 0);
+            model.addAttribute("ownerUserCount", 0L);
+            model.addAttribute("managerUserCount", 0L);
+            model.addAttribute("cashierUserCount", 0L);
+            model.addAttribute("adminRoleCount", 0L);
+            model.addAttribute("approvedUsers", 0L);
+            model.addAttribute("pendingOwnerCount", 0L);
+            model.addAttribute("inactiveOwnerCount", 0L);
             model.addAttribute("currentPage", 0);
             model.addAttribute("totalPages", 0);
             model.addAttribute("totalItems", 0);
@@ -476,7 +532,7 @@ public class AdminController {
             model.addAttribute("error", "Could not load users: " + e.getMessage());
         }
 
-        return "admin/users";
+        return "admin/users/users";
     }
 
     // ===== PENDING APPROVALS PAGE =====
@@ -519,7 +575,7 @@ public class AdminController {
         model.addAttribute("notVerifiedCount", notVerifiedCount);
         model.addAttribute("paidPlansCount", paidPlansCount);
 
-        return "admin/pending-approvals";
+        return "admin/users/pending-approvals";
     }
 
     @GetMapping("/users/new")
@@ -527,7 +583,7 @@ public class AdminController {
         log.info("Loading new user form");
         model.addAttribute("user", new User()); // empty user object
         model.addAttribute("shops", adminShopRepo.findAll()); // shops dropdown ke liye
-        return "admin/user-form";
+        return "admin/users/user-form";
     }
 
     // users/save
@@ -601,7 +657,7 @@ public class AdminController {
             log.error("Error loading user details: {}", e.getMessage());
             return "redirect:/admin/users?error=Error+loading+user";
         }
-        return "admin/user-details";
+        return "admin/users/user-details";
     }
 
     @GetMapping("/users/edit/{id}")
@@ -618,35 +674,70 @@ public class AdminController {
             log.error("Error editing user: {}", e.getMessage());
             return "redirect:/admin/users?error=Error+loading+user";
         }
-        return "admin/user-form";
+        return "admin/users/user-form";
     }
 
-    @GetMapping("/users/delete/{id}")
+    @RequestMapping(value = "/users/delete/{id}", method = { RequestMethod.GET, RequestMethod.POST })
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Deleting user id: {}", id);
         try {
             User user = adminUserRepo.findById(id).orElse(null);
-            Map<String, Object> deletedUserState = user != null ? snapshotUser(user) : null;
-            adminUserRepo.deleteById(id);
-            if (user != null) {
-                auditService.logAction(
-                        currentAdminUsername(),
-                        currentAdminRole(),
-                        user.getShop(),
-                        "ADMIN_USER_DELETED",
-                        "User",
-                        user.getId(),
-                        "SUCCESS",
-                        deletedUserState,
-                        null,
-                        "Admin deleted a user");
+            if (user == null) {
+                redirectAttributes.addFlashAttribute("error", "User not found.");
+                return "redirect:/admin/users";
             }
+
+            if (currentAdminUsername().equalsIgnoreCase(user.getUsername())) {
+                redirectAttributes.addFlashAttribute("error", "You cannot delete your own admin account.");
+                return "redirect:/admin/users";
+            }
+
+            EmailVerificationToken verificationToken = emailVerificationTokenRepository.findByUser(user);
+            if (verificationToken != null) {
+                emailVerificationTokenRepository.delete(verificationToken);
+            }
+            passwordResetTokenRepository.deleteByUser(user);
+
+            User fallbackUser = resolveFallbackUserForDeletion(user);
+            if (fallbackUser != null) {
+                supportTicketRepository.reassignTickets(user, fallbackUser);
+                ticketReplyRepository.reassignReplies(user, fallbackUser);
+                saleRepository.reassignSales(user, fallbackUser);
+                purchaseEntryRepository.reassignCreatedBy(user, fallbackUser);
+                purchaseReturnRepository.reassignCreatedBy(user, fallbackUser);
+                stockAdjustmentRepository.reassignCreatedBy(user, fallbackUser);
+                upgradeRequestRepository.reassignRequestedBy(user, fallbackUser);
+                upgradeRequestRepository.reassignActivatedBy(user, fallbackUser);
+            }
+
+            Map<String, Object> deletedUserState = snapshotUser(user);
+            adminUserRepo.deleteById(id);
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    user.getShop(),
+                    "ADMIN_USER_DELETED",
+                    "User",
+                    user.getId(),
+                    "SUCCESS",
+                    deletedUserState,
+                    null,
+                    "Admin deleted a user");
             redirectAttributes.addFlashAttribute("success", "User deleted successfully");
         } catch (Exception e) {
             log.error("Error deleting user: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", "Error deleting user: " + e.getMessage());
         }
         return "redirect:/admin/users";
+    }
+
+    private User resolveFallbackUserForDeletion(User user) {
+        List<User> shopUsers = adminUserRepo.findByShop(user.getShop());
+        return shopUsers.stream()
+                .filter(candidate -> !candidate.getId().equals(user.getId()))
+                .filter(User::isActive)
+                .findFirst()
+                .orElseGet(() -> adminUserRepo.findByUsername(currentAdminUsername()).orElse(null));
     }
 
     // ===== GET APPROVAL EMAIL PREVIEW =====
@@ -698,7 +789,7 @@ public class AdminController {
             User user = adminUserRepo.findById(id)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            log.info("✅ User found:");
+            log.info("User found:");
             log.info("  - ID: {}", user.getId());
             log.info("  - Username: {}", user.getUsername());
             log.info("  - Name: {}", user.getName());
@@ -710,23 +801,23 @@ public class AdminController {
             // Step 2: Check if user is active (email verified)
             log.info("Step 2: Checking if user is active (email verified)");
             if (!user.isActive()) {
-                log.warn("❌ User {} (ID: {}) cannot be approved - email not verified", user.getUsername(),
+                log.warn("User {} (ID: {}) cannot be approved - email not verified", user.getUsername(),
                         user.getId());
                 response.put("success", false);
                 response.put("message", "User has not verified email yet. Cannot approve.");
                 return response;
             }
-            log.info("✅ User email is verified");
+            log.info("User email is verified");
 
             // Step 3: Check if already approved
             log.info("Step 3: Checking if user is already approved");
             if (user.isApproved()) {
-                log.warn("❌ User {} (ID: {}) is already approved", user.getUsername(), user.getId());
+                log.warn("User {} (ID: {}) is already approved", user.getUsername(), user.getId());
                 response.put("success", false);
                 response.put("message", "User already approved");
                 return response;
             }
-            log.info("✅ User is not approved yet");
+            log.info("User is not approved yet");
 
             // Step 4: Get plan from shop
             log.info("Step 4: Getting plan from shop");
@@ -749,35 +840,35 @@ public class AdminController {
             // Step 5: Validate plan
             log.info("Step 5: Validating plan");
             if (planType == null) {
-                log.error("❌ Shop {} has no plan type set!", shop.getName());
+                log.error("Shop {} has no plan type set!", shop.getName());
                 response.put("success", false);
                 response.put("message", "Shop has no plan assigned. Please assign a plan to the shop first.");
                 return response;
             }
-            log.info("✅ Plan found in shop: {}", planType);
+            log.info("Plan found in shop: {}", planType);
 
             // Step 6: Check if FREE plan
             log.info("Step 6: Checking if plan is FREE");
             if (planType == PlanType.FREE) {
                 log.info(
-                        "⚠️ User {} has FREE plan (from shop) - auto-approved during registration, skipping manual approval",
+                        "User {} has FREE plan (from shop) - auto-approved during registration, skipping manual approval",
                         user.getUsername());
                 response.put("success", false);
                 response.put("message", "FREE plan users are auto-approved during registration");
                 response.put("planType", planType.name());
                 return response;
             }
-            log.info("✅ User has PAID plan: {}", planType);
+            log.info("User has PAID plan: {}", planType);
 
             // Step 7: Fetch plan details from database
             log.info("Step 7: Fetching plan details from database for plan type: {}", planType.name());
             SubscriptionPlan plan = adminSubscriptionRepo.findByPlanName(planType.name())
                     .orElseThrow(() -> {
-                        log.error("❌ Plan not found in database: {}", planType.name());
+                        log.error("Plan not found in database: {}", planType.name());
                         return new RuntimeException("Plan not found in database: " + planType.name());
                     });
 
-            log.info("✅ Plan details fetched:");
+            log.info("Plan details fetched:");
             log.info("  - Plan ID: {}", plan.getId());
             log.info("  - Plan Name: {}", plan.getPlanName());
             log.info("  - Duration: {} days", plan.getDurationInDays());
@@ -816,7 +907,7 @@ public class AdminController {
             // Step 10: Save user
             log.info("Step 10: Saving user to database");
             User savedUser = adminUserRepo.save(user);
-            log.info("✅ User saved successfully:");
+            log.info("User saved successfully:");
             log.info("  - User ID: {}", savedUser.getId());
             log.info("  - Username: {}", savedUser.getUsername());
             log.info("  - Approved: {}", savedUser.isApproved());
@@ -837,9 +928,9 @@ public class AdminController {
                         null,
                         snapshotUser(user),
                         "Admin approved user account");
-                log.info("✅ Audit log recorded successfully");
+                log.info("Audit log recorded successfully");
             } catch (Exception e) {
-                log.error("⚠️ Failed to record audit log: {}", e.getMessage(), e);
+                log.error("Failed to record audit log: {}", e.getMessage(), e);
             }
 
             // Step 12: Update shop subscription
@@ -1336,9 +1427,24 @@ public class AdminController {
             model.addAttribute("activeShops", activeShops);
             model.addAttribute("inactiveShops", inactiveShops);
             model.addAttribute("planStats", adminShopRepo.countShopsByPlanType().size());
-            model.addAttribute("renewalDueShops", countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.RENEWAL_DUE));
-            model.addAttribute("gracePeriodShops", countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.GRACE_PERIOD));
-            model.addAttribute("expiredLifecycleShops", countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.EXPIRED));
+            long renewalDueShops = countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.RENEWAL_DUE);
+            long gracePeriodShops = countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.GRACE_PERIOD);
+            long expiredLifecycleShops = countLifecycleStatus(allLifecycleByShopId, SubscriptionLifecycleStatus.EXPIRED);
+            model.addAttribute("renewalDueShops", renewalDueShops);
+            model.addAttribute("gracePeriodShops", gracePeriodShops);
+            model.addAttribute("expiredLifecycleShops", expiredLifecycleShops);
+            model.addAttribute("healthyAttentionCount", countAttentionLevel(allMatchingShops, null));
+            model.addAttribute("watchAttentionCount", countAttentionLevel(allMatchingShops, AdminAttentionLevel.WATCH));
+            model.addAttribute("priorityAttentionCount", countAttentionLevel(allMatchingShops, AdminAttentionLevel.PRIORITY));
+            model.addAttribute("blockedAttentionCount", countAttentionLevel(allMatchingShops, AdminAttentionLevel.BLOCKED));
+            Map<UpgradeRequestStatus, Long> commercialCounts = getCommercialStatusCounts();
+            long requestedCommercialCount = commercialCounts.getOrDefault(UpgradeRequestStatus.REQUESTED, 0L);
+            long contactedCommercialCount = commercialCounts.getOrDefault(UpgradeRequestStatus.CONTACTED, 0L);
+            long paymentReceivedCommercialCount = commercialCounts.getOrDefault(UpgradeRequestStatus.PAYMENT_RECEIVED, 0L);
+            model.addAttribute("requestedCommercialCount", requestedCommercialCount);
+            model.addAttribute("contactedCommercialCount", contactedCommercialCount);
+            model.addAttribute("paymentReceivedCommercialCount", paymentReceivedCommercialCount);
+            model.addAttribute("totalOpenCommercialCount", requestedCommercialCount + contactedCommercialCount + paymentReceivedCommercialCount);
 
             log.info("Loaded {} shops out of {} filtered shops", pagedShops.size(), totalFilteredItems);
 
@@ -1360,10 +1466,18 @@ public class AdminController {
             model.addAttribute("renewalDueShops", 0L);
             model.addAttribute("gracePeriodShops", 0L);
             model.addAttribute("expiredLifecycleShops", 0L);
+            model.addAttribute("healthyAttentionCount", 0L);
+            model.addAttribute("watchAttentionCount", 0L);
+            model.addAttribute("priorityAttentionCount", 0L);
+            model.addAttribute("blockedAttentionCount", 0L);
+            model.addAttribute("requestedCommercialCount", 0L);
+            model.addAttribute("contactedCommercialCount", 0L);
+            model.addAttribute("paymentReceivedCommercialCount", 0L);
+            model.addAttribute("totalOpenCommercialCount", 0L);
             model.addAttribute("error", "Could not load shops: " + e.getMessage());
         }
 
-        return "admin/shops";
+        return "admin/shops/shops";
     }
 
     @GetMapping("/shops/new")
@@ -1371,7 +1485,7 @@ public class AdminController {
         log.info("Loading new shop form");
         model.addAttribute("shop", new ShopDTO());
         model.addAttribute("planTypes", PlanType.values());
-        return "admin/shop-form";
+        return "admin/shops/shop-form";
     }
 
     @PostMapping("/shops/save")
@@ -1563,7 +1677,7 @@ public class AdminController {
             log.error("Error loading shop details: {}", e.getMessage());
             return "redirect:/admin/shops?error=Error+loading+shop";
         }
-        return "admin/shop-details";
+        return "admin/shops/shop-details";
     }
 
     @PostMapping("/shops/{id}/admin-ops")
@@ -1786,17 +1900,30 @@ public class AdminController {
         return "redirect:/admin/shops/" + id;
     }
 
-    @GetMapping("/subscription-ledger")
+    @GetMapping("/subscriptions-ledger")
     public String subscriptionLedger(Model model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "30") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<com.expygen.entity.SubscriptionLedgerEntry> ledgerPage = subscriptionLedgerService.getEntries(pageable);
+        long paymentEntryCount = subscriptionLedgerEntryRepository.countByEntryTypeIn(List.of("PAYMENT_RECEIVED"));
+        long renewalEntryCount = subscriptionLedgerEntryRepository
+                .countByEntryTypeIn(List.of("RENEWAL_ACTIVATED", "DIRECT_ADMIN_RENEWAL"));
+        long activationEntryCount = subscriptionLedgerEntryRepository
+                .countByEntryTypeIn(List.of("PLAN_ACTIVATED", "RENEWAL_ACTIVATED", "DIRECT_ADMIN_RENEWAL"));
+        long trackedShopsCount = subscriptionLedgerEntryRepository.countDistinctShops();
+        Double trackedAmount = subscriptionLedgerEntryRepository.sumTrackedAmount();
+
         model.addAttribute("ledgerPage", ledgerPage);
         model.addAttribute("currentPage", ledgerPage.getNumber());
         model.addAttribute("totalPages", ledgerPage.getTotalPages());
         model.addAttribute("pageSize", size);
-        return "admin/subscription-ledger";
+        model.addAttribute("paymentEntryCount", paymentEntryCount);
+        model.addAttribute("renewalEntryCount", renewalEntryCount);
+        model.addAttribute("activationEntryCount", activationEntryCount);
+        model.addAttribute("trackedShopsCount", trackedShopsCount);
+        model.addAttribute("trackedAmount", trackedAmount != null ? trackedAmount : 0.0);
+        return "admin/subscriptions/subscriptions-ledger";
     }
 
     @GetMapping("/shops/edit/{id}")
@@ -1813,14 +1940,63 @@ public class AdminController {
             log.error("Error editing shop: {}", e.getMessage());
             return "redirect:/admin/shops?error=Error+loading+shop";
         }
-        return "admin/shop-form";
+        return "admin/shops/shop-form";
     }
 
-    @GetMapping("/shops/delete/{id}")
+    @RequestMapping(value = "/shops/delete/{id}", method = { RequestMethod.GET, RequestMethod.POST })
     public String deleteShop(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Deleting shop id: {}", id);
         try {
+            Shop shop = adminShopRepo.findById(id).orElse(null);
+            if (shop == null) {
+                redirectAttributes.addFlashAttribute("error", "Shop not found.");
+                return "redirect:/admin/shops";
+            }
+
+            long userCount = adminUserRepo.countByShop(shop);
+            long productCount = productRepository.countByShop(shop);
+            long supplierCount = supplierRepository.countByShopAndActiveTrue(shop);
+            long purchaseCount = purchaseEntryRepository.countByShop(shop);
+            long returnCount = purchaseReturnRepository.countByShop(shop);
+            long salesCount = saleRepository.countByShop(shop);
+            long adjustmentCount = stockAdjustmentRepository.countByShop(shop);
+            long supportCount = supportTicketRepository.countByShop(shop);
+            long commercialCount = upgradeRequestRepository.countByShop(shop);
+            long ledgerCount = subscriptionLedgerEntryRepository.countByShop(shop);
+            long reminderCount = subscriptionReminderLogRepository.countByShop(shop);
+
+            List<String> blockers = new ArrayList<>();
+            if (userCount > 0) blockers.add(userCount + " users");
+            if (productCount > 0) blockers.add(productCount + " products");
+            if (supplierCount > 0) blockers.add(supplierCount + " suppliers");
+            if (purchaseCount > 0) blockers.add(purchaseCount + " purchases");
+            if (returnCount > 0) blockers.add(returnCount + " returns");
+            if (salesCount > 0) blockers.add(salesCount + " sales");
+            if (adjustmentCount > 0) blockers.add(adjustmentCount + " stock adjustments");
+            if (supportCount > 0) blockers.add(supportCount + " support tickets");
+            if (commercialCount > 0) blockers.add(commercialCount + " commercial requests");
+            if (ledgerCount > 0) blockers.add(ledgerCount + " ledger entries");
+            if (reminderCount > 0) blockers.add(reminderCount + " reminder logs");
+
+            if (!blockers.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Shop cannot be deleted because linked records exist: " + String.join(", ", blockers) + ".");
+                return "redirect:/admin/shops";
+            }
+
+            Map<String, Object> deletedShopState = snapshotShop(shop);
             adminShopRepo.deleteById(id);
+            auditService.logAction(
+                    currentAdminUsername(),
+                    currentAdminRole(),
+                    shop,
+                    "ADMIN_SHOP_DELETED",
+                    "Shop",
+                    shop.getId(),
+                    "SUCCESS",
+                    deletedShopState,
+                    null,
+                    "Admin deleted a shop");
             redirectAttributes.addFlashAttribute("success", "Shop deleted successfully");
         } catch (Exception e) {
             log.error("Error deleting shop: {}", e.getMessage());
@@ -1998,8 +2174,9 @@ public class AdminController {
         log.info("Loading admin subscriptions page");
 
         try {
-            List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findByActiveTrue();
+            List<SubscriptionPlan> dbPlans = adminSubscriptionRepo.findAll();
             long totalShops = adminShopRepo.count();
+            long activeShops = adminShopRepo.countByActive(true);
             List<Object[]> shopStats = adminShopRepo.countShopsByPlanType();
             Map<String, Long> shopCountMap = new HashMap<>();
 
@@ -2032,16 +2209,54 @@ public class AdminController {
             }
 
             List<SubscriptionPlanDTO> sortedPlans = sortPlansByOrder(plans);
+            long activePlanCount = sortedPlans.stream().filter(SubscriptionPlanDTO::isActive).count();
+            long inactivePlanCount = sortedPlans.size() - activePlanCount;
+            long paidShops = sortedPlans.stream()
+                    .filter(plan -> !"FREE".equalsIgnoreCase(plan.getPlanName()))
+                    .mapToLong(plan -> plan.getShopCount() != null ? plan.getShopCount() : 0L)
+                    .sum();
+            double estimatedAnnualRevenue = sortedPlans.stream()
+                    .filter(plan -> plan.getAnnualPrice() != null)
+                    .mapToDouble(plan -> (plan.getAnnualPrice() != null ? plan.getAnnualPrice() : 0.0)
+                            * (plan.getShopCount() != null ? plan.getShopCount() : 0L))
+                    .sum();
+            SubscriptionPlanDTO bestDiscountPlan = sortedPlans.stream()
+                    .filter(plan -> plan.getEffectiveAnnualDiscountPercent() != null)
+                    .max(Comparator.comparing(plan -> plan.getEffectiveAnnualDiscountPercent() != null
+                            ? plan.getEffectiveAnnualDiscountPercent()
+                            : 0.0))
+                    .orElse(null);
+
             model.addAttribute("plans", sortedPlans);
+            model.addAttribute("totalPlanCount", sortedPlans.size());
+            model.addAttribute("activePlanCount", activePlanCount);
+            model.addAttribute("inactivePlanCount", inactivePlanCount);
+            model.addAttribute("activeShopsCount", activeShops);
+            model.addAttribute("paidShopsCount", paidShops);
+            model.addAttribute("estimatedAnnualRevenue", normalizeAmount(estimatedAnnualRevenue));
+            model.addAttribute("bestDiscountPercent",
+                    bestDiscountPlan != null && bestDiscountPlan.getEffectiveAnnualDiscountPercent() != null
+                            ? bestDiscountPlan.getEffectiveAnnualDiscountPercent()
+                            : 0.0);
+            model.addAttribute("bestDiscountPlanName",
+                    bestDiscountPlan != null ? bestDiscountPlan.getPlanName() : "N/A");
             log.info("Loaded {} subscription plans for admin view", sortedPlans.size());
 
         } catch (Exception e) {
             log.error("Error loading subscription plans: {}", e.getMessage(), e);
             model.addAttribute("plans", getDefaultPlans());
+            model.addAttribute("totalPlanCount", 0);
+            model.addAttribute("activePlanCount", 0);
+            model.addAttribute("inactivePlanCount", 0);
+            model.addAttribute("activeShopsCount", 0L);
+            model.addAttribute("paidShopsCount", 0L);
+            model.addAttribute("estimatedAnnualRevenue", 0.0);
+            model.addAttribute("bestDiscountPercent", 0.0);
+            model.addAttribute("bestDiscountPlanName", "N/A");
             model.addAttribute("error", "Could not load live data. Showing default values.");
         }
 
-        return "admin/subscriptions";
+        return "admin/subscriptions/subscriptions";
     }
 
     @GetMapping("/subscriptions/new")
@@ -2049,7 +2264,7 @@ public class AdminController {
         log.info("Loading new subscription form");
         model.addAttribute("plan", new SubscriptionPlanDTO());
         model.addAttribute("planTypes", PlanType.values());
-        return "admin/subscription-form";
+        return "admin/subscriptions/subscriptions-form";
     }
 
     @PostMapping("/subscriptions/save")
@@ -2126,7 +2341,7 @@ public class AdminController {
             model.addAttribute("error", "Could not load plan details");
         }
 
-        return "admin/subscription-form";
+        return "admin/subscriptions/subscriptions-form";
     }
 
     @GetMapping("/subscriptions/delete/{id}")
@@ -2361,6 +2576,18 @@ public class AdminController {
         return counts;
     }
 
+    private long countAttentionLevel(List<Shop> shops, AdminAttentionLevel level) {
+        return shops.stream()
+                .filter(shop -> {
+                    AdminAttentionLevel currentLevel = shop.getAdminAttentionLevel();
+                    if (level == null) {
+                        return currentLevel == null;
+                    }
+                    return currentLevel == level;
+                })
+                .count();
+    }
+
     // Subscription URLs end here
 
     // ===== API ENDPOINTS =====
@@ -2393,29 +2620,72 @@ public class AdminController {
 
     @GetMapping("/access-denied")
     public String accessDenied() {
-        return "admin/access-denied";
+        return "admin/error/access-denied";
     }
 
     @GetMapping("/404")
     public String notFound() {
-        return "admin/404";
+        return "admin/error/404";
     }
 
-    @GetMapping("/contact-requests")
+    @GetMapping("/500")
+    public String serverError() {
+        return "admin/error/500";
+    }
+
+    @GetMapping({"/contact/requests", "/contact-requests"})
     public String contactRequests(Model model) {
-        model.addAttribute("requests", contactService.findAll());
-        model.addAttribute("newRequestCount", contactService.countNewRequests());
-        return "admin/contact-requests";
+        List<ContactRequest> requests = contactService.findAll();
+        long newRequestCount = requests.stream()
+                .filter(request -> request.getStatus() == ContactRequestStatus.NEW)
+                .count();
+        long contactedRequestCount = requests.stream()
+                .filter(request -> request.getStatus() == ContactRequestStatus.CONTACTED)
+                .count();
+        long closedRequestCount = requests.stream()
+                .filter(request -> request.getStatus() == ContactRequestStatus.CLOSED)
+                .count();
+        long recentLeadCount = requests.stream()
+                .filter(request -> request.getCreatedAt() != null
+                        && request.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7)))
+                .count();
+        long demoPipelineCount = requests.stream()
+                .filter(request -> request.getTopic() != null
+                        && request.getTopic().toLowerCase().contains("demo"))
+                .count();
+        List<Object[]> topicSummary = requests.stream()
+                .filter(request -> request.getTopic() != null && !request.getTopic().isBlank())
+                .collect(Collectors.groupingBy(ContactRequest::getTopic, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .sorted((left, right) -> Long.compare(right.getValue(), left.getValue()))
+                .limit(4)
+                .map(entry -> new Object[] { entry.getKey(), entry.getValue() })
+                .toList();
+        long maxTopicCount = topicSummary.stream()
+                .mapToLong(row -> ((Number) row[1]).longValue())
+                .max()
+                .orElse(0L);
+
+        model.addAttribute("requests", requests);
+        model.addAttribute("newRequestCount", newRequestCount);
+        model.addAttribute("contactedRequestCount", contactedRequestCount);
+        model.addAttribute("closedRequestCount", closedRequestCount);
+        model.addAttribute("recentLeadCount", recentLeadCount);
+        model.addAttribute("demoPipelineCount", demoPipelineCount);
+        model.addAttribute("topicSummary", topicSummary);
+        model.addAttribute("maxTopicCount", maxTopicCount);
+        return "admin/contacts/contact-requests";
     }
 
-    @GetMapping("/contact-requests/{id}")
+    @GetMapping({"/contact/requests/{id}", "/contact-requests/{id}"})
     public String contactRequestDetails(@PathVariable Long id, Model model) {
         model.addAttribute("request", contactService.findById(id));
         model.addAttribute("statuses", ContactRequestStatus.values());
-        return "admin/contact-request-details";
+        return "admin/contacts/contact-request-details";
     }
 
-    @PostMapping("/contact-requests/{id}/status")
+    @PostMapping({"/contact/requests/{id}/status", "/contact-requests/{id}/status"})
     public String updateContactRequestStatus(@PathVariable Long id,
             @RequestParam("status") ContactRequestStatus status,
             RedirectAttributes redirectAttributes) {

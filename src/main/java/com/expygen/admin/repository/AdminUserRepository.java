@@ -48,6 +48,9 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     
     // ===== FIND BY ROLE =====
     List<User> findByRole(Role role);
+    long countByRole(Role role);
+    long countByRoleAndApprovedFalse(Role role);
+    long countByRoleAndActiveFalse(Role role);
 
      // ===== PENDING APPROVALS =====
     Page<User> findByActiveTrueAndApprovedFalse(Pageable pageable);
@@ -100,6 +103,8 @@ public interface AdminUserRepository extends JpaRepository<User, Long> {
     List<User> findByShop(Shop shop);
 
     Optional<User> findFirstByShopAndRoleOrderByIdAsc(Shop shop, Role role);
+
+    long countByShop(Shop shop);
     
     // ===== COUNT BY SHOP AND ROLE =====
     long countByShopAndRole(Shop shop, Role role);

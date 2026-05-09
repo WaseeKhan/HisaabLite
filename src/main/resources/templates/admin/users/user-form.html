@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title th:text="${user.id == null} ? 'Add User • Expygen Admin' : 'Edit User • Expygen Admin'"></title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-user-form.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="user-editor-page">
+
+    <!-- HERO -->
+    <div class="user-editor-hero">
+        <div>
+            <span class="hero-kicker">Access Control</span>
+            <h1>
+                <i class="fas fa-user-shield"></i>
+                <span th:text="${user.id == null} ? 'Create New User' : 'Edit User Access'">Create New User</span>
+            </h1>
+            <p>Manage staff identity, shop assignment, role permission and approval state from one admin cockpit.</p>
+        </div>
+
+        <div class="hero-actions">
+            <span class="mode-chip" th:text="${user.id == null} ? 'New User' : 'Edit Mode'">New User</span>
+            <a th:href="@{/admin/users}" class="ghost-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <form th:action="@{/admin/users/save}" method="post" class="user-editor-grid">
+        <input type="hidden" name="id" th:value="${user.id}">
+
+        <!-- MAIN FORM -->
+        <div class="editor-main">
+
+            <div class="editor-card">
+                <div class="card-head">
+                    <div>
+                        <span>User Profile</span>
+                        <h3><i class="fas fa-id-card"></i> Identity Details</h3>
+                    </div>
+                    <small th:text="${user.id == null} ? 'Required' : 'Update user'">Required</small>
+                </div>
+
+                <div class="field-grid">
+
+                    <div class="field">
+                        <label>Full Name <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="name" th:value="${user.name}" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Email / Username <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" name="username" th:value="${user.username}" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Phone <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-phone"></i>
+                            <input type="text" name="phone" th:value="${user.phone}" placeholder="9876543210" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Password <span th:if="${user.id == null}">*</span></label>
+                        <div class="input-shell">
+                            <i class="fas fa-lock"></i>
+                            <input type="password"
+                                   name="password"
+                                   th:placeholder="${user.id == null} ? 'Enter password' : 'Leave blank to keep current'"
+                                   th:required="${user.id == null}">
+                        </div>
+                        <small class="field-help" th:if="${user.id != null}">
+                            Leave blank if you do not want to reset password.
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="editor-card">
+                <div class="card-head access">
+                    <div>
+                        <span>Permission Layer</span>
+                        <h3><i class="fas fa-key"></i> Role & Shop Access</h3>
+                    </div>
+                    <small>Access scope</small>
+                </div>
+
+                <div class="field-grid">
+
+                    <div class="field">
+                        <label>Role <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-tag"></i>
+                            <select name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="OWNER" th:selected="${user.role == 'OWNER'}">Owner</option>
+                                <option value="MANAGER" th:selected="${user.role == 'MANAGER'}">Manager</option>
+                                <option value="CASHIER" th:selected="${user.role == 'CASHIER'}">Cashier</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Shop <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-store"></i>
+                            <select name="shop.id" required>
+                                <option value="">Select Shop</option>
+                                <option th:each="shop : ${shops}"
+                                        th:value="${shop.id}"
+                                        th:text="${shop.name}"
+                                        th:selected="${user.shop != null and user.shop.id == shop.id}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <aside class="editor-side">
+
+            <div class="side-card status-card">
+                <div class="side-card-head">
+                    <h4><i class="fas fa-power-off"></i> Account State</h4>
+                </div>
+
+                <label class="switch-card">
+                    <input type="checkbox" name="active" th:checked="${user.active != null ? user.active : true}">
+                    <span class="switch-ui"></span>
+                    <span class="switch-copy">
+                        <strong>Active User</strong>
+                        <small>User can login and operate inside assigned shop.</small>
+                    </span>
+                </label>
+
+                <label class="switch-card">
+                    <input type="checkbox" name="approved" th:checked="${user.approved != null ? user.approved : true}">
+                    <span class="switch-ui"></span>
+                    <span class="switch-copy">
+                        <strong>Approved User</strong>
+                        <small>Allow this account to pass admin approval gate.</small>
+                    </span>
+                </label>
+
+                <div class="status-hint">
+                    <i class="fas fa-shield-halved"></i>
+                    Inactive or unapproved users should not access the shop workspace.
+                </div>
+            </div>
+
+            <div class="side-card">
+                <div class="side-card-head">
+                    <h4><i class="fas fa-layer-group"></i> Role Guide</h4>
+                </div>
+
+                <div class="quality-list">
+                    <span><i class="fas fa-crown"></i> Owner: full workspace access</span>
+                    <span><i class="fas fa-user-tie"></i> Manager: operations control</span>
+                    <span><i class="fas fa-cash-register"></i> Cashier: billing focused</span>
+                </div>
+            </div>
+
+            <div class="side-card highlight">
+                <div class="side-card-head">
+                    <h4><i class="fas fa-lightbulb"></i> Admin Tip</h4>
+                </div>
+                <p>
+                    Keep owner accounts approved and active. For staff issues, disable access first instead of deleting user history.
+                </p>
+            </div>
+
+            <div class="side-actions">
+                <button type="submit" class="save-btn">
+                    <i class="fas fa-save"></i>
+                    <span th:text="${user.id == null} ? 'Create User' : 'Update User'">Create User</span>
+                </button>
+
+                <a th:href="@{/admin/users}" class="cancel-btn">
+                    <i class="fas fa-xmark"></i> Cancel
+                </a>
+            </div>
+
+        </aside>
+
+    </form>
+
+</section>
+
+</th:block>
+</body>
+</html>

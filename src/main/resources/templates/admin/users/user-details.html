@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>User Profile • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-user-details.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="user-profile-page" th:if="${user != null}">
+
+    <!-- HERO -->
+    <div class="user-hero">
+        <div class="hero-left">
+            <div class="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+
+            <div>
+                <h1 th:text="${user.name}">Waseem Khan</h1>
+                <p th:text="${user.username}">admin@expygen.com</p>
+
+                <div class="hero-badges">
+                    <span class="chip role"
+                          th:text="${user.role}"
+                          th:classappend="' role-' + ${user.role}">
+                        OWNER
+                    </span>
+
+                    <span class="chip"
+                          th:text="${user.active ? 'Active' : 'Inactive'}"
+                          th:classappend="${user.active} ? ' chip-green' : ' chip-red'">
+                    </span>
+
+                    <span class="chip"
+                          th:text="${user.approved ? 'Approved' : 'Pending'}"
+                          th:classappend="${user.approved} ? ' chip-blue' : ' chip-amber'">
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-actions">
+            <a th:href="@{'/admin/users/edit/' + ${user.id}}" class="btn-primary">
+                <i class="fas fa-pen"></i> Edit
+            </a>
+            <a th:href="@{/admin/users}" class="btn-ghost">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <span>User ID</span>
+            <strong th:text="${user.id}">1</strong>
+        </div>
+
+        <div class="kpi-card">
+            <span>Role</span>
+            <strong th:text="${user.role}">OWNER</strong>
+        </div>
+
+        <div class="kpi-card">
+            <span>Shop</span>
+            <strong th:text="${user.shop != null ? user.shop.name : 'N/A'}">ABC Store</strong>
+        </div>
+
+        <div class="kpi-card">
+            <span>Status</span>
+            <strong th:text="${user.active ? 'Active' : 'Inactive'}">Active</strong>
+        </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="profile-grid">
+
+        <!-- LEFT -->
+        <div class="left">
+
+            <div class="card">
+                <h3>Profile Information</h3>
+
+                <div class="info-grid">
+                    <div>
+                        <label>Full Name</label>
+                        <span th:text="${user.name}"></span>
+                    </div>
+
+                    <div>
+                        <label>Email</label>
+                        <span th:text="${user.username}"></span>
+                    </div>
+
+                    <div>
+                        <label>Phone</label>
+                        <span th:text="${user.phone}"></span>
+                    </div>
+
+                    <div>
+                        <label>Created</label>
+                        <span th:text="${#temporals.format(user.createdAt,'dd MMM yyyy')}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Access Control</h3>
+
+                <div class="info-grid">
+                    <div>
+                        <label>Role</label>
+                        <span th:text="${user.role}"></span>
+                    </div>
+
+                    <div>
+                        <label>Active</label>
+                        <span th:text="${user.active ? 'Yes' : 'No'}"></span>
+                    </div>
+
+                    <div>
+                        <label>Approved</label>
+                        <span th:text="${user.approved ? 'Yes' : 'No'}"></span>
+                    </div>
+
+                    <div>
+                        <label>Shop Assigned</label>
+                        <span th:text="${user.shop != null ? user.shop.name : 'N/A'}"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <aside class="right">
+
+            <div class="card">
+                <h3>Admin Actions</h3>
+
+                <div class="actions">
+
+                    <form th:action="@{'/admin/users/toggle-active/' + ${user.id}}" method="post">
+                        <button class="btn-primary full">
+                            <i class="fas fa-power-off"></i>
+                            <span th:text="${user.active ? 'Deactivate' : 'Activate'}"></span>
+                        </button>
+                    </form>
+
+                    <form th:action="@{'/admin/users/toggle-approve/' + ${user.id}}" method="post">
+                        <button class="btn-warning full">
+                            <i class="fas fa-check"></i>
+                            <span th:text="${user.approved ? 'Unapprove' : 'Approve'}"></span>
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>System Note</h3>
+                <p>User access depends on both Active & Approved state.</p>
+            </div>
+
+        </aside>
+
+    </div>
+
+</section>
+
+</th:block>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="admin-footer">
+
+    <div class="admin-footer-title">
+        System Overview
+    </div>
+
+    <div class="admin-footer-stat">
+        <span>Total Shops</span>
+        <strong th:text="${stats != null ? stats.totalShops : 0}">0</strong>
+        <b th:text="${stats != null ? '+' + stats.activeShops + ' active' : '0 active'}">0 active</b>
+    </div>
+
+    <div class="admin-footer-stat">
+        <span>Total Users</span>
+        <strong th:text="${stats != null ? stats.totalUsers : 0}">0</strong>
+        <b th:text="${stats != null ? '+' + stats.newUsersLast7Days + ' new / 7d' : '0 new / 7d'}">0 new / 7d</b>
+    </div>
+
+    <div class="admin-footer-stat">
+        <span>Total Revenue</span>
+        <strong th:text="${stats != null ? '₹' + #numbers.formatDecimal(stats.totalRevenue,1,'COMMA',0,'POINT') : '₹0'}">₹0</strong>
+        <b th:text="${stats != null ? (stats.revenueGrowthPercent >= 0 ? '↑ ' : '↓ ') + #numbers.formatDecimal(stats.revenueGrowthPercent < 0 ? -stats.revenueGrowthPercent : stats.revenueGrowthPercent,1,'COMMA',1,'POINT') + '%' : '↑ 0.0%'}">↑ 0.0%</b>
+    </div>
+
+    <div class="admin-footer-stat">
+        <span>MRR</span>
+        <strong th:text="${stats != null ? '₹' + #numbers.formatDecimal(stats.monthlyRecurringRevenue,1,'COMMA',0,'POINT') : '₹0'}">₹0</strong>
+        <b th:text="${stats != null ? stats.paidShops + ' paid shops' : '0 paid shops'}">0 paid shops</b>
+    </div>
+
+    <div class="admin-footer-stat">
+        <span>Total Invoices</span>
+        <strong th:text="${stats != null ? stats.totalInvoices : 0}">0</strong>
+        <b th:text="${stats != null ? stats.totalCommercialRequests + ' commercial open' : '0 commercial open'}">0 commercial open</b>
+    </div>
+
+    <div class="admin-footer-stat">
+        <span>Workspace Health</span>
+        <strong th:text="${stats != null ? #numbers.formatDecimal(stats.operationalHealthPercent,1,'COMMA',1,'POINT') + '%' : '0.0%'}">0.0%</strong>
+        <b th:text="${stats != null ? stats.platformRiskCount + ' platform risks' : '0 platform risks'}">0 platform risks</b>
+    </div>
+
+    <div class="admin-footer-copy">
+        © 2026 Expygen. All rights reserved.
+        <span>v2.4.1</span>
+    </div>
+
+</footer>
+
+</body>
+</html>

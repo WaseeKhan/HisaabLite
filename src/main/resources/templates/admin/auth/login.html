@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login • Expygen</title>
+
+    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
+    <link rel="stylesheet" th:href="@{/admin/css/admin-base.css}">
+    <link rel="stylesheet" th:href="@{/admin/css/admin-login.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="admin-cockpit admin-login-body">
+
+<header class="admin-login-topbar">
+    <a th:href="@{/}" class="login-brand">
+        <img th:src="@{/images/branding/expygen-logo-light-bg.svg}" alt="Expygen">
+        <div>
+            <strong>EXPYGEN</strong>
+            <span>Admin Control Center</span>
+        </div>
+    </a>
+
+    <div class="login-top-actions">
+        <a th:href="@{/}" target="_blank">
+            <i class="fas fa-store"></i> Customer Site
+        </a>
+        <span>
+            <i class="fas fa-shield-halved"></i> Secure Gateway
+        </span>
+    </div>
+</header>
+
+<main class="admin-login-wrap">
+
+    <section class="login-cockpit-shell">
+
+        <!-- LEFT DASHBOARD STYLE PANEL -->
+        <div class="login-intel-panel">
+
+            <div class="login-panel-head">
+                <div>
+                    <span class="mini-title">Platform Access</span>
+                    <h1>Admin Command Center</h1>
+                </div>
+                <span class="live-pill">
+                    <i class="fas fa-circle"></i> Live
+                </span>
+            </div>
+
+            <p class="login-panel-copy">
+                Secure operator gateway for managing shops, subscriptions, support tickets,
+                WhatsApp connectivity and platform health.
+            </p>
+
+            <div class="login-kpi-grid">
+                <div class="login-kpi purple">
+                    <div class="kpi-icon"><i class="fas fa-store"></i></div>
+                    <div>
+                        <span>Active Shops</span>
+                        <strong>2,482</strong>
+                        <small class="up">+12.4%</small>
+                    </div>
+                </div>
+
+                <div class="login-kpi blue">
+                    <div class="kpi-icon"><i class="fas fa-server"></i></div>
+                    <div>
+                        <span>System Uptime</span>
+                        <strong>99.9%</strong>
+                        <small class="up">Stable</small>
+                    </div>
+                </div>
+
+                <div class="login-kpi amber">
+                    <div class="kpi-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <div>
+                        <span>Ops Queue</span>
+                        <strong>28</strong>
+                        <small>Pending review</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cockpit-panel login-chart-panel">
+                <div class="cockpit-panel-head">
+                    <h3><i class="fas fa-chart-line"></i> Platform Pulse</h3>
+                    <i class="fas fa-ellipsis"></i>
+                </div>
+
+                <div class="login-chart-body">
+                    <div class="chart-bars">
+                        <span style="height:42%"></span>
+                        <span style="height:64%"></span>
+                        <span style="height:50%"></span>
+                        <span style="height:78%"></span>
+                        <span style="height:58%"></span>
+                        <span style="height:88%"></span>
+                        <span style="height:70%"></span>
+                        <span style="height:82%"></span>
+                    </div>
+
+                    <div class="chart-meta">
+                        <span><i class="dot cyan"></i> Traffic</span>
+                        <span><i class="dot green"></i> Healthy</span>
+                        <span><i class="dot amber"></i> Review</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT LOGIN PANEL -->
+        <div class="login-form-panel">
+
+            <div class="login-form-head">
+                <span class="access-badge">
+                    <i class="fas fa-lock"></i> Restricted Access
+                </span>
+
+                <div class="login-logo-line">
+                    <img th:src="@{/images/branding/expygen-logo-light-bg.svg}" alt="Expygen Admin">
+                    <div>
+                        <strong>Admin Login</strong>
+                        <span>Operator authentication required</span>
+                    </div>
+                </div>
+
+                <h2>Welcome Back</h2>
+                <p>Login to continue into Expygen admin cockpit.</p>
+            </div>
+
+            <div th:if="${error}" class="login-alert danger">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span th:text="${error}">Invalid username or password</span>
+            </div>
+
+            <div th:if="${message}" class="login-alert success">
+                <i class="fas fa-circle-check"></i>
+                <span th:text="${message}">Logged out successfully</span>
+            </div>
+
+            <a th:if="${message}" th:href="@{/admin}" class="login-submit-btn">
+                <i class="fas fa-right-to-bracket"></i>
+                Login Again
+            </a>
+
+            <form th:unless="${message}"
+                  method="post"
+                  th:action="@{/admin/login}"
+                  class="admin-login-form"
+                  id="loginForm">
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <div class="login-field">
+                    <label for="username">Email Address</label>
+                    <div class="login-input">
+                        <i class="fas fa-envelope"></i>
+                        <input type="text"
+                               id="username"
+                               name="username"
+                               placeholder="admin@expygen.com"
+                               required
+                               autofocus>
+                    </div>
+                </div>
+
+                <div class="login-field">
+                    <label for="password">Password</label>
+                    <div class="login-input">
+                        <i class="fas fa-key"></i>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               placeholder="••••••••"
+                               required>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-submit-btn" id="loginBtn">
+                    <i class="fas fa-fingerprint"></i>
+                    Authenticate Admin
+                </button>
+            </form>
+
+            <div class="login-security-row" th:unless="${message}">
+                <span><i class="fas fa-shield"></i> CSRF Protected</span>
+                <span><i class="fas fa-clock"></i> Session Secured</span>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="admin-login-footer">
+    <span>© 2026 Expygen · Made with ❤️ in India</span>
+    <span th:text="'v' + ${@appConfig.appVersion}">v2.1.2</span>
+</footer>
+
+<script>
+    document.getElementById('loginForm')?.addEventListener('submit', function () {
+        const btn = document.getElementById('loginBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        btn.classList.add('loading');
+    });
+
+    setTimeout(function () {
+        document.querySelectorAll('.login-alert').forEach(alert => {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-6px)';
+            setTimeout(() => alert.remove(), 450);
+        });
+    }, 5000);
+</script>
+
+</body>
+</html>

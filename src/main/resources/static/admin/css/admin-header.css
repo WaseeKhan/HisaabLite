@@ -1,0 +1,245 @@
+.admin-header {
+    height: var(--admin-header-height);
+    background: rgba(3, 8, 18, .88);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 0 18px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.admin-header-menu {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--admin-border);
+    background: rgba(11, 24, 43, .9);
+    color: #aebdd3;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.admin-header-metric {
+    min-width: 150px;
+    height: 48px;
+    padding-left: 18px;
+    border-left: 1px solid var(--admin-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.admin-header-metric.wide {
+    min-width: 290px;
+}
+
+.admin-header-metric span {
+    color: #73849d;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.admin-header-metric strong {
+    margin-top: 5px;
+    color: #dbeafe;
+    font-size: 14px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-header-metric strong.green {
+    color: #56f38d;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.admin-header-metric strong.cyan {
+    color: #6ee7ff;
+    font-size: 12px;
+}
+
+.admin-header-metric b {
+    font-size: 10px;
+    color: #c7d2e4;
+    background: rgba(148, 163, 184, .13);
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
+.admin-search {
+    margin-left: auto;
+    width: 310px;
+    height: 44px;
+    border-radius: 11px;
+    border: 1px solid var(--admin-border);
+    background: rgba(11, 24, 43, .85);
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 0 13px;
+}
+
+.admin-search i {
+    color: #7f8fa7;
+}
+
+.admin-search input {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--admin-text);
+    font-size: 13px;
+}
+
+.admin-search input::placeholder {
+    color: #708197;
+}
+
+.admin-icon-button {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-left: 1px solid var(--admin-border);
+    background: transparent;
+    color: #aebdd3;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.admin-icon-button span {
+    position: absolute;
+    top: 3px;
+    right: 1px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--admin-purple);
+    color: #fff;
+    font-size: 9px;
+    display: grid;
+    place-items: center;
+}
+
+.admin-profile {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding-left: 14px;
+    border-left: 1px solid var(--admin-border);
+}
+
+.admin-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #9aa8c2, #eef6ff);
+    color: #111827;
+    font-weight: 900;
+}
+
+.admin-profile-copy strong {
+    display: block;
+    color: #fff;
+    font-size: 12px;
+}
+
+.admin-profile-copy span {
+    display: block;
+    margin-top: 3px;
+    color: #8fa3bc;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.admin-profile > i {
+    margin-left: 14px;
+    color: #8fa3bc;
+    font-size: 11px;
+}
+
+/* ================================
+   PROFILE DROPDOWN
+================================ */
+
+.admin-profile {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-toggle {
+    margin-left: 10px;
+    font-size: 11px;
+    color: #8fa3bc;
+    transition: .2s;
+}
+
+/* dropdown */
+.admin-profile-dropdown {
+    position: absolute;
+    right: 0;
+    top: 58px;
+    width: 220px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
+    background: rgba(8, 18, 33, 0.96);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 40px rgba(0,0,0,.45);
+    padding: 8px;
+    display: none;
+    z-index: 100;
+}
+
+.admin-profile-dropdown a,
+.logout-btn {
+    width: 100%;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    border-radius: 8px;
+    color: #b8c7dc;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-profile-dropdown a:hover,
+.logout-btn:hover {
+    background: rgba(31, 111, 235, 0.12);
+    color: #fff;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--admin-border);
+    margin: 6px 0;
+}
+
+/* show dropdown */
+.admin-profile.open .admin-profile-dropdown {
+    display: block;
+}
+
+/* rotate arrow */
+.admin-profile.open .profile-toggle {
+    transform: rotate(180deg);
+}

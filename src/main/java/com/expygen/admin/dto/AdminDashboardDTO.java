@@ -15,11 +15,40 @@ public class AdminDashboardDTO {
     private long inactiveShops;
     private double totalRevenue;
     private long totalInvoices;
+    private double monthlyRecurringRevenue;
+    private long paidShops;
+    private long newShopsLast30Days;
+    private long newUsersLast7Days;
+    private double revenueGrowthPercent;
+    private double userGrowthPercent;
+    private double ticketTrendPercent;
+    private long totalCommercialRequests;
+    private long requestedCommercialCount;
+    private long contactedCommercialCount;
+    private long paymentReceivedCommercialCount;
+    private long renewalDueShops;
+    private long gracePeriodShops;
+    private long expiredLifecycleShops;
+    private long disconnectedWhatsappShops;
+    private long dormantShops;
+    private long platformRiskCount;
+    private long overdueTickets;
+    private long newContactRequests;
+    private double operationalHealthPercent;
+    private double warningHealthPercent;
+    private double criticalHealthPercent;
     
     // Lists
     private List<Map<String, Object>> recentShops;
     private List<Map<String, Object>> recentUsers;
     private List<Map<String, Object>> subscriptionStats;
+    private List<Map<String, Object>> revenueBreakdown;
+    private List<Map<String, Object>> planMixBreakdown;
+    private List<Map<String, Object>> recentActivities;
+    private List<Map<String, Object>> alertItems;
+    private List<Map<String, Object>> monitorSideMetrics;
+    private List<Map<String, Object>> monitorFooterMetrics;
+    private List<Map<String, Object>> healthMixRows;
     private List<PopularPlanDTO> popularPlans;
     
     // Charts Data

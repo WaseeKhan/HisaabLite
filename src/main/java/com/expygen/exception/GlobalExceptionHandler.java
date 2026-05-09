@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         }
 
         request.setAttribute("message", "We could not save your changes right now. Please try again.");
-        return "error/500";
+        return resolveServerErrorView(request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -77,12 +77,12 @@ public class GlobalExceptionHandler {
         if (ex.getStatusCode().value() == HttpServletResponse.SC_NOT_FOUND) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             model.addAttribute("message", ex.getReason() != null ? ex.getReason() : "Page not found.");
-            return "error/404";
+            return resolveNotFoundView(request);
         }
 
         response.setStatus(ex.getStatusCode().value());
         model.addAttribute("message", ex.getReason() != null ? ex.getReason() : "Something went wrong. Please try again.");
-        return "error/500";
+        return resolveServerErrorView(request);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
         }
 
         request.setAttribute("message", "Something went wrong. Please try again.");
-        return "error/500";
+        return resolveServerErrorView(request);
     }
 
     // Handle Whitelabel Exception in Porduction.
@@ -108,25 +108,28 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception on {}", request.getRequestURI(), ex);
         request.setAttribute("javax.servlet.error.exception", ex);
         model.addAttribute("message", "Something went wrong. Please try again.");
-        return "error/500";
+        return resolveServerErrorView(request);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public String handle404(NoHandlerFoundException ex, Model model, HttpServletResponse response) {
+    public String handle404(NoHandlerFoundException ex, Model model, HttpServletResponse response, HttpServletRequest request) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         model.addAttribute("message", "Page not found.");
-        return "error/404";
+        return resolveNotFoundView(request);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public String handleNoResourceFound(NoResourceFoundException ex, Model model, HttpServletResponse response) {
+    public String handleNoResourceFound(NoResourceFoundException ex, Model model, HttpServletResponse response, HttpServletRequest request) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         model.addAttribute("message", "Page not found.");
-        return "error/404";
+        return resolveNotFoundView(request);
     }
 
     private String resolveViewForRequest(HttpServletRequest request) {
         String uri = request.getRequestURI();
+        if (uri != null && uri.startsWith("/admin")) {
+            return "admin/error/500";
+        }
         if (uri != null && uri.startsWith("/register")) {
             return "register";
         }
@@ -137,6 +140,22 @@ public class GlobalExceptionHandler {
             return "reset-password";
         }
         return "error/500";
+    }
+
+    private String resolveServerErrorView(HttpServletRequest request) {
+        String uri = request != null ? request.getRequestURI() : null;
+        if (uri != null && uri.startsWith("/admin")) {
+            return "admin/error/500";
+        }
+        return "error/500";
+    }
+
+    private String resolveNotFoundView(HttpServletRequest request) {
+        String uri = request != null ? request.getRequestURI() : null;
+        if (uri != null && uri.startsWith("/admin")) {
+            return "admin/error/404";
+        }
+        return "error/404";
     }
 
     private boolean isAjaxRequest(HttpServletRequest request) {

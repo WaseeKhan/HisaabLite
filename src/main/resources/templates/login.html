@@ -4,9 +4,7 @@
 <head>
     <title th:text="'Login • ' + ${@appConfig.appName}">Login • Expygen</title>
 
-    <link rel="icon" type="image/png" href="/images/favicon_light.png">
-    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
 
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
@@ -210,7 +208,7 @@
         <section class="login-panel">
             <div class="login-panel-card">
 
-               <div class="login-brand login-brand-new">
+<div class="login-brand login-brand-new">
 
     <a th:href="@{/}" class="login-logo">
 
@@ -224,7 +222,10 @@
                  class="login-logo-mark login-logo-light">
         </span>
 
-       
+        <span class="login-logo-text">
+            <span class="login-logo-name">EXPYGEN</span>
+            <span class="login-logo-tagline">Simplified Pharmacy</span>
+        </span>
 
     </a>
 

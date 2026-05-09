@@ -1,370 +1,448 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
 
 <head>
     <title>Admin Dashboard • Expygen</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
-    <link rel="stylesheet" th:href="@{/css/core/tokens.css}">
-    <link rel="stylesheet" th:href="@{/css/core/themes.css}">
-    <link rel="stylesheet" th:href="@{/css/core/base.css}">
-    <link rel="stylesheet" th:href="@{/css/core/utilities.css}">
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}">
-    <link rel="stylesheet" th:href="@{/css/components/badges.css}">
-    <link rel="stylesheet" th:href="@{/css/components/cards.css}">
-    <link rel="stylesheet" th:href="@{/css/components/page-header.css}">
-    <link rel="stylesheet" th:href="@{/css/components/stat-cards.css}">
-    <link rel="stylesheet" th:href="@{/css/layouts/admin-shell.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/sidebar.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
-    <link rel="stylesheet" th:href="@{/css/pages/admin-phase-a-bridge.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-dashboard.css}">
+    </th:block>
 </head>
 
-<body class="theme-admin density-admin admin-shell">
-    <div th:replace="~{admin/fragments/sidebar :: sidebar('dashboard')}"></div>
+<body>
 
-    <div class="main admin-shell-main">
-        <div class="admin-dashboard-shell">
-            <div class="admin-header ui-page-header admin-dashboard-header">
-                <div class="admin-dashboard-header-copy">
-                    <h1>
-                        <i class="fas fa-chart-pie"></i>
-                        Admin Dashboard
-                    </h1>
-                    <p class="ui-page-header-subtitle">Run Expygen like a real operations console: watch growth, support, renewal pressure, platform risk, and the newest customer activity in one place.</p>
-                </div>
-                <div class="admin-dashboard-header-actions">
-                    <a th:href="@{/admin/upgrade-requests}" class="ui-btn ui-btn-primary">Commercial Queue</a>
-                    <a th:href="@{/admin/support}" class="ui-btn ui-btn-secondary">Support Desk</a>
-                    <a th:href="@{/admin/platform-health}" class="ui-btn ui-btn-ghost">Platform Health</a>
-                </div>
+<th:block th:fragment="content">
+
+<div class="cockpit-dashboard">
+
+    <!-- TOP KPI -->
+    <section class="cockpit-kpi-grid">
+
+        <article class="cockpit-kpi purple">
+            <div class="kpi-icon"><i class="fa-solid fa-dollar-sign"></i></div>
+            <div>
+                <span>Total Revenue</span>
+                <strong th:text="${stats != null ? '₹' + #numbers.formatDecimal(stats.totalRevenue, 1, 'COMMA', 0, 'POINT') : '₹0'}">₹0</strong>
+                <small th:classappend="${stats != null and stats.revenueGrowthPercent < 0} ? ' down' : ' up'"
+                       th:text="${stats != null ? (stats.revenueGrowthPercent >= 0 ? '▲ ' : '▼ ') + #numbers.formatDecimal(stats.revenueGrowthPercent < 0 ? -stats.revenueGrowthPercent : stats.revenueGrowthPercent, 1, 'COMMA', 1, 'POINT') + '% vs previous 30d' : '▲ 0.0% vs previous 30d'}">▲ 0.0% vs previous 30d</small>
+            </div>
+            <div class="kpi-spark"></div>
+        </article>
+
+        <article class="cockpit-kpi green">
+            <div class="kpi-icon"><i class="fa-solid fa-store"></i></div>
+            <div>
+                <span>Active Shops</span>
+                <strong th:text="${stats != null ? stats.activeShops : 0}">0</strong>
+                <small class="up" th:text="${stats != null ? stats.newShopsLast30Days + ' new shops in last 30d' : '0 new shops in last 30d'}">0 new shops in last 30d</small>
+            </div>
+            <div class="kpi-spark"></div>
+        </article>
+
+        <article class="cockpit-kpi blue">
+            <div class="kpi-icon"><i class="fa-solid fa-credit-card"></i></div>
+            <div>
+                <span>MRR</span>
+                <strong th:text="${stats != null ? '₹' + #numbers.formatDecimal(stats.monthlyRecurringRevenue, 1, 'COMMA', 0, 'POINT') : '₹0'}">₹0</strong>
+                <small class="up" th:text="${stats != null ? stats.paidShops + ' paid shops contributing' : '0 paid shops contributing'}">0 paid shops contributing</small>
+            </div>
+            <div class="kpi-spark"></div>
+        </article>
+
+        <article class="cockpit-kpi amber">
+            <div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div>
+                <span>Workspace Risk</span>
+                <strong th:text="${stats != null ? #numbers.formatDecimal(stats.warningHealthPercent, 1, 'COMMA', 1, 'POINT') + '%' : '0.0%'}">0.0%</strong>
+                <small class="up" th:text="${stats != null ? (stats.renewalDueShops + stats.gracePeriodShops) + ' shops need renewal attention' : '0 shops need renewal attention'}">0 shops need renewal attention</small>
+            </div>
+            <div class="kpi-spark"></div>
+        </article>
+
+        <article class="cockpit-kpi red">
+            <div class="kpi-icon"><i class="fa-solid fa-crosshairs"></i></div>
+            <div>
+                <span>Open Tickets</span>
+                <strong th:text="${stats != null ? stats.openTickets : 0}">0</strong>
+                <small th:classappend="${stats != null and stats.ticketTrendPercent > 0} ? ' down' : ' up'"
+                       th:text="${stats != null ? (stats.ticketTrendPercent > 0 ? '▲ ' : '▼ ') + #numbers.formatDecimal(stats.ticketTrendPercent < 0 ? -stats.ticketTrendPercent : stats.ticketTrendPercent, 1, 'COMMA', 1, 'POINT') + '% vs previous 7d' : '▼ 0.0% vs previous 7d'}">▼ 0.0% vs previous 7d</small>
+            </div>
+            <div class="kpi-spark"></div>
+        </article>
+
+        <article class="cockpit-kpi danger">
+            <div class="kpi-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div>
+                <span>Platform Risk</span>
+                <strong th:text="${platformRiskCount != null ? platformRiskCount : 8}">8</strong>
+                <small class="danger-text">High Priority</small>
+            </div>
+        </article>
+
+    </section>
+
+    <!-- MAIN -->
+    <section class="cockpit-main-grid">
+
+        <article class="cockpit-panel revenue-panel">
+            <div class="cockpit-panel-head">
+                <h3>Revenue Control Center</h3>
+                <i class="fa-regular fa-circle-question"></i>
             </div>
 
-            <div th:if="${error}" class="ui-alert ui-alert-warning" th:text="${error}">Could not load live data. Showing default values.</div>
-
-            <div class="admin-dashboard-stats">
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-store"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Total Shops</div>
-                        <div class="stat-value" th:text="${stats.totalShops}">0</div>
-                        <div class="stat-label"><span th:text="${stats.activeShops}">0</span> active workspaces</div>
+            <div class="revenue-layout">
+                <div class="revenue-chart-box">
+                    <div class="chart-top">
+                        <div>
+                            <span>Revenue Overview</span>
+                            <strong th:text="${stats != null ? '₹' + #numbers.formatDecimal(stats.totalRevenue, 1, 'COMMA', 0, 'POINT') : '₹0'}">₹0</strong>
+                            <small th:text="${stats != null ? (stats.revenueGrowthPercent >= 0 ? '▲ ' : '▼ ') + #numbers.formatDecimal(stats.revenueGrowthPercent < 0 ? -stats.revenueGrowthPercent : stats.revenueGrowthPercent, 1, 'COMMA', 1, 'POINT') + '% vs previous 30d' : '▲ 0.0% vs previous 30d'}">▲ 0.0% vs previous 30d</small>
+                        </div>
+                        <button>Daily <i class="fa-solid fa-chevron-down"></i></button>
                     </div>
+                    <canvas id="revenueChart"></canvas>
                 </div>
 
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Total Users</div>
-                        <div class="stat-value" th:text="${stats.totalUsers}">0</div>
-                        <div class="stat-label"><span th:text="${stats.activeUsers}">0</span> active accounts</div>
-                    </div>
-                </div>
+                <div class="revenue-breakdown">
+                    <span class="mini-title">Revenue Breakdown</span>
+                    <canvas id="planChart"></canvas>
 
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-hourglass-half"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Pending Approvals</div>
-                        <div class="stat-value" th:text="${stats.pendingApprovals}">0</div>
-                        <div class="stat-label">Users waiting for admin action</div>
+                    <div class="breakdown-list">
+                        <p th:each="entry : ${stats != null ? stats.revenueBreakdown : null}">
+                            <b class="dot" th:classappend="${entry['tone']}"></b>
+                            <span th:text="${entry['label']}">PRO</span>
+                            <strong th:text="${'₹' + #numbers.formatDecimal(entry['amount'], 1, 'COMMA', 0, 'POINT')}">₹0</strong>
+                        </p>
                     </div>
-                </div>
 
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-chart-line"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Monthly Revenue</div>
-                        <div class="stat-value" th:text="'₹' + ${#numbers.formatDecimal(stats.totalRevenue, 1, 'COMMA', 0, 'POINT')}">₹0</div>
-                        <div class="stat-label">Current reporting period</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-arrows-rotate"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Renewal Due</div>
-                        <div class="stat-value" th:text="${renewalDueShops}">0</div>
-                        <div class="stat-label">Paid shops nearing renewal</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-triangle-exclamation"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Grace Period</div>
-                        <div class="stat-value" th:text="${gracePeriodShops}">0</div>
-                        <div class="stat-label">Still accessible after expiry</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-ban"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Expired</div>
-                        <div class="stat-value" th:text="${expiredLifecycleShops}">0</div>
-                        <div class="stat-label">Commercial recovery needed</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-file-signature"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">New Requests</div>
-                        <div class="stat-value" th:text="${requestedCommercialCount}">0</div>
-                        <div class="stat-label">Fresh commercial submissions</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-phone-volume"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Contacted</div>
-                        <div class="stat-value" th:text="${contactedCommercialCount}">0</div>
-                        <div class="stat-label">Awaiting payment closure</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-indian-rupee-sign"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Paid Pending</div>
-                        <div class="stat-value" th:text="${paymentReceivedCommercialCount}">0</div>
-                        <div class="stat-label">Ready for activation</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fab fa-whatsapp"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">WhatsApp Risk</div>
-                        <div class="stat-value" th:text="${disconnectedWhatsappShops}">0</div>
-                        <div class="stat-label">Disconnected or admin-disabled</div>
-                    </div>
-                </div>
-
-                <div class="ui-stat-card admin-dashboard-stat">
-                    <div class="stat-icon-wrapper"><i class="fas fa-bed"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-title">Dormant Shops</div>
-                        <div class="stat-value" th:text="${dormantShops}">0</div>
-                        <div class="stat-label">No sales in last 30 days</div>
+                    <div class="mini-metrics">
+                        <div><span>Active Users</span><strong th:text="${stats != null ? stats.activeUsers : 0}">0</strong><small>Approved and active</small></div>
+                        <div><span>Total Users</span><strong th:text="${stats != null ? stats.totalUsers : 0}">0</strong><small>All admin users</small></div>
+                        <div><span>Paying Shops</span><strong th:text="${stats != null ? stats.paidShops : 0}">0</strong><small>Recurring plans</small></div>
+                        <div><span>Pending Approvals</span><strong th:text="${stats != null ? stats.pendingApprovals : 0}">0</strong><small>User approvals</small></div>
                     </div>
                 </div>
             </div>
+        </article>
 
-            <div class="admin-dashboard-body">
-                <div class="admin-dashboard-column">
-                    <div class="admin-dashboard-panel">
-                        <div class="admin-dashboard-panel-header">
-                            <div>
-                                <h3>Revenue & Customer Momentum</h3>
-                                <p>Track cash flow and acquisition pace over <span th:text="${stats.period}">Last 7 days</span>.</p>
-                            </div>
-                            <span class="admin-dashboard-panel-badge" th:text="${stats.period}">Last 7 days</span>
-                        </div>
-                        <div class="admin-dashboard-chart-grid">
-                            <div class="admin-dashboard-chart-wrap">
-                                <canvas id="revenueChart"></canvas>
-                            </div>
-                            <div class="admin-dashboard-mini-grid">
-                                <div class="admin-dashboard-mini-card">
-                                    <div class="admin-dashboard-mini-label">New Users</div>
-                                    <div class="admin-dashboard-mini-value" th:text="${stats.totalUsers}">0</div>
-                                    <div class="admin-dashboard-mini-note">Total registered accounts now under Expygen administration.</div>
-                                </div>
-                                <div class="admin-dashboard-mini-card">
-                                    <div class="admin-dashboard-mini-label">Support Pressure</div>
-                                    <div class="admin-dashboard-mini-value" th:text="${stats.openTickets}">0</div>
-                                    <div class="admin-dashboard-mini-note">Currently open support conversations requiring team attention.</div>
-                                </div>
-                                <div class="admin-dashboard-mini-card">
-                                    <div class="admin-dashboard-mini-label">Platform Risk</div>
-                                    <div class="admin-dashboard-mini-value" th:text="${platformRiskCount}">0</div>
-                                    <div class="admin-dashboard-mini-note">Failed admin or audited operations captured in the current monitoring flow.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <article class="cockpit-panel monitor-panel">
+            <div class="cockpit-panel-head">
+                <h3>Real-Time Ops Monitor</h3>
+                <i class="fa-solid fa-shuffle"></i>
+            </div>
 
-                    <div class="admin-dashboard-secondary-grid">
-                        <div class="admin-dashboard-panel">
-                            <div class="admin-dashboard-panel-header">
-                                <div>
-                                    <h3>Recent Shops</h3>
-                                    <p>The newest workspaces entering the platform.</p>
-                                </div>
-                                <a th:href="@{/admin/shops}" class="admin-dashboard-table-link">View All</a>
-                            </div>
-                            <table class="admin-dashboard-table">
-                                <thead>
-                                    <tr>
-                                        <th>Shop</th>
-                                        <th>Plan</th>
-                                        <th>Owner</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="shop : ${stats.recentShops}" th:if="${not #lists.isEmpty(stats.recentShops)}">
-                                        <td th:text="${shop.name}">TechMart</td>
-                                        <td>
-                                            <span class="admin-dashboard-chip"
-                                                  th:text="${shop.planType}"
-                                                  th:classappend="${shop.planType == 'PRO'} ? ' plan-pro' : (${shop.planType == 'BASIC'} ? ' plan-basic' : ' plan-free')">FREE</span>
-                                        </td>
-                                        <td th:text="${shop.owner}">Owner</td>
-                                        <td>
-                                            <span class="admin-dashboard-chip"
-                                                  th:text="${shop.active ? 'Active' : 'Inactive'}"
-                                                  th:classappend="${shop.active} ? ' status-active' : ' status-inactive'">Active</span>
-                                        </td>
-                                        <td>
-                                            <div class="admin-dashboard-actions">
-                                                <a th:href="@{/admin/shops/{id}(id=${shop.id})}" class="admin-dashboard-icon-btn"><i class="fas fa-eye"></i></a>
-                                                <a th:href="@{/admin/shops/edit/{id}(id=${shop.id})}" class="admin-dashboard-icon-btn"><i class="fas fa-edit"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(stats.recentShops)}">
-                                        <td colspan="5" class="admin-dashboard-empty">No shops found</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="admin-dashboard-panel">
-                            <div class="admin-dashboard-panel-header">
-                                <div>
-                                    <h3>Recent Users</h3>
-                                    <p>New platform access and team growth.</p>
-                                </div>
-                                <a th:href="@{/admin/users}" class="admin-dashboard-table-link">View All</a>
-                            </div>
-                            <table class="admin-dashboard-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Username</th>
-                                        <th>Role</th>
-                                        <th>Shop</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="user : ${stats.recentUsers}" th:if="${not #lists.isEmpty(stats.recentUsers)}">
-                                        <td th:text="${user.name}">John Doe</td>
-                                        <td th:text="${user.username}">john@email.com</td>
-                                        <td>
-                                            <span class="admin-dashboard-chip"
-                                                  th:text="${user.role}"
-                                                  th:classappend="${user.role == 'OWNER'} ? ' role-owner' : (${user.role == 'MANAGER'} ? ' role-manager' : ' role-cashier')">OWNER</span>
-                                        </td>
-                                        <td th:text="${user.shop}">TechMart</td>
-                                        <td>
-                                            <div class="admin-dashboard-actions">
-                                                <a th:href="@{/admin/users/{id}(id=${user.id})}" class="admin-dashboard-icon-btn"><i class="fas fa-eye"></i></a>
-                                                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="admin-dashboard-icon-btn"><i class="fas fa-edit"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(stats.recentUsers)}">
-                                        <td colspan="5" class="admin-dashboard-empty">No users found</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <div class="monitor-layout">
+                <div class="monitor-stack">
+                    <div><span>Renewal Due</span><strong th:text="${stats != null ? stats.renewalDueShops : 0}">0</strong><em></em></div>
+                    <div><span>Grace Period</span><strong th:text="${stats != null ? stats.gracePeriodShops : 0}">0</strong><em></em></div>
+                    <div><span>Expired</span><strong th:text="${stats != null ? stats.expiredLifecycleShops : 0}">0</strong><em></em></div>
                 </div>
 
-                <div class="admin-dashboard-column">
-                    <div class="admin-dashboard-panel">
-                        <div class="admin-dashboard-panel-header">
-                            <div>
-                                <h3>Plan Mix</h3>
-                                <p>How your customer base is distributed across current tiers.</p>
-                            </div>
-                            <span class="admin-dashboard-panel-badge">Live Mix</span>
-                        </div>
-                        <div class="admin-dashboard-chart-wrap" style="height: 220px;">
-                            <canvas id="planChart"></canvas>
-                        </div>
-                        <div class="admin-dashboard-plan-grid" th:if="${stats.popularPlans != null}">
-                            <div class="admin-dashboard-plan-card"
-                                 th:each="plan : ${stats.popularPlans}"
-                                 th:classappend="${plan.planName == 'PRO'} ? ' plan-pro' : (${plan.planName == 'BASIC'} ? ' plan-basic' : ' plan-free')">
-                                <div class="admin-dashboard-plan-card-top">
-                                    <div class="admin-dashboard-plan-card-icon">
-                                        <i th:classappend="${plan.planName == 'FREE' ? 'fas fa-gem' : (plan.planName == 'BASIC' ? 'fas fa-rocket' : 'fas fa-crown')}"></i>
-                                    </div>
-                                    <div class="admin-dashboard-plan-card-name" th:text="${plan.planName}">FREE</div>
-                                </div>
-                                <div class="admin-dashboard-plan-card-count" th:text="${plan.shopCount}">0</div>
-                                <div class="admin-dashboard-plan-card-label">Active shops on this plan</div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="radar-core">
+                    <span></span>
+                    <b></b>
+                    <i></i>
+                </div>
 
-                    <div class="admin-dashboard-panel">
-                        <div class="admin-dashboard-panel-header">
-                            <div>
-                                <h3>Team Growth</h3>
-                                <p>User additions over the active reporting period.</p>
-                            </div>
-                            <span class="admin-dashboard-panel-badge" th:text="${stats.period}">Last 7 days</span>
-                        </div>
-                        <div class="admin-dashboard-chart-wrap" style="height: 210px;">
-                            <canvas id="usersChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="admin-dashboard-panel">
-                        <div class="admin-dashboard-panel-header">
-                            <div>
-                                <h3>Support Trend</h3>
-                                <p>Track incoming ticket momentum against the same reporting period.</p>
-                            </div>
-                            <span class="admin-dashboard-panel-badge">Support</span>
-                        </div>
-                        <div class="admin-dashboard-chart-wrap" style="height: 210px;">
-                            <canvas id="ticketChart"></canvas>
-                        </div>
-                    </div>
+                <div class="monitor-stack">
+                    <div><span>Pending Approvals</span><strong th:text="${stats != null ? stats.pendingApprovals : 0}">0</strong><em></em></div>
+                    <div><span>New Leads</span><strong th:text="${stats != null ? stats.newContactRequests : 0}">0</strong><em></em></div>
+                    <div><span>Failed Ops</span><strong th:text="${stats != null ? stats.platformRiskCount : 0}">0</strong><em></em></div>
                 </div>
             </div>
 
-            <div class="admin-dashboard-footer">
-                <div class="admin-dashboard-footer-left">
-                    <span>© 2026 Expygen</span>
-                    <span>v2.0.0</span>
-                    <span>Made for structured admin operations</span>
+            <div class="monitor-foot">
+                <div><span>Commercial Queue</span><strong th:text="${stats != null ? stats.totalCommercialRequests : 0}">0</strong><small>Open requests</small></div>
+                <div><span>Urgent Tickets</span><strong th:text="${stats != null and stats.urgentTickets != null ? stats.urgentTickets : 0}">0</strong><small>Immediate follow-up</small></div>
+                <div><span>Dormant Shops</span><strong th:text="${stats != null ? stats.dormantShops : 0}">0</strong><small>No sales in 30d</small></div>
+                <div><span>WhatsApp Risk</span><strong th:text="${stats != null ? stats.disconnectedWhatsappShops : 0}">0</strong><small>Disconnected</small></div>
+            </div>
+        </article>
+
+    </section>
+
+    <!-- SECONDARY -->
+    <section class="cockpit-secondary-grid">
+
+        <article class="cockpit-panel">
+            <div class="cockpit-panel-head"><h3>Plan Mix Distribution</h3></div>
+            <div class="plan-mix">
+                <canvas id="mixChart"></canvas>
+                <ul>
+                    <li th:each="entry : ${stats != null ? stats.planMixBreakdown : null}">
+                        <b class="dot" th:classappend="${entry['tone']}"></b>
+                        <span th:text="${entry['label']}">Basic</span>
+                        <span th:text="${entry['count'] + ' (' + entry['percentage'] + '%)'}">0 (0%)</span>
+                    </li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="cockpit-panel small-chart-panel">
+            <div class="cockpit-panel-head"><h3>User Growth</h3><button>30 Days</button></div>
+            <strong class="big" th:text="${stats != null ? stats.newUsersLast7Days : 0}">0</strong>
+            <small>New users <b th:text="${stats != null ? (stats.userGrowthPercent >= 0 ? '↑ ' : '↓ ') + #numbers.formatDecimal(stats.userGrowthPercent < 0 ? -stats.userGrowthPercent : stats.userGrowthPercent, 1, 'COMMA', 1, 'POINT') + '%' : '↑ 0.0%'}">↑ 0.0%</b></small>
+            <canvas id="userChart"></canvas>
+        </article>
+
+        <article class="cockpit-panel small-chart-panel">
+            <div class="cockpit-panel-head"><h3>Support Trend</h3><button>30 Days</button></div>
+            <strong class="big" th:text="${stats != null ? stats.openTickets : 0}">0</strong>
+            <small>Open Tickets <b th:classappend="${stats != null and stats.ticketTrendPercent > 0} ? ' red-text' : ''"
+                                  th:text="${stats != null ? (stats.ticketTrendPercent > 0 ? '↑ ' : '↓ ') + #numbers.formatDecimal(stats.ticketTrendPercent < 0 ? -stats.ticketTrendPercent : stats.ticketTrendPercent, 1, 'COMMA', 1, 'POINT') + '%' : '↓ 0.0%'}">↓ 0.0%</b></small>
+            <canvas id="supportChart"></canvas>
+        </article>
+
+        <article class="cockpit-panel">
+            <div class="cockpit-panel-head"><h3>Workspace Health Mix</h3><button>Live</button></div>
+            <div class="health-timeline">
+                <div th:each="row : ${stats != null ? stats.healthMixRows : null}">
+                    <span><b class="dot" th:classappend="${row['tone']}"></b><span th:text="${row['label']}">Operational</span></span>
+                    <strong th:text="${row['percentage']} + '%'">0%</strong>
+                    <em th:style="'width:' + ${row['percentage']} + '%'"></em>
                 </div>
-                <div class="admin-dashboard-footer-right">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Support</a>
-                    <span class="admin-dashboard-live"><span class="admin-dashboard-live-dot"></span>Live</span>
+                <div th:if="${stats == null or stats.healthMixRows == null or #lists.isEmpty(stats.healthMixRows)}">
+                    <span><b class="dot green"></b>Operational</span><strong>0%</strong><em style="width:0%"></em>
                 </div>
             </div>
+        </article>
+
+    </section>
+
+    <!-- BOTTOM -->
+  <!-- BOTTOM -->
+<section class="cockpit-bottom-grid cockpit-bottom-scroll">
+
+    <!-- Recent Shops -->
+    <article class="cockpit-panel bottom-card shops-card">
+        <div class="cockpit-panel-head">
+            <h3>Recent Shops</h3>
+            <i class="fa-solid fa-ellipsis-vertical"></i>
         </div>
-    </div>
 
-    <script src="/js/admin/dashboard.js"></script>
-    <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            window.initAdminDashboardCharts({
-                revenueLabels: /*[[${stats.revenueLabels}]]*/ [],
-                revenueData: /*[[${stats.revenueData}]]*/ [],
-                planLabels: /*[[${stats.planLabels}]]*/ ['FREE', 'BASIC', 'PRO'],
-                planData: /*[[${stats.planData}]]*/ [0, 0, 0],
-                usersData: /*[[${stats.usersData}]]*/ [],
-                ticketData: /*[[${stats.ticketData}]]*/ [0, 0, 0, 0, 0, 0, 0]
-            });
+        <div class="table-scroll-x">
+            <table class="cockpit-table shops-table">
+                <thead>
+                <tr>
+                    <th>Shop Name</th>
+                    <th>Owner</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>MRR</th>
+                    <th>Joined</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="shop : ${stats != null ? stats.recentShops : null}">
+                    <td th:text="${shop['name']}">Sharma General Store</td>
+                    <td th:text="${shop['owner']}">sharma@store.com</td>
+                    <td><span class="tag blue" th:text="${shop['planType']}">Pro</span></td>
+                    <td><span class="tag green" th:text="${shop['active'] ? 'Active' : 'Inactive'}">Active</span></td>
+                    <td th:text="${'₹' + #numbers.formatDecimal(shop['mrr'], 1, 'COMMA', 0, 'POINT')}">₹0</td>
+                    <td th:text="${shop['createdAt'] != null ? #temporals.format(shop['createdAt'], 'dd MMM yyyy') : 'Recently'}">Jun 11, 2025</td>
+                </tr>
+
+                <tr th:if="${stats == null or stats.recentShops == null or #lists.isEmpty(stats.recentShops)}">
+                    <td colspan="6">No shops registered yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <!-- Recent Users -->
+    <article class="cockpit-panel bottom-card users-card">
+        <div class="cockpit-panel-head">
+            <h3>Recent Users</h3>
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+        </div>
+
+        <div class="table-scroll-x">
+            <table class="cockpit-table users-table">
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Shop</th>
+                    <th>Role</th>
+                    <th>Last Active</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${stats != null ? stats.recentUsers : null}">
+                    <td th:text="${user['name']}">Priya Verma</td>
+                    <td th:text="${user['shop']}">Sharma Store</td>
+                    <td><span class="tag" th:text="${user['role']}">Owner</span></td>
+                    <td th:text="${user['lastActiveLabel']}">2 min ago</td>
+                </tr>
+
+                <tr th:if="${stats == null or stats.recentUsers == null or #lists.isEmpty(stats.recentUsers)}">
+                    <td colspan="4">No users onboarded yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <!-- Live Activity Feed -->
+    <article class="cockpit-panel bottom-card activity-card">
+        <div class="cockpit-panel-head">
+            <h3>Live Activity Feed</h3>
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+
+        <div class="card-body-scroll">
+            <ul class="activity-list">
+                <li th:each="item : ${stats != null ? stats.recentActivities : null}">
+                    <i th:class="${item['iconClass']} + ' ' + ${item['toneClass']}"></i>
+                    <span th:text="${item['text']}">New activity</span>
+                    <em th:text="${item['meta']}">2 min ago</em>
+                </li>
+                <li th:if="${stats == null or stats.recentActivities == null or #lists.isEmpty(stats.recentActivities)}"><i class="fa-solid fa-circle-info blue-text"></i><span>No recent activity yet</span><em>Now</em></li>
+            </ul>
+        </div>
+    </article>
+
+    <!-- Alert Center -->
+    <article class="cockpit-panel bottom-card alert-card">
+        <div class="cockpit-panel-head">
+            <h3>Alert Center</h3>
+            <a th:href="@{/admin/platform-health}">View all</a>
+        </div>
+
+        <div class="card-body-scroll">
+            <ul class="alert-list">
+                <li th:each="item : ${stats != null ? stats.alertItems : null}">
+                    <i th:class="${item['iconClass']}"></i>
+                    <div><b th:text="${item['title']}">Alert</b><span th:text="${item['detail']}">Detail</span></div>
+                    <em th:text="${item['timeLabel']}">2 min ago</em>
+                </li>
+                <li th:if="${stats == null or stats.alertItems == null or #lists.isEmpty(stats.alertItems)}"><i class="fa-solid fa-circle-check"></i><div><b>No active alerts</b><span>Everything looks stable right now</span></div><em>Now</em></li>
+            </ul>
+        </div>
+    </article>
+
+</section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+    const purple = "#7c3cff";
+    const blue = "#1f6feb";
+    const green = "#22c55e";
+    const red = "#ef4444";
+    const amber = "#f59e0b";
+
+    Chart.defaults.color = "#8fa3bc";
+    Chart.defaults.borderColor = "rgba(91,141,190,.14)";
+    Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+
+    const revenueLabels = /*[[${stats != null ? stats.revenueLabels : null}]]*/ null || ["May 12","May 17","May 22","May 27","Jun 01","Jun 06","Jun 11"];
+    const revenueData = /*[[${stats != null ? stats.revenueData : null}]]*/ null || [0,0,0,0,0,0,0];
+
+    const revenueBreakdown = /*[[${stats != null ? stats.revenueBreakdown : null}]]*/ null || [];
+    const planMixBreakdown = /*[[${stats != null ? stats.planMixBreakdown : null}]]*/ null || [];
+    const usersData = /*[[${stats != null ? stats.usersData : null}]]*/ null || [0,0,0,0,0,0,0];
+    const ticketData = /*[[${stats != null ? stats.ticketData : null}]]*/ null || [0,0,0,0,0,0,0];
+
+    function lineGradient(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, "rgba(124,60,255,.42)");
+        gradient.addColorStop(1, "rgba(124,60,255,.03)");
+        return gradient;
+    }
+
+    const revenueEl = document.getElementById("revenueChart");
+    if (revenueEl) {
+        new Chart(revenueEl, {
+            type: "line",
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    data: revenueData,
+                    borderColor: purple,
+                    backgroundColor: lineGradient(revenueEl.getContext("2d")),
+                    fill: true,
+                    tension: .35,
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointBackgroundColor: purple
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { ticks: { callback: v => "₹" + (v / 1000) + "K" } }
+                }
+            }
         });
-    </script>
-</body>
+    }
 
+    function doughnut(id, labels, data) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        new Chart(el, {
+            type: "doughnut",
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [purple, blue, green, amber],
+                    borderWidth: 0,
+                    cutout: "68%"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    doughnut("planChart", revenueBreakdown.map(item => item.label), revenueBreakdown.map(item => item.amount));
+    doughnut("mixChart", planMixBreakdown.map(item => item.label), planMixBreakdown.map(item => item.count));
+
+    function smallLine(id, data, color) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        new Chart(el, {
+            type: "line",
+            data: {
+                labels: data.map((_, i) => i + 1),
+                datasets: [{
+                    data,
+                    borderColor: color,
+                    backgroundColor: color + "22",
+                    fill: true,
+                    tension: .35,
+                    borderWidth: 3,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                }
+            }
+        });
+    }
+
+    smallLine("userChart", usersData, blue);
+    smallLine("supportChart", ticketData, red);
+});
+</script>
+
+</th:block>
+
+</body>
 </html>

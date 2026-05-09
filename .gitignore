@@ -48,6 +48,7 @@ spring-boot-devtools.properties
 application-secrets.yml
 application-secrets-dev.yml
 application-secrets-prod.yml
+config/flyway.conf
 config/application-secrets*.yml
 
 

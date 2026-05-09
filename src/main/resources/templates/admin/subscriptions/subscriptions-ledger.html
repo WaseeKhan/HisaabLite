@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:with="activePage='ledger'"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Subscription Ledger • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-subscriptions-ledger.css}">
+    </th:block>
+</head>
+
+<body>
+
+<th:block th:fragment="content">
+
+<div class="ledger-page">
+
+    <section class="ledger-hero">
+        <div>
+            <span class="eyebrow">Commercial Audit</span>
+            <h1><i class="fa-solid fa-book-open"></i> Subscription Ledger</h1>
+            <p>Track plan requests, payment confirmations, renewals, activations, and manual billing history from one financial timeline.</p>
+        </div>
+
+        <div class="ledger-hero-actions">
+            <a th:href="@{/admin/upgrade-requests}" class="admin-btn-ghost">Upgrade Requests</a>
+            <a th:href="@{/admin/subscriptions}" class="admin-btn-primary">Subscriptions</a>
+            <a th:href="@{/admin/dashboard}" class="admin-btn-ghost">Dashboard</a>
+        </div>
+    </section>
+
+    <section class="ledger-kpi-grid">
+        <article class="ledger-kpi purple">
+            <i class="fa-solid fa-receipt"></i>
+            <span>Total Entries</span>
+            <strong th:text="${ledgerPage != null ? ledgerPage.totalElements : 0}">0</strong>
+            <small>Commercial records</small>
+        </article>
+
+        <article class="ledger-kpi green">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+            <span>Payments</span>
+            <strong th:text="${paymentEntryCount}">0</strong>
+            <small th:text="'₹' + ${#numbers.formatDecimal(trackedAmount, 1, 'COMMA', 0, 'POINT')} + ' tracked total'">₹0 tracked total</small>
+        </article>
+
+        <article class="ledger-kpi blue">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Renewals</span>
+            <strong th:text="${renewalEntryCount}">0</strong>
+            <small>Renewal activations recorded</small>
+        </article>
+
+        <article class="ledger-kpi amber">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Tracked Shops</span>
+            <strong th:text="${trackedShopsCount}">0</strong>
+            <small th:text="${activationEntryCount} + ' activation entries logged'">0 activation entries logged</small>
+        </article>
+    </section>
+
+    <section class="ledger-panel">
+        <div class="ledger-panel-head">
+            <h3><i class="fa-solid fa-timeline"></i> Financial Timeline</h3>
+            <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + (${totalPages} > 0 ? totalPages : 1)">Page 1 of 1</span>
+        </div>
+
+        <div class="ledger-table-scroll">
+            <table class="ledger-table">
+                <thead>
+                <tr>
+                    <th>Created</th>
+                    <th>Shop</th>
+                    <th>Entry</th>
+                    <th>Plan</th>
+                    <th>Amount</th>
+                    <th>Effective Window</th>
+                    <th>Reference</th>
+                    <th>Note</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="entry : ${ledgerPage.content}">
+                    <td>
+                        <div class="cell-stack">
+                            <strong th:text="${#temporals.format(entry.createdAt, 'dd MMM yyyy hh:mm a')}">25 Apr 2026 08:30 PM</strong>
+                            <span th:text="${entry.createdBy != null ? entry.createdBy : 'SYSTEM'}">admin</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="cell-stack">
+                            <strong th:text="${entry.shop.name}">Shop</strong>
+                            <span th:text="'#' + ${entry.shop.id}">#1</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="ledger-badge" th:text="${entry.entryType}">PAYMENT_RECEIVED</span>
+                    </td>
+
+                    <td>
+                        <span class="plan-chip" th:text="${entry.planType}">PRO</span>
+                    </td>
+
+                    <td>
+                        <strong class="amount"
+                                th:text="${entry.amount != null ? '₹' + #numbers.formatDecimal(entry.amount, 1, 'COMMA', 0, 'POINT') : '—'}">
+                            ₹4,990
+                        </strong>
+                    </td>
+
+                    <td>
+                        <span class="meta"
+                              th:text="${entry.effectiveFrom != null ? #temporals.format(entry.effectiveFrom, 'dd MMM yyyy') : '—'} + ' → ' + ${entry.effectiveUntil != null ? #temporals.format(entry.effectiveUntil, 'dd MMM yyyy') : '—'}">
+                            25 Apr 2026 → 24 Apr 2027
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="meta"
+                              th:text="${entry.paymentReference != null ? entry.paymentReference : (entry.sourceReference != null ? entry.sourceReference : '—')}">
+                            UTR123
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="meta" th:text="${entry.note != null ? entry.note : '—'}">Payment received by admin.</span>
+                    </td>
+                </tr>
+
+                <tr th:if="${ledgerPage.empty}">
+                    <td colspan="8" class="empty-row">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <strong>No ledger entries yet</strong>
+                        <span>Payment and subscription activity will appear here.</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="ledger-pager">
+        <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + (${totalPages} > 0 ? totalPages : 1)">Page 1 of 1</span>
+
+        <div>
+            <a th:if="${currentPage > 0}"
+               th:href="@{/admin/subscription-ledger(page=${currentPage - 1}, size=${pageSize})}">
+                <i class="fa-solid fa-angle-left"></i> Previous
+            </a>
+
+            <span th:unless="${currentPage > 0}" class="disabled">
+                <i class="fa-solid fa-angle-left"></i> Previous
+            </span>
+
+            <a th:if="${currentPage + 1 < totalPages}"
+               th:href="@{/admin/subscription-ledger(page=${currentPage + 1}, size=${pageSize})}">
+                Next <i class="fa-solid fa-angle-right"></i>
+            </a>
+
+            <span th:unless="${currentPage + 1 < totalPages}" class="disabled">
+                Next <i class="fa-solid fa-angle-right"></i>
+            </span>
+        </div>
+    </section>
+
+</div>
+
+</th:block>
+
+</body>
+</html>

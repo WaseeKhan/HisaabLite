@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Pending Approvals • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-shop-approval.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="approval-page">
+
+    <!-- HERO -->
+    <div class="approval-hero">
+        <div>
+            <span class="kicker">Onboarding Control</span>
+            <h1><i class="fas fa-user-check"></i> Shop Approvals</h1>
+            <p>Review newly registered shops and approve access to platform.</p>
+        </div>
+
+       <div class="hero-stats">
+
+    <!-- Pending -->
+    <div class="stat-card pending">
+        <div class="stat-icon">
+            <i class="fas fa-hourglass-half"></i>
+        </div>
+        <div class="stat-content">
+            <span>Pending Approvals</span>
+            <strong th:text="${pendingCount}">3</strong>
+            <small>Requires admin action</small>
+        </div>
+    </div>
+
+    <!-- Approved Today -->
+    <div class="stat-card approved">
+        <div class="stat-icon">
+            <i class="fas fa-circle-check"></i>
+        </div>
+        <div class="stat-content">
+            <span>Approved Today</span>
+            <strong th:text="${approvedToday}">5</strong>
+            <small>Processed today</small>
+        </div>
+    </div>
+
+</div>
+    </div>
+
+    <!-- LIST -->
+    <div class="approval-grid">
+
+        <div class="approval-card" th:each="shop : ${pendingShops}">
+
+            <!-- TOP -->
+            <div class="card-head">
+                <div>
+                    <h3 th:text="${shop.name}">ABC Medical</h3>
+                    <span th:text="${shop.city + ', ' + shop.state}">Mumbai</span>
+                </div>
+
+                <span class="chip chip-amber">Pending</span>
+            </div>
+
+            <!-- DETAILS -->
+            <div class="card-body">
+                <div class="mini">
+                    <label>Owner</label>
+                    <strong th:text="${shop.ownerName}">Waseem</strong>
+                </div>
+
+                <div class="mini">
+                    <label>Email</label>
+                    <strong th:text="${shop.ownerEmail}">mail@test.com</strong>
+                </div>
+
+                <div class="mini">
+                    <label>Phone</label>
+                    <strong th:text="${shop.ownerPhone}">9999999999</strong>
+                </div>
+
+                <div class="mini">
+                    <label>Plan</label>
+                    <strong th:text="${shop.planType}">FREE</strong>
+                </div>
+
+                <div class="mini full">
+                    <label>Registered</label>
+                    <strong th:text="${#temporals.format(shop.createdAt,'dd MMM yyyy hh:mm a')}">
+                        28 Apr 2026
+                    </strong>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="card-actions">
+
+                <form th:action="@{'/admin/shops/' + ${shop.id} + '/approve'}" method="post">
+                    <button class="btn green">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                </form>
+
+                <form th:action="@{'/admin/shops/' + ${shop.id} + '/reject'}" method="post">
+                    <button class="btn red">
+                        <i class="fas fa-xmark"></i> Reject
+                    </button>
+                </form>
+
+                <a th:href="@{'/admin/shops/' + ${shop.id}}" class="btn ghost">
+                    View
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- EMPTY -->
+        <div class="empty" th:if="${#lists.isEmpty(pendingShops)}">
+            <i class="fas fa-circle-check"></i>
+            <h3>No pending approvals</h3>
+            <p>All shops are approved. System is clean.</p>
+        </div>
+
+    </div>
+
+</section>
+
+</th:block>
+</body>
+</html>

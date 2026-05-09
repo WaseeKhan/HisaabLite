@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Platform Health • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-system-health.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="health-page">
+
+    <div th:if="${error}" class="health-alert">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span th:text="${error}">Could not load platform health right now.</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="health-hero">
+        <div>
+            <span class="kicker">System Intelligence</span>
+            <h1><i class="fas fa-heart-pulse"></i> Platform Health</h1>
+            <p>Monitor operational risk, system stability, support pressure, and commercial delays in one control layer.</p>
+        </div>
+
+        <div class="health-hero-actions">
+            <span class="risk-chip" th:text="'Platform Risks: ' + ${platformRiskCount}">Platform Risks: 0</span>
+            <a th:href="@{/admin/dashboard}" class="btn-ghost">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI GRID -->
+    <div class="health-grid">
+
+        <div class="health-card red">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span>Failed Ops</span>
+            <strong th:text="${failedAuditLogs}">0</strong>
+            <small>Critical failures</small>
+        </div>
+
+        <div class="health-card amber">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp Risk</span>
+            <strong th:text="${disconnectedWhatsappShops}">0</strong>
+            <small>Disconnected shops</small>
+        </div>
+
+        <div class="health-card purple">
+            <i class="fas fa-bed"></i>
+            <span>Dormant</span>
+            <strong th:text="${dormantShops}">0</strong>
+            <small>No activity</small>
+        </div>
+
+        <div class="health-card blue">
+            <i class="fas fa-money-check"></i>
+            <span>Paid Pending</span>
+            <strong th:text="${paidPendingActivation}">0</strong>
+            <small>Awaiting activation</small>
+        </div>
+
+        <div class="health-card red">
+            <i class="fas fa-bolt"></i>
+            <span>Urgent Tickets</span>
+            <strong th:text="${urgentTickets}">0</strong>
+        </div>
+
+        <div class="health-card amber">
+            <i class="fas fa-clock"></i>
+            <span>Overdue</span>
+            <strong th:text="${overdueTickets}">0</strong>
+        </div>
+
+        <div class="health-card green">
+            <i class="fas fa-hourglass-half"></i>
+            <span>Grace Period</span>
+            <strong th:text="${gracePeriodShops}">0</strong>
+        </div>
+
+        <div class="health-card red">
+            <i class="fas fa-skull-crossbones"></i>
+            <span>Expired</span>
+            <strong th:text="${expiredLifecycleShops}">0</strong>
+        </div>
+
+    </div>
+
+    <!-- FAILED OPS PANEL -->
+   <div class="health-panel">
+
+    <div class="panel-head">
+        <div>
+            <h3><i class="fas fa-bug"></i> Failure Timeline</h3>
+            <p>Track system failures, admin errors and operational breakdowns.</p>
+        </div>
+
+        <span class="live-indicator">
+            <i class="fas fa-circle"></i> Live
+        </span>
+    </div>
+
+    <div class="timeline" th:if="${recentFailedAuditLogs != null and !#lists.isEmpty(recentFailedAuditLogs)}">
+
+        <div class="timeline-item" th:each="logEntry : ${recentFailedAuditLogs}">
+
+            <!-- LEFT DOT -->
+            <div class="timeline-dot"></div>
+
+            <!-- CONTENT -->
+            <div class="timeline-card">
+
+                <div class="timeline-top">
+                    <strong th:text="${logEntry.action}">ACTION</strong>
+                    <span class="chip red">FAILED</span>
+                </div>
+
+                <div class="timeline-desc"
+                     th:text="${(logEntry.username != null ? logEntry.username : 'SYSTEM') + ' • ' + (logEntry.shopName != null ? logEntry.shopName : 'No shop')}">
+                    admin@test.com • Demo Shop
+                </div>
+
+                <div class="timeline-detail"
+                     th:text="${logEntry.details != null ? logEntry.details : 'No detail provided'}">
+                    Error details here
+                </div>
+
+                <div class="timeline-time"
+                     th:text="${#temporals.format(logEntry.timestamp, 'dd MMM yyyy • hh:mm a')}">
+                    29 Apr 2026 • 11:00 AM
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EMPTY -->
+    <div class="empty" th:if="${recentFailedAuditLogs == null or #lists.isEmpty(recentFailedAuditLogs)}">
+        <i class="fas fa-circle-check"></i>
+        <h3>All systems stable</h3>
+        <p>No failed operations detected.</p>
+    </div>
+
+</div>
+
+</section>
+
+</th:block>
+</body>
+</html>

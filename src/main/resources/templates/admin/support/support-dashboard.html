@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Support Command Center • Expygen Admin</title>
+
+    <!-- Page CSS -->
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-support-dashboard.css}">
+    </th:block>
+</head>
+
+<body>
+
+    <th:block th:fragment="content">
+
+        <section class="support-page">
+
+            <section th:if="${success}" class="admin-alert success">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <strong>Success!</strong>
+                    <span th:text="${success}"></span>
+                </div>
+            </section>
+
+            <section th:if="${error}" class="admin-alert danger">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                    <strong>Error!</strong>
+                    <span th:text="${error}"></span>
+                </div>
+            </section>
+
+            <!-- HERO -->
+            <div class="support-hero">
+                <div>
+                    <span class="eyebrow">Support Ops</span>
+                    <h1><i class="fas fa-headset"></i> Support Command Center</h1>
+                    <p>
+                        Track tickets, overdue cases, subscription issues and WhatsApp failures in one cockpit.
+                    </p>
+                </div>
+
+                <div class="support-hero-actions">
+                    <a th:href="@{/admin/support}" class="admin-btn-ghost">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </a>
+                    <a th:href="@{/admin/support(mine=true)}" class="admin-btn-primary">
+                        <i class="fas fa-user-check"></i> My Queue
+                    </a>
+                </div>
+            </div>
+
+            <!-- KPI -->
+            <div class="support-kpi-grid">
+
+                <div class="support-kpi purple">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Total</span>
+                    <strong th:text="${totalTickets}">0</strong>
+                    <small>All tickets</small>
+                </div>
+
+                <div class="support-kpi amber">
+                    <i class="fas fa-clock"></i>
+                    <span>Open</span>
+                    <strong th:text="${openTickets}">0</strong>
+                    <small>Needs action</small>
+                </div>
+
+                <div class="support-kpi blue">
+                    <i class="fas fa-spinner"></i>
+                    <span>In Progress</span>
+                    <strong th:text="${inProgressTickets}">0</strong>
+                </div>
+
+                <div class="support-kpi green">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Resolved</span>
+                    <strong th:text="${resolvedTickets}">0</strong>
+                </div>
+
+                <div class="support-kpi red">
+                    <i class="fas fa-bell"></i>
+                    <span>Overdue</span>
+                    <strong th:text="${overdueTickets}">0</strong>
+                </div>
+
+                <div class="support-kpi cyan">
+                    <i class="fas fa-user-check"></i>
+                    <span>Mine</span>
+                    <strong th:text="${assignedToMeTickets}">0</strong>
+                </div>
+
+                <div class="support-kpi orange">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Subscription</span>
+                    <strong th:text="${subscriptionIssueTickets}">0</strong>
+                </div>
+
+                <div class="support-kpi green">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                    <strong th:text="${whatsappIssueTickets}">0</strong>
+                </div>
+
+            </div>
+
+            <!-- SUPPORT ANALYTICS -->
+            <div class="support-analytics-grid">
+
+                <div class="support-analytics-card wide">
+                    <div class="analytics-head">
+                        <div>
+                            <span>Queue Health</span>
+                            <h3>Current Support Flow</h3>
+                        </div>
+                        <small>Live operational mix</small>
+                    </div>
+
+                    <div class="support-flow-grid">
+                        <div class="flow-card">
+                            <label>Open</label>
+                            <strong th:text="${openTickets}">0</strong>
+                            <span>Fresh queue needing action.</span>
+                        </div>
+                        <div class="flow-card">
+                            <label>In Progress</label>
+                            <strong th:text="${inProgressTickets}">0</strong>
+                            <span>Actively owned by support.</span>
+                        </div>
+                        <div class="flow-card">
+                            <label>Waiting</label>
+                            <strong th:text="${waitingTickets}">0</strong>
+                            <span>Pending customer response.</span>
+                        </div>
+                        <div class="flow-card">
+                            <label>Resolved</label>
+                            <strong th:text="${resolvedTickets}">0</strong>
+                            <span>Resolved but not closed yet.</span>
+                        </div>
+                        <div class="flow-card">
+                            <label>Closed</label>
+                            <strong th:text="${closedTickets}">0</strong>
+                            <span>Completed support conversations.</span>
+                        </div>
+                        <div class="flow-card">
+                            <label>Mine</label>
+                            <strong th:text="${assignedToMeTickets}">0</strong>
+                            <span>Assigned to the current admin.</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-legend support-queue-legend">
+                        <span><i class="dot open"></i> Open / Waiting pressure</span>
+                        <span><i class="dot resolved"></i> Resolved / Closed throughput</span>
+                    </div>
+                </div>
+
+                <div class="support-analytics-card">
+                    <div class="analytics-head">
+                        <div>
+                            <span>SLA Pressure</span>
+                            <h3>Risk Snapshot</h3>
+                        </div>
+                    </div>
+
+                    <div class="risk-list">
+                        <div class="risk-row">
+                            <label>Urgent</label>
+                            <strong th:text="${urgentTickets}">0</strong>
+                        </div>
+                        <div class="risk-row">
+                            <label>High Priority</label>
+                            <strong th:text="${highPriorityTickets}">0</strong>
+                        </div>
+                        <div class="risk-row">
+                            <label>Overdue</label>
+                            <strong th:text="${overdueTickets}">0</strong>
+                        </div>
+                        <div class="risk-row">
+                            <label>Subscription Issues</label>
+                            <strong th:text="${subscriptionIssueTickets}">0</strong>
+                        </div>
+                        <div class="risk-row">
+                            <label>WhatsApp Issues</label>
+                            <strong th:text="${whatsappIssueTickets}">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="support-analytics-card">
+                    <div class="analytics-head">
+                        <div>
+                            <span>Root Cause</span>
+                            <h3>Issue Mix</h3>
+                        </div>
+                    </div>
+
+                    <div class="issue-mix">
+                        <div class="mix-row">
+                            <label>Subscription</label>
+                            <div><span th:style="'width:' + ${totalTickets > 0 ? (subscriptionIssueTickets * 100.0) / totalTickets : 0} + '%'"></span></div>
+                            <b th:text="${subscriptionIssueTickets}">0</b>
+                        </div>
+                        <div class="mix-row">
+                            <label>WhatsApp</label>
+                            <div><span th:style="'width:' + ${totalTickets > 0 ? (whatsappIssueTickets * 100.0) / totalTickets : 0} + '%'"></span></div>
+                            <b th:text="${whatsappIssueTickets}">0</b>
+                        </div>
+                        <div class="mix-row">
+                            <label>Billing</label>
+                            <div><span th:style="'width:' + ${totalTickets > 0 ? (billingIssueTickets * 100.0) / totalTickets : 0} + '%'"></span></div>
+                            <b th:text="${billingIssueTickets}">0</b>
+                        </div>
+                        <div class="mix-row">
+                            <label>Login</label>
+                            <div><span th:style="'width:' + ${totalTickets > 0 ? (loginIssueTickets * 100.0) / totalTickets : 0} + '%'"></span></div>
+                            <b th:text="${loginIssueTickets}">0</b>
+                        </div>
+                        <div class="mix-row">
+                            <label>Inventory</label>
+                            <div><span th:style="'width:' + ${totalTickets > 0 ? (inventoryIssueTickets * 100.0) / totalTickets : 0} + '%'"></span></div>
+                            <b th:text="${inventoryIssueTickets}">0</b>
+                        </div>
+                        <div class="mix-row">
+                            <label>Performance</label>
+                            <div><span th:style="'width:' + ${totalTickets > 0 ? (performanceIssueTickets * 100.0) / totalTickets : 0} + '%'"></span></div>
+                            <b th:text="${performanceIssueTickets}">0</b>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FILTER -->
+            <div class="support-toolbar">
+                <form th:action="@{/admin/support}" method="get" class="support-filter-form">
+
+                    <div class="filter-field">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="">All</option>
+                            <option value="OPEN" th:selected="${status == 'OPEN'}">Open</option>
+                            <option value="IN_PROGRESS" th:selected="${status == 'IN_PROGRESS'}">In Progress</option>
+                            <option value="WAITING_CUSTOMER" th:selected="${status == 'WAITING_CUSTOMER'}">Waiting
+                            </option>
+                            <option value="RESOLVED" th:selected="${status == 'RESOLVED'}">Resolved</option>
+                            <option value="CLOSED" th:selected="${status == 'CLOSED'}">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label>Priority</label>
+                        <select name="priority">
+                            <option value="">All</option>
+                            <option value="URGENT" th:selected="${priority == 'URGENT'}">Urgent</option>
+                            <option value="HIGH" th:selected="${priority == 'HIGH'}">High</option>
+                            <option value="MEDIUM" th:selected="${priority == 'MEDIUM'}">Medium</option>
+                            <option value="LOW" th:selected="${priority == 'LOW'}">Low</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label>Root Cause</label>
+                        <select name="rootCause">
+                            <option value="">All</option>
+                            <option th:each="cause : ${rootCauses}" th:value="${cause.name()}"
+                                th:text="${cause.displayName}" th:selected="${rootCause == cause.name()}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <label class="mine-filter">
+                        <input type="checkbox" name="mine" value="true" th:checked="${mine}">
+                        Mine
+                    </label>
+
+                    <button type="submit" class="admin-btn-primary">
+                        Apply
+                    </button>
+
+                    <a th:href="@{/admin/support}" class="clear-btn">Clear</a>
+                </form>
+            </div>
+
+            <!-- TABLE -->
+            <div class="support-table-panel">
+
+                <div class="support-table-head">
+                    <h3>
+                        <i class="fas fa-ticket-alt"></i>
+                        Tickets
+                        <span class="table-badge" th:text="${tickets.totalElements} + ' total'"></span>
+                    </h3>
+                </div>
+
+                <div class="support-table-wrap">
+                    <table class="support-table">
+
+                        <thead>
+                            <tr>
+                                <th>Ticket</th>
+                                <th>Shop</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Ops</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="ticket : ${tickets.content}">
+
+                                <td>
+                                    <a class="ticket-no"
+                                        th:href="@{/admin/support/ticket/{id}(id=${ticket.ticketNumber})}"
+                                        th:text="${ticket.ticketNumber}">
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <div class="shop-info">
+                                        <strong th:text="${ticket.shop.name}"></strong>
+                                        <span th:text="${ticket.user.name}"></span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="ticket-subject" th:text="${ticket.subject}"></span>
+                                </td>
+
+                                <td>
+                                    <span class="ticket-status" th:classappend="' status-' + ${ticket.status.name()}"
+                                        th:text="${ticket.status.displayName}">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="priority-badge"
+                                        th:classappend="' priority-' + ${ticket.priority.name()}"
+                                        th:text="${ticket.priority.displayName}">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="ticket-micro">
+
+                                        <span class="mini-pill" th:if="${ticket.rootCause != null}"
+                                            th:text="${ticket.rootCause.displayName}"></span>
+
+                                        <span class="mini-pill blue" th:if="${ticket.assignedAdminUsername != null}"
+                                            th:text="${ticket.assignedAdminUsername}"></span>
+
+                                        <span class="mini-pill amber"
+                                            th:if="${ticket.relatedSubscriptionIssue}">Sub</span>
+
+                                        <span class="mini-pill green" th:if="${ticket.relatedWhatsappIssue}">WA</span>
+
+                                    </div>
+                                </td>
+
+                                <td th:text="${#temporals.format(ticket.createdAt, 'dd MMM')}"></td>
+
+                                <td class="text-right">
+                                    <a th:href="@{/admin/support/ticket/{id}(id=${ticket.ticketNumber})}"
+                                        class="btn-icon">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                            <tr th:if="${tickets.content.isEmpty()}">
+                                <td colspan="8" class="empty-state">
+                                    No tickets found
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+    </th:block>
+</body>
+
+</html>

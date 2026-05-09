@@ -1,0 +1,273 @@
+.health-page {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.health-alert {
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 1px solid rgba(239,68,68,.25);
+    background: rgba(239,68,68,.10);
+    color: #fb7185;
+    font-size: 12px;
+    font-weight: 850;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* HERO */
+.health-hero {
+    padding: 18px;
+    border-radius: 12px;
+    border: 1px solid var(--admin-border);
+    background:
+        radial-gradient(circle at right, rgba(0,212,255,.15), transparent 40%),
+        linear-gradient(180deg,#0a1729,#050d19);
+    display: flex;
+    justify-content: space-between;
+}
+
+.health-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kicker {
+    font-size: 11px;
+    color: #6ee7ff;
+}
+
+.risk-chip,
+.btn-ghost {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--admin-border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.risk-chip {
+    color: #fbbf24;
+    background: rgba(245,158,11,.10);
+    border-color: rgba(245,158,11,.26);
+}
+
+.btn-ghost {
+    color: #b8c7dc;
+    background: rgba(11,24,43,.78);
+}
+
+/* GRID */
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 10px;
+}
+
+/* CARD */
+.health-card {
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--admin-border);
+    background: #07111f;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-card i {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.health-card span {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.health-card strong {
+    display: block;
+    font-size: 20px;
+    color: #fff;
+}
+
+/* COLORS */
+.red { border-color:#7f1d1d;}
+.amber { border-color:#78350f;}
+.green { border-color:#065f46;}
+.blue { border-color:#1e3a8a;}
+.purple { border-color:#4c1d95;}
+
+/* PANEL */
+.health-panel {
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--admin-border);
+    background: #07111f;
+}
+
+.panel-head h3 {
+    color: #fff;
+}
+
+/* LOG */
+.log-list {
+    margin-top: 10px;
+}
+
+.log-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.log-row:hover {
+    background: rgba(31,111,235,.08);
+}
+
+.log-main strong {
+    color: #fff;
+}
+
+.log-main span {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.log-side {
+    text-align: right;
+}
+
+/* CHIP */
+.chip {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+}
+
+.chip.red {
+    background:#7f1d1d;
+    color:#f87171;
+}
+
+/* EMPTY */
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+}
+
+/* PANEL HEADER */
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LIVE BADGE */
+.live-indicator {
+    font-size: 11px;
+    color: #22c55e;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.live-indicator i {
+    font-size: 8px;
+}
+
+/* TIMELINE */
+.timeline {
+    margin-top: 16px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(148,163,184,.2);
+}
+
+/* ITEM */
+.timeline-item {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+/* DOT */
+.timeline-dot {
+    position: absolute;
+    left: -2px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(239,68,68,.6);
+}
+
+/* CARD */
+.timeline-card {
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(4,12,24,.6);
+    border: 1px solid var(--admin-border);
+    transition: .2s;
+}
+
+.timeline-card:hover {
+    background: rgba(31,111,235,.08);
+    transform: translateX(3px);
+}
+
+/* TOP */
+.timeline-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.timeline-top strong {
+    color: #fff;
+}
+
+/* TEXT */
+.timeline-desc {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.timeline-detail {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #cbd5e1;
+}
+
+.timeline-time {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* CHIP */
+.chip.red {
+    background: #7f1d1d;
+    color: #f87171;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+}

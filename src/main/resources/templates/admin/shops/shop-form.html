@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title th:text="${shop.id == null} ? 'Add Shop • Expygen Admin' : 'Edit Shop • Expygen Admin'"></title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-shop-form.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="shop-editor-page">
+
+    <div class="shop-editor-hero">
+        <div class="hero-copy">
+            <span class="hero-kicker">Tenant Control</span>
+            <h1>
+                <i class="fas fa-store-alt"></i>
+                <span th:text="${shop.id == null} ? 'Create New Shop' : 'Edit Shop Profile'">Create New Shop</span>
+            </h1>
+            <p>Configure shop identity, billing details, plan access and owner onboarding from one admin cockpit.</p>
+        </div>
+
+        <div class="hero-actions">
+            <span class="mode-chip" th:text="${shop.id == null} ? 'New Tenant' : 'Edit Mode'">New Tenant</span>
+            <a th:href="@{/admin/shops}" class="ghost-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${errors != null and not #lists.isEmpty(errors)}" class="form-alert danger">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+            <strong>Please fix the following errors:</strong>
+            <ul>
+                <li th:each="error : ${errors}" th:text="${error}"></li>
+            </ul>
+        </div>
+    </div>
+
+    <div th:if="${success != null}" class="form-alert success">
+        <i class="fas fa-circle-check"></i>
+        <span th:text="${success}">Shop saved successfully</span>
+    </div>
+
+    <form th:action="@{/admin/shops/save}" method="post" class="shop-editor-grid">
+        <input type="hidden" name="id" th:value="${shop.id}">
+
+        <div class="editor-main">
+
+            <div class="editor-card">
+                <div class="card-head">
+                    <div>
+                        <span>Core Profile</span>
+                        <h3><i class="fas fa-store"></i> Shop Details</h3>
+                    </div>
+                    <small>Required</small>
+                </div>
+
+                <div class="field-grid">
+                    <div class="field full">
+                        <label>Shop Name <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-store"></i>
+                            <input type="text" name="name" th:value="${shop.name}" placeholder="ABC Medical Store" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>GST Number</label>
+                        <div class="input-shell">
+                            <i class="fas fa-file-invoice"></i>
+                            <input type="text"
+                                   name="gstNumber"
+                                   th:value="${shop.gstNumber}"
+                                   placeholder="27ABCDE1234F1Z5"
+                                   pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}"
+                                   title="Please enter a valid GST number">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>UPI ID</label>
+                        <div class="input-shell">
+                            <i class="fas fa-credit-card"></i>
+                            <input type="text" name="upiId" th:value="${shop.upiId}" placeholder="shop@okhdfcbank">
+                        </div>
+                    </div>
+
+                    <div class="field full">
+                        <label>Address</label>
+                        <div class="input-shell">
+                            <i class="fas fa-location-dot"></i>
+                            <input type="text" name="address" th:value="${shop.address}" placeholder="Street address, landmark">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>City</label>
+                        <div class="input-shell">
+                            <i class="fas fa-city"></i>
+                            <input type="text" name="city" th:value="${shop.city}" placeholder="Mumbai">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>State</label>
+                        <div class="input-shell">
+                            <i class="fas fa-map"></i>
+                            <input type="text" name="state" th:value="${shop.state}" placeholder="Maharashtra">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Pincode</label>
+                        <div class="input-shell">
+                            <i class="fas fa-map-pin"></i>
+                            <input type="text"
+                                   name="pincode"
+                                   th:value="${shop.pincode}"
+                                   placeholder="400001"
+                                   pattern="[0-9]{6}"
+                                   title="Please enter a valid 6-digit pincode">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Plan Type <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-layer-group"></i>
+                            <select name="planType" required>
+                                <option value="">Select Plan</option>
+                                <option th:each="plan : ${planTypes}"
+                                        th:value="${plan}"
+                                        th:text="${plan}"
+                                        th:selected="${shop.planType == plan}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${shop.id == null}" class="editor-card">
+                <div class="card-head owner">
+                    <div>
+                        <span>Owner Setup</span>
+                        <h3><i class="fas fa-user-plus"></i> Create Owner Account</h3>
+                    </div>
+                    <small>Auto login access</small>
+                </div>
+
+                <div class="field-grid">
+                    <div class="field full">
+                        <label>Owner Name <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="ownerName" placeholder="Owner full name" required>
+                        </div>
+                        <small class="field-help">Owner will have full access to manage this shop.</small>
+                    </div>
+
+                    <div class="field">
+                        <label>Email <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" name="ownerEmail" placeholder="owner@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Phone <b>*</b></label>
+                        <div class="input-shell">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel"
+                                   name="ownerPhone"
+                                   placeholder="9876543210"
+                                   required
+                                   pattern="[0-9]{10}"
+                                   title="Please enter a valid 10-digit phone number">
+                        </div>
+                    </div>
+
+                    <div class="field full">
+                        <label>Password</label>
+                        <div class="input-shell">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="password" placeholder="Leave blank for default password">
+                        </div>
+                        <small class="field-help">Default password: <strong>expygen@123</strong></small>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${shop.id != null}" class="owner-note">
+                <i class="fas fa-circle-info"></i>
+                Owner details cannot be modified here. To change owner information, use the Users section.
+            </div>
+
+        </div>
+
+        <aside class="editor-side">
+
+            <div class="side-card status-card">
+                <div class="side-card-head">
+                    <h4><i class="fas fa-power-off"></i> Shop Access</h4>
+                </div>
+
+                <label class="switch-card">
+                    <input type="checkbox" name="active" value="true" th:checked="${shop.active}">
+                    <span class="switch-ui"></span>
+                    <span class="switch-copy">
+                        <strong>Active Shop</strong>
+                        <small>Allow owner and staff to access this shop</small>
+                    </span>
+                </label>
+
+                <input type="hidden" name="_active" value="on">
+
+                <div class="status-hint">
+                    <i class="fas fa-shield-halved"></i>
+                    Inactive shops cannot login or use billing features.
+                </div>
+            </div>
+
+            <div class="side-card">
+                <div class="side-card-head">
+                    <h4><i class="fas fa-gauge-high"></i> Setup Quality</h4>
+                </div>
+
+                <div class="quality-list">
+                    <span><i class="fas fa-check"></i> Shop identity</span>
+                    <span><i class="fas fa-check"></i> Billing profile</span>
+                    <span><i class="fas fa-check"></i> Plan access</span>
+                    <span th:if="${shop.id == null}"><i class="fas fa-check"></i> Owner onboarding</span>
+                </div>
+            </div>
+
+            <div class="side-card highlight">
+                <div class="side-card-head">
+                    <h4><i class="fas fa-lightbulb"></i> Admin Tip</h4>
+                </div>
+                <p>For new stores, start with FREE plan, verify owner access, then upgrade after demo/payment.</p>
+            </div>
+
+            <div class="side-actions">
+                <button type="submit" class="save-btn">
+                    <i class="fas fa-save"></i>
+                    <span th:text="${shop.id == null} ? 'Create Shop' : 'Update Shop'">Create Shop</span>
+                </button>
+
+                <a th:href="@{/admin/shops}" class="cancel-btn">
+                    <i class="fas fa-xmark"></i> Cancel
+                </a>
+            </div>
+
+        </aside>
+
+    </form>
+
+</section>
+
+</th:block>
+</body>
+</html>

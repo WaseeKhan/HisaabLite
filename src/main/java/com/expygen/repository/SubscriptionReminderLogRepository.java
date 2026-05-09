@@ -10,4 +10,5 @@ import com.expygen.entity.SubscriptionReminderLog;
 
 public interface SubscriptionReminderLogRepository extends JpaRepository<SubscriptionReminderLog, Long> {
     Optional<SubscriptionReminderLog> findFirstByShopAndReminderTypeAndTargetDate(Shop shop, String reminderType, LocalDateTime targetDate);
+    long countByShop(Shop shop);
 }

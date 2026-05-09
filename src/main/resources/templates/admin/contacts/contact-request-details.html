@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Contact Request • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-contact-request-details.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="contact-view-page">
+
+    <!-- HEADER -->
+    <div class="contact-view-hero">
+        <div>
+            <span class="eyebrow">Lead Details</span>
+            <h1>
+                <i class="fas fa-address-card"></i>
+                Request #<span th:text="${request.id}">1</span>
+            </h1>
+            <p>Inspect enquiry, qualify lead, and update follow-up status.</p>
+        </div>
+
+        <div class="hero-actions">
+            <span class="status-badge"
+                  th:classappend="' status-' + ${request.status.name()}"
+                  th:text="${request.status}">NEW</span>
+
+            <a th:href="@{/admin/contact-requests}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="contact-view-grid">
+
+        <!-- LEFT DETAILS -->
+        <div class="contact-details-panel">
+
+            <div class="panel-head">
+                <h3><i class="fas fa-user"></i> Lead Information</h3>
+            </div>
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+                    <label>Store</label>
+                    <strong th:text="${request.storeName}">ABC Medical</strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Contact</label>
+                    <strong th:text="${request.contactPerson}">Waseem</strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Email</label>
+                    <strong th:text="${request.email}">test@mail.com</strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Phone</label>
+                    <strong th:text="${request.phone}">9999999999</strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Topic</label>
+                    <span class="topic-badge" th:text="${request.topic}">Demo</span>
+                </div>
+
+                <div class="detail-item">
+                    <label>Created</label>
+                    <div class="date-block">
+                        <strong th:text="${#temporals.format(request.createdAt,'dd MMM yyyy')}">14 Apr 2026</strong>
+                        <span th:text="${#temporals.format(request.createdAt,'hh:mm a')}">12:30 PM</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MESSAGE -->
+            <div class="message-section">
+                <div class="panel-head">
+                    <h3><i class="fas fa-comment"></i> Message</h3>
+                </div>
+
+                <div class="message-box" th:text="${request.message}">
+                    Customer message goes here.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT ACTION PANEL -->
+        <aside class="contact-action-panel">
+
+            <div class="panel-head">
+                <h3><i class="fas fa-bolt"></i> Actions</h3>
+            </div>
+
+            <!-- STATUS UPDATE -->
+            <form th:action="@{'/admin/contact-requests/' + ${request.id} + '/status'}"
+                  method="post"
+                  class="status-form">
+
+                <label>Status</label>
+
+                <select name="status">
+                    <option th:each="status : ${statuses}"
+                            th:value="${status}"
+                            th:text="${status}"
+                            th:selected="${status == request.status}">
+                    </option>
+                </select>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check"></i> Update Status
+                </button>
+            </form>
+
+            <!-- QUICK ACTIONS -->
+            <div class="quick-actions">
+                <a th:href="'mailto:' + ${request.email}" class="action-btn">
+                    <i class="fas fa-envelope"></i>
+                    Email Lead
+                </a>
+
+                <a th:href="'tel:' + ${request.phone}" class="action-btn">
+                    <i class="fas fa-phone"></i>
+                    Call Lead
+                </a>
+            </div>
+
+            <!-- INSIGHT -->
+            <div class="lead-insight">
+                <h4>Lead Insight</h4>
+                <p>
+                    High intent if topic contains demo or pricing.
+                    Follow up within 24 hours to improve conversion.
+                </p>
+            </div>
+
+        </aside>
+
+    </div>
+
+</section>
+
+</th:block>
+</body>
+</html>

@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'Register • ' + ${@appConfig.appName}">Register • Expygen</title>
 
-    <link rel="icon" type="image/png" href="/images/favicon_light.png">
-    <link rel="icon" type="image/png" href="/images/favicon_light.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" type="image/png" href="/images/favicon_dark.png" media="(prefers-color-scheme: dark)">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
 
     <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
     <link rel="stylesheet" th:href="@{/css/main/variables.css}">
@@ -118,7 +116,10 @@
                                 <img th:src="@{/images/expygen-mark-dark.svg}" th:alt="${@appConfig.appName}"
                                     class="register-logo-mark register-logo-light">
                             </span>
-
+                                <span class="register-logo-text">
+                                    <span class="register-logo-name">EXPYGEN</span>
+                                    <span class="register-logo-tagline">Simplified Pharmacy</span>
+                                </span>
 
                         </a>
 

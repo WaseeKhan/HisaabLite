@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Contact Requests • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-contact-requests.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="contact-requests-page">
+
+    <!-- HERO -->
+    <div class="contact-hero">
+        <div>
+            <span class="contact-eyebrow">Lead Operations</span>
+            <h1><i class="fas fa-address-book"></i> Contact Requests</h1>
+            <p>Track public enquiries, demo requests and follow-up leads from one admin cockpit.</p>
+        </div>
+
+        <div class="contact-hero-actions">
+            <span class="live-chip"><i class="fas fa-circle"></i> Live Inbox</span>
+            <span class="new-chip" th:text="'New: ' + ${newRequestCount}">New: 0</span>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="contact-kpi-grid">
+        <div class="contact-kpi cyan">
+            <i class="fas fa-inbox"></i>
+            <span>Total Leads</span>
+            <strong th:text="${#lists.size(requests)}">0</strong>
+            <small>All contact requests</small>
+        </div>
+
+        <div class="contact-kpi green">
+            <i class="fas fa-bolt"></i>
+            <span>New Requests</span>
+            <strong th:text="${newRequestCount}">0</strong>
+            <small>Need quick response</small>
+        </div>
+
+        <div class="contact-kpi amber">
+            <i class="fas fa-phone-volume"></i>
+            <span>Follow-ups</span>
+            <strong th:text="${contactedRequestCount}">0</strong>
+            <small>Already contacted</small>
+        </div>
+
+        <div class="contact-kpi purple">
+            <i class="fas fa-calendar-check"></i>
+            <span>Demo Pipeline</span>
+            <strong th:text="${demoPipelineCount}">0</strong>
+            <small>Demo-related leads</small>
+        </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="contact-analytics-grid">
+
+        <div class="contact-panel wide">
+            <div class="panel-head">
+                <div>
+                    <span>Lead Signal</span>
+                    <h3>Current Lead Flow</h3>
+                </div>
+                <small>Real request status</small>
+            </div>
+
+            <div class="lead-flow-grid">
+                <div class="flow-stat">
+                    <span>Last 7 Days</span>
+                    <strong th:text="${recentLeadCount}">0</strong>
+                    <small>Fresh lead volume</small>
+                </div>
+                <div class="flow-stat">
+                    <span>New Queue</span>
+                    <strong th:text="${newRequestCount}">0</strong>
+                    <small>Waiting first response</small>
+                </div>
+                <div class="flow-stat">
+                    <span>Contacted</span>
+                    <strong th:text="${contactedRequestCount}">0</strong>
+                    <small>Mid-funnel follow-up</small>
+                </div>
+                <div class="flow-stat success">
+                    <span>Closed</span>
+                    <strong th:text="${closedRequestCount}">0</strong>
+                    <small>Resolved or completed</small>
+                </div>
+            </div>
+
+            <div class="chart-legend">
+                <span><i class="dot cyan"></i> Real lead intake</span>
+                <span><i class="dot green"></i> Real progress</span>
+                <span><i class="dot amber"></i> Real follow-up</span>
+            </div>
+        </div>
+
+        <div class="contact-panel">
+            <div class="panel-head">
+                <div>
+                    <span>Lead Queue</span>
+                    <h3>Response Snapshot</h3>
+                </div>
+            </div>
+
+            <div class="lead-snapshot">
+                <div class="snapshot-row">
+                    <span>Need First Response</span>
+                    <strong th:text="${newRequestCount}">0</strong>
+                </div>
+                <div class="snapshot-row">
+                    <span>In Follow-up</span>
+                    <strong th:text="${contactedRequestCount}">0</strong>
+                </div>
+                <div class="snapshot-row">
+                    <span>Closed Loop</span>
+                    <strong th:text="${closedRequestCount}">0</strong>
+                </div>
+                <div class="snapshot-row">
+                    <span>Demo Leads</span>
+                    <strong th:text="${demoPipelineCount}">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-panel">
+            <div class="panel-head">
+                <div>
+                    <span>Topic Mix</span>
+                    <h3>Request Type</h3>
+                </div>
+            </div>
+
+            <div class="topic-mix">
+                <div th:each="topic : ${topicSummary}" class="mix-row">
+                    <label th:text="${topic[0]}">Product Demo</label>
+                    <div><span th:style="'width:' + (${maxTopicCount > 0 ? (topic[1] * 100 / maxTopicCount) : 0}) + '%'"></span></div>
+                    <b th:text="${topic[1]}">0</b>
+                </div>
+                <div th:if="${#lists.isEmpty(topicSummary)}" class="contact-empty-mini">
+                    No topic data yet
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="contact-table-panel">
+        <div class="contact-table-head">
+            <div>
+                <h3><i class="fas fa-envelope-open-text"></i> Lead Inbox</h3>
+                <p>All enquiries submitted from the public contact page.</p>
+            </div>
+            <span class="table-count" th:text="${#lists.size(requests)} + ' requests'">0 requests</span>
+        </div>
+
+        <div class="contact-table-wrap">
+            <table class="contact-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Store</th>
+                    <th>Contact</th>
+                    <th>Topic</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-right">Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="req : ${requests}">
+                    <td>
+                        <span class="request-id" th:text="'#' + ${req.id}">#1</span>
+                    </td>
+
+                    <td>
+                        <div class="lead-main">
+                            <strong th:text="${req.storeName}">ABC Medical</strong>
+                            <span>Store / pharmacy</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="lead-main">
+                            <strong th:text="${req.contactPerson}">Waseem</strong>
+                            <span>Contact person</span>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="topic-badge" th:text="${req.topic}">Product demo</span>
+                    </td>
+
+                    <td>
+                        <span class="lead-email" th:text="${req.email}">test@mail.com</span>
+                    </td>
+
+                    <td>
+                        <span class="lead-phone" th:text="${req.phone}">9999999999</span>
+                    </td>
+
+                    <td>
+                        <span class="lead-status"
+                              th:classappend="' status-' + ${req.status.name()}"
+                              th:text="${req.status}">NEW</span>
+                    </td>
+
+                    <td>
+                        <div class="contact-date">
+                            <strong th:text="${#temporals.format(req.createdAt, 'dd MMM yyyy')}">14 Apr 2026</strong>
+                            <span th:text="${#temporals.format(req.createdAt, 'hh:mm a')}">12:30 PM</span>
+                        </div>
+                    </td>
+
+                    <td class="text-right">
+                        <a class="view-btn" th:href="@{'/admin/contact-requests/' + ${req.id}}">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </a>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(requests)}">
+                    <td colspan="9">
+                        <div class="contact-empty">
+                            <i class="fas fa-inbox"></i>
+                            <strong>No contact requests found</strong>
+                            <span>New public enquiries will appear here.</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+</th:block>
+</body>
+</html>

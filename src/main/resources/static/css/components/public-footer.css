@@ -24,12 +24,18 @@
 .footer-logo {
     display: inline-flex;
     align-items: center;
+    gap: 0;
+}
+
+.footer-logo-lockup-wrap {
+    display: inline-flex;
+    align-items: center;
 }
 
 .footer-logo-image {
-    width: 150px !important;
+    width: 232px !important;
     height: auto !important;
-    max-height: 52px !important;
+    max-height: 56px !important;
     object-fit: contain;
 }
 

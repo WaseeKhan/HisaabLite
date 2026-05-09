@@ -65,6 +65,7 @@ public class AdminSecurityConfig {
                                 "/admin/login",
                                 "/admin/access-denied",
                                 "/admin/404",
+                                "/admin/500",
                                 "/admin/css/**",
                                 "/admin/js/**",
                                 "/admin/images/**")

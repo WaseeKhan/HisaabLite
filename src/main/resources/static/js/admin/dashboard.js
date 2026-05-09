@@ -4,33 +4,83 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
     const planLabels = config.planLabels || ["FREE", "BASIC", "PRO"];
     const planData = config.planData || [0, 0, 0];
     const usersData = config.usersData || [];
+    const ticketLabels = config.ticketLabels || revenueLabels;
     const ticketData = config.ticketData || [0, 0, 0, 0, 0, 0, 0];
+    const totalRevenue = Number(config.totalRevenue || 0);
+    const totalShops = Number(config.totalShops || 0);
 
-    const baseAxis = {
-        grid: { color: "#edf2f7", lineWidth: 1 },
-        ticks: {
-            color: "#64748b",
-            font: { family: "Manrope", size: 11 }
-        }
-    };
-
-    const labelFont = {
+    const chartFont = {
         family: "Manrope",
         size: 11
     };
 
-    const planColors = {
-        FREE: "#94a3b8",
-        BASIC: "#2563eb",
-        PRO: "#7c3aed"
+    const axisColor = "rgba(166, 181, 210, 0.72)";
+    const gridColor = "rgba(115, 134, 172, 0.16)";
+    const tooltipBackground = "rgba(6, 12, 24, 0.96)";
+    const tooltipBorder = "rgba(139, 92, 246, 0.18)";
+
+    const baseAxis = {
+        grid: { color: gridColor, lineWidth: 1 },
+        border: { color: "rgba(115, 134, 172, 0.12)" },
+        ticks: {
+            color: axisColor,
+            font: chartFont
+        }
     };
 
-    const backgroundColors = planLabels.map(function (label) {
-        return planColors[label] || "#94a3b8";
-    });
+    const commonPlugins = {
+        legend: { display: false },
+        tooltip: {
+            backgroundColor: tooltipBackground,
+            borderColor: tooltipBorder,
+            borderWidth: 1,
+            titleColor: "#eef4ff",
+            bodyColor: "#d6e0f3",
+            titleFont: { family: "Manrope", size: 11, weight: "700" },
+            bodyFont: { family: "Manrope", size: 11 }
+        }
+    };
+
+    const donutCenterTextPlugin = {
+        id: "donutCenterTextPlugin",
+        beforeDraw(chart, args, options) {
+            if (!options || !options.textTop) {
+                return;
+            }
+
+            const meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !meta.data.length) {
+                return;
+            }
+
+            const { ctx } = chart;
+            const x = meta.data[0].x;
+            const y = meta.data[0].y;
+
+            ctx.save();
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#eef4ff";
+            ctx.font = "800 16px Manrope";
+            ctx.fillText(options.textTop, x, y - 10);
+            ctx.fillStyle = "rgba(166, 181, 210, 0.8)";
+            ctx.font = "600 11px Manrope";
+            ctx.fillText(options.textBottom || "", x, y + 12);
+            ctx.restore();
+        }
+    };
+
+    if (!Chart.registry.plugins.get("donutCenterTextPlugin")) {
+        Chart.register(donutCenterTextPlugin);
+    }
 
     const revenueCanvas = document.getElementById("revenueChart");
     if (revenueCanvas) {
+        const revenueContext = revenueCanvas.getContext("2d");
+        const revenueGradient = revenueContext.createLinearGradient(0, 0, 0, 320);
+        revenueGradient.addColorStop(0, "rgba(139, 92, 246, 0.36)");
+        revenueGradient.addColorStop(1, "rgba(139, 92, 246, 0.02)");
+
         new Chart(revenueCanvas, {
             type: "line",
             data: {
@@ -38,24 +88,27 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
                 datasets: [{
                     label: "Revenue (₹)",
                     data: revenueData,
-                    borderColor: "#2563eb",
-                    backgroundColor: "rgba(37, 99, 235, 0.08)",
-                    borderWidth: 2,
-                    tension: 0.32,
+                    borderColor: "#8b5cf6",
+                    backgroundColor: revenueGradient,
+                    borderWidth: 3,
+                    tension: 0.36,
                     fill: true,
-                    pointRadius: 2,
-                    pointHoverRadius: 4
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "#c4b5fd",
+                    pointHoverBorderColor: "#ffffff"
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    ...commonPlugins,
                     tooltip: {
+                        ...commonPlugins.tooltip,
                         callbacks: {
-                            label: function (context) {
-                                return "₹" + Number(context.raw || 0).toFixed(2);
+                            label(context) {
+                                return "₹" + Number(context.raw || 0).toLocaleString("en-IN");
                             }
                         }
                     }
@@ -66,8 +119,8 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
                         beginAtZero: true,
                         ticks: {
                             ...baseAxis.ticks,
-                            callback: function (value) {
-                                return "₹" + value;
+                            callback(value) {
+                                return "₹" + Number(value).toLocaleString("en-IN");
                             }
                         }
                     },
@@ -80,76 +133,87 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
         });
     }
 
-    const planCanvas = document.getElementById("planChart");
-    if (planCanvas) {
-        new Chart(planCanvas, {
+    const chartColors = ["#8b5cf6", "#3b82f6", "#22c55e", "#f59e0b"];
+
+    const buildDoughnut = function (canvasId, centerTop, centerBottom) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            return;
+        }
+
+        new Chart(canvas, {
             type: "doughnut",
             data: {
                 labels: planLabels,
                 datasets: [{
                     data: planData,
-                    backgroundColor: backgroundColors,
-                    borderWidth: 0
+                    backgroundColor: chartColors.slice(0, planLabels.length),
+                    borderColor: "rgba(9, 13, 22, 0.96)",
+                    borderWidth: 2,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: "66%",
+                cutout: "72%",
                 plugins: {
+                    ...commonPlugins,
                     legend: {
-                        position: "bottom",
+                        position: "right",
                         labels: {
-                            color: "#475569",
-                            font: labelFont,
+                            color: axisColor,
+                            font: chartFont,
                             boxWidth: 10,
+                            boxHeight: 10,
                             padding: 14
                         }
                     },
+                    donutCenterTextPlugin: {
+                        textTop: centerTop,
+                        textBottom: centerBottom
+                    },
                     tooltip: {
+                        ...commonPlugins.tooltip,
                         callbacks: {
-                            label: function (context) {
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce(function (sum, item) {
-                                    return sum + item;
-                                }, 0);
+                            label(context) {
+                                const value = Number(context.raw || 0);
+                                const total = context.dataset.data.reduce((sum, item) => sum + Number(item || 0), 0);
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
-                                return context.label + ": " + value + " shops (" + percentage + "%)";
+                                return `${context.label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
                 }
             }
         });
-    }
+    };
+
+    buildDoughnut("planChart", "₹" + totalRevenue.toLocaleString("en-IN"), "Total Revenue");
+    buildDoughnut("mixChart", String(totalShops), "Total Shops");
 
     const usersCanvas = document.getElementById("usersChart");
     if (usersCanvas) {
         new Chart(usersCanvas, {
-            type: "bar",
+            type: "line",
             data: {
                 labels: revenueLabels,
                 datasets: [{
-                    label: "New Users",
+                    label: "Users",
                     data: usersData,
-                    backgroundColor: "#10b981",
-                    borderRadius: 6,
-                    barPercentage: 0.62
+                    borderColor: "#3b82f6",
+                    backgroundColor: "rgba(59, 130, 246, 0.12)",
+                    borderWidth: 3,
+                    tension: 0.34,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return context.raw + " new users";
-                            }
-                        }
-                    }
-                },
+                plugins: commonPlugins,
                 scales: {
                     y: {
                         ...baseAxis,
@@ -173,16 +237,16 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
         new Chart(ticketCanvas, {
             type: "line",
             data: {
-                labels: revenueLabels,
+                labels: ticketLabels,
                 datasets: [{
                     label: "Tickets",
                     data: ticketData,
-                    borderColor: "#f59e0b",
-                    backgroundColor: "rgba(245, 158, 11, 0.08)",
-                    borderWidth: 2,
-                    tension: 0.28,
-                    fill: true,
-                    pointRadius: 2,
+                    borderColor: "#ef4444",
+                    backgroundColor: "rgba(239, 68, 68, 0.12)",
+                    borderWidth: 3,
+                    tension: 0.34,
+                    fill: false,
+                    pointRadius: 0,
                     pointHoverRadius: 4
                 }]
             },
@@ -190,11 +254,12 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    ...commonPlugins,
                     tooltip: {
+                        ...commonPlugins.tooltip,
                         callbacks: {
-                            label: function (context) {
-                                return context.raw + " tickets";
+                            label(context) {
+                                return `${context.raw || 0} tickets`;
                             }
                         }
                     }
@@ -215,5 +280,22 @@ window.initAdminDashboardCharts = function initAdminDashboardCharts(config) {
                 }
             }
         });
+    }
+
+    const clockNode = document.getElementById("cockpitClock");
+    if (clockNode) {
+        const updateClock = function () {
+            const formatter = new Intl.DateTimeFormat("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+                timeZone: "Asia/Kolkata"
+            });
+            clockNode.textContent = formatter.format(new Date());
+        };
+
+        updateClock();
+        window.setInterval(updateClock, 1000);
     }
 };

@@ -1,0 +1,9 @@
+<svg width="960" height="280" viewBox="0 0 960 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="280" rx="28" fill="white"/>
+  <g transform="translate(48 40)">
+    <path d="M94 8L160 74L126 108L94 76L62 108L28 74L94 8Z" fill="#2B2F36"/>
+    <path d="M94 80L126 112L160 80L194 114L128 180L94 146L60 180L-6 114L28 80L62 112L94 80Z" fill="#F27A21"/>
+  </g>
+  <text x="286" y="126" fill="#12203A" font-family="Segoe UI, Tahoma, sans-serif" font-size="78" font-weight="700" letter-spacing="2">Expygen</text>
+  <text x="290" y="176" fill="#67748E" font-family="Segoe UI, Tahoma, sans-serif" font-size="28" font-weight="500" letter-spacing="5">SIMPLIFIED PHARMACY</text>
+</svg>

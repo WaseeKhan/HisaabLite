@@ -185,6 +185,20 @@ class AdminPageIntegrationTest {
     }
 
     @Test
+    void adminStaticCssLoads() throws Exception {
+        mockMvc.perform(get("/admin/css/admin-base.css"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("text/css"));
+    }
+
+    @Test
+    void adminStaticJsLoads() throws Exception {
+        mockMvc.perform(get("/admin/js/admin-ui.js"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("text/javascript"));
+    }
+
+    @Test
     @WithMockUser(username = "admin@test.com", roles = "ADMIN")
     void adminCanLoadDashboard() throws Exception {
         mockMvc.perform(get("/admin/dashboard"))
@@ -198,7 +212,7 @@ class AdminPageIntegrationTest {
     void adminCanLoadUsersPage() throws Exception {
         mockMvc.perform(get("/admin/users"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/users"))
+                .andExpect(view().name("admin/users/users"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("User Management")));
     }
 
@@ -207,7 +221,7 @@ class AdminPageIntegrationTest {
     void adminCanLoadShopsPage() throws Exception {
         mockMvc.perform(get("/admin/shops"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/shops"))
+                .andExpect(view().name("admin/shops/shops"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Shop Management")));
     }
 
@@ -218,7 +232,7 @@ class AdminPageIntegrationTest {
 
         mockMvc.perform(get("/admin/shops/" + shopId))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/shop-details"))
+                .andExpect(view().name("admin/shops/shop-details"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Internal Admin Notes")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Super Admin Actions")));
     }
@@ -228,7 +242,7 @@ class AdminPageIntegrationTest {
     void adminCanLoadSubscriptionsPage() throws Exception {
         mockMvc.perform(get("/admin/subscriptions"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/subscriptions"))
+                .andExpect(view().name("admin/subscriptions/subscriptions"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Subscription Plans")));
     }
 
@@ -247,9 +261,9 @@ class AdminPageIntegrationTest {
     void adminCanLoadPlatformHealthPage() throws Exception {
         mockMvc.perform(get("/admin/platform-health"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/platform-health"))
+                .andExpect(view().name("admin/system-health"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Platform Health")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Recent Failed Operations")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Failure Timeline")));
     }
 
     @Test
@@ -257,8 +271,8 @@ class AdminPageIntegrationTest {
     void adminCanLoadSupportDashboard() throws Exception {
         mockMvc.perform(get("/admin/support"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/support-dashboard"))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Support Dashboard")));
+                .andExpect(view().name("admin/support/support-dashboard"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Support Command Center")));
     }
 
     @Test
@@ -266,9 +280,9 @@ class AdminPageIntegrationTest {
     void adminCanLoadSupportTicketOperationsPage() throws Exception {
         mockMvc.perform(get("/admin/support/ticket/" + supportTicketNumber))
                 .andExpect(status().isOk())
-                .andExpect(view().name("admin/support-ticket"))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Internal Support Operations")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Support Health Snapshot")));
+                .andExpect(view().name("admin/support/ticket"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Support Ops")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Health Snapshot")));
     }
 
     @Test
@@ -278,6 +292,34 @@ class AdminPageIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/audit-logs"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Audit Logs")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void adminCanLoadErrorPages() throws Exception {
+        mockMvc.perform(get("/admin/access-denied"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/error/access-denied"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Access Denied")));
+
+        mockMvc.perform(get("/admin/404"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/error/404"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Page Not Found")));
+
+        mockMvc.perform(get("/admin/500"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/error/500"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Something went wrong")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin@test.com", roles = "ADMIN")
+    void unknownAdminRouteUsesAdminNotFoundPage() throws Exception {
+        mockMvc.perform(get("/admin/does-not-exist"))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("admin/error/404"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Page Not Found")));
     }
 
     @Test

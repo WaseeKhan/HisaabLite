@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside th:fragment="sidebar" class="admin-sidebar">
+
+    <div class="admin-sidebar-brand">
+        <div class="admin-logo">
+            <img th:src="@{/images/expygen-mark-light.svg}" alt="Expygen Logo">
+        </div>
+
+        <div class="admin-brand-copy">
+            <strong>EXPYGEN</strong>
+            <span>System Control Center</span>
+        </div>
+    </div>
+
+    <div class="admin-sidebar-scroll">
+
+        <div class="admin-nav-group">
+            <div class="admin-nav-label">Navigation</div>
+
+            <a th:href="@{/admin/dashboard}" class="admin-nav-command active">
+                <span class="admin-nav-icon"><i class="fa-solid fa-border-all"></i></span>
+                <span>
+                    <strong>Cockpit</strong>
+                    <small>Command Center</small>
+                </span>
+                <i class="fa-solid fa-chevron-right admin-nav-arrow"></i>
+            </a>
+        </div>
+
+        <div class="admin-nav-group">
+            <div class="admin-nav-label">Core Modules</div>
+
+            <a th:href="@{/admin/dashboard}" class="admin-nav-link">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/admin/shops}" class="admin-nav-link">
+                <i class="fa-solid fa-store"></i>
+                <span>Shops</span>
+            </a>
+
+            <a th:href="@{/admin/users}" class="admin-nav-link">
+                <i class="fa-solid fa-users"></i>
+                <span>Users</span>
+            </a>
+
+            <a th:href="@{/admin/subscriptions}" class="admin-nav-link">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Subscriptions</span>
+            </a>
+
+        </div>
+         <div class="admin-nav-group">
+            <div class="admin-nav-label">User Requests</div>
+            <a th:href="@{/admin/contact-requests}" class="admin-nav-link">
+                <i class="fa-solid fa-address-book"></i>
+                <span>Contact Requests</span>
+            </a>
+            <a th:href="@{/admin/upgrade-requests}" class="admin-nav-link">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Upgrade Requests</span>
+            </a>
+
+             <a th:href="@{/admin/users/pending-approvals}" class="admin-nav-link">
+                <i class="fa-solid fa-user-clock"></i>
+                <span>Pending Approval</span>
+            </a>
+           
+        </div>
+
+        <div class="admin-nav-group">
+            <div class="admin-nav-label">Operations</div>
+
+            <a th:href="@{/admin/support}" class="admin-nav-link">
+                <i class="fa-solid fa-headset"></i>
+                <span>Support Tickets</span>
+            </a>
+           
+           
+            <a th:href="@{/admin/audit}" class="admin-nav-link">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Audit Logs</span>
+            </a>
+        </div>
+
+        <div class="admin-nav-group">
+            <div class="admin-nav-label">Analytics</div>
+
+            <a th:href="@{/admin/subscriptions-ledger}" class="admin-nav-link">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Subscription Ledger</span>
+            </a>
+        </div>
+
+        <div class="admin-nav-group">
+            <div class="admin-nav-label">System</div>
+
+            <a th:href="@{/admin/platform-health}" class="admin-nav-link">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <span>Platform Health</span>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="admin-sidebar-footer">
+        <button type="button" class="admin-quick-action">
+            <span><i class="fa-solid fa-bolt"></i> Quick Actions</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+</aside>
+
+</body>
+</html>

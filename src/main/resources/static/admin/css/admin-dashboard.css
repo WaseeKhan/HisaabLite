@@ -1,0 +1,1263 @@
+.cockpit-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cockpit-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.cockpit-kpi {
+    min-height: 118px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(11, 24, 43, .96), rgba(5, 13, 25, .96));
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    gap: 14px;
+}
+
+.cockpit-kpi::after {
+    content: "";
+    position: absolute;
+    left: 70px;
+    right: 16px;
+    bottom: 10px;
+    height: 30px;
+    opacity: .7;
+    clip-path: polygon(0 80%, 12% 60%, 20% 75%, 34% 68%, 46% 72%, 58% 60%, 70% 64%, 83% 45%, 100% 25%, 100% 100%, 0 100%);
+}
+
+.cockpit-kpi.purple::after { background: linear-gradient(180deg, rgba(124,60,255,.72), rgba(124,60,255,.12)); }
+.cockpit-kpi.green::after { background: linear-gradient(180deg, rgba(34,197,94,.62), rgba(34,197,94,.12)); }
+.cockpit-kpi.blue::after { background: linear-gradient(180deg, rgba(31,111,235,.72), rgba(31,111,235,.12)); }
+.cockpit-kpi.amber::after { background: linear-gradient(180deg, rgba(245,158,11,.70), rgba(245,158,11,.12)); }
+.cockpit-kpi.red::after { background: linear-gradient(180deg, rgba(239,68,68,.70), rgba(239,68,68,.12)); }
+
+.kpi-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    flex: 0 0 auto;
+}
+
+.purple .kpi-icon { color: #a78bfa; background: rgba(124,60,255,.18); }
+.green .kpi-icon { color: #4ade80; background: rgba(34,197,94,.16); }
+.blue .kpi-icon { color: #60a5fa; background: rgba(31,111,235,.18); }
+.amber .kpi-icon { color: #fbbf24; background: rgba(245,158,11,.16); }
+.red .kpi-icon,
+.danger .kpi-icon { color: #fb7185; background: rgba(239,68,68,.17); }
+
+.cockpit-kpi span {
+    display: block;
+    color: #8fa3bc;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.cockpit-kpi strong {
+    display: block;
+    margin-top: 7px;
+    color: #f8fbff;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.cockpit-kpi small {
+    display: block;
+    margin-top: 9px;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.up { color: #22c55e; }
+.down,
+.danger-text,
+.red-text { color: #ef4444 !important; }
+
+.cockpit-main-grid {
+    display: grid;
+    grid-template-columns: 1.28fr 1fr;
+    gap: 10px;
+}
+
+.cockpit-secondary-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr .9fr 1.5fr;
+    gap: 10px;
+}
+
+.cockpit-bottom-grid {
+    display: grid;
+    grid-template-columns: 1.35fr .95fr .8fr .8fr;
+    gap: 10px;
+}
+
+.cockpit-panel {
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(10, 23, 41, .96), rgba(5, 13, 25, .96));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+    overflow: hidden;
+}
+
+.cockpit-panel-head {
+    height: 48px;
+    padding: 0 15px;
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cockpit-panel-head h3 {
+    margin: 0;
+    color: #b8c7dc;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.cockpit-panel-head i,
+.cockpit-panel-head a {
+    color: #8fa3bc;
+    font-size: 12px;
+}
+
+.cockpit-panel-head button {
+    height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--admin-border);
+    background: rgba(11, 24, 43, .9);
+    color: #9fb0c7;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.revenue-layout {
+    display: grid;
+    grid-template-columns: 1.85fr 1fr;
+    gap: 10px;
+    padding: 10px;
+}
+
+.revenue-chart-box,
+.revenue-breakdown {
+    min-height: 360px;
+    border: 1px solid rgba(87,129,178,.18);
+    border-radius: 8px;
+    background: rgba(4, 12, 24, .38);
+    padding: 15px;
+}
+
+.chart-top {
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.chart-top span,
+.mini-title {
+    color: #8fa3bc;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.chart-top strong {
+    display: block;
+    margin-top: 12px;
+    color: #f8fbff;
+    font-size: 25px;
+}
+
+.chart-top small {
+    color: #22c55e;
+    font-weight: 850;
+    margin-left: 8px;
+}
+
+.chart-top button {
+    border: 1px solid var(--admin-border);
+    background: rgba(11,24,43,.85);
+    color: #9fb0c7;
+    border-radius: 7px;
+    height: 32px;
+    padding: 0 11px;
+}
+
+#revenueChart {
+    height: 270px !important;
+}
+
+.revenue-breakdown {
+    display: grid;
+    grid-template-rows: 22px 190px auto 72px;
+}
+
+#planChart {
+    height: 175px !important;
+    margin-top: 4px;
+}
+
+.breakdown-list {
+    display: grid;
+    gap: 9px;
+    margin-top: 4px;
+}
+
+.breakdown-list p {
+    margin: 0;
+    color: #aebdd3;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breakdown-list strong {
+    margin-left: auto;
+    color: #dce8f8;
+    font-size: 11px;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.dot.purple { background: #7c3cff; }
+.dot.blue { background: #1f6feb; }
+.dot.green { background: #22c55e; }
+.dot.amber { background: #f59e0b; }
+.dot.red { background: #ef4444; }
+
+.mini-metrics {
+    margin: 12px -15px -15px;
+    border-top: 1px solid var(--admin-border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.mini-metrics div {
+    padding: 10px 8px;
+    border-right: 1px solid var(--admin-border);
+}
+
+.mini-metrics span {
+    color: #73849d;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.mini-metrics strong {
+    display: block;
+    color: #f8fbff;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+.mini-metrics small {
+    color: #22c55e;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.monitor-panel {
+    padding-bottom: 0;
+}
+
+.monitor-layout {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: .72fr 1.25fr .9fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.monitor-stack {
+    display: grid;
+    gap: 9px;
+}
+
+.monitor-stack div {
+    height: 77px;
+    border: 1px solid rgba(87,129,178,.18);
+    border-radius: 8px;
+    background: rgba(4,12,24,.45);
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.monitor-stack span {
+    color: #8fa3bc;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.monitor-stack strong {
+    display: block;
+    color: #f8fbff;
+    margin-top: 7px;
+    font-size: 18px;
+}
+
+.monitor-stack em {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 11px;
+    height: 18px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,.5), transparent);
+    clip-path: polygon(0 70%, 8% 55%, 12% 80%, 20% 30%, 30% 65%, 44% 45%, 50% 78%, 61% 35%, 70% 75%, 85% 28%, 100% 63%, 100% 100%, 0 100%);
+}
+
+.radar-core {
+    width: 260px;
+    height: 260px;
+    margin: 0 auto;
+    border-radius: 50%;
+    position: relative;
+    background:
+        radial-gradient(circle, rgba(0,212,255,.38) 0 15%, transparent 16%),
+        repeating-radial-gradient(circle, rgba(0,212,255,.18) 0 2px, transparent 3px 28px),
+        conic-gradient(from 0deg, transparent 0 18%, rgba(0,212,255,.18) 19%, transparent 28% 100%);
+    border: 1px solid rgba(0,212,255,.34);
+    box-shadow: inset 0 0 40px rgba(0,212,255,.12), 0 0 35px rgba(0,212,255,.08);
+}
+
+.radar-core::before,
+.radar-core::after {
+    content: "";
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,212,255,.32);
+}
+
+.radar-core::after {
+    inset: 62px;
+}
+
+.radar-core span {
+    position: absolute;
+    inset: 50%;
+    width: 110px;
+    height: 1px;
+    background: rgba(0,212,255,.8);
+    transform-origin: left center;
+    animation: radarSpin 5s linear infinite;
+}
+
+@keyframes radarSpin {
+    to { transform: rotate(360deg); }
+}
+
+.monitor-foot {
+    border-top: 1px solid var(--admin-border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.monitor-foot div {
+    padding: 12px 16px;
+    border-right: 1px solid var(--admin-border);
+}
+
+.monitor-foot span {
+    display: block;
+    color: #73849d;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+.monitor-foot strong {
+    display: block;
+    color: #f8fbff;
+    margin-top: 7px;
+    font-size: 17px;
+}
+
+.monitor-foot small {
+    color: #8fa3bc;
+    font-size: 10px;
+}
+
+.monitor-foot .ok {
+    color: #22c55e;
+    font-size: 13px;
+}
+
+.plan-mix {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 22px;
+}
+
+#mixChart {
+    height: 120px !important;
+}
+
+.plan-mix ul,
+.activity-list,
+.alert-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.plan-mix li {
+    color: #aebdd3;
+    font-size: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.plan-mix li span {
+    margin-left: auto;
+}
+
+.small-chart-panel {
+    padding-bottom: 10px;
+}
+
+.small-chart-panel .big {
+    display: block;
+    padding: 12px 15px 0;
+    color: #f8fbff;
+    font-size: 27px;
+}
+
+.small-chart-panel > small {
+    display: block;
+    padding: 5px 15px 0;
+    color: #aebdd3;
+    font-size: 12px;
+}
+
+.small-chart-panel small b {
+    color: #22c55e;
+    margin-left: 8px;
+}
+
+#userChart,
+#supportChart {
+    height: 78px !important;
+    margin-top: 8px;
+}
+
+.health-timeline {
+    padding: 17px;
+    display: grid;
+    gap: 12px;
+}
+
+.health-timeline div {
+    display: grid;
+    grid-template-columns: 110px 55px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.health-timeline span,
+.health-timeline strong {
+    color: #aebdd3;
+    font-size: 12px;
+}
+
+.health-timeline em {
+    height: 18px;
+    border-radius: 4px;
+    background: repeating-linear-gradient(90deg, #22c55e 0 36px, transparent 37px 51px);
+}
+
+.cockpit-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cockpit-table th,
+.cockpit-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(87,129,178,.14);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.cockpit-table th {
+    color: #73849d;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+.cockpit-table td {
+    color: #b8c7dc;
+    font-size: 12px;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 6px;
+    background: rgba(148,163,184,.14);
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.tag.blue { background: rgba(31,111,235,.24); color: #7db5ff; }
+.tag.green { background: rgba(34,197,94,.16); color: #4ade80; }
+
+.activity-list,
+.alert-list {
+    padding: 13px;
+    display: grid;
+    gap: 11px;
+}
+
+.activity-list li {
+    color: #aebdd3;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.activity-list span,
+.activity-list b {
+    margin-left: auto;
+    font-size: 10px;
+}
+
+.green-text { color: #22c55e; }
+.blue-text { color: #1f6feb; }
+
+.alert-list li {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: 26px 1fr 50px;
+    gap: 9px;
+    align-items: center;
+}
+
+.alert-list i {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    color: #ef4444;
+    background: rgba(239,68,68,.15);
+}
+
+.alert-list i.amber-icon {
+    color: #f59e0b;
+    background: rgba(245,158,11,.15);
+}
+
+.alert-list b {
+    display: block;
+    color: #e2e8f0;
+    font-size: 11px;
+}
+
+.alert-list span {
+    color: #73849d;
+    font-size: 10px;
+}
+
+.alert-list em {
+    color: #8fa3bc;
+    font-size: 10px;
+    font-style: normal;
+}
+
+@media (max-width: 1500px) {
+    .cockpit-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .cockpit-main-grid,
+    .cockpit-secondary-grid,
+    .cockpit-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================================
+   OVERLAP FIXES
+================================ */
+
+/* give dashboard breathing space */
+.admin-content {
+    padding: 14px 16px 18px;
+    overflow-x: hidden;
+}
+
+/* KPI cards slightly tighter */
+.cockpit-kpi-grid {
+    gap: 12px;
+}
+
+.cockpit-kpi {
+    padding: 14px;
+}
+
+/* main grid: revenue was eating too much/too little */
+.cockpit-main-grid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(470px, .9fr);
+}
+
+/* IMPORTANT: allow children to shrink without overflow */
+.cockpit-panel,
+.revenue-panel,
+.monitor-panel,
+.revenue-chart-box,
+.revenue-breakdown {
+    min-width: 0;
+}
+
+/* Revenue chart + breakdown fix */
+.revenue-layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(300px, .9fr);
+}
+
+.revenue-breakdown {
+    overflow: hidden;
+}
+
+.breakdown-list p {
+    font-size: 11px;
+}
+
+.mini-metrics {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.mini-metrics div {
+    min-width: 0;
+}
+
+/* Plan Mix overlap fix */
+.plan-mix {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 14px;
+}
+
+.plan-mix ul {
+    min-width: 0;
+}
+
+.plan-mix li {
+    font-size: 11px;
+    gap: 6px;
+}
+
+.plan-mix li span {
+    white-space: nowrap;
+}
+
+/* Bottom tables overlap fix */
+.cockpit-bottom-grid {
+    grid-template-columns:
+        minmax(420px, 1.25fr)
+        minmax(360px, .95fr)
+        minmax(300px, .8fr)
+        minmax(300px, .8fr);
+}
+
+.cockpit-panel {
+    overflow: hidden;
+}
+
+.cockpit-table {
+    table-layout: fixed;
+}
+
+.cockpit-table th,
+.cockpit-table td {
+    padding: 9px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Recent shops column widths */
+.cockpit-bottom-grid .cockpit-panel:nth-child(1) .cockpit-table th:nth-child(1),
+.cockpit-bottom-grid .cockpit-panel:nth-child(1) .cockpit-table td:nth-child(1) {
+    width: 27%;
+}
+
+.cockpit-bottom-grid .cockpit-panel:nth-child(1) .cockpit-table th:nth-child(2),
+.cockpit-bottom-grid .cockpit-panel:nth-child(1) .cockpit-table td:nth-child(2) {
+    width: 24%;
+}
+
+/* Recent users column widths */
+.cockpit-bottom-grid .cockpit-panel:nth-child(2) .cockpit-table th,
+.cockpit-bottom-grid .cockpit-panel:nth-child(2) .cockpit-table td {
+    font-size: 11px;
+}
+
+/* health timeline tighter */
+.health-timeline div {
+    grid-template-columns: 105px 48px 1fr;
+}
+
+/* chart clipping fix */
+canvas {
+    max-width: 100%;
+}
+
+/* ================================
+   DONUT CIRCLE FIX
+================================ */
+
+.revenue-breakdown {
+    display: flex;
+    flex-direction: column;
+}
+
+.revenue-breakdown #planChart {
+    width: 185px !important;
+    height: 185px !important;
+    max-width: 185px !important;
+    max-height: 185px !important;
+    margin: 8px auto 10px;
+    display: block;
+}
+
+.plan-mix {
+    display: grid;
+    grid-template-columns: 135px minmax(0, 1fr);
+    align-items: center;
+}
+
+.plan-mix #mixChart {
+    width: 128px !important;
+    height: 128px !important;
+    max-width: 128px !important;
+    max-height: 128px !important;
+    display: block;
+}
+
+/* ================================
+   REVENUE HEIGHT + METRICS FIX
+================================ */
+
+.revenue-chart-box,
+.revenue-breakdown {
+    min-height: 0;
+    height: 390px;
+}
+
+.revenue-layout {
+    align-items: stretch;
+}
+
+.revenue-breakdown {
+    padding-bottom: 0;
+    overflow: hidden;
+}
+
+.revenue-breakdown #planChart {
+    width: 155px !important;
+    height: 155px !important;
+    max-width: 155px !important;
+    max-height: 155px !important;
+    margin: 6px auto 8px;
+}
+
+.breakdown-list {
+    gap: 7px;
+}
+
+.breakdown-list p {
+    font-size: 11px;
+}
+
+.mini-metrics {
+    margin: 10px -15px 0;
+    height: 74px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.mini-metrics div {
+    padding: 8px 7px;
+}
+
+.mini-metrics span {
+    font-size: 8px;
+}
+
+.mini-metrics strong {
+    font-size: 12px;
+}
+
+.mini-metrics small {
+    font-size: 9px;
+}
+
+/* reduce empty space in system monitor */
+.monitor-layout {
+    min-height: 300px;
+}
+
+.monitor-panel {
+    min-height: 438px;
+}
+
+/* ================================
+   COMPACT DASHBOARD TUNING
+================================ */
+
+.admin-content {
+    padding: 10px 12px 12px;
+}
+
+.cockpit-dashboard {
+    gap: 9px;
+}
+
+.cockpit-kpi-grid,
+.cockpit-main-grid,
+.cockpit-secondary-grid,
+.cockpit-bottom-grid {
+    gap: 8px;
+}
+
+.cockpit-kpi {
+    min-height: 96px;
+    padding: 12px;
+}
+
+.kpi-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+}
+
+.cockpit-kpi strong {
+    font-size: 20px;
+    margin-top: 4px;
+}
+
+.cockpit-kpi small {
+    margin-top: 5px;
+    font-size: 9px;
+}
+
+.cockpit-panel-head {
+    height: 40px;
+    padding: 0 12px;
+}
+
+.cockpit-panel-head h3 {
+    font-size: 12px;
+}
+
+.revenue-layout {
+    padding: 8px;
+    gap: 8px;
+}
+
+.revenue-chart-box,
+.revenue-breakdown {
+    height: 360px;
+    padding: 12px;
+}
+
+#revenueChart {
+    height: 240px !important;
+}
+
+.revenue-breakdown #planChart {
+    width: 140px !important;
+    height: 140px !important;
+    max-width: 140px !important;
+    max-height: 140px !important;
+}
+
+.radar-core {
+    width: 220px;
+    height: 220px;
+}
+
+.monitor-stack div {
+    height: 68px;
+    padding: 10px;
+}
+
+.monitor-foot div {
+    padding: 10px 12px;
+}
+
+.cockpit-secondary-grid {
+    grid-template-columns: 1.05fr 1fr .9fr 1.45fr;
+}
+
+.plan-mix {
+    padding: 12px;
+}
+
+.cockpit-table th,
+.cockpit-table td {
+    padding: 7px 9px;
+    font-size: 11px;
+}
+
+.activity-list,
+.alert-list {
+    padding: 10px;
+    gap: 8px;
+}
+
+/* ================================
+   BOTTOM SECTION SCROLL FIX
+================================ */
+
+.cockpit-bottom-grid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+/* make each card fixed width */
+.cockpit-bottom-grid .cockpit-panel {
+    flex: 0 0 420px; /* adjust if needed */
+    min-width: 420px;
+}
+
+/* scrollbar styling (premium look) */
+.cockpit-bottom-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.cockpit-bottom-grid::-webkit-scrollbar-thumb {
+    background: rgba(124, 60, 255, 0.5);
+    border-radius: 10px;
+}
+
+.cockpit-bottom-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ================================
+   BOTTOM SECTION FINAL FIX
+================================ */
+
+.cockpit-bottom-scroll {
+    display: grid;
+    grid-template-columns: minmax(520px, 1.25fr) minmax(430px, 1fr) minmax(360px, .85fr) minmax(380px, .9fr);
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.cockpit-bottom-scroll::-webkit-scrollbar {
+    height: 7px;
+}
+
+.cockpit-bottom-scroll::-webkit-scrollbar-thumb {
+    background: rgba(124, 60, 255, .55);
+    border-radius: 999px;
+}
+
+.cockpit-bottom-scroll::-webkit-scrollbar-track {
+    background: rgba(7, 17, 32, .65);
+    border-radius: 999px;
+}
+
+.bottom-card {
+    min-height: 255px;
+    max-height: 255px;
+    min-width: 0;
+}
+
+.table-scroll-x {
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.card-body-scroll {
+    height: 207px;
+    overflow-y: auto;
+}
+
+.table-scroll-x::-webkit-scrollbar,
+.card-body-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-scroll-x::-webkit-scrollbar-thumb,
+.card-body-scroll::-webkit-scrollbar-thumb {
+    background: rgba(124, 60, 255, .5);
+    border-radius: 999px;
+}
+
+.table-scroll-x::-webkit-scrollbar-track,
+.card-body-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cockpit-table {
+    min-width: 100%;
+    table-layout: fixed;
+}
+
+.shops-table {
+    min-width: 680px;
+}
+
+.users-table {
+    min-width: 500px;
+}
+
+.cockpit-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: #071323;
+}
+
+.shops-table th:nth-child(1),
+.shops-table td:nth-child(1) {
+    width: 180px;
+}
+
+.shops-table th:nth-child(2),
+.shops-table td:nth-child(2) {
+    width: 180px;
+}
+
+.shops-table th:nth-child(3),
+.shops-table td:nth-child(3) {
+    width: 80px;
+}
+
+.shops-table th:nth-child(4),
+.shops-table td:nth-child(4) {
+    width: 90px;
+}
+
+.shops-table th:nth-child(5),
+.shops-table td:nth-child(5) {
+    width: 80px;
+}
+
+.shops-table th:nth-child(6),
+.shops-table td:nth-child(6) {
+    width: 110px;
+}
+
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+    width: 150px;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+    width: 160px;
+}
+
+.users-table th:nth-child(3),
+.users-table td:nth-child(3) {
+    width: 100px;
+}
+
+.users-table th:nth-child(4),
+.users-table td:nth-child(4) {
+    width: 110px;
+}
+
+.cockpit-table th,
+.cockpit-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.activity-list li {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    gap: 9px;
+}
+
+.activity-list li span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.activity-list li em,
+.activity-list li b {
+    margin-left: 0;
+    white-space: nowrap;
+    font-style: normal;
+}
+
+.alert-list li {
+    grid-template-columns: 28px minmax(0, 1fr) 58px;
+}
+
+.alert-list div {
+    min-width: 0;
+}
+
+.alert-list b,
+.alert-list span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Revenue title/value overlap fix */
+.chart-top {
+    height: 88px;
+    align-items: flex-start;
+}
+
+.chart-top > div {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.chart-top span {
+    display: block;
+    line-height: 1.1;
+}
+
+.chart-top strong {
+    margin-top: 0;
+    line-height: 1.05;
+}
+
+.chart-top small {
+    margin-left: 0;
+    display: block;
+    line-height: 1.1;
+}
+
+#revenueChart {
+    height: 220px !important;
+}
+
+/* ================================
+   TOP 5 ROW HEIGHT FIX
+================================ */
+
+/* increase card height */
+.shops-card,
+.users-card {
+    height: 320px;        /* adjust if needed */
+    min-height: 320px;
+}
+
+/* remove vertical scroll */
+.shops-card .table-scroll-x,
+.users-card .table-scroll-x {
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* table row height tuning */
+.cockpit-table th {
+    height: 38px;
+}
+
+.cockpit-table td {
+    height: 40px;
+}
+
+/* header + 5 rows fit properly */
+.cockpit-panel-head {
+    height: 42px;
+}
+
+/* ensure table fills card */
+.table-scroll-x {
+    padding-bottom: 6px;
+}
+
+/* ================================
+   BOTTOM ROW UNIFIED HEIGHT
+================================ */
+
+/* same height for all 4 cards */
+.shops-card,
+.users-card,
+.activity-card,
+.alert-card {
+    height: 320px;
+    min-height: 320px;
+}
+
+.activity-card,
+.alert-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* shops & users → NO vertical scroll */
+.shops-card .table-scroll-x,
+.users-card .table-scroll-x {
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* activity & alert → scroll inside */
+.activity-card .card-body-scroll,
+.alert-card .card-body-scroll {
+    flex: 0 0 220px;
+    max-height: 220px;
+    min-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+}
+
+/* keep header space consistent */
+.cockpit-panel-head {
+    height: 42px;
+}
+
+/* row sizing consistency */
+.cockpit-table th {
+    height: 38px;
+}
+
+.cockpit-table td {
+    height: 40px;
+}

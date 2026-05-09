@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:with="activePage='subscriptions'"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title>Subscription Plans • Expygen Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-subscriptions.css}">
+    </th:block>
+</head>
+
+<body>
+
+<th:block th:fragment="content">
+
+<div class="subscriptions-page">
+
+    <section th:if="${success}" class="admin-alert success">
+        <i class="fa-solid fa-circle-check"></i>
+        <div>
+            <strong>Success!</strong>
+            <span th:text="${success}"></span>
+        </div>
+    </section>
+
+    <section th:if="${error}" class="admin-alert danger">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <div>
+            <strong>Error!</strong>
+            <span th:text="${error}"></span>
+        </div>
+    </section>
+
+    <section class="subs-hero">
+        <div>
+            <span class="eyebrow">Commercial Control</span>
+            <h1><i class="fa-solid fa-credit-card"></i> Subscription Plans</h1>
+            <p>Manage public pricing, internal monthly values, shop limits, feature caps, and plan usage from one cockpit.</p>
+        </div>
+
+        <div class="subs-hero-actions">
+            <a th:href="@{/admin/subscriptions-ledger}" class="admin-btn-primary">
+                <i class="fa-solid fa-chart-line"></i> Ledger
+            </a>
+            <a th:href="@{/admin/subscriptions/new}" class="admin-btn-primary">
+                <i class="fa-solid fa-plus"></i> Add New Plan
+            </a>
+            <a th:href="@{/pricing}" class="admin-btn-ghost">
+                <i class="fa-solid fa-up-right-from-square"></i> View Public Pricing
+            </a>
+        </div>
+    </section>
+
+    <section class="subs-command-strip">
+        <article class="subs-strip-card">
+            <span>Plan Portfolio</span>
+            <strong th:text="${totalPlanCount}">0</strong>
+            <small th:text="${activePlanCount + ' active • ' + inactivePlanCount + ' inactive'}">0 active • 0 inactive</small>
+        </article>
+
+        <article class="subs-strip-card">
+            <span>Paid Shop Base</span>
+            <strong th:text="${paidShopsCount}">0</strong>
+            <small th:text="${activeShopsCount + ' active workspaces across the platform'}">0 active workspaces across the platform</small>
+        </article>
+
+        <article class="subs-strip-card">
+            <span>Annualized Value</span>
+            <strong th:text="'₹' + ${#numbers.formatDecimal(estimatedAnnualRevenue, 1, 'COMMA', 0, 'POINT')}">₹0</strong>
+            <small>Estimated from current plan mix and annual public pricing.</small>
+        </article>
+
+        <article class="subs-strip-card">
+            <span>Best Discount</span>
+            <strong th:text="${bestDiscountPercent} + '%'">0%</strong>
+            <small th:text="${bestDiscountPlanName != 'N/A' ? bestDiscountPlanName + ' currently offers the deepest yearly saving.' : 'No yearly discount configured yet.'}">No yearly discount configured yet.</small>
+        </article>
+    </section>
+
+    <section class="subs-kpi-grid">
+        <article class="subs-kpi purple">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Total Plans</span>
+            <strong th:text="${totalPlanCount}">0</strong>
+            <small th:text="${activePlanCount + ' active configurations'}">0 active configurations</small>
+        </article>
+
+        <article class="subs-kpi green">
+            <i class="fa-solid fa-shop"></i>
+            <span>Active Shops</span>
+            <strong th:text="${activeShopsCount}">0</strong>
+            <small th:text="${paidShopsCount + ' on paid plans'}">0 on paid plans</small>
+        </article>
+
+        <article class="subs-kpi blue">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+            <span>Annual Revenue</span>
+            <strong th:text="'₹' + ${#numbers.formatDecimal(estimatedAnnualRevenue, 1, 'COMMA', 0, 'POINT')}">₹0</strong>
+            <small>Estimated annualized public plan value.</small>
+        </article>
+
+        <article class="subs-kpi amber">
+            <i class="fa-solid fa-percent"></i>
+            <span>Discount Control</span>
+            <strong th:text="${bestDiscountPercent} + '%'">0%</strong>
+            <small th:text="${bestDiscountPlanName != 'N/A' ? bestDiscountPlanName + ' has the best yearly saving.' : 'No discount configured'}">No discount configured</small>
+        </article>
+    </section>
+
+    <section class="plans-grid" th:if="${not #lists.isEmpty(plans)}">
+
+        <article class="plan-card-large" th:each="plan : ${plans}">
+            <div class="plan-header"
+                 th:classappend="${plan.planName == 'FREE' ? ' free' : (plan.planName == 'BASIC' ? ' basic' : ' premium')}">
+
+                <div class="plan-topline">
+                    <h3 th:text="${plan.planName}">PRO</h3>
+                    <span th:text="${plan.shopCount} + ' shops'">5 shops</span>
+                </div>
+
+                <div class="plan-price">
+                    <span class="currency">₹</span>
+                    <span class="amount" th:text="${plan.annualPrice != null ? plan.annualPrice : plan.price}">9990</span>
+                    <span class="period">/year public</span>
+                </div>
+
+                <div class="internal-price"
+                     th:if="${plan.price != null}"
+                     th:text="'Internal monthly: ₹' + ${plan.price}">
+                    Internal monthly: ₹999
+                </div>
+            </div>
+
+            <div class="plan-body">
+                <p class="description" th:text="${plan.description}">Plan description</p>
+
+                <ul class="features-list">
+                    <li>
+                        <i class="fa-solid fa-users"></i>
+                        <span>Max Users</span>
+                        <strong th:text="${plan.maxUsers == -1 ? 'Unlimited' : plan.maxUsers}">10</strong>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Max Products</span>
+                        <strong th:text="${plan.maxProducts == -1 ? 'Unlimited' : plan.maxProducts}">1000</strong>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Billing</span>
+                        <strong th:text="${plan.durationInDays} + ' days'">365 days</strong>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-percent"></i>
+                        <span>Yearly Discount</span>
+                        <strong th:text="${plan.effectiveAnnualDiscountPercent != null ? plan.effectiveAnnualDiscountPercent + '%' : '0%'}">17%</strong>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-shop"></i>
+                        <span>Active Shops</span>
+                        <strong th:text="${plan.shopCount}">5</strong>
+                    </li>
+                </ul>
+
+                <div class="plan-usage">
+                    <div>
+                        <span>Usage</span>
+                        <strong th:text="${plan.usagePercent} + '%'">45%</strong>
+                    </div>
+                    <div class="usage-track">
+                        <b th:style="'width: ' + ${plan.usagePercent} + '%'"></b>
+                    </div>
+                </div>
+
+                <div class="plan-actions">
+                    <a th:href="@{'/admin/subscriptions/edit/' + ${plan.planName}}"
+                       class="btn-action btn-edit">
+                        <i class="fa-solid fa-pen"></i> Edit
+                    </a>
+
+                    <form th:if="${plan.id != null}"
+                          th:action="@{'/admin/subscriptions/delete/' + ${plan.id}}"
+                          method="get"
+                          class="action-inline-form"
+                          th:onsubmit="'return confirm(\'⚠️ DELETE PLAN\n\nAre you sure you want to delete the ' + \'' + ${plan.planName} + '\' + ' plan?\n\nThis action cannot be undone!\');'">
+                        <button type="submit" class="btn-action btn-delete">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
+
+                    <span th:if="${plan.id == null}"
+                          class="btn-action btn-delete disabled-action"
+                          onclick="alert('Default plans cannot be deleted. Please add custom plans instead.')">
+                        <i class="fa-solid fa-lock"></i> Locked
+                    </span>
+                </div>
+            </div>
+        </article>
+
+    </section>
+
+    <section th:if="${#lists.isEmpty(plans)}" class="empty-plans">
+        <i class="fa-solid fa-credit-card"></i>
+        <strong>No subscription plans found</strong>
+        <span>Create your first commercial plan to start managing subscriptions.</span>
+        <a th:href="@{/admin/subscriptions/new}" class="admin-btn-primary">
+            <i class="fa-solid fa-plus"></i> Add First Plan
+        </a>
+    </section>
+
+   <section class="subs-panel tech-distribution-panel" th:if="${not #lists.isEmpty(plans)}">
+    <div class="subs-panel-head">
+        <h3><i class="fa-solid fa-chart-pie"></i> Plan Distribution</h3>
+        <span>Usage Intelligence</span>
+    </div>
+
+    <div class="tech-distribution">
+        <div class="distribution-orbit">
+            <div class="orbit-ring"></div>
+            <div class="donut-static">
+                <div>
+                    <strong th:text="${activeShopsCount}">0</strong>
+                    <span>Active Shops</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="distribution-list">
+            <div class="distribution-row" th:each="plan : ${plans}">
+                <div>
+                    <span class="plan-dot"></span>
+                    <strong th:text="${plan.planName}">PRO</strong>
+                    <small th:text="${plan.shopCount + ' shops • ₹' + #numbers.formatDecimal((plan.annualPrice != null ? plan.annualPrice : 0.0), 1, 'COMMA', 0, 'POINT') + '/year'}">6 shops • ₹999/year</small>
+                </div>
+
+                <div class="usage-line">
+                    <b th:style="'width:' + ${plan.usagePercent} + '%'"></b>
+                </div>
+
+                <em th:text="${plan.usagePercent} + '%'">54.5%</em>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div>
+
+</th:block>
+
+</body>
+</html>

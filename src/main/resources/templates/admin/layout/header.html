@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="header" class="admin-header">
+
+   <button type="button" class="admin-header-menu" id="menuToggle">
+    <i class="fa-solid fa-bars-staggered"></i>
+</button>
+
+    <div class="admin-header-metric">
+        <span>Mission Time</span>
+        <strong>
+            <span id="adminClock">11:42:36 AM</span>
+            <b>IST</b>
+        </strong>
+    </div>
+
+    <div class="admin-header-metric wide">
+        <span>System Status</span>
+        <strong class="green">
+            <i class="fa-solid fa-circle-dot"></i>
+            All Systems Operational
+        </strong>
+    </div>
+
+    <div class="admin-header-metric">
+        <span>Data Sync</span>
+        <strong class="cyan">
+            <i class="fa-solid fa-diamond"></i>
+            Real-time
+            <i class="fa-regular fa-circle-check"></i>
+        </strong>
+    </div>
+
+    <div class="admin-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search anything...">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+
+    <button type="button" class="admin-icon-button">
+        <i class="fa-regular fa-bell"></i>
+        <span>12</span>
+    </button>
+
+   <div class="admin-profile" id="adminProfile">
+
+    <div class="admin-avatar">A</div>
+
+    <div class="admin-profile-copy">
+        <strong>Admin</strong>
+        <span>Super Administrator</span>
+    </div>
+
+    <i class="fa-solid fa-chevron-down profile-toggle"></i>
+
+    <!-- DROPDOWN -->
+    <div class="admin-profile-dropdown">
+
+        <a th:href="@{/admin/dashboard}">
+            <i class="fa-regular fa-user"></i>
+            Dashboard
+        </a>
+
+        <a th:href="@{/admin/platform-health}">
+            <i class="fa-solid fa-gear"></i>
+            Platform Health
+        </a>
+
+        <a th:href="@{/admin/audit}">
+            <i class="fa-solid fa-shield-halved"></i>
+            Admin Logs
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <form th:action="@{/admin/logout}" method="post">
+            <button type="submit" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
+</header>
+
+</body>
+</html>

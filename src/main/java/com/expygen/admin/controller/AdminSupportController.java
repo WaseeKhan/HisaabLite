@@ -89,13 +89,21 @@ public class AdminSupportController {
         model.addAttribute("totalTickets", ticketRepository.count());
         model.addAttribute("openTickets", ticketRepository.countByStatus(TicketStatus.OPEN));
         model.addAttribute("inProgressTickets", ticketRepository.countByStatus(TicketStatus.IN_PROGRESS));
+        model.addAttribute("waitingTickets", ticketRepository.countByStatus(TicketStatus.WAITING_CUSTOMER));
         model.addAttribute("resolvedTickets", ticketRepository.countByStatus(TicketStatus.RESOLVED));
+        model.addAttribute("closedTickets", ticketRepository.countByStatus(TicketStatus.CLOSED));
         model.addAttribute("overdueTickets", ticketRepository.countOverdueTickets(LocalDateTime.now()));
         model.addAttribute("assignedToMeTickets", ticketRepository.countByAssignedAdminUsername(admin.getUsername()));
         model.addAttribute("subscriptionIssueTickets", ticketRepository.countByRootCause(SupportRootCause.SUBSCRIPTION));
         model.addAttribute("whatsappIssueTickets", ticketRepository.countByRootCause(SupportRootCause.WHATSAPP));
+        model.addAttribute("billingIssueTickets", ticketRepository.countByRootCause(SupportRootCause.BILLING));
+        model.addAttribute("loginIssueTickets", ticketRepository.countByRootCause(SupportRootCause.LOGIN_ACCESS));
+        model.addAttribute("performanceIssueTickets", ticketRepository.countByRootCause(SupportRootCause.PERFORMANCE));
+        model.addAttribute("inventoryIssueTickets", ticketRepository.countByRootCause(SupportRootCause.INVENTORY));
+        model.addAttribute("urgentTickets", ticketRepository.countByPriority(TicketPriority.URGENT));
+        model.addAttribute("highPriorityTickets", ticketRepository.countByPriority(TicketPriority.HIGH));
 
-        return "admin/support-dashboard";
+        return "admin/support/support-dashboard";
     }
 
     // View Single Ticket
@@ -108,13 +116,13 @@ public class AdminSupportController {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
         try {
-            // 🔴 Admin is always true
+            // Admin is always true
             boolean isAdmin = true;
 
-            // 🔴 Use service method with permission check
+            // Use service method with permission check
             SupportTicket ticket = supportService.getTicket(ticketNumber, admin, isAdmin);
 
-            // 🔴 Get replies with admin permissions
+            // Get replies with admin permissions
             List<TicketReply> replies = supportService.getTicketReplies(ticket.getId(), admin, isAdmin);
 
             model.addAttribute("ticket", ticket);
@@ -123,12 +131,12 @@ public class AdminSupportController {
             model.addAttribute("rootCauses", SupportRootCause.values());
             model.addAttribute("now", LocalDateTime.now());
 
-            return "admin/support-ticket";
+            return "admin/support/ticket";
 
         } catch (RuntimeException e) {
             log.error("Error viewing ticket: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
-            return "redirect:/admin/support/tickets";
+            return "redirect:/admin/support";
         }
     }
 

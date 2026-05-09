@@ -1,0 +1,328 @@
+.admin-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--admin-sidebar-width);
+    background:
+        radial-gradient(circle at 20% 0%, rgba(124, 60, 255, 0.16), transparent 28%),
+        linear-gradient(180deg, #050b16 0%, #020712 100%);
+    border-right: 1px solid var(--admin-border);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, rgba(0, 212, 255, .35), transparent);
+}
+
+.admin-sidebar-brand {
+    height: var(--admin-header-height);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-logo {
+    width: 43px;
+    height: 43px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #7c3cff, #1f6feb);
+    color: #fff;
+    font-size: 21px;
+    box-shadow: 0 0 30px rgba(124, 60, 255, .45);
+}
+
+.admin-brand-copy strong {
+    display: block;
+    font-size: 21px;
+    line-height: 1;
+    color: #fff;
+    letter-spacing: -.03em;
+}
+
+.admin-brand-copy span {
+    display: block;
+    margin-top: 5px;
+    color: var(--admin-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-sidebar-scroll {
+    padding: 15px 12px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+    width: 0;
+}
+
+.admin-nav-group {
+    margin-bottom: 17px;
+}
+
+.admin-nav-label {
+    margin: 0 0 8px 6px;
+    color: #7f8fa7;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.admin-nav-command {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 12px;
+    border-radius: 11px;
+    border-left: 3px solid var(--admin-purple);
+    background: linear-gradient(90deg, rgba(124, 60, 255, .30), rgba(31, 111, 235, .10));
+    box-shadow: inset 0 0 28px rgba(124, 60, 255, .08);
+}
+
+.admin-nav-command .admin-nav-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    color: #b597ff;
+    background: rgba(124, 60, 255, .14);
+}
+
+.admin-nav-command strong {
+    display: block;
+    font-size: 13px;
+    color: #fff;
+}
+
+.admin-nav-command small {
+    display: block;
+    margin-top: 3px;
+    color: #9b8cff;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.admin-nav-arrow {
+    margin-left: auto;
+    color: #8fa3bc;
+    font-size: 11px;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 39px;
+    padding: 0 12px;
+    border-radius: 10px;
+    color: #aab9cc;
+    font-size: 13px;
+    font-weight: 750;
+    transition: .16s ease;
+}
+
+.admin-nav-link i {
+    width: 18px;
+    color: #8fa3bc;
+    font-size: 14px;
+}
+
+.admin-nav-link:hover {
+    background: rgba(31, 111, 235, .10);
+    color: #fff;
+}
+
+.admin-pill {
+    margin-left: auto;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 7px;
+    background: rgba(124, 60, 255, .38);
+    color: #d9ccff;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+}
+
+.admin-sidebar-footer {
+    padding: 14px 16px 18px;
+}
+
+.admin-quick-action {
+    width: 100%;
+    height: 52px;
+    border-radius: 10px;
+    border: 1px solid rgba(245, 158, 11, .42);
+    background: rgba(245, 158, 11, .08);
+    color: #ffc45c;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+.admin-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: rgba(209, 229, 232, 0.12); /* subtle glow bg */
+    border: 1px solid rgba(124, 60, 255, 0.2);
+    overflow: hidden;
+}
+
+.admin-logo img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+}
+
+/* ================================
+   SIDEBAR COLLAPSE
+================================ */
+
+.sidebar-collapsed .admin-sidebar {
+    width: 80px;
+}
+
+/* hide text */
+.sidebar-collapsed .admin-brand-copy,
+.sidebar-collapsed .admin-nav-label,
+.sidebar-collapsed .admin-nav-link span,
+.sidebar-collapsed .admin-nav-command span,
+.sidebar-collapsed .admin-nav-arrow,
+.sidebar-collapsed .admin-pill {
+    display: none;
+}
+
+/* center icons */
+.sidebar-collapsed .admin-nav-link {
+    justify-content: center;
+}
+
+.sidebar-collapsed .admin-nav-command {
+    justify-content: center;
+}
+/* ================================
+   FIX COCKPIT ICON ON COLLAPSE
+================================ */
+
+/* keep command visible */
+.sidebar-collapsed .admin-nav-command {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+/* hide only text, not icon */
+.sidebar-collapsed .admin-nav-command span {
+    display: none;
+}
+
+/* ensure icon is centered */
+.sidebar-collapsed .admin-nav-command .admin-nav-icon {
+    margin: 0 auto;
+}
+
+/* hide arrow */
+.sidebar-collapsed .admin-nav-arrow {
+    display: none;
+}
+
+/* ================================
+   COLLAPSED COCKPIT ICON FIX
+================================ */
+
+.sidebar-collapsed .admin-nav-command {
+    width: 52px;
+    height: 52px;
+    min-height: 52px;
+    margin: 8px auto 16px;
+    padding: 0;
+    border-left: 3px solid var(--admin-purple);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-collapsed .admin-nav-command .admin-nav-icon {
+    display: grid !important;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    place-items: center;
+}
+
+.sidebar-collapsed .admin-nav-command .admin-nav-icon i {
+    display: inline-block !important;
+    color: #b597ff;
+    font-size: 16px;
+}
+
+.sidebar-collapsed .admin-nav-command > span:not(.admin-nav-icon),
+.sidebar-collapsed .admin-nav-command .admin-nav-arrow {
+    display: none !important;
+}
+
+/* ================================
+   COLLAPSED QUICK ACTION FIX
+================================ */
+
+.sidebar-collapsed .admin-sidebar-footer {
+    padding: 12px 10px 16px;
+}
+
+.sidebar-collapsed .admin-quick-action {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto;
+    padding: 0;
+    border-radius: 14px;
+    justify-content: center;
+}
+
+.sidebar-collapsed .admin-quick-action span {
+    display: none;
+}
+
+.sidebar-collapsed .admin-quick-action i {
+    display: inline-flex !important;
+    margin: 0;
+    font-size: 18px;
+}
+
+/* show only bolt icon, hide chevron */
+.sidebar-collapsed .admin-quick-action i.fa-chevron-right {
+    display: none !important;
+}
+
+/* optional: make bolt centered */
+.sidebar-collapsed .admin-quick-action::before {
+    content: "\f0e7";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #ffc45c;
+    font-size: 18px;
+}
+
+

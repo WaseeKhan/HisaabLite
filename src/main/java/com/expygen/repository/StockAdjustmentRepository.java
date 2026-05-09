@@ -6,11 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.expygen.entity.Shop;
 import com.expygen.entity.StockAdjustment;
+import com.expygen.entity.User;
+
+import jakarta.transaction.Transactional;
 
 public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment, Long> {
 
@@ -31,4 +35,9 @@ public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment
     Long sumNegativeAdjustedUnitsByShopAndDateBetween(@Param("shop") Shop shop,
                                                       @Param("startDate") LocalDate startDate,
                                                       @Param("endDate") LocalDate endDate);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE StockAdjustment a SET a.createdBy = :newUser WHERE a.createdBy = :oldUser")
+    int reassignCreatedBy(@Param("oldUser") User oldUser, @Param("newUser") User newUser);
 }

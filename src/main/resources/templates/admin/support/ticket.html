@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
+
+<head>
+    <title th:text="'Ticket #' + ${ticket.ticketNumber} + ' • Admin'">Support Ticket • Admin</title>
+
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-support-ticket.css}">
+    </th:block>
+</head>
+
+<body>
+<th:block th:fragment="content">
+
+<section class="ticket-page">
+
+    <div class="ticket-alert success" th:if="${success}">
+        <i class="fas fa-circle-check"></i>
+        <span th:text="${success}">Operation completed successfully.</span>
+    </div>
+
+    <div class="ticket-alert danger" th:if="${error}">
+        <i class="fas fa-circle-exclamation"></i>
+        <span th:text="${error}">Something went wrong.</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="ticket-hero">
+        <div>
+            <span class="hero-kicker">Support Command Center</span>
+            <h1>
+                <i class="fas fa-headset"></i>
+                <span th:text="${ticket.ticketNumber}">SUP-0001</span>
+            </h1>
+            <p th:text="${ticket.subject}">Payment Issue</p>
+        </div>
+
+        <div class="hero-actions">
+            <span class="ticket-status"
+                  th:classappend="' status-' + ${ticket.status.name()}"
+                  th:text="${ticket.status.displayName}">OPEN</span>
+
+            <span class="priority-chip"
+                  th:classappend="' priority-' + ${ticket.priority.name()}"
+                  th:text="${ticket.priority.displayName}">HIGH</span>
+
+            <a th:href="@{/admin/support}" class="ghost-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- COMMAND STRIP -->
+    <div class="ticket-strip">
+        <div class="strip-item">
+            <label>Customer</label>
+            <strong th:text="${ticket.user.name}">Owner Name</strong>
+            <span th:text="${ticket.user.username}">owner@email.com</span>
+        </div>
+
+        <div class="strip-item">
+            <label>Workspace</label>
+            <strong th:text="${ticket.shop.name}">Shop Name</strong>
+            <span th:text="${ticket.shop.planType} + ' plan'">PRO plan</span>
+        </div>
+
+        <div class="strip-item">
+            <label>Assignment</label>
+            <strong th:text="${ticket.assignedAdminUsername != null ? ticket.assignedAdminUsername : 'Not assigned'}">Not assigned</strong>
+            <span th:text="${ticket.dueAt != null ? 'Due ' + #temporals.format(ticket.dueAt, 'dd MMM yyyy hh:mm a') : 'No due date set'}">No due date set</span>
+        </div>
+
+        <div class="strip-item">
+            <label>Issue Flags</label>
+            <strong th:text="${ticket.rootCause != null ? ticket.rootCause.displayName : 'Unclassified'}">Billing</strong>
+            <span th:text="${ticket.relatedSubscriptionIssue or ticket.relatedWhatsappIssue ? (ticket.relatedSubscriptionIssue ? 'Subscription ' : '') + (ticket.relatedWhatsappIssue ? 'WhatsApp' : '') : 'No escalation markers'}">Subscription WhatsApp</span>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="ticket-kpi-grid">
+        <div class="ticket-kpi cyan">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Ticket Number</span>
+            <strong th:text="${ticket.ticketNumber}">SUP-0001</strong>
+            <small>Customer support case</small>
+        </div>
+
+        <div class="ticket-kpi amber">
+            <i class="fas fa-bolt"></i>
+            <span>Priority</span>
+            <strong th:text="${ticket.priority.displayName}">HIGH</strong>
+            <small>Response importance</small>
+        </div>
+
+        <div class="ticket-kpi blue">
+            <i class="fas fa-calendar-plus"></i>
+            <span>Created</span>
+            <strong th:text="${#temporals.format(ticket.createdAt, 'dd MMM')}">13 Mar</strong>
+            <small th:text="${#temporals.format(ticket.createdAt, 'hh:mm a')}">10:30 AM</small>
+        </div>
+
+        <div class="ticket-kpi green">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>Last Updated</span>
+            <strong th:text="${ticket.updatedAt != null ? #temporals.format(ticket.updatedAt, 'dd MMM') : '-'}">13 Mar</strong>
+            <small th:text="${ticket.updatedAt != null ? #temporals.format(ticket.updatedAt, 'hh:mm a') : 'No update'}">11:30 AM</small>
+        </div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="ticket-layout">
+
+        <!-- LEFT -->
+        <div class="ticket-main">
+
+            <!-- SHOP DETAILS -->
+            <div class="ticket-card">
+                <div class="card-head">
+                    <div>
+                        <span>Customer Context</span>
+                        <h3><i class="fas fa-store"></i> Shop Details</h3>
+                    </div>
+
+                    <a class="mini-link" th:href="@{/admin/shops/{id}(id=${ticket.shop.id})}">
+                        Open Shop <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Shop</label>
+                        <strong th:text="${ticket.shop.name}">Shop Name</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Owner</label>
+                        <strong th:text="${ticket.user.name}">Owner Name</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Email</label>
+                        <strong th:text="${ticket.user.username}">owner@email.com</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <label>Phone</label>
+                        <strong th:text="${ticket.user.phone}">9876543210</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORIGINAL MESSAGE -->
+            <div class="ticket-card">
+                <div class="card-head">
+                    <div>
+                        <span>Issue Intake</span>
+                        <h3><i class="fas fa-message"></i> Original Message</h3>
+                    </div>
+                </div>
+
+                <div class="message-box" th:text="${ticket.message}">
+                    I'm having trouble with payment...
+                </div>
+            </div>
+
+            <!-- CONVERSATION -->
+            <div class="ticket-card">
+                <div class="card-head">
+                    <div>
+                        <span>Conversation</span>
+                        <h3><i class="fas fa-comments"></i> Reply Timeline</h3>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(replies)}" class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <strong>No replies yet</strong>
+                    <span>Start the conversation by adding a support reply.</span>
+                </div>
+
+                <div class="reply-timeline" th:if="${!#lists.isEmpty(replies)}">
+                    <div th:each="reply : ${replies}"
+                         class="reply-item"
+                         th:classappend="${reply.adminReply} ? ' admin' : ' customer'">
+
+                        <div class="reply-dot">
+                            <i th:if="${reply.adminReply}" class="fas fa-headset"></i>
+                            <i th:unless="${reply.adminReply}" class="fas fa-user"></i>
+                        </div>
+
+                        <div class="reply-card">
+                            <div class="reply-head">
+                                <strong th:text="${reply.adminReply} ? 'Support Team' : ${reply.user.name}">Support Team</strong>
+                                <span th:text="${#temporals.format(reply.createdAt, 'dd MMM yyyy, hh:mm a')}">13 Mar 2026, 11:30</span>
+                            </div>
+
+                            <div class="reply-body" th:text="${reply.message}">
+                                Reply content...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADD REPLY -->
+            <div class="ticket-card reply-compose"
+                 th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}">
+
+                <div class="card-head">
+                    <div>
+                        <span>Respond</span>
+                        <h3><i class="fas fa-reply"></i> Add Reply</h3>
+                    </div>
+                </div>
+
+                <form th:action="@{/admin/support/ticket/{ticketNumber}/reply(ticketNumber=${ticket.ticketNumber})}"
+                      method="post"
+                      class="reply-form">
+
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <textarea name="message" placeholder="Type your reply to customer..." required></textarea>
+
+                    <button type="submit" class="action-btn blue">
+                        <i class="fas fa-paper-plane"></i> Send Reply
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${ticket.status.name() == 'RESOLVED'}" class="ticket-info resolved">
+                <i class="fas fa-check-circle"></i>
+                <span>This ticket has been resolved. No further replies can be added.</span>
+            </div>
+
+            <div th:if="${ticket.status.name() == 'CLOSED'}" class="ticket-info closed">
+                <i class="fas fa-lock"></i>
+                <span>This ticket has been closed.</span>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <aside class="ticket-side">
+
+            <!-- OPS FORM -->
+            <div class="side-card">
+                <div class="side-head">
+                    <h3><i class="fas fa-screwdriver-wrench"></i> Support Ops</h3>
+                </div>
+
+                <form class="ops-form"
+                      th:action="@{/admin/support/ticket/{ticketNumber}/ops(ticketNumber=${ticket.ticketNumber})}"
+                      method="post">
+
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <label>Root Cause</label>
+                    <select name="rootCause">
+                        <option value="">No root cause yet</option>
+                        <option th:each="cause : ${rootCauses}"
+                                th:value="${cause.name()}"
+                                th:text="${cause.displayName}"
+                                th:selected="${ticket.rootCause == cause}">
+                            Billing
+                        </option>
+                    </select>
+
+                    <label>Assigned Admin</label>
+                    <input type="text"
+                           name="assignedAdminUsername"
+                           placeholder="Assigned admin username"
+                           th:value="${ticket.assignedAdminUsername}">
+
+                    <label>Due At</label>
+                    <input type="datetime-local"
+                           name="dueAt"
+                           th:value="${ticket.dueAt != null ? #temporals.format(ticket.dueAt, 'yyyy-MM-dd''T''HH:mm') : ''}">
+
+                    <label>Internal Note</label>
+                    <textarea name="internalNote"
+                              placeholder="Internal note for support handoff, root cause, promised action..."
+                              th:text="${ticket.internalNote}"></textarea>
+
+                    <div class="flag-list">
+                        <label class="check-card">
+                            <input type="checkbox"
+                                   name="relatedSubscriptionIssue"
+                                   value="true"
+                                   th:checked="${ticket.relatedSubscriptionIssue}">
+                            <span></span>
+                            Subscription issue
+                        </label>
+
+                        <label class="check-card">
+                            <input type="checkbox"
+                                   name="relatedWhatsappIssue"
+                                   value="true"
+                                   th:checked="${ticket.relatedWhatsappIssue}">
+                            <span></span>
+                            WhatsApp issue
+                        </label>
+                    </div>
+
+                    <button type="submit" class="action-btn blue">
+                        <i class="fas fa-floppy-disk"></i> Save Ops
+                    </button>
+                </form>
+            </div>
+
+            <!-- HEALTH SNAPSHOT -->
+            <div class="side-card">
+                <div class="side-head">
+                    <h3><i class="fas fa-heart-pulse"></i> Health Snapshot</h3>
+                </div>
+
+                <div class="snapshot-list">
+                    <div>
+                        <label>Assigned To</label>
+                        <strong th:text="${ticket.assignedAdminUsername != null ? ticket.assignedAdminUsername : 'Not assigned'}">Not assigned</strong>
+                    </div>
+
+                    <div>
+                        <label>Due At</label>
+                        <strong th:text="${ticket.dueAt != null ? #temporals.format(ticket.dueAt, 'dd MMM yyyy, hh:mm a') : 'No due date'}">No due date</strong>
+                    </div>
+
+                    <div>
+                        <label>Root Cause</label>
+                        <strong th:text="${ticket.rootCause != null ? ticket.rootCause.displayName : 'Not tagged'}">Not tagged</strong>
+                    </div>
+
+                    <div>
+                        <label>Issue Markers</label>
+                        <strong th:text="${ticket.relatedSubscriptionIssue or ticket.relatedWhatsappIssue ? (ticket.relatedSubscriptionIssue ? 'Subscription ' : '') + (ticket.relatedWhatsappIssue ? 'WhatsApp' : '') : 'No special markers'}">
+                            No special markers
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATUS ACTIONS -->
+            <div class="side-card">
+                <div class="side-head">
+                    <h3><i class="fas fa-route"></i> Ticket Flow</h3>
+                </div>
+
+                <div class="status-actions">
+                    <form th:action="@{/admin/support/ticket/{ticketNumber}/assign(ticketNumber=${ticket.ticketNumber})}"
+                          method="post"
+                          th:if="${ticket.assignedAdminUsername == null}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <button type="submit" class="action-btn blue">
+                            <i class="fas fa-user-check"></i> Assign To Me
+                        </button>
+                    </form>
+
+                    <form th:action="@{/admin/support/ticket/{ticketNumber}/status(ticketNumber=${ticket.ticketNumber})}"
+                          method="post"
+                          th:if="${ticket.status.name() == 'OPEN'}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="status" value="IN_PROGRESS" />
+
+                        <button type="submit" class="action-btn amber">
+                            <i class="fas fa-play"></i> Start Progress
+                        </button>
+                    </form>
+
+                    <form th:action="@{/admin/support/ticket/{ticketNumber}/resolve(ticketNumber=${ticket.ticketNumber})}"
+                          method="post"
+                          th:if="${ticket.status.name() != 'RESOLVED' and ticket.status.name() != 'CLOSED'}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <button type="submit" class="action-btn green">
+                            <i class="fas fa-check"></i> Mark Resolved
+                        </button>
+                    </form>
+
+                    <form th:action="@{/admin/support/ticket/{ticketNumber}/close(ticketNumber=${ticket.ticketNumber})}"
+                          method="post"
+                          th:if="${ticket.status.name() != 'CLOSED'}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <button type="submit" class="action-btn ghost">
+                            <i class="fas fa-lock"></i> Close Ticket
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+
+</section>
+
+</th:block>
+</body>
+</html>

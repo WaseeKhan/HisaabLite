@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, pageCss, content)">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">Admin • Expygen</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/expygen-favicon.svg}">
+
+
+    <link rel="stylesheet" th:href="@{/admin/css/admin-base.css}">
+    <link rel="stylesheet" th:href="@{/admin/css/admin-sidebar.css}">
+    <link rel="stylesheet" th:href="@{/admin/css/admin-header.css}">
+    <link rel="stylesheet" th:href="@{/admin/css/admin-footer.css}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <th:block th:replace="${pageCss}"></th:block>
+</head>
+
+<body class="admin-cockpit">
+
+<div class="admin-shell">
+
+    <div th:replace="~{admin/layout/sidebar :: sidebar}"></div>
+
+    <div class="admin-main">
+
+        <div th:replace="~{admin/layout/header :: header}"></div>
+
+        <main class="admin-content">
+            <th:block th:replace="${content}"></th:block>
+        </main>
+
+        <div th:replace="~{admin/layout/footer :: footer}"></div>
+
+    </div>
+</div>
+
+<script th:src="@{/admin/js/admin-ui.js}"></script>
+</body>
+</html>

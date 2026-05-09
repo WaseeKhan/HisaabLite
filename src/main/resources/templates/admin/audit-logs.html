@@ -1,308 +1,398 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::title}, ~{::pageCss}, ~{::content})}">
 
 <head>
-    <title>Audit Logs • Expygen Admin</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" th:href="@{/css/main/fonts.css}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Command Center • Expygen Admin</title>
 
-    <!-- Fonts & Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <link rel="stylesheet" th:href="@{/css/core/tokens.css}">
-    <link rel="stylesheet" th:href="@{/css/core/themes.css}">
-    <link rel="stylesheet" th:href="@{/css/core/base.css}">
-    <link rel="stylesheet" th:href="@{/css/core/utilities.css}">
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}">
-    <link rel="stylesheet" th:href="@{/css/components/badges.css}">
-    <link rel="stylesheet" th:href="@{/css/components/cards.css}">
-    <link rel="stylesheet" th:href="@{/css/components/forms.css}">
-    <link rel="stylesheet" th:href="@{/css/components/tables.css}">
-    <link rel="stylesheet" th:href="@{/css/components/page-header.css}">
-    <link rel="stylesheet" th:href="@{/css/components/stat-cards.css}">
-    <link rel="stylesheet" th:href="@{/css/layouts/admin-shell.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/sidebar.css}">
-    <link rel="stylesheet" th:href="@{/css/admin/legacy-pages.css}">
-    <link rel="stylesheet" th:href="@{/css/pages/admin-phase-a-bridge.css}">
-
+    <th:block th:fragment="pageCss">
+        <link rel="stylesheet" th:href="@{/admin/css/admin-audit-logs.css}">
+    </th:block>
 </head>
 
-<body class="theme-admin density-admin admin-shell">
-    <div th:replace="~{admin/fragments/sidebar :: sidebar('audit')}" ></div>
+<body>
+<th:block th:fragment="content">
 
-    <div class="admin-main main admin-shell-main">
-        <!-- Header -->
-        <div class="admin-header">
-            <h1>
-                <i class="fas fa-clipboard-list"></i>
-                Audit Logs
-            </h1>
-            <div class="admin-user">
-                <span class="role-badge">ADMIN</span>
+<section class="audit-page">
+
+    <div th:if="${error}" class="audit-alert">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span th:text="${error}">Error loading audit logs</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="audit-hero">
+        <div>
+            <span class="audit-eyebrow">Security Intelligence</span>
+            <h1><i class="fas fa-clipboard-list"></i> Audit Command Center</h1>
+            <p>Track admin activity, user actions, shop changes, failed operations and security events from one cockpit.</p>
+        </div>
+
+        <div class="audit-hero-right">
+            <span class="live-chip"><i class="fas fa-circle"></i> Live Monitor</span>
+            <span class="admin-chip">
+                <i class="fas fa-user-shield"></i>
                 <span th:text="${#authentication.name}">admin@expygen.com</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="audit-kpi-grid">
+        <div class="audit-kpi purple">
+            <i class="fas fa-history"></i>
+            <span>Total Events</span>
+            <strong th:text="${totalAuditLogs}">0</strong>
+            <small>All audit records</small>
+        </div>
+
+        <div class="audit-kpi green">
+            <i class="fas fa-check-circle"></i>
+            <span>Successful</span>
+            <strong th:text="${successAuditLogs}">0</strong>
+            <small>Completed actions</small>
+        </div>
+
+        <div class="audit-kpi red">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Failed</span>
+            <strong th:text="${failedAuditLogs}">0</strong>
+            <small>Needs review</small>
+        </div>
+
+        <div class="audit-kpi blue">
+            <i class="fas fa-calendar-day"></i>
+            <span>Last 24h</span>
+            <strong th:text="${recentAuditLogs}">0</strong>
+            <small>Recent activity</small>
+        </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="audit-analytics-grid">
+
+        <div class="audit-panel audit-panel-wide">
+            <div class="audit-panel-head">
+                <div>
+                    <span>Activity Flow</span>
+                    <h3>Current Audit Flow</h3>
+                </div>
+                <small>Real event counts</small>
+            </div>
+
+            <div class="audit-flow-grid">
+                <div class="flow-stat">
+                    <span>Total Stream</span>
+                    <strong th:text="${totalAuditLogs}">0</strong>
+                    <small>All retained events</small>
+                </div>
+                <div class="flow-stat">
+                    <span>Last 24 Hours</span>
+                    <strong th:text="${recentAuditLogs}">0</strong>
+                    <small>Recent operator activity</small>
+                </div>
+                <div class="flow-stat">
+                    <span>Successful</span>
+                    <strong th:text="${successAuditLogs}">0</strong>
+                    <small>Completed without failure</small>
+                </div>
+                <div class="flow-stat danger">
+                    <span>Failed</span>
+                    <strong th:text="${failedAuditLogs}">0</strong>
+                    <small th:text="${#numbers.formatDecimal(auditFailureRate, 1, 'COMMA', 1, 'POINT') + '% failure rate'}">0.0% failure rate</small>
+                </div>
+            </div>
+
+            <div class="audit-legend">
+                <span><i class="dot cyan"></i> Real volume</span>
+                <span><i class="dot green"></i> Real success</span>
+                <span><i class="dot red"></i> Real failure</span>
             </div>
         </div>
 
-        <!-- Error Message -->
-        <div th:if="${error}" class="alert alert-error" th:text="${error}">Error loading audit logs</div>
-
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon-wrapper"><i class="fas fa-history"></i></div>
-                <div class="stat-content">
-                    <div class="stat-title">Total Events</div>
-                    <div class="stat-value" th:text="${totalAuditLogs}">0</div>
-                    <div class="stat-label">All audit records</div>
+        <div class="audit-panel">
+            <div class="audit-panel-head">
+                <div>
+                    <span>Risk Snapshot</span>
+                    <h3>Security Pressure</h3>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon-wrapper"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-content">
-                    <div class="stat-title">Successful</div>
-                    <div class="stat-value" th:text="${successAuditLogs}">0</div>
-                    <div class="stat-label">Completed actions</div>
+            <div class="risk-snapshot">
+                <div class="risk-row">
+                    <span>Failure Rate</span>
+                    <strong th:text="${#numbers.formatDecimal(auditFailureRate, 1, 'COMMA', 1, 'POINT') + '%'}">0.0%</strong>
                 </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon-wrapper"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="stat-content">
-                    <div class="stat-title">Failed</div>
-                    <div class="stat-value" th:text="${failedAuditLogs}">0</div>
-                    <div class="stat-label">Failed actions</div>
+                <div class="risk-row">
+                    <span>Active Shops</span>
+                    <strong th:text="${activeAuditShopCount}">0</strong>
                 </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon-wrapper"><i class="fas fa-calendar-day"></i></div>
-                <div class="stat-content">
-                    <div class="stat-title">Last 24h</div>
-                    <div class="stat-value" th:text="${recentAuditLogs}">0</div>
-                    <div class="stat-label">Recent activity</div>
+                <div class="risk-row">
+                    <span>Active Users</span>
+                    <strong th:text="${activeAuditUserCount}">0</strong>
+                </div>
+                <div class="risk-row">
+                    <span>Top Action Volume</span>
+                    <strong th:text="${maxActionCount}">0</strong>
                 </div>
             </div>
         </div>
 
-        <!-- Filter Bar -->
-        <div class="action-bar">
-            <form method="get" th:action="@{/admin/audit}" class="filter-group">
-                <input type="text" name="username" placeholder="Search by username..." 
-                       class="filter-input" th:value="${username}" style="min-width: 180px;">
-                <select name="shopName" class="filter-input">
+        <div class="audit-panel">
+            <div class="audit-panel-head">
+                <div>
+                    <span>Action Mix</span>
+                    <h3>Frequent Actions</h3>
+                </div>
+            </div>
+
+            <div class="action-mix">
+                <div th:each="action : ${actionSummary}" class="mix-row">
+                    <label th:text="${action[0]}">USER_APPROVED</label>
+                    <div><span th:style="'width:' + (${maxActionCount > 0 ? (action[1] * 100 / maxActionCount) : 0}) + '%'"></span></div>
+                    <b th:text="${action[1]}">0</b>
+                </div>
+
+                <div th:if="${#lists.isEmpty(actionSummary)}" class="audit-empty-mini">
+                    No action data
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FILTER -->
+    <div class="audit-filter-panel">
+        <form method="get" th:action="@{/admin/audit}" class="audit-filter-form">
+            <div class="filter-field search">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Search by username..." th:value="${username}">
+            </div>
+
+            <div class="filter-field">
+                <label>Shop</label>
+                <select name="shopName">
                     <option value="">All Shops</option>
-                    <option th:each="shop : ${availableShops}" 
-                            th:value="${shop}" 
+                    <option th:each="shop : ${availableShops}"
+                            th:value="${shop}"
                             th:text="${shop}"
                             th:selected="${shop == shopName}"></option>
                 </select>
-                <select name="action" class="filter-input">
+            </div>
+
+            <div class="filter-field">
+                <label>Action</label>
+                <select name="action">
                     <option value="">All Actions</option>
-                    <option th:each="action : ${availableActions}" 
-                            th:value="${action}" 
+                    <option th:each="action : ${availableActions}"
+                            th:value="${action}"
                             th:text="${action}"
                             th:selected="${action == selectedAction}"></option>
                 </select>
-                <select name="status" class="filter-input">
+            </div>
+
+            <div class="filter-field">
+                <label>Status</label>
+                <select name="status">
                     <option value="">All Status</option>
                     <option value="SUCCESS" th:selected="${selectedStatus == 'SUCCESS'}">Success</option>
                     <option value="FAILED" th:selected="${selectedStatus == 'FAILED'}">Failed</option>
                 </select>
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-search"></i> Filter
-                </button>
-                <a th:href="@{/admin/audit}" class="btn-secondary">
-                    <i class="fas fa-undo"></i> Reset
-                </a>
-            </form>
-        </div>
-
-        <!-- Content Layout -->
-        <div class="content-layout">
-            <!-- Table Section -->
-            <div class="table-section">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>User</th>
-                                <th>Shop</th>
-                                <th>Action</th>
-                                <th>Status</th>
-                                <th>Entity</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="log : ${auditLogs.content}" th:if="${not #lists.isEmpty(auditLogs.content)}">
-                                <td>
-                                    <span th:text="${#temporals.format(log.timestamp, 'dd MMM yyyy')}">01 Apr 2026</span>
-                                    <div class="meta-text" th:text="${#temporals.format(log.timestamp, 'hh:mm a')}">02:30 PM</div>
-                                </td>
-                                <td>
-                                    <span th:text="${log.username}">john@example.com</span>
-                                    <div class="meta-text" th:text="${log.userRole}">OWNER</div>
-                                </td>
-                                <td>
-                                    <span th:text="${log.shopName != null ? log.shopName : 'System'}">Shop Name</span>
-                                    <div class="meta-text" th:if="${log.shopId}" th:text="'ID: ' + ${log.shopId}"></div>
-                                </td>
-                                <td>
-                                    <span class="badge badge-info" th:text="${log.action}">USER_APPROVED</span>
-                                </td>
-                                <td>
-                                    <span th:class="${log.status == 'SUCCESS'} ? 'status-badge status-success' : 'status-badge status-failed'"
-                                          th:text="${log.status != null ? log.status : 'SUCCESS'}">SUCCESS</span>
-                                </td>
-                                <td>
-                                    <span th:text="${log.entityType != null ? log.entityType : '-'}">User</span>
-                                    <div class="meta-text" th:if="${log.entityId}" th:text="'ID: ' + ${log.entityId}"></div>
-                                </td>
-                                <td>
-                                    <div class="details-text" th:text="${log.details != null ? log.details : '-'}">Action details</div>
-                                    <div class="details-text" th:if="${log.oldValue != null}" th:text="'Old: ' + ${log.oldValue}"></div>
-                                    <div class="details-text" th:if="${log.newValue != null}" th:text="'New: ' + ${log.newValue}"></div>
-                                    <div class="meta-text" th:if="${log.ipAddress}" th:text="'IP: ' + ${log.ipAddress}"></div>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(auditLogs.content)}">
-                                <td colspan="7" class="empty-state">
-                                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
-                                    No audit logs found
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="pagination" th:if="${auditLogs.totalPages > 0}">
-                    <div class="pagination-info">
-                        Showing <span th:text="${auditLogs.number * auditLogs.size + 1}">1</span>
-                        to <span th:text="${auditLogs.number * auditLogs.size + auditLogs.size <= auditLogs.totalElements ? 
-                            auditLogs.number * auditLogs.size + auditLogs.size : auditLogs.totalElements}">20</span>
-                        of <span th:text="${auditLogs.totalElements}">0</span> logs
-                    </div>
-                    <div class="pagination-controls">
-                        <!-- First Page -->
-                        <a th:if="${auditLogs.number > 0}" 
-                           th:href="@{/admin/audit(page=0,size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
-                            <i class="fas fa-angle-double-left"></i>
-                        </a>
-                        <span th:unless="${auditLogs.number > 0}" class="disabled">
-                            <i class="fas fa-angle-double-left"></i>
-                        </span>
-
-                        <!-- Previous Page -->
-                        <a th:if="${auditLogs.number > 0}" 
-                           th:href="@{/admin/audit(page=${auditLogs.number - 1},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                        <span th:unless="${auditLogs.number > 0}" class="disabled">
-                            <i class="fas fa-angle-left"></i>
-                        </span>
-
-                        <!-- Page Numbers -->
-                        <th:block th:each="pageNum : ${#numbers.sequence(0, auditLogs.totalPages - 1)}">
-                            <a th:if="${pageNum >= auditLogs.number - 2 and pageNum <= auditLogs.number + 2}"
-                               th:href="@{/admin/audit(page=${pageNum},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}"
-                               th:text="${pageNum + 1}"
-                               th:classappend="${pageNum == auditLogs.number} ? 'active' : ''"></a>
-                            <span th:if="${pageNum == auditLogs.number + 3 and pageNum < auditLogs.totalPages - 1}" class="disabled">...</span>
-                        </th:block>
-
-                        <!-- Next Page -->
-                        <a th:if="${auditLogs.number < auditLogs.totalPages - 1}" 
-                           th:href="@{/admin/audit(page=${auditLogs.number + 1},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
-                            <i class="fas fa-angle-right"></i>
-                        </a>
-                        <span th:unless="${auditLogs.number < auditLogs.totalPages - 1}" class="disabled">
-                            <i class="fas fa-angle-right"></i>
-                        </span>
-
-                        <!-- Last Page -->
-                        <a th:if="${auditLogs.number < auditLogs.totalPages - 1}" 
-                           th:href="@{/admin/audit(page=${auditLogs.totalPages - 1},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
-                            <i class="fas fa-angle-double-right"></i>
-                        </a>
-                        <span th:unless="${auditLogs.number < auditLogs.totalPages - 1}" class="disabled">
-                            <i class="fas fa-angle-double-right"></i>
-                        </span>
-                    </div>
-                </div>
             </div>
 
-            <!-- Right Panel - Analytics -->
-            <div class="right-panel">
-                <div class="panel-title">
-                    <i class="fas fa-chart-bar"></i>
-                    Activity Insights
-                </div>
+            <button type="submit" class="audit-btn-primary">
+                <i class="fas fa-search"></i> Filter
+            </button>
 
-                <!-- Shop Activity -->
-                <div class="summary-item">
-                    <div class="summary-label">Top Shops by Activity</div>
-                    <div th:if="${#lists.isEmpty(shopActivitySummary)}" class="empty-state" style="padding: 20px;">
-                        No data available
-                    </div>
-                    <div th:each="shop : ${shopActivitySummary}" style="margin-top: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 11px; font-weight: 500;" th:text="${shop[0]}">Shop Name</span>
-                            <span class="badge badge-info" th:text="${shop[1]}">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Top Actions -->
-                <div class="summary-item">
-                    <div class="summary-label">Most Frequent Actions</div>
-                    <div th:if="${#lists.isEmpty(actionSummary)}" class="empty-state" style="padding: 20px;">
-                        No data available
-                    </div>
-                    <div class="action-list">
-                        <div th:each="action : ${actionSummary}" class="action-item">
-                            <span class="action-name" th:text="${action[0]}">USER_APPROVED</span>
-                            <span class="action-count" th:text="${action[1]}">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Top Users -->
-                <div class="summary-item">
-                    <div class="summary-label">Most Active Users</div>
-                    <div th:if="${#lists.isEmpty(userActivitySummary)}" class="empty-state" style="padding: 20px;">
-                        No data available
-                    </div>
-                    <div th:each="user : ${userActivitySummary}" class="user-item">
-                        <div class="user-email" th:text="${user[0]}">user@example.com</div>
-                        <div class="user-count" th:text="${user[1]} + ' actions'">0 actions</div>
-                        <div class="user-last" th:if="${user[2]}" th:text="'Last: ' + ${#temporals.format(user[2], 'dd MMM, hh:mm a')}"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-left">
-                <i class="fas fa-store"></i>
-                <span>© 2026 Expygen</span>
-                <span>·</span>
-                <span>v2.0.0</span>
-                <span>·</span>
-                <span>Made with <span class="heart">❤️</span> in India</span>
-            </div>
-            <div class="footer-right">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Support</a>
-                <span class="version"><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> Live</span>
-            </div>
-        </div>
+            <a th:href="@{/admin/audit}" class="audit-btn-ghost">
+                <i class="fas fa-undo"></i> Reset
+            </a>
+        </form>
     </div>
-</body>
 
+    <!-- MAIN CONTENT -->
+    <div class="audit-content-grid">
+
+        <!-- TABLE -->
+        <div class="audit-table-panel">
+            <div class="audit-table-head">
+                <div>
+                    <h3><i class="fas fa-database"></i> Audit Event Stream</h3>
+                    <p>Detailed event trail across users, shops, entities and admin operations.</p>
+                </div>
+                <span class="table-count" th:text="${auditLogs.totalElements} + ' logs'">0 logs</span>
+            </div>
+
+            <div class="audit-table-wrap">
+                <table class="audit-table">
+                    <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Shop</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                        <th>Entity</th>
+                        <th>Details</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="log : ${auditLogs.content}" th:if="${not #lists.isEmpty(auditLogs.content)}">
+                        <td>
+    <div class="audit-time">
+        <strong th:text="${#temporals.format(log.timestamp, 'dd MMM yyyy')}">29 Apr 2026</strong>
+        <span th:text="${#temporals.format(log.timestamp, 'hh:mm a')}">12:27 AM</span>
+    </div>
+</td>
+
+                        <td>
+                            <strong th:text="${log.username}">john@example.com</strong>
+                            <span th:text="${log.userRole}">OWNER</span>
+                        </td>
+
+                       <td>
+    <div class="audit-shop">
+        <strong th:text="${log.shopName != null ? log.shopName : 'System'}">Apollo Pharmacy</strong>
+        <span th:if="${log.shopId}" th:text="'ID: ' + ${log.shopId}">ID: 12</span>
+    </div>
+</td>
+
+                        <td>
+                            <span class="audit-action-badge" th:text="${log.action}">USER_APPROVED</span>
+                        </td>
+
+                        <td>
+                            <span th:class="${log.status == 'SUCCESS'} ? 'audit-status success' : 'audit-status failed'"
+                                  th:text="${log.status != null ? log.status : 'SUCCESS'}">SUCCESS</span>
+                        </td>
+
+                        <td>
+                            <strong th:text="${log.entityType != null ? log.entityType : '-'}">User</strong>
+                            <span th:if="${log.entityId}" th:text="'ID: ' + ${log.entityId}">ID: 10</span>
+                        </td>
+
+                        <td>
+                            <div class="audit-details" th:text="${log.details != null ? log.details : '-'}">Action details</div>
+                            <div class="audit-details muted" th:if="${log.oldValue != null}" th:text="'Old: ' + ${log.oldValue}"></div>
+                            <div class="audit-details muted" th:if="${log.newValue != null}" th:text="'New: ' + ${log.newValue}"></div>
+                            <div class="audit-ip" th:if="${log.ipAddress}" th:text="'IP: ' + ${log.ipAddress}"></div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(auditLogs.content)}">
+                        <td colspan="7">
+                            <div class="audit-empty">
+                                <i class="fas fa-inbox"></i>
+                                <strong>No audit logs found</strong>
+                                <span>Try changing filters or reset the search.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="audit-pagination" th:if="${auditLogs.totalPages > 0}">
+                <div class="pagination-info">
+                    Showing
+                    <span th:text="${auditLogs.number * auditLogs.size + 1}">1</span>
+                    to
+                    <span th:text="${auditLogs.number * auditLogs.size + auditLogs.size <= auditLogs.totalElements ? auditLogs.number * auditLogs.size + auditLogs.size : auditLogs.totalElements}">20</span>
+                    of
+                    <span th:text="${auditLogs.totalElements}">0</span>
+                    logs
+                </div>
+
+                <div class="pagination-controls">
+                    <a th:if="${auditLogs.number > 0}"
+                       th:href="@{/admin/audit(page=0,size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <span th:unless="${auditLogs.number > 0}" class="disabled">
+                        <i class="fas fa-angle-double-left"></i>
+                    </span>
+
+                    <a th:if="${auditLogs.number > 0}"
+                       th:href="@{/admin/audit(page=${auditLogs.number - 1},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    <span th:unless="${auditLogs.number > 0}" class="disabled">
+                        <i class="fas fa-angle-left"></i>
+                    </span>
+
+                    <th:block th:each="pageNum : ${#numbers.sequence(0, auditLogs.totalPages - 1)}">
+                        <a th:if="${pageNum >= auditLogs.number - 2 and pageNum <= auditLogs.number + 2}"
+                           th:href="@{/admin/audit(page=${pageNum},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}"
+                           th:text="${pageNum + 1}"
+                           th:classappend="${pageNum == auditLogs.number} ? ' active' : ''">1</a>
+                    </th:block>
+
+                    <a th:if="${auditLogs.number < auditLogs.totalPages - 1}"
+                       th:href="@{/admin/audit(page=${auditLogs.number + 1},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <span th:unless="${auditLogs.number < auditLogs.totalPages - 1}" class="disabled">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+
+                    <a th:if="${auditLogs.number < auditLogs.totalPages - 1}"
+                       th:href="@{/admin/audit(page=${auditLogs.totalPages - 1},size=${auditLogs.size},username=${username},shopName=${shopName},action=${selectedAction},status=${selectedStatus})}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                    <span th:unless="${auditLogs.number < auditLogs.totalPages - 1}" class="disabled">
+                        <i class="fas fa-angle-double-right"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <aside class="audit-side-panel">
+            <div class="side-panel-head">
+                <h3><i class="fas fa-chart-bar"></i> Activity Insights</h3>
+            </div>
+
+            <div class="side-section">
+                <h4>Top Shops by Activity</h4>
+
+                <div th:if="${#lists.isEmpty(shopActivitySummary)}" class="audit-empty-mini">No data available</div>
+
+                <div th:each="shop : ${shopActivitySummary}" class="side-row">
+                    <span th:text="${shop[0]}">Shop Name</span>
+                    <b th:text="${shop[1]}">0</b>
+                </div>
+            </div>
+
+            <div class="side-section">
+                <h4>Most Frequent Actions</h4>
+
+                <div th:if="${#lists.isEmpty(actionSummary)}" class="audit-empty-mini">No data available</div>
+
+                <div th:each="action : ${actionSummary}" class="side-row action">
+                    <span th:text="${action[0]}">USER_APPROVED</span>
+                    <b th:text="${action[1]}">0</b>
+                </div>
+            </div>
+
+            <div class="side-section">
+                <h4>Most Active Users</h4>
+
+                <div th:if="${#lists.isEmpty(userActivitySummary)}" class="audit-empty-mini">No data available</div>
+
+                <div th:each="user : ${userActivitySummary}" class="user-activity-card">
+                    <strong th:text="${user[0]}">user@example.com</strong>
+                    <span th:text="${user[1]} + ' actions'">0 actions</span>
+                    <small th:if="${user[2]}" th:text="'Last: ' + ${#temporals.format(user[2], 'dd MMM, hh:mm a')}"></small>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+</section>
+
+</th:block>
+</body>
 </html>

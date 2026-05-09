@@ -221,7 +221,7 @@ public class SupportController {
             supportService.closeTicket(ticket.getId(), user, isAdmin);
 
             redirectAttributes.addFlashAttribute("success", "Ticket closed successfully");
-            return "redirect:/admin/support/tickets";
+            return "redirect:/admin/support";
 
         } catch (RuntimeException e) {
             log.error("Failed to close ticket: {}", e.getMessage());

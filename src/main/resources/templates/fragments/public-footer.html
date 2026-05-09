@@ -7,11 +7,13 @@
         <div class="footer-brand-block">
 
             <a th:href="@{/}" class="footer-logo">
-                <img th:src="@{/images/expygen-logo-light.png}" th:alt="${@appConfig.appName}"
-                    class="footer-logo-image footer-logo-image-dark">
+                <span class="footer-logo-lockup-wrap">
+                    <img th:src="@{/images/branding/expygen-logo-light-bg.svg}" th:alt="${@appConfig.appName}"
+                         class="footer-logo-image footer-logo-image-dark">
 
-                <img th:src="@{/images/expygen-logo-dark.png}" th:alt="${@appConfig.appName}"
-                    class="footer-logo-image footer-logo-image-light">
+                    <img th:src="@{/images/branding/expygen-logo-dark-bg.svg}" th:alt="${@appConfig.appName}"
+                         class="footer-logo-image footer-logo-image-light">
+                </span>
             </a>
 
             <p class="footer-desc">
@@ -35,7 +37,7 @@
                 <a th:href="@{/features}">Features</a>
                 <a th:href="@{/workflow}">Workflow</a>
                 <a th:href="@{/pricing}">Pricing</a>
-                <a th:href="@{login}">Login</a>
+                <a th:href="@{/login}">Login</a>
                 <a th:href="@{/register}">Start Free</a>
             </div>
         </div>
@@ -45,7 +47,7 @@
             <div class="footer-links">
                 <a th:href="@{/about}">About</a>
                 <a th:href="@{/contact}">Contact</a>
-                <a th:href="@{/career}">Career</a>
+                <a th:href="@{/careers}">Careers</a>
                 <a th:href="@{/help}">Support</a>
                 <a th:href="@{/blog}">Blog</a>
             </div>

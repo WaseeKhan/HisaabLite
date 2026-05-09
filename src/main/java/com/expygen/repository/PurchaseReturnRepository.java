@@ -7,12 +7,16 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.expygen.entity.PurchaseReturn;
 import com.expygen.entity.Shop;
 import com.expygen.entity.Supplier;
+import com.expygen.entity.User;
+
+import jakarta.transaction.Transactional;
 
 public interface PurchaseReturnRepository extends JpaRepository<PurchaseReturn, Long> {
 
@@ -42,4 +46,9 @@ public interface PurchaseReturnRepository extends JpaRepository<PurchaseReturn, 
     Long sumReturnedUnitsByShopAndDateBetween(@Param("shop") Shop shop,
                                               @Param("startDate") LocalDate startDate,
                                               @Param("endDate") LocalDate endDate);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE PurchaseReturn r SET r.createdBy = :newUser WHERE r.createdBy = :oldUser")
+    int reassignCreatedBy(@Param("oldUser") User oldUser, @Param("newUser") User newUser);
 }
