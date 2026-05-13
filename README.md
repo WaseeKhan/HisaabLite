@@ -6,7 +6,7 @@ A lightweight, modern Point of Sale (POS) solution for small retail businesses. 
 
 ## 🚀 Live Demo
 
-🔗 [https://expygen.duckdns.org](https://expygen.duckdns.org)
+🔗 [https://expygen.com/](https://expygen.com/)
 
 *Hosted on a personal VM — may be temporarily unavailable if the server is stopped.*
 
